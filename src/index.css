@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import IBM Plex Sans Arabic font from Google Fonts - removed from here, added to index.html for better loading */
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -96,6 +98,29 @@
   body {
     @apply bg-background text-foreground;
     transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* Apply IBM Plex Sans Arabic font for Arabic language only */
+  /* When HTML has dir="rtl" or lang starts with "ar", apply Arabic font */
+  html[dir="rtl"],
+  html[lang^="ar"] {
+    font-family: 'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif !important;
+  }
+
+  /* Apply to all elements when Arabic is active */
+  html[dir="rtl"] *,
+  html[lang^="ar"] *,
+  [dir="rtl"] *,
+  [lang^="ar"] * {
+    font-family: 'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif !important;
+  }
+
+  /* Ensure body also uses the font when Arabic is active */
+  html[dir="rtl"] body,
+  html[lang^="ar"] body,
+  body[dir="rtl"],
+  body[lang^="ar"] {
+    font-family: 'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif !important;
   }
   
   /* Smooth transitions for theme switching */
@@ -1014,4 +1039,23 @@ body {
       max-width: 100vw;
     }
   }
+}
+
+/* IBM Plex Sans Arabic font for Arabic language - Applied outside @layer for higher priority */
+html[dir="rtl"],
+html[lang^="ar"],
+html[dir="rtl"] *,
+html[lang^="ar"] *,
+[dir="rtl"],
+[dir="rtl"] *,
+[lang^="ar"],
+[lang^="ar"] * {
+  font-family: 'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif !important;
+}
+
+html[dir="rtl"] body,
+html[lang^="ar"] body,
+body[dir="rtl"],
+body[lang^="ar"] {
+  font-family: 'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif !important;
 }

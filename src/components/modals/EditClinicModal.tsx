@@ -124,6 +124,7 @@ const currencies = [
   { value: "INR", label: "INR - Indian Rupee" },
   { value: "AED", label: "AED - UAE Dirham" },
   { value: "SAR", label: "SAR - Saudi Riyal" },
+  { value: "EGP", label: "EGP - Egyptian Pound" },
 ];
 
 const languages = [

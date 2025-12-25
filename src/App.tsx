@@ -179,24 +179,24 @@ const App = () => {
               />
 
               {/* AI Test Report Analysis - requires test_reports.view permission */}
-              {/* <Route
+              <Route
                 path="ai-test-analysis"
                 element={
                   <RequirePermission permissions="test_reports.view">
                     <AITestAnalysis />
                   </RequirePermission>
                 }
-              /> */}
+              />
 
               {/* AI Test Report Comparison - requires test_reports.view permission */}
-              {/* <Route
+              <Route
                 path="ai-test-comparison"
                 element={
                   <RequirePermission permissions="test_reports.view">
                     <AITestComparison />
                   </RequirePermission>
                 }
-              /> */}
+              />
 
               {/* Patients - requires patients.view permission */}
               <Route

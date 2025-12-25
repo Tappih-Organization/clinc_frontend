@@ -68,12 +68,21 @@ export const CurrencyProvider: React.FC<CurrencyProviderProps> = ({ children }) 
         setCurrentCurrency(userCurrency);
         setCurrencyInfo(currency);
       } else {
-        // Fallback to USD if user's currency is not available
-        const usdCurrency = availableCurrencies.find(c => c.code === 'USD');
-        if (usdCurrency) {
-          setCurrentCurrency('USD');
-          setCurrencyInfo(usdCurrency);
-        }
+        // If user's currency is not in available currencies, create a temporary CurrencyInfo
+        // This handles cases like EGP that might not be in the API response yet
+        const tempCurrencyInfo: CurrencyInfo = {
+          code: userCurrency,
+          name: userCurrency === 'EGP' ? 'Egyptian Pound' : 
+                userCurrency === 'SAR' ? 'Saudi Riyal' : 
+                userCurrency === 'USD' ? 'US Dollar' : userCurrency,
+          symbol: userCurrency === 'EGP' ? 'E£' : 
+                  userCurrency === 'SAR' ? 'ريال' : 
+                  userCurrency === 'USD' ? '$' : userCurrency,
+          position: 'before',
+          decimals: 2
+        };
+        setCurrentCurrency(userCurrency);
+        setCurrencyInfo(tempCurrencyInfo);
       }
     } else if (!isAuthenticated) {
       // Default to USD for non-authenticated users
@@ -102,24 +111,102 @@ export const CurrencyProvider: React.FC<CurrencyProviderProps> = ({ children }) 
       throw new Error('User must be authenticated to change currency');
     }
 
+    // Check if currency is available in the list
+    const isCurrencyAvailable = availableCurrencies.some(c => c.code === currencyCode);
+    
+    if (!isCurrencyAvailable) {
+      // Reload currencies first to check if it was added
+      try {
+        const currencies = await apiService.getCurrencies();
+        setAvailableCurrencies(currencies);
+        
+        const stillNotAvailable = !currencies.some(c => c.code === currencyCode);
+        if (stillNotAvailable) {
+          throw new Error(`Currency ${currencyCode} is not available. Please make sure it's added to the backend first.`);
+        }
+      } catch (error: any) {
+        throw new Error(`Currency ${currencyCode} is not available. ${error?.message || 'Please make sure it\'s added to the backend first.'}`);
+      }
+    }
+
     try {
       setLoading(true);
       
       // Update user profile with new currency
-      await apiService.updateProfile({
-        base_currency: currencyCode
-      });
+      try {
+        await apiService.updateProfile({
+          base_currency: currencyCode
+        });
+      } catch (error: any) {
+        // Extract detailed error message from response
+        let errorMessage = 'Failed to update currency. The currency may not be supported by the backend.';
+        
+        if (error?.response?.status === 500) {
+          errorMessage = 'Internal server error. Please check the backend logs or contact support. The currency may need to be added to the backend database first.';
+        } else if (error?.response?.status === 400) {
+          errorMessage = error?.response?.data?.message || 
+                        error?.response?.data?.error ||
+                        'Invalid currency code. Please make sure the currency is supported by the backend.';
+        } else if (error?.response?.data?.message) {
+          errorMessage = error.response.data.message;
+        } else if (error?.response?.data?.error) {
+          errorMessage = error.response.data.error;
+        } else if (error?.response?.data?.errors) {
+          if (Array.isArray(error.response.data.errors)) {
+            errorMessage = error.response.data.errors.join(', ');
+          } else if (typeof error.response.data.errors === 'object') {
+            const errorKeys = Object.keys(error.response.data.errors);
+            if (errorKeys.length > 0) {
+              errorMessage = error.response.data.errors[errorKeys[0]] || errorMessage;
+            }
+          }
+        } else if (error?.message) {
+          errorMessage = error.message;
+        }
+        
+        throw new Error(errorMessage);
+      }
 
       // Refresh user data in AuthContext to get the updated currency
       await refreshUser();
 
-      // Update local state
-      const newCurrency = availableCurrencies.find(c => c.code === currencyCode);
-      if (newCurrency) {
+      // Reload currencies from API to get the latest list (including EGP if it was just added)
+      try {
+        const currencies = await apiService.getCurrencies();
+        setAvailableCurrencies(currencies);
+        
+        // Find the currency in the updated list
+        const newCurrency = currencies.find(c => c.code === currencyCode);
+        if (newCurrency) {
+          setCurrentCurrency(currencyCode);
+          setCurrencyInfo(newCurrency);
+        } else {
+          // If currency not found in API response, create a temporary CurrencyInfo
+          // This handles cases where the backend hasn't returned the currency yet
+          const tempCurrencyInfo: CurrencyInfo = {
+            code: currencyCode,
+            name: currencyCode === 'EGP' ? 'Egyptian Pound' : currencyCode,
+            symbol: currencyCode === 'EGP' ? 'E£' : currencyCode,
+            position: 'before',
+            decimals: 2
+          };
+          setCurrentCurrency(currencyCode);
+          setCurrencyInfo(tempCurrencyInfo);
+        }
+      } catch (currencyError) {
+        console.error('Error reloading currencies:', currencyError);
+        // Fallback: update with temporary currency info
+        const tempCurrencyInfo: CurrencyInfo = {
+          code: currencyCode,
+          name: currencyCode === 'EGP' ? 'Egyptian Pound' : currencyCode,
+          symbol: currencyCode === 'EGP' ? 'E£' : currencyCode,
+          position: 'before',
+          decimals: 2
+        };
         setCurrentCurrency(currencyCode);
-        setCurrencyInfo(newCurrency);
+        setCurrencyInfo(tempCurrencyInfo);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating currency:', error);
       throw error;
     } finally {

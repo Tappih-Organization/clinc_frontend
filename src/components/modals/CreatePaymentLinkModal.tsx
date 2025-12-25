@@ -294,6 +294,8 @@ export const CreatePaymentLinkModal: React.FC<CreatePaymentLinkModalProps> = ({
                     <SelectItem value="CAD">CAD - Canadian Dollar</SelectItem>
                     <SelectItem value="AUD">AUD - Australian Dollar</SelectItem>
                     <SelectItem value="INR">INR - Indian Rupee</SelectItem>
+                    <SelectItem value="SAR">SAR - Saudi Riyal</SelectItem>
+                    <SelectItem value="EGP">EGP - Egyptian Pound</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
 
 interface CurrencySelectorProps {
   variant?: 'default' | 'compact';
@@ -21,6 +22,7 @@ export const CurrencySelector: React.FC<CurrencySelectorProps> = ({
 }) => {
   const { currentCurrency, currencyInfo, availableCurrencies, setCurrency, loading } = useCurrency();
   const [isChanging, setIsChanging] = useState(false);
+  const { toast } = useToast();
 
   const handleCurrencyChange = async (currencyCode: string) => {
     if (currencyCode === currentCurrency || isChanging) return;
@@ -28,9 +30,45 @@ export const CurrencySelector: React.FC<CurrencySelectorProps> = ({
     try {
       setIsChanging(true);
       await setCurrency(currencyCode);
-    } catch (error) {
+      
+      // Show success message
+      const selectedCurrency = availableCurrencies.find(c => c.code === currencyCode);
+      const currencyName = selectedCurrency?.name || currencyCode;
+      
+      toast({
+        title: 'Currency updated',
+        description: `Base currency changed to ${currencyName} (${currencyCode})`,
+      });
+    } catch (error: any) {
       console.error('Failed to change currency:', error);
-      // You might want to show a toast notification here
+      
+      // Extract detailed error message
+      let errorMessage = 'An error occurred while updating the currency. Please try again.';
+      
+      if (error?.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error?.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      } else if (error?.response?.data?.errors) {
+        if (Array.isArray(error.response.data.errors)) {
+          errorMessage = error.response.data.errors.join(', ');
+        } else if (typeof error.response.data.errors === 'object') {
+          // Handle validation errors object
+          const errorKeys = Object.keys(error.response.data.errors);
+          if (errorKeys.length > 0) {
+            errorMessage = error.response.data.errors[errorKeys[0]] || errorMessage;
+          }
+        }
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      
+      // Show error message
+      toast({
+        title: 'Failed to change currency',
+        description: errorMessage,
+        variant: 'destructive',
+      });
     } finally {
       setIsChanging(false);
     }

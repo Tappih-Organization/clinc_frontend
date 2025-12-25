@@ -112,20 +112,20 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           badge: "AI",
           permission: "xray_analysis.view",
         },
-        // {
-        //   name: t("AI Test Report Analysis"),
-        //   href: "/dashboard/ai-test-analysis",
-        //   icon: TestTube2,
-        //   badge: "AI",
-        //   permission: "test_reports.view",
-        // },
-        // {
-        //   name: t("Compare Test Reports using AI"),
-        //   href: "/dashboard/ai-test-comparison",
-        //   icon: BarChart3,
-        //   badge: "AI",
-        //   permission: "test_reports.view",
-        // },
+        {
+          name: t("AI Test Report Analysis"),
+          href: "/dashboard/ai-test-analysis",
+          icon: TestTube2,
+          badge: "AI",
+          permission: "test_reports.view",
+        },
+        {
+          name: t("Compare Test Reports using AI"),
+          href: "/dashboard/ai-test-comparison",
+          icon: BarChart3,
+          badge: "AI",
+          permission: "test_reports.view",
+        },
       ],
     },
     {
@@ -342,7 +342,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         )}>
           <Link to="/dashboard" className={cn(
             "flex items-center",
-            isRTL ? "space-x-reverse space-x-2" : "space-x-2"
+            isRTL ? "space-x-reverse space-x-2 ml-auto" : "space-x-2"
           )}>
             <Heart className="h-8 w-8 text-sidebar-primary" />
             <span className="text-xl font-bold text-sidebar-foreground">ClinicPro</span>
@@ -351,7 +351,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             variant="ghost"
             size="sm"
             onClick={onClose}
-            className="lg:hidden"
+            className={cn(
+              "lg:hidden",
+              isRTL ? "order-first" : ""
+            )}
           >
             <X className="h-4 w-4" />
           </Button>
@@ -406,7 +409,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             {sectionsToShow.map((section, sectionIndex) => (
               <div key={section.title}>
                 <div className="px-3 mb-2">
-                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  <h3 className={cn(
+                    "text-xs font-semibold text-muted-foreground uppercase tracking-wider",
+                    isRTL ? "text-right" : "text-left"
+                  )}>
                     {section.title}
                   </h3>
                 </div>
@@ -443,9 +449,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                               isRTL ? "text-right" : "text-left"
                             )}>{item.name}</span>
                             {isTestModulesOpen ? (
-                              <ChevronDown className="h-4 w-4" />
+                              <ChevronDown className={cn(
+                                "h-4 w-4",
+                                isRTL ? "mr-2" : "ml-2"
+                              )} />
                             ) : (
-                              <ChevronRight className="h-4 w-4" />
+                              <ChevronRight className={cn(
+                                "h-4 w-4",
+                                isRTL ? "mr-2" : "ml-2"
+                              )} />
                             )}
                           </button>
 
@@ -471,7 +483,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                                     "h-5 w-5 flex-shrink-0",
                                     isRTL ? "ml-3" : "mr-3"
                                   )} />
-                                  Tests
+                                  <span className={cn(
+                                    "flex-1",
+                                    isRTL ? "text-right" : "text-left"
+                                  )}>Tests</span>
                                 </Link>
                               )}
 
@@ -492,7 +507,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                                     "h-5 w-5 flex-shrink-0",
                                     isRTL ? "ml-3" : "mr-3"
                                   )} />
-                                  {t("Test Reports")}
+                                  <span className={cn(
+                                    "flex-1",
+                                    isRTL ? "text-right" : "text-left"
+                                  )}>{t("Test Reports")}</span>
                                 </Link>
                               )}
 
@@ -513,7 +531,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                                     "h-5 w-5 flex-shrink-0",
                                     isRTL ? "ml-3" : "mr-3"
                                   )} />
-                                  Methodology
+                                  <span className={cn(
+                                    "flex-1",
+                                    isRTL ? "text-right" : "text-left"
+                                  )}>Methodology</span>
                                 </Link>
                               )}
 
@@ -534,7 +555,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                                     "h-5 w-5 flex-shrink-0",
                                     isRTL ? "ml-3" : "mr-3"
                                   )} />
-                                  Turnaround Time
+                                  <span className={cn(
+                                    "flex-1",
+                                    isRTL ? "text-right" : "text-left"
+                                  )}>Turnaround Time</span>
                                 </Link>
                               )}
 
@@ -555,7 +579,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                                     "h-5 w-5 flex-shrink-0",
                                     isRTL ? "ml-3" : "mr-3"
                                   )} />
-                                  {t("Sample Type")}
+                                  <span className={cn(
+                                    "flex-1",
+                                    isRTL ? "text-right" : "text-left"
+                                  )}>{t("Sample Type")}</span>
                                 </Link>
                               )}
 
@@ -576,7 +603,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                                     "h-5 w-5 flex-shrink-0",
                                     isRTL ? "ml-3" : "mr-3"
                                   )} />
-                                  {t("Category")}
+                                  <span className={cn(
+                                    "flex-1",
+                                    isRTL ? "text-right" : "text-left"
+                                  )}>{t("Category")}</span>
                                 </Link>
                               )}
                             </div>
@@ -605,9 +635,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                           "h-5 w-5 flex-shrink-0",
                           isRTL ? "ml-3" : "mr-3"
                         )} />
-                        <span className="flex-1">{item.name}</span>
+                        <span className={cn(
+                          "flex-1",
+                          isRTL ? "text-right" : "text-left"
+                        )}>{item.name}</span>
                         {item.badge && (
-                          <Badge variant="secondary" className="text-xs">
+                          <Badge variant="secondary" className={cn(
+                            "text-xs",
+                            isRTL ? "mr-2" : "ml-2"
+                          )}>
                             {item.badge}
                           </Badge>
                         )}
