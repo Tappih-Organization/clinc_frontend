@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
+import { useIsRTL } from "@/hooks/useIsRTL";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -67,6 +68,7 @@ import { useClinic } from "@/contexts/ClinicContext";
 const Invoices = () => {
   const { t } = useTranslation();
   const { currentClinic } = useClinic();
+  const isRTL = useIsRTL();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [selectedDateRange, setSelectedDateRange] = useState("all");
@@ -653,7 +655,7 @@ const Invoices = () => {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center space-x-2">
+                          <div className={`flex items-center space-x-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                             {getStatusIcon(invoice.status)}
                             <Badge
                               variant="outline"
@@ -736,7 +738,7 @@ const Invoices = () => {
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      <div className={`flex items-center space-x-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                         {getStatusIcon(invoice.status)}
                         <Badge
                           variant="outline"

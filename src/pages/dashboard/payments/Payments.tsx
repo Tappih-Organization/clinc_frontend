@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
+import { useIsRTL } from "@/hooks/useIsRTL";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -73,6 +74,7 @@ import CreatePaymentLinkModal from "@/components/modals/CreatePaymentLinkModal";
 
 const Payments = () => {
   const { t } = useTranslation();
+  const isRTL = useIsRTL();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [selectedMethod, setSelectedMethod] = useState("all");
@@ -1070,7 +1072,7 @@ const Payments = () => {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center space-x-2">
+                        <div className={`flex items-center space-x-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                           {getStatusIcon(payment.status || 'unknown')}
                           <div>
                             <Badge
@@ -1178,7 +1180,7 @@ const Payments = () => {
                               {payment.payment_date ? formatDateTime(payment.payment_date) : 'N/A'}
                             </div>
                           </div>
-                          <div className="flex items-center space-x-2">
+                          <div className={`flex items-center space-x-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                             {getStatusIcon(payment.status || 'unknown')}
                             <Badge className={`text-xs ${getStatusColor(payment.status || 'unknown')}`}>
                               {payment.status || 'Unknown'}
@@ -1782,7 +1784,7 @@ const Payments = () => {
                   </div>
                   <div className="space-y-1">
                     <Label className="text-sm text-gray-600">{t('Status')}</Label>
-                    <div className="flex items-center space-x-2">
+                    <div className={`flex items-center space-x-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                       {getStatusIcon(viewingPayment.status)}
                       <Badge className={`${getStatusColor(viewingPayment.status)}`}>
                         {viewingPayment.status}

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useIsRTL } from "@/hooks/useIsRTL";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
@@ -72,6 +73,7 @@ interface ApiResponse {
 const PublicAppointments: React.FC = () => {
   const { patientId } = useParams<{ patientId: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
+  const isRTL = useIsRTL();
   
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [patient, setPatient] = useState<Patient | null>(null);
@@ -417,10 +419,19 @@ const PublicAppointments: React.FC = () => {
                         <div className="flex items-center space-x-3">
                           <Badge
                             variant="outline"
-                            className={`${getStatusColor(appointment.status)} border`}
+                            className={`${getStatusColor(appointment.status)} border inline-flex items-center gap-1.5`}
                           >
-                            {getStatusIcon(appointment.status)}
-                            <span className="ml-1 capitalize">{appointment.status}</span>
+                            {isRTL ? (
+                              <>
+                                <span className="capitalize">{appointment.status}</span>
+                                {getStatusIcon(appointment.status)}
+                              </>
+                            ) : (
+                              <>
+                                {getStatusIcon(appointment.status)}
+                                <span className="capitalize">{appointment.status}</span>
+                              </>
+                            )}
                           </Badge>
                           <Badge variant="secondary" className="capitalize">
                             {appointment.type}

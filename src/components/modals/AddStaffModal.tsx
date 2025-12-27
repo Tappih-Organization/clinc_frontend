@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -48,6 +49,7 @@ interface AddStaffModalProps {
 }
 
 const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) => {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { currentClinic } = useClinic();
@@ -361,7 +363,7 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
         {trigger || (
           <Button>
             <Plus className="h-4 w-4 mr-2" />
-            Add Staff Member
+            {t("Add Staff Member")}
           </Button>
         )}
       </DialogTrigger>
@@ -798,12 +800,12 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
               {isLoading ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                  Adding Staff...
+                  {t("Adding Staff...")}
                 </>
               ) : (
                 <>
                   <Plus className="h-4 w-4 mr-2" />
-                  Add Staff Member
+                  {t("Add Staff Member")}
                 </>
               )}
             </Button>

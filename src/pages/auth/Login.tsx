@@ -85,7 +85,7 @@ const MainLogin = () => {
       if (success) {
         toast({
           title: t("Login successful"),
-          description: t("Welcome back to ClinicPro!"),
+          description: t("Welcome back to Tappih!"),
         });
         navigate("/dashboard");
       } else {
@@ -121,7 +121,7 @@ const MainLogin = () => {
       if (success) {
         toast({
           title: t("Demo login successful"),
-          description: t("Welcome to ClinicPro demo!"),
+          description: t("Welcome to Tappih demo!"),
         });
         navigate("/dashboard");
       } else {
@@ -202,7 +202,7 @@ const MainLogin = () => {
               <CardHeader className="space-y-1 text-center">
                 <CardTitle className="text-xl lg:text-2xl font-bold">{t("Welcome back")}</CardTitle>
                 <CardDescription>
-                  {t("Sign in to your ClinicPro account to continue")}
+                  {t("Sign in to your Tappih account to continue")}
                 </CardDescription>
               </CardHeader>
               <CardContent>

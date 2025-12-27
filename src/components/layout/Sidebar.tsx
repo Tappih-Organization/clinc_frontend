@@ -7,6 +7,8 @@ import { useClinic } from "@/contexts/ClinicContext";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import Logo from "@/assets/logomini.svg";
+import Logoar from "@/assets/logoar.svg";
 import { Badge } from "@/components/ui/badge";
 import {
   Heart,
@@ -340,13 +342,24 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           "flex items-center justify-between h-16 px-6 border-b border-sidebar-border",
           isRTL ? "flex-row-reverse" : ""
         )}>
-          <Link to="/dashboard" className={cn(
+         <Link to="/" className={cn(
+           "flex items-center",
+           isRTL ? "ml-auto" : ""
+         )}>
+  <img
+    src= {isRTL ? Logoar : Logo}
+    alt="tappih Logo"
+    className="h-10 w-auto"
+  />
+</Link>
+
+          {/* <Link to="/dashboard" className={cn(
             "flex items-center",
             isRTL ? "space-x-reverse space-x-2 ml-auto" : "space-x-2"
           )}>
             <Heart className="h-8 w-8 text-sidebar-primary" />
             <span className="text-xl font-bold text-sidebar-foreground">ClinicPro</span>
-          </Link>
+          </Link> */}
           <Button
             variant="ghost"
             size="sm"

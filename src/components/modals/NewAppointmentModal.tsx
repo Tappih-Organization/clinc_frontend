@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -41,6 +42,7 @@ const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
   open: externalOpen,
   onOpenChange: externalOnOpenChange,
 }) => {
+  const { t } = useTranslation();
   const [internalOpen, setInternalOpen] = useState(false);
   
   // Use external open state if provided, otherwise use internal state
@@ -295,7 +297,7 @@ const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
         {trigger || (
           <Button>
             <Plus className="h-4 w-4 mr-2" />
-            New Appointment
+            {t("New Appointment")}
           </Button>
         )}
       </DialogTrigger>
@@ -304,7 +306,7 @@ const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
           <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-4 border-b flex-shrink-0">
             <DialogTitle className="flex items-center text-lg sm:text-xl">
               <Calendar className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-blue-600" />
-              Schedule New Appointment
+              {t("Schedule New Appointment")}
             </DialogTitle>
             <DialogDescription className="text-sm text-muted-foreground">
               Create a new appointment for a patient with a doctor.

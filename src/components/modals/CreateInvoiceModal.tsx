@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -50,6 +51,7 @@ interface InvoiceItem {
 }
 
 const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({ trigger, onSuccess }) => {
+  const { t } = useTranslation();
   const { formatCurrency } = useCurrencyFormat();
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -263,7 +265,7 @@ const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({ trigger, onSucc
         {trigger || (
           <Button>
             <Plus className="h-4 w-4 mr-2" />
-            Create Invoice
+            {t("Create Invoice")}
           </Button>
         )}
       </DialogTrigger>
@@ -271,7 +273,7 @@ const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({ trigger, onSucc
         <DialogHeader>
           <DialogTitle className="flex items-center text-xl">
             <Receipt className="h-5 w-5 mr-2 text-green-600" />
-            Create New Invoice
+            {t("Create New Invoice")}
           </DialogTitle>
           <DialogDescription>
             Generate an invoice for services, medicines, or tests provided to a
@@ -609,7 +611,7 @@ const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({ trigger, onSucc
               ) : (
                 <>
                   <Receipt className="h-4 w-4 mr-2" />
-                  Create Invoice
+                  {t("Create Invoice")}
                 </>
               )}
             </Button>

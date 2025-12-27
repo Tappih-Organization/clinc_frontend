@@ -610,7 +610,7 @@ const Appointments = () => {
         name: currentClinic?.name || "ClinicPro Medical Center",
         address: {
           street: currentClinic?.address?.street || "123 Healthcare Avenue",
-          city: currentClinic?.address?.city || "Medical District", 
+          city: currentClinic?.address?.city || t("Medical District"), 
           state: currentClinic?.address?.state || "CA",
           zipCode: currentClinic?.address?.zipCode || "90210"
         },

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -39,6 +40,7 @@ interface AddServiceModalProps {
 }
 
 const AddServiceModal: React.FC<AddServiceModalProps> = ({ onServiceCreated }) => {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("basic");
   const [isLoading, setIsLoading] = useState(false);
@@ -247,7 +249,7 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({ onServiceCreated }) =
       <DialogTrigger asChild>
         <Button onClick={() => setOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />
-          Add Service
+          {t("Add Service")}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">

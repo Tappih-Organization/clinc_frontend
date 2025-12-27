@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -47,6 +48,7 @@ interface AddLabVendorModalProps {
 }
 
 const AddLabVendorModal: React.FC<AddLabVendorModalProps> = ({ onVendorAdded }) => {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("basic");
   const [isLoading, setIsLoading] = useState(false);
@@ -354,7 +356,7 @@ const AddLabVendorModal: React.FC<AddLabVendorModalProps> = ({ onVendorAdded }) 
       console.error("Error response data:", error.response?.data);
       
       // Parse API error response
-      let errorMessage = "Failed to add lab vendor. Please try again.";
+      let errorMessage = t("Failed to add lab vendor. Please try again.");
       let errorTitle = "Error";
       
       // Check if this is an axios error with response
@@ -432,7 +434,7 @@ const AddLabVendorModal: React.FC<AddLabVendorModalProps> = ({ onVendorAdded }) 
       <DialogTrigger asChild>
         <Button onClick={() => setOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />
-          Add Lab Vendor
+          {t("Add Lab Vendor")}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto">
@@ -846,14 +848,14 @@ const AddLabVendorModal: React.FC<AddLabVendorModalProps> = ({ onVendorAdded }) 
 
         <div className="flex justify-between space-x-2 pt-4">
           <Button variant="outline" onClick={resetForm}>
-            Reset Form
+            {t("Reset Form")}
           </Button>
           <div className="flex space-x-2">
             <Button variant="outline" onClick={() => setOpen(false)}>
-              Cancel
+              {t("Cancel")}
             </Button>
                           <Button onClick={handleSave} disabled={isLoading}>
-                {isLoading ? "Adding..." : "Add Vendor"}
+                {isLoading ? t("Adding...") : t("Add Vendor")}
               </Button>
           </div>
         </div>

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -39,6 +40,7 @@ interface AddItemModalProps {
 }
 
 const AddItemModal: React.FC<AddItemModalProps> = ({ trigger, onSuccess }) => {
+  const { t } = useTranslation();
   const { formatCurrency } = useCurrencyFormat();
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -247,7 +249,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ trigger, onSuccess }) => {
         {trigger || (
           <Button>
             <Plus className="h-4 w-4 mr-2" />
-            Add Item
+            {t("Add Item")}
           </Button>
         )}
       </DialogTrigger>
@@ -406,7 +408,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ trigger, onSuccess }) => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="unitPrice">Unit Price ($) *</Label>
+                  <Label htmlFor="unitPrice">{t("Unit Price")} ($) *</Label>
                   <Input
                     id="unitPrice"
                     type="number"
@@ -460,7 +462,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ trigger, onSuccess }) => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="expiryDate">Expiry Date</Label>
+                <Label htmlFor="expiryDate">{t("Expiry Date")}</Label>
                 <Input
                   id="expiryDate"
                   type="date"
@@ -510,7 +512,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ trigger, onSuccess }) => {
               ) : (
                 <>
                   <Plus className="h-4 w-4 mr-2" />
-                  Add Item
+                  {t("Add Item")}
                 </>
               )}
             </Button>

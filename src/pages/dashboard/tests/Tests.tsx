@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -59,6 +60,7 @@ import ViewTestModal from "@/components/modals/ViewTestModal";
 import EditTestModal from "@/components/modals/EditTestModal";
 
 const Tests = () => {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get("category") || "all");
@@ -400,7 +402,7 @@ const Tests = () => {
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium">Total Tests</CardTitle>
+            <CardTitle className="text-xs sm:text-sm font-medium">{t("Total Tests")}</CardTitle>
             <TestTube2 className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>

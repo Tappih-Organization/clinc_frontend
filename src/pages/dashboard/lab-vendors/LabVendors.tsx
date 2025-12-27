@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
+import { useIsRTL } from "@/hooks/useIsRTL";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -69,6 +70,7 @@ import { labVendorApi } from "@/services/api/labVendorApi";
 
 const LabVendors = () => {
   const { t } = useTranslation();
+  const isRTL = useIsRTL();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState("all");
@@ -885,7 +887,7 @@ const LabVendors = () => {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center space-x-2">
+                        <div className={`flex items-center space-x-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                           {getStatusIcon(vendor.status)}
                           <Badge
                             className={`text-xs ${getStatusColor(vendor.status)}`}

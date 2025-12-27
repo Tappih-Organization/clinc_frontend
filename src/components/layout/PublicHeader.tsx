@@ -1,9 +1,12 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Heart, ArrowLeft, Building2 } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-
+import Logo from "@/assets/logo.svg";
+import Logoar from "@/assets/logoar.svg";
 interface PublicHeaderProps {
   showBackToHome?: boolean;
   showActions?: boolean;
@@ -15,6 +18,35 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({
   showActions = true,
   variant = "default"
 }) => {
+  const { i18n } = useTranslation();
+  const [isRTL, setIsRTL] = React.useState(false);
+
+  // Check if current language is RTL (Arabic, Hebrew, etc.)
+  React.useEffect(() => {
+    const checkDirection = () => {
+      const dir = document.documentElement.getAttribute("dir") || "ltr";
+      setIsRTL(dir === "rtl");
+    };
+
+    // Check on mount
+    checkDirection();
+
+    // Listen for language changes
+    i18n.on("languageChanged", checkDirection);
+
+    // Listen for direction changes in document
+    const observer = new MutationObserver(checkDirection);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["dir"],
+    });
+
+    return () => {
+      i18n.off("languageChanged", checkDirection);
+      observer.disconnect();
+    };
+  }, [i18n]);
+
   // Check if we're on a subdomain
   const isSubdomain = () => {
     const hostname = window.location.hostname;
@@ -57,15 +89,33 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({
   return (
     <nav className="border-b bg-background/95 backdrop-blur-md sticky top-0 z-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className={cn(
+          "flex items-center h-16",
+          isRTL ? "flex-row-reverse justify-between" : "justify-between"
+        )}>
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
+          {/* <Link to="/" className="flex items-center space-x-2">
             <Heart className="h-8 w-8 text-primary" />
             <span className="font-bold text-xl text-foreground">ClinicPro</span>
-          </Link>
+          </Link> */}
+
+<Link to="/" className={cn(
+  "flex items-center",
+  isRTL ? "order-2" : "order-1"
+)}>
+  <img
+    src={isRTL ? Logoar : Logo}
+    alt="ClinicPro Logo"
+    className="h-10 w-auto"
+  />
+</Link>
+
 
           {/* Navigation Actions */}
-          <div className="flex items-center space-x-4">
+          <div className={cn(
+            "flex items-center",
+            isRTL ? "space-x-reverse space-x-4 order-1" : "space-x-4 order-2"
+          )}>
             {showBackToHome && (
               <Link to="/">
                 <Button variant="outline" size="sm">

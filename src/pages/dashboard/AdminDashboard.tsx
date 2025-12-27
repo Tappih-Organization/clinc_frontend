@@ -51,7 +51,6 @@ import {
   Mail,
   Stethoscope,
 } from "lucide-react";
-import ApiTest from "@/components/ApiTest";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
 
@@ -180,7 +179,10 @@ const AdminDashboard = () => {
 
   // Transform API data for charts and components
   const revenueChartData = (() => {
-    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const monthNames = [
+      t("Jan"), t("Feb"), t("Mar"), t("Apr"), t("May"), t("Jun"),
+      t("Jul"), t("Aug"), t("Sep"), t("Oct"), t("Nov"), t("Dec")
+    ];
     const revenueData = revenueAnalyticsData?.revenueData || [];
     const expenseData = revenueAnalyticsData?.expenseData || [];
     
@@ -228,12 +230,12 @@ const AdminDashboard = () => {
     // If no data, return default
     if (chartData.length === 0) {
       return [
-        { month: "Jan", revenue: 0, expenses: 0 },
-        { month: "Feb", revenue: 0, expenses: 0 },
-        { month: "Mar", revenue: 0, expenses: 0 },
-        { month: "Apr", revenue: 0, expenses: 0 },
-        { month: "May", revenue: 0, expenses: 0 },
-        { month: "Jun", revenue: 0, expenses: 0 },
+        { month: t("Jan"), revenue: 0, expenses: 0 },
+        { month: t("Feb"), revenue: 0, expenses: 0 },
+        { month: t("Mar"), revenue: 0, expenses: 0 },
+        { month: t("Apr"), revenue: 0, expenses: 0 },
+        { month: t("May"), revenue: 0, expenses: 0 },
+        { month: t("Jun"), revenue: 0, expenses: 0 },
       ];
     }
     
@@ -255,13 +257,13 @@ const AdminDashboard = () => {
   const recentAppointments = recentAppointmentsData?.slice(0, 10).map(appointment => {
     // Handle patient_id (could be string or populated object)
     const patientName = typeof appointment.patient_id === 'string' 
-      ? `Patient ${appointment.patient_id.slice(-4)}` 
-      : `${(appointment.patient_id as any)?.first_name || 'Patient'} ${(appointment.patient_id as any)?.last_name || ''}`.trim();
+      ? `${t("Patient")} ${appointment.patient_id.slice(-4)}` 
+      : `${(appointment.patient_id as any)?.first_name || t("Patient")} ${(appointment.patient_id as any)?.last_name || ''}`.trim();
     
     // Handle doctor_id (could be string or populated object)  
     const doctorName = typeof appointment.doctor_id === 'string' 
-      ? `Doctor ${appointment.doctor_id.slice(-4)}` 
-      : `Dr. ${(appointment.doctor_id as any)?.first_name || 'Doctor'} ${(appointment.doctor_id as any)?.last_name || ''}`.trim();
+      ? `${t("Doctor")} ${appointment.doctor_id.slice(-4)}` 
+      : `${t("Doctor")} ${(appointment.doctor_id as any)?.first_name || t("Doctor")} ${(appointment.doctor_id as any)?.last_name || ''}`.trim();
 
     return {
       id: appointment._id,
@@ -512,8 +514,8 @@ const AdminDashboard = () => {
                           formatter={(value: any) => [
                             formatAmount(value),
                             value === revenueChartData[0]?.revenue
-                              ? "Revenue"
-                              : "Expenses",
+                              ? t("Revenue")
+                              : t("Expenses"),
                           ]}
                           contentStyle={{
                             backgroundColor: "white",
@@ -792,9 +794,6 @@ const AdminDashboard = () => {
               </Card>
             </motion.div>
           )}
-
-          {/* Debug API Test - Admin Only */}
-          <ApiTest />
       </div>
     </div>
   );

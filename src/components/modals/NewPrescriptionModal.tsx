@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -48,6 +49,7 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
   trigger,
   onSuccess,
 }) => {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [patientsLoading, setPatientsLoading] = useState(false);
@@ -394,7 +396,7 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
         {trigger || (
           <Button>
             <Plus className="h-4 w-4 mr-2" />
-            New Prescription
+            {t("New Prescription")}
           </Button>
         )}
       </DialogTrigger>
@@ -402,7 +404,7 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
         <DialogHeader>
           <DialogTitle className="flex items-center text-xl">
             <Stethoscope className="h-5 w-5 mr-2 text-blue-600" />
-            Create New Prescription
+            {t("Create New Prescription")}
           </DialogTitle>
           <DialogDescription>
             Create a digital prescription with medications, dosages, and

@@ -62,7 +62,7 @@ const TopBar: React.FC<TopBarProps> = ({ onMenuClick }) => {
             </Button>
             
             {/* Clinic Switcher - Always visible and prominent */}
-            <div className="flex-1 max-w-xs">
+            <div className="w-auto min-w-fit">
               <ErrorBoundary>
                 <ClinicSwitcher />
               </ErrorBoundary>

@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
+import { useIsRTL } from "@/hooks/useIsRTL";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -45,6 +46,7 @@ import {
 const XrayAnalysis: React.FC = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const isRTL = useIsRTL();
   const { toast } = useToast();
   
   // State management
@@ -408,24 +410,24 @@ const XrayAnalysis: React.FC = () => {
       const cleanAnalysisText = (analysis.analysis_result || '').replace(/\*\*(.*?)\*\*/g, '$1');
       
       const reportContent = `
-X-RAY ANALYSIS REPORT
+${t("X-ray Analysis Report")}
 =====================
 
-Patient: ${analysis.patient_id?.first_name || 'Unknown'} ${analysis.patient_id?.last_name || 'Patient'}
-Analysis Date: ${new Date(analysis.analysis_date).toLocaleDateString()}
-Doctor: ${analysis.doctor_id?.first_name || 'Unknown'} ${analysis.doctor_id?.last_name || 'Doctor'}
-Status: ${analysis.status.charAt(0).toUpperCase() + analysis.status.slice(1)}
+${t("Patient")}: ${analysis.patient_id?.first_name || t('Unknown')} ${analysis.patient_id?.last_name || t('Patient')}
+${t("Analysis Date")}: ${new Date(analysis.analysis_date).toLocaleDateString()}
+${t("Doctor")}: ${analysis.doctor_id?.first_name || t('Unknown')} ${analysis.doctor_id?.last_name || t('Doctor')}
+${t("Status")}: ${t(analysis.status.charAt(0).toUpperCase() + analysis.status.slice(1))}
 
-ANALYSIS RESULTS:
-${cleanAnalysisText || 'No analysis result available'}
+${t("Analysis Results")}:
+${cleanAnalysisText || t('No analysis result available')}
 
-KEY FINDINGS:
-- Cavities: ${analysis.findings?.cavities ? 'Detected' : 'Not detected'}
-- Infections: ${analysis.findings?.infections ? 'Signs present' : 'No signs detected'}
-${analysis.findings?.wisdom_teeth ? `- Wisdom Teeth: ${analysis.findings.wisdom_teeth}` : ''}
-${analysis.findings?.bone_density ? `- Bone Density: ${analysis.findings.bone_density}` : ''}
+${t("Key Findings")}:
+- ${t("Cavities")}: ${analysis.findings?.cavities ? t('Detected') : t('Not detected')}
+- ${t("Infection")}: ${analysis.findings?.infections ? t('Signs present') : t('No signs detected')}
+${analysis.findings?.wisdom_teeth ? `- ${t("Wisdom Teeth")}: ${analysis.findings.wisdom_teeth}` : ''}
+${analysis.findings?.bone_density ? `- ${t("Bone Density")}: ${analysis.findings.bone_density}` : ''}
 
-Generated on: ${new Date().toLocaleString()}
+${t("Generated on")}: ${new Date().toLocaleString()}
       `;
 
       const blob = new Blob([reportContent], { type: 'text/plain' });
@@ -517,13 +519,22 @@ Generated on: ${new Date().toLocaleString()}
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className={`p-6 space-y-6 ${isRTL ? 'text-right' : 'text-left'}`} dir={isRTL ? 'ltr' : 'ltr'}>
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className={`flex flex-col md:flex-row justify-between items-start md:items-center gap-4 ${isRTL ? 'md:flex-row-reverse' : ''}`}>
         <div>
           <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
-            <Brain className="w-8 h-8 text-primary" />
-            {t("Dental AI X-ray Analysis")}
+            {isRTL ? (
+              <>
+                {t("Dental AI X-ray Analysis")}
+                <Brain className="w-8 h-8 text-primary" />
+              </>
+            ) : (
+              <>
+                <Brain className="w-8 h-8 text-primary" />
+                {t("Dental AI X-ray Analysis")}
+              </>
+            )}
           </h1>
           <p className="text-muted-foreground mt-1">
             {t("Upload dental X-rays and get AI-powered analysis reports")}
@@ -590,12 +601,12 @@ Generated on: ${new Date().toLocaleString()}
 
       {/* Main Content Tabs */}
       <Tabs defaultValue="analyze" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
-          <TabsTrigger value="analyze" className="flex items-center gap-2">
+        <TabsList className={`grid w-full grid-cols-2 lg:w-[400px] ${isRTL ? 'flex-row-reverse' : ''}`}>
+          <TabsTrigger value="analyze" className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
             <Upload className="w-4 h-4" />
             {t("New Analysis")}
           </TabsTrigger>
-          <TabsTrigger value="history" className="flex items-center gap-2">
+          <TabsTrigger value="history" className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
             <FileText className="w-4 h-4" />
             {t("Analysis History")}
           </TabsTrigger>
@@ -605,7 +616,7 @@ Generated on: ${new Date().toLocaleString()}
         <TabsContent value="analyze" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                 <Camera className="w-5 h-5" />
                 {t("Upload X-ray Image")}
               </CardTitle>
@@ -668,7 +679,7 @@ Generated on: ${new Date().toLocaleString()}
 
               {/* Sample X-ray Download */}
               <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                <div className="flex items-start gap-3">
+                <div className={`flex items-start gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
                   <div className="flex-shrink-0">
                     <FileImage className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
                   </div>
@@ -683,9 +694,9 @@ Generated on: ${new Date().toLocaleString()}
                       variant="outline"
                       size="sm"
                       onClick={handleDownloadSampleXray}
-                      className="border-blue-300 dark:border-blue-600 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/30"
+                      className={`border-blue-300 dark:border-blue-600 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/30 ${isRTL ? 'flex-row-reverse' : ''}`}
                     >
-                      <Download className="w-4 h-4 mr-2" />
+                      <Download className={`w-4 h-4 ${isRTL ? 'ml-2' : 'mr-2'}`} />
                       {t("Download Sample X-ray")}
                     </Button>
                   </div>
@@ -728,8 +739,8 @@ Generated on: ${new Date().toLocaleString()}
               {/* Upload Progress */}
               {isAnalyzing && (
                 <div className="space-y-3">
-                  <div className="flex justify-between text-sm">
-                    <span className="flex items-center gap-2">
+                  <div className={`flex justify-between text-sm ${isRTL ? 'flex-row-reverse' : ''}`}>
+                    <span className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                       <Clock className="w-4 h-4 animate-spin" />
                       {analysisStage}
                     </span>
@@ -750,15 +761,15 @@ Generated on: ${new Date().toLocaleString()}
                 size="lg"
               >
                 {isAnalyzing ? (
-                  <>
-                    <Clock className="w-4 h-4 mr-2 animate-spin" />
+                  <span className={`flex items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
+                    <Clock className={`w-4 h-4 animate-spin ${isRTL ? 'ml-2' : 'mr-2'}`} />
                     {t("Analyzing X-ray...")}
-                  </>
+                  </span>
                 ) : (
-                  <>
-                    <Brain className="w-4 h-4 mr-2" />
+                  <span className={`flex items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
+                    <Brain className={`w-4 h-4 ${isRTL ? 'ml-2' : 'mr-2'}`} />
                     {t("Analyze X-ray")}
-                  </>
+                  </span>
                 )}
               </Button>
             </CardContent>
@@ -773,7 +784,7 @@ Generated on: ${new Date().toLocaleString()}
             >
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                     <CheckCircle className="w-5 h-5 text-green-600" />
                     {t("Analysis Results")}
                   </CardTitle>
@@ -842,14 +853,14 @@ Generated on: ${new Date().toLocaleString()}
             </CardHeader>
             <CardContent>
               {/* Search and Filter */}
-              <div className="flex flex-col md:flex-row gap-4 mb-6">
+              <div className={`flex flex-col md:flex-row gap-4 mb-6 ${isRTL ? 'md:flex-row-reverse' : ''}`}>
                 <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Search className={`absolute top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 ${isRTL ? 'right-3' : 'left-3'}`} />
                   <Input
                     placeholder={t("Search by patient name...")}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
+                    className={isRTL ? 'pr-10' : 'pl-10'}
                   />
                 </div>
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -873,7 +884,7 @@ Generated on: ${new Date().toLocaleString()}
                     key: "patient",
                     label: t("Patient"),
                     render: (analysis) => (
-                      <div className="flex items-center gap-3">
+                      <div className={`flex items-center gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
                         <Avatar className="h-8 w-8">
                           <AvatarFallback>
                             {analysis.patient_id?.first_name?.[0] || 'U'}{analysis.patient_id?.last_name?.[0] || 'P'}
@@ -906,9 +917,9 @@ Generated on: ${new Date().toLocaleString()}
                     label: t("Status"),
                     render: (analysis) => (
                       <Badge className={getStatusColor(analysis.status)}>
-                        <span className="flex items-center gap-1">
+                        <span className={`flex items-center gap-1 ${isRTL ? 'flex-row-reverse' : ''}`}>
                           {getStatusIcon(analysis.status)}
-                          {analysis.status.charAt(0).toUpperCase() + analysis.status.slice(1)}
+                          {t(analysis.status.charAt(0).toUpperCase() + analysis.status.slice(1))}
                         </span>
                       </Badge>
                     )
@@ -938,20 +949,20 @@ Generated on: ${new Date().toLocaleString()}
                         <MoreVertical className="w-4 h-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
+                    <DropdownMenuContent align={isRTL ? "start" : "end"}>
                       <DropdownMenuItem onClick={() => handleViewReport(analysis)}>
-                        <Eye className="w-4 h-4 mr-2" />
+                        <Eye className={`w-4 h-4 ${isRTL ? 'ml-2' : 'mr-2'}`} />
                         {t("View Report")}
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleDownloadReport(analysis)}>
-                        <Download className="w-4 h-4 mr-2" />
+                        <Download className={`w-4 h-4 ${isRTL ? 'ml-2' : 'mr-2'}`} />
                         {t("Download")}
                       </DropdownMenuItem>
                       <DropdownMenuItem 
                         className="text-red-600"
                         onClick={() => handleDeleteAnalysis(analysis)}
                       >
-                        <Trash2 className="w-4 h-4 mr-2" />
+                        <Trash2 className={`w-4 h-4 ${isRTL ? 'ml-2' : 'mr-2'}`} />
                         {t("Delete")}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -971,9 +982,9 @@ Generated on: ${new Date().toLocaleString()}
           setViewModalAnalysis(null);
         }
       }}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className={`max-w-4xl max-h-[90vh] overflow-y-auto ${isRTL ? 'text-right' : 'text-left'}`} dir={isRTL ? 'rtl' : 'ltr'}>
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
               <Brain className="w-5 h-5 text-blue-600" />
               {t("X-ray Analysis Report")}
             </DialogTitle>
@@ -991,7 +1002,7 @@ Generated on: ${new Date().toLocaleString()}
                     <CardTitle className="text-sm font-medium text-card-foreground">{t("Patient Information")}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2">
-                    <div className="flex items-center gap-3">
+                    <div className={`flex items-center gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
                       <Avatar className="h-10 w-10">
                         <AvatarFallback>
                           {viewModalAnalysis.patient_id?.first_name?.[0] || 'U'}{viewModalAnalysis.patient_id?.last_name?.[0] || 'P'}
@@ -1024,9 +1035,9 @@ Generated on: ${new Date().toLocaleString()}
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-medium">{t("Status")}:</span>
                         <Badge className={getStatusColor(viewModalAnalysis.status)}>
-                          <span className="flex items-center gap-1">
+                          <span className={`flex items-center gap-1 ${isRTL ? 'flex-row-reverse' : ''}`}>
                             {getStatusIcon(viewModalAnalysis.status)}
-                            {viewModalAnalysis.status.charAt(0).toUpperCase() + viewModalAnalysis.status.slice(1)}
+                            {t(viewModalAnalysis.status.charAt(0).toUpperCase() + viewModalAnalysis.status.slice(1))}
                           </span>
                         </Badge>
                       </div>
@@ -1038,7 +1049,7 @@ Generated on: ${new Date().toLocaleString()}
               {/* Analysis Results */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                     <FileText className="w-5 h-5" />
                     {t("Analysis Results")}
                   </CardTitle>
@@ -1056,7 +1067,7 @@ Generated on: ${new Date().toLocaleString()}
               {viewModalAnalysis.findings && (
                 <Card>
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
+                    <CardTitle className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                       <AlertCircle className="w-5 h-5" />
                       {t("Key Findings")}
                     </CardTitle>
@@ -1098,8 +1109,9 @@ Generated on: ${new Date().toLocaleString()}
                    variant="outline" 
                    size="sm"
                    onClick={() => handleDownloadReport(viewModalAnalysis)}
+                   className={isRTL ? 'flex-row-reverse' : ''}
                  >
-                   <Download className="w-4 h-4 mr-2" />
+                   <Download className={`w-4 h-4 ${isRTL ? 'ml-2' : 'mr-2'}`} />
                    {t("Download Report")}
                  </Button>
                  <Button 

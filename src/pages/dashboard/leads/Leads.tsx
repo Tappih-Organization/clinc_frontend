@@ -58,9 +58,11 @@ import AddLeadModal from "@/components/modals/AddLeadModal";
 import EditLeadModal from "@/components/modals/EditLeadModal";
 import ViewLeadModal from "@/components/modals/ViewLeadModal";
 import ConvertLeadModal from "@/components/modals/ConvertLeadModal";
+import { useIsRTL } from "@/hooks/useIsRTL";
 
 const Leads = () => {
   const { t } = useTranslation();
+  const isRTL = useIsRTL();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [selectedSource, setSelectedSource] = useState("all");
@@ -137,7 +139,7 @@ const Leads = () => {
 
   const formatDate = (date: Date | string | undefined | null) => {
     if (!date) {
-      return "N/A";
+      return t("N/A");
     }
     
     try {
@@ -145,7 +147,7 @@ const Leads = () => {
       
       // Check if the date is valid
       if (isNaN(dateObj.getTime())) {
-        return "Invalid Date";
+        return t("Invalid Date");
       }
       
       return dateObj.toLocaleDateString("en-US", {
@@ -155,7 +157,7 @@ const Leads = () => {
       });
     } catch (error) {
       console.error("Error formatting date:", error);
-      return "N/A";
+      return t("N/A");
     }
   };
 
@@ -476,7 +478,7 @@ const Leads = () => {
                           </span>
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center space-x-2">
+                          <div className={`flex items-center space-x-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                             {getStatusIcon(lead.status)}
                             <Badge
                               variant="outline"
@@ -569,7 +571,7 @@ const Leads = () => {
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      <div className={`flex items-center space-x-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                         {getStatusIcon(lead.status)}
                         <Badge
                           variant="outline"

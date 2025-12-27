@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
+import { useIsRTL } from "@/hooks/useIsRTL";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -49,6 +50,7 @@ import userApi, { Doctor } from "@/services/api/userApi";
 
 const Calendar = () => {
   const { t } = useTranslation();
+  const isRTL = useIsRTL();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<"month" | "week" | "day">("month");
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -355,8 +357,17 @@ const Calendar = () => {
 
     return (
       <Badge className={config.className}>
-        <Icon className="h-3 w-3 mr-1" />
-        {status.replace("-", " ")}
+        {isRTL ? (
+          <>
+            {status.replace("-", " ")}
+            <Icon className="h-3 w-3 ml-1" />
+          </>
+        ) : (
+          <>
+            <Icon className="h-3 w-3 mr-1" />
+            {status.replace("-", " ")}
+          </>
+        )}
       </Badge>
     );
   };

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
+import { useIsRTL } from "@/hooks/useIsRTL";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -74,6 +75,7 @@ import { apiService, type Payroll, type PayrollStats } from "@/services/api";
 
 const Payroll = () => {
   const { t } = useTranslation();
+  const isRTL = useIsRTL();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [selectedMonth, setSelectedMonth] = useState("current");
@@ -819,7 +821,7 @@ const Payroll = () => {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center space-x-2">
+                        <div className={`flex items-center space-x-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                           {getStatusIcon(entry.status)}
                           <Badge
                             className={`text-xs ${getStatusColor(entry.status)}`}
@@ -1204,7 +1206,7 @@ const Payroll = () => {
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-gray-600">{t('Status')}</Label>
-                      <div className="flex items-center space-x-2 mt-1">
+                      <div className={`flex items-center space-x-2 mt-1 ${isRTL ? 'flex-row-reverse' : ''}`}>
                         {getStatusIcon(selectedPayroll.status)}
                         <Badge className={getStatusColor(selectedPayroll.status)}>
                           {selectedPayroll.status}

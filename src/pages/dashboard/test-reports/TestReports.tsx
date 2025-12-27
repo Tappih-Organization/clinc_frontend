@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
+import { useIsRTL } from "@/hooks/useIsRTL";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -80,6 +81,7 @@ import {
 
 const TestReports = () => {
   const { t } = useTranslation();
+  const isRTL = useIsRTL();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -521,7 +523,7 @@ const TestReports = () => {
       key: "status",
       label: t("Status"),
       render: (report: TestReport) => (
-        <div className="flex items-center space-x-2">
+        <div className={`flex items-center space-x-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
           {getStatusIcon(report.status)}
           <Badge className={getStatusColor(report.status)}>
             {report.status.replace('_', ' ').toUpperCase()}
@@ -555,7 +557,7 @@ const TestReports = () => {
             {getPatientName(report.patientId)}
           </div>
         </div>
-        <div className="flex items-center space-x-2 ml-4">
+        <div className={`flex items-center space-x-2 ml-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
           {getStatusIcon(report.status)}
           <Badge className={`${getStatusColor(report.status)} text-xs`}>
             {report.status.replace('_', ' ').toUpperCase()}

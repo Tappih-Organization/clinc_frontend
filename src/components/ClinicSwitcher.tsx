@@ -126,7 +126,7 @@ const ClinicSwitcher: React.FC = () => {
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
-          className="flex items-center space-x-2 h-10 px-3 bg-background border-border shadow-sm w-full justify-start hover:bg-muted/50"
+          className="flex items-center space-x-2 h-10 px-3 bg-background border-border shadow-sm w-auto min-w-fit justify-start hover:bg-muted/50"
           disabled={loading}
         >
           <Avatar className="h-6 w-6">

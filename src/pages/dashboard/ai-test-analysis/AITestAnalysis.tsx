@@ -522,31 +522,31 @@ const AITestAnalysis: React.FC = () => {
       const cleanAnalysisText = (analysis.analysis_result || '').replace(/\*\*(.*?)\*\*/g, '$1');
       
       const reportContent = `
-AI TEST REPORT ANALYSIS
+${t("AI Test Report Analysis")}
 =======================
 
-Patient: ${typeof analysis.patient_id === 'object' && analysis.patient_id ? 
-  `${analysis.patient_id.first_name || ''} ${analysis.patient_id.last_name || ''}`.trim() || 'Unknown Patient' : 
-  analysis.patient_id || 'Unknown Patient'}
-Analysis Date: ${new Date(analysis.analysis_date).toLocaleDateString()}
-Doctor: ${typeof analysis.doctor_id === 'object' && analysis.doctor_id ? 
-  `${analysis.doctor_id.first_name || ''} ${analysis.doctor_id.last_name || ''}`.trim() || 'Unknown Doctor' : 
-  analysis.doctor_id || 'Unknown Doctor'}
-Status: ${analysis.status.charAt(0).toUpperCase() + analysis.status.slice(1)}
+${t("Patient")}: ${typeof analysis.patient_id === 'object' && analysis.patient_id ? 
+  `${analysis.patient_id.first_name || ''} ${analysis.patient_id.last_name || ''}`.trim() || t('Unknown Patient') : 
+  analysis.patient_id || t('Unknown Patient')}
+${t("Analysis Date")}: ${new Date(analysis.analysis_date).toLocaleDateString()}
+${t("Doctor")}: ${typeof analysis.doctor_id === 'object' && analysis.doctor_id ? 
+  `${analysis.doctor_id.first_name || ''} ${analysis.doctor_id.last_name || ''}`.trim() || t('Unknown Doctor') : 
+  analysis.doctor_id || t('Unknown Doctor')}
+${t("Status")}: ${t(analysis.status.charAt(0).toUpperCase() + analysis.status.slice(1))}
 
-TEST IDENTIFICATION:
-${analysis.structured_data?.test_name || 'Not identified'}
+${t("Test Identified")}:
+${analysis.structured_data?.test_name || t('Not identified')}
 
-ANALYSIS RESULTS:
-${cleanAnalysisText || 'No analysis result available'}
+${t("Analysis Results")}:
+${cleanAnalysisText || t('No analysis result available')}
 
-STRUCTURED DATA:
-Test Values: ${analysis.structured_data?.test_values?.join(', ') || 'None'}
-Abnormal Findings: ${analysis.structured_data?.abnormal_findings?.join(', ') || 'None'}
-Recommendations: ${analysis.structured_data?.recommendations?.join(', ') || 'None'}
-Clinical Interpretation: ${analysis.structured_data?.interpretation || 'None'}
+${t("Structured Data")}:
+${t("Test Values")}: ${analysis.structured_data?.test_values?.join(', ') || t('None')}
+${t("Abnormal Findings")}: ${analysis.structured_data?.abnormal_findings?.join(', ') || t('None')}
+${t("Recommendations")}: ${analysis.structured_data?.recommendations?.join(', ') || t('None')}
+${t("Clinical Interpretation")}: ${analysis.structured_data?.interpretation || t('None')}
 
-Generated on: ${new Date().toLocaleString()}
+${t("Generated on")}: ${new Date().toLocaleString()}
       `;
 
       const blob = new Blob([reportContent], { type: 'text/plain' });
@@ -1221,20 +1221,20 @@ Generated on: ${new Date().toLocaleString()}
                   <CardContent className="space-y-2">
                     <div className="space-y-1">
                       <p className="text-sm text-foreground">
-                        <span className="font-medium">{t("Test Type")}:</span> {viewModalAnalysis.structured_data?.test_name || 'Unknown'}
+                        <span className="font-medium">{t("Test Type")}:</span> {viewModalAnalysis.structured_data?.test_name || t('Unknown')}
                       </p>
                       <p className="text-sm text-foreground">
                         <span className="font-medium">{t("Date")}:</span> {new Date(viewModalAnalysis.analysis_date).toLocaleDateString()}
                       </p>
                       <p className="text-sm text-foreground">
-                        <span className="font-medium">{t("File Type")}:</span> {viewModalAnalysis.file_type === 'application/pdf' ? 'PDF' : 'Image'}
+                        <span className="font-medium">{t("File Type")}:</span> {viewModalAnalysis.file_type === 'application/pdf' ? t('PDF') : t('Image')}
                       </p>
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-medium">{t("Status")}:</span>
                         <Badge className={getStatusColor(viewModalAnalysis.status)}>
                           <span className="flex items-center gap-1">
                             {getStatusIcon(viewModalAnalysis.status)}
-                            {viewModalAnalysis.status.charAt(0).toUpperCase() + viewModalAnalysis.status.slice(1)}
+                            {t(viewModalAnalysis.status.charAt(0).toUpperCase() + viewModalAnalysis.status.slice(1))}
                           </span>
                         </Badge>
                       </div>
