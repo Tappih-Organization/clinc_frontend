@@ -59,6 +59,7 @@ import EditLeadModal from "@/components/modals/EditLeadModal";
 import ViewLeadModal from "@/components/modals/ViewLeadModal";
 import ConvertLeadModal from "@/components/modals/ConvertLeadModal";
 import { useIsRTL } from "@/hooks/useIsRTL";
+import { cn } from "@/lib/utils";
 
 const Leads = () => {
   const { t } = useTranslation();
@@ -228,8 +229,8 @@ const Leads = () => {
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
           <p className="text-red-600 mb-4">{t("Error loading leads:")}&nbsp;{error.message}</p>
-          <Button onClick={() => window.location.reload()}>
-            <RefreshCw className="h-4 w-4 mr-2" />
+          <Button onClick={() => window.location.reload()} className={cn(isRTL && "flex-row-reverse")}>
+            <RefreshCw className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
             {t("Retry")}
           </Button>
         </div>
@@ -249,21 +250,21 @@ const Leads = () => {
             {t("Manage potential patients and track conversions")}
           </p>
         </div>
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className={cn("flex items-center gap-2 flex-shrink-0", isRTL && "flex-row-reverse")}>
           <Button 
             variant="outline" 
             size="sm" 
             onClick={handleRefresh}
             disabled={isLoading}
-            className="h-9"
+            className={cn("h-9", isRTL && "flex-row-reverse")}
           >
-            <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={cn(`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`, isRTL ? "ml-2" : "mr-2")} />
             <span className="hidden sm:inline">{t("Refresh")}</span>
           </Button>
           <AddLeadModal 
             trigger={
-              <Button size="sm" className="h-9">
-                <Plus className="h-4 w-4 mr-2" />
+              <Button size="sm" className={cn("h-9", isRTL && "flex-row-reverse")}>
+                <Plus className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
                 <span className="hidden sm:inline">{t("Add Lead")}</span>
                 <span className="sm:hidden">{t("Add")}</span>
               </Button>
@@ -386,9 +387,9 @@ const Leads = () => {
         </CardHeader>
         <CardContent className="p-0">
           {isLoading ? (
-            <div className="flex justify-center items-center py-12">
+            <div className={cn("flex justify-center items-center py-12", isRTL && "flex-row-reverse")}>
               <Loader2 className="h-8 w-8 animate-spin" />
-              <span className="ml-2">{t("Loading leads...")}</span>
+              <span className={cn(isRTL ? "mr-2" : "ml-2")}>{t("Loading leads...")}</span>
             </div>
           ) : leads.length === 0 ? (
             <div className="text-center py-12">
@@ -400,8 +401,8 @@ const Leads = () => {
               </p>
               <AddLeadModal 
                 trigger={
-                  <Button>
-                    <Plus className="h-4 w-4 mr-2" />
+                  <Button className={cn(isRTL && "flex-row-reverse")}>
+                    <Plus className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
                     {t("Add Your First Lead")}
                   </Button>
                 }
@@ -411,74 +412,76 @@ const Leads = () => {
             <>
               {/* Desktop Table View */}
               <div className="hidden md:block overflow-x-auto">
-                <Table>
+                <Table dir={isRTL ? 'rtl' : 'ltr'}>
                   <TableHeader>
                     <TableRow className="hover:bg-transparent">
-                      <TableHead className="min-w-[200px]">{t("Lead Details")}</TableHead>
-                      <TableHead className="min-w-[180px]">{t("Contact Info")}</TableHead>
-                      <TableHead className="min-w-[120px] hidden lg:table-cell">{t("Source")}</TableHead>
-                      <TableHead className="min-w-[140px] hidden lg:table-cell">{t("Service Interest")}</TableHead>
-                      <TableHead className="min-w-[120px] hidden xl:table-cell">{t("Assigned To")}</TableHead>
-                      <TableHead className="min-w-[100px]">{t("Status")}</TableHead>
-                      <TableHead className="min-w-[100px] hidden xl:table-cell">{t("Created")}</TableHead>
-                      <TableHead className="text-right min-w-[100px]">{t("Actions")}</TableHead>
+                      <TableHead className={cn("min-w-[200px]", isRTL && "text-right")}>{t("Lead Details")}</TableHead>
+                      <TableHead className={cn("min-w-[180px]", isRTL && "text-right")}>{t("Contact Info")}</TableHead>
+                      <TableHead className={cn("min-w-[120px] hidden lg:table-cell", isRTL && "text-right")}>{t("Source")}</TableHead>
+                      <TableHead className={cn("min-w-[140px] hidden lg:table-cell", isRTL && "text-right")}>{t("Service Interest")}</TableHead>
+                      <TableHead className={cn("min-w-[120px] hidden xl:table-cell", isRTL && "text-right")}>{t("Assigned To")}</TableHead>
+                      <TableHead className={cn("min-w-[100px]", isRTL && "text-right")}>{t("Status")}</TableHead>
+                      <TableHead className={cn("min-w-[100px] hidden xl:table-cell", isRTL && "text-right")}>{t("Created")}</TableHead>
+                      <TableHead className={cn("min-w-[100px]", isRTL ? "text-left" : "text-right")}>{t("Actions")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {leads.map((lead) => (
                       <TableRow key={lead._id || lead.id}>
-                        <TableCell>
-                          <div className="flex items-center space-x-3">
+                        <TableCell className={cn(isRTL && "text-right")}>
+                          <div className={cn("flex items-center", isRTL ? "flex-row-reverse space-x-reverse space-x-0 gap-3" : "space-x-3")}>
                             <Avatar className="h-8 w-8 flex-shrink-0">
                               <AvatarFallback className="text-xs">
                                 {lead.firstName.charAt(0)}
                                 {lead.lastName.charAt(0)}
                               </AvatarFallback>
                             </Avatar>
-                            <div className="min-w-0">
-                              <div className="font-medium text-sm truncate">
+                            <div className={cn("min-w-0", isRTL && "text-right")}>
+                              <div className={cn("font-medium text-sm truncate", isRTL && "text-right")}>
                                 {lead.firstName} {lead.lastName}
                               </div>
-                              <div className="text-xs text-muted-foreground truncate">
+                              <div className={cn("text-xs text-muted-foreground truncate", isRTL && "text-right")}>
                                 {t("Lead #")}{(lead._id || lead.id).slice(-6)}
                               </div>
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell>
-                          <div className="space-y-1">
+                        <TableCell className={cn(isRTL && "text-right")}>
+                          <div className={cn("space-y-1", isRTL && "text-right")}>
                             {lead.email && (
-                              <div className="flex items-center text-sm">
-                                <Mail className="h-3 w-3 mr-2 text-muted-foreground flex-shrink-0" />
-                                <span className="truncate">{lead.email}</span>
+                              <div className={cn("flex items-center text-sm", isRTL ? "flex-row-reverse space-x-reverse space-x-0 gap-2 justify-end" : "space-x-2")}>
+                                <Mail className={cn("h-3 w-3 text-muted-foreground flex-shrink-0", isRTL ? "ml-2" : "mr-2")} />
+                                <span className={cn("truncate", isRTL && "text-right")}>{lead.email}</span>
                               </div>
                             )}
-                            <div className="flex items-center text-sm">
-                              <Phone className="h-3 w-3 mr-2 text-muted-foreground flex-shrink-0" />
-                              <span>{lead.phone}</span>
+                            <div className={cn("flex items-center text-sm", isRTL ? "flex-row-reverse space-x-reverse space-x-0 gap-2 justify-end" : "space-x-2")}>
+                              <Phone className={cn("h-3 w-3 text-muted-foreground flex-shrink-0", isRTL ? "ml-2" : "mr-2")} />
+                              <span className={cn(isRTL && "text-right")}>{lead.phone}</span>
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell className="hidden lg:table-cell">
-                          <div className="flex items-center space-x-2">
+                        <TableCell className={cn("hidden lg:table-cell", isRTL && "text-right")}>
+                          <div className={cn("flex items-center", isRTL ? "flex-row-reverse space-x-reverse space-x-0 gap-2 justify-end" : "space-x-2")}>
                             {getSourceIcon(lead.source)}
-                            <span className="capitalize text-sm">{lead.source}</span>
+                            <span className={cn("capitalize text-sm", isRTL && "text-right")}>{lead.source}</span>
                           </div>
                         </TableCell>
-                        <TableCell className="hidden lg:table-cell">
-                          <Badge variant="outline" className="text-xs">
-                            {lead.serviceInterest}
-                          </Badge>
+                        <TableCell className={cn("hidden lg:table-cell", isRTL && "text-right")}>
+                          <div className={cn(isRTL && "flex justify-end")}>
+                            <Badge variant="outline" className="text-xs">
+                              {lead.serviceInterest}
+                            </Badge>
+                          </div>
                         </TableCell>
-                        <TableCell className="hidden xl:table-cell">
-                          <span className="text-sm">
+                        <TableCell className={cn("hidden xl:table-cell", isRTL && "text-right")}>
+                          <span className={cn("text-sm", isRTL && "text-right")}>
                             {lead.assignedTo || (
                               <span className="text-muted-foreground">{t("Unassigned")}</span>
                             )}
                           </span>
                         </TableCell>
-                        <TableCell>
-                          <div className={`flex items-center space-x-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                        <TableCell className={cn(isRTL && "text-right")}>
+                          <div className={cn("flex items-center", isRTL ? "flex-row-reverse space-x-reverse space-x-0 gap-2 justify-end" : "space-x-2")}>
                             {getStatusIcon(lead.status)}
                             <Badge
                               variant="outline"
@@ -488,57 +491,59 @@ const Leads = () => {
                             </Badge>
                           </div>
                         </TableCell>
-                        <TableCell className="hidden xl:table-cell">
-                          <span className="text-sm">{formatDate(lead.created_at || lead.createdAt)}</span>
+                        <TableCell className={cn("hidden xl:table-cell", isRTL && "text-right")}>
+                          <span className={cn("text-sm", isRTL && "text-right")}>{formatDate(lead.created_at || lead.createdAt)}</span>
                         </TableCell>
-                        <TableCell className="text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="outline" size="sm" className="h-8">
-                                <MoreVertical className="h-4 w-4 mr-1" />
-                                {t("Actions")}
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => handleViewLead(lead)}>
-                                <Eye className="mr-2 h-4 w-4" />
-                                {t("View Details")}
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleEditLead(lead)}>
-                                <Edit className="mr-2 h-4 w-4" />
-                                {t("Edit Lead")}
-                              </DropdownMenuItem>
-                              {lead.status === "new" && (
-                                <DropdownMenuItem 
-                                  onClick={() => handleStatusUpdate(lead._id || lead.id, "contacted")}
-                                >
-                                  <Phone className="mr-2 h-4 w-4" />
-                                  {t("Mark as Contacted")}
+                        <TableCell className={cn(isRTL ? "text-left" : "text-right")}>
+                          <div className={cn("flex", isRTL ? "justify-start" : "justify-end")}>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="outline" size="sm" className={cn("h-8", isRTL && "flex-row-reverse")}>
+                                  <MoreVertical className={cn("h-4 w-4", isRTL ? "ml-1" : "mr-1")} />
+                                  {t("Actions")}
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align={isRTL ? "start" : "end"}>
+                                <DropdownMenuItem onClick={() => handleViewLead(lead)}>
+                                  <Eye className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
+                                  {t("View Details")}
                                 </DropdownMenuItem>
-                              )}
-                              {lead.status !== "converted" && (
-                                <DropdownMenuItem onClick={() => handleConvertLead(lead)}>
-                                  <UserCheck className="mr-2 h-4 w-4" />
-                                  {t("Convert to Patient")}
+                                <DropdownMenuItem onClick={() => handleEditLead(lead)}>
+                                  <Edit className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
+                                  {t("Edit Lead")}
                                 </DropdownMenuItem>
-                              )}
-                              {lead.status !== "lost" && (
+                                {lead.status === "new" && (
+                                  <DropdownMenuItem 
+                                    onClick={() => handleStatusUpdate(lead._id || lead.id, "contacted")}
+                                  >
+                                    <Phone className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
+                                    {t("Mark as Contacted")}
+                                  </DropdownMenuItem>
+                                )}
+                                {lead.status !== "converted" && (
+                                  <DropdownMenuItem onClick={() => handleConvertLead(lead)}>
+                                    <UserCheck className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
+                                    {t("Convert to Patient")}
+                                  </DropdownMenuItem>
+                                )}
+                                {lead.status !== "lost" && (
+                                  <DropdownMenuItem 
+                                    className="text-red-600"
+                                    onClick={() => handleStatusUpdate(lead._id || lead.id, "lost")}
+                                  >
+                                    <UserX className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
+                                    {t("Mark as Lost")}
+                                  </DropdownMenuItem>
+                                )}
                                 <DropdownMenuItem 
                                   className="text-red-600"
-                                  onClick={() => handleStatusUpdate(lead._id || lead.id, "lost")}
+                                  onClick={() => handleDeleteLead(lead._id || lead.id)}
                                 >
-                                  <UserX className="mr-2 h-4 w-4" />
-                                  {t("Mark as Lost")}
+                                  {t("Delete Lead")}
                                 </DropdownMenuItem>
-                              )}
-                              <DropdownMenuItem 
-                                className="text-red-600"
-                                onClick={() => handleDeleteLead(lead._id || lead.id)}
-                              >
-                                {t("Delete Lead")}
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}

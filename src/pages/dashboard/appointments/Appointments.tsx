@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useIsRTL } from "@/hooks/useIsRTL";
+import { cn } from "@/lib/utils";
 import { useAppointments, useUpdateAppointment, useDeleteAppointment } from "@/hooks/useApi";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -89,6 +91,7 @@ import { AppointmentSlipPDFGenerator, convertToAppointmentSlipData, type ClinicI
 
 const Appointments = () => {
   const { t } = useTranslation();
+  const isRTL = useIsRTL();
   const { currentClinic } = useClinic();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("all");
@@ -1040,18 +1043,18 @@ const Appointments = () => {
                   variant={currentView === "table" ? "default" : "ghost"}
                   size="sm"
                   onClick={() => setCurrentView("table")}
-                  className="h-8 px-3"
+                  className={cn("h-8 px-3 flex items-center gap-2", isRTL && "flex-row-reverse")}
                 >
-                  <TableIcon className="h-4 w-4 mr-1" />
+                  <TableIcon className="h-4 w-4" />
                   {t("Table")}
                 </Button>
                 <Button
                   variant={currentView === "calendar" ? "default" : "ghost"}
                   size="sm"
                   onClick={() => setCurrentView("calendar")}
-                  className="h-8 px-3"
+                  className={cn("h-8 px-3 flex items-center gap-2", isRTL && "flex-row-reverse")}
                 >
-                  <CalendarDays className="h-4 w-4 mr-1" />
+                  <CalendarDays className="h-4 w-4" />
                   {t("Calendar")}
                 </Button>
               </div>
@@ -1062,15 +1065,15 @@ const Appointments = () => {
               <>
                 {/* Desktop Table View */}
                 <div className="hidden lg:block">
-              <Table>
+              <Table dir={isRTL ? 'rtl' : 'ltr'}>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>{t("Patient")}</TableHead>
-                    <TableHead>{t("Doctor")}</TableHead>
-                    <TableHead>{t("Date & Time")}</TableHead>
-                    <TableHead>{t("Type")}</TableHead>
-                    <TableHead>{t("Status")}</TableHead>
-                    <TableHead className="text-right">{t("Actions")}</TableHead>
+                    <TableHead className={cn(isRTL && "text-right")}>{t("Patient")}</TableHead>
+                    <TableHead className={cn(isRTL && "text-right")}>{t("Doctor")}</TableHead>
+                    <TableHead className={cn(isRTL && "text-right")}>{t("Date & Time")}</TableHead>
+                    <TableHead className={cn(isRTL && "text-right")}>{t("Type")}</TableHead>
+                    <TableHead className={cn(isRTL && "text-right")}>{t("Status")}</TableHead>
+                    <TableHead className={cn("text-right", isRTL && "text-right")}>{t("Actions")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -1182,35 +1185,35 @@ const Appointments = () => {
                         <TableCell className="text-right">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="outline" size="sm" className="h-8">
-                                <MoreVertical className="h-4 w-4 mr-1" />
+                              <Button variant="outline" size="sm" className={cn("h-8 flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                                <MoreVertical className="h-4 w-4" />
                                 {t("Actions")}
                               </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => handleViewDetails(appointment)}>
-                                <Eye className="mr-2 h-4 w-4" />
+                            <DropdownMenuContent align={isRTL ? "start" : "end"}>
+                              <DropdownMenuItem onClick={() => handleViewDetails(appointment)} className={cn(isRTL && "flex-row-reverse")}>
+                                <Eye className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
                                 {t("View Details")}
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleEditAppointment(appointment)}>
-                                <Edit className="mr-2 h-4 w-4" />
+                              <DropdownMenuItem onClick={() => handleEditAppointment(appointment)} className={cn(isRTL && "flex-row-reverse")}>
+                                <Edit className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
                                 {t("Edit")}
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleDownloadSlip(appointment)}>
-                                <Download className="mr-2 h-4 w-4" />
+                              <DropdownMenuItem onClick={() => handleDownloadSlip(appointment)} className={cn(isRTL && "flex-row-reverse")}>
+                                <Download className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
                                 {t("Download Slip")}
                               </DropdownMenuItem>
                               {appointment.status !== "completed" && (
-                                <DropdownMenuItem onClick={() => handleMarkComplete(appointment)}>
-                                  <CheckCircle className="mr-2 h-4 w-4" />
+                                <DropdownMenuItem onClick={() => handleMarkComplete(appointment)} className={cn(isRTL && "flex-row-reverse")}>
+                                  <CheckCircle className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
                                   {t("Mark Complete")}
                                 </DropdownMenuItem>
                               )}
                               <DropdownMenuItem 
                                 onClick={() => handleCancelAppointment(appointment)}
-                                className="text-red-600"
+                                className={cn("text-red-600", isRTL && "flex-row-reverse")}
                               >
-                                <XCircle className="mr-2 h-4 w-4" />
+                                <XCircle className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
                                 {t("Cancel")}
                               </DropdownMenuItem>
                             </DropdownMenuContent>
@@ -1323,35 +1326,35 @@ const Appointments = () => {
                         </Badge>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="sm" className="h-8">
-                              <MoreVertical className="h-4 w-4 mr-1" />
+                            <Button variant="outline" size="sm" className={cn("h-8 flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                              <MoreVertical className="h-4 w-4" />
                               {t("Actions")}
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-48">
-                            <DropdownMenuItem onClick={() => handleViewDetails(appointment)}>
-                              <Eye className="mr-2 h-4 w-4" />
+                          <DropdownMenuContent align={isRTL ? "start" : "end"} className="w-48">
+                            <DropdownMenuItem onClick={() => handleViewDetails(appointment)} className={cn(isRTL && "flex-row-reverse")}>
+                              <Eye className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
                               {t("View Details")}
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleEditAppointment(appointment)}>
-                              <Edit className="mr-2 h-4 w-4" />
+                            <DropdownMenuItem onClick={() => handleEditAppointment(appointment)} className={cn(isRTL && "flex-row-reverse")}>
+                              <Edit className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
                               {t("Edit")}
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDownloadSlip(appointment)}>
-                              <Download className="mr-2 h-4 w-4" />
+                            <DropdownMenuItem onClick={() => handleDownloadSlip(appointment)} className={cn(isRTL && "flex-row-reverse")}>
+                              <Download className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
                               {t("Download Slip")}
                             </DropdownMenuItem>
                             {appointment.status !== "completed" && (
-                              <DropdownMenuItem onClick={() => handleMarkComplete(appointment)}>
-                                <CheckCircle className="mr-2 h-4 w-4" />
+                              <DropdownMenuItem onClick={() => handleMarkComplete(appointment)} className={cn(isRTL && "flex-row-reverse")}>
+                                <CheckCircle className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
                                 {t("Mark Complete")}
                               </DropdownMenuItem>
                             )}
                             <DropdownMenuItem 
                               onClick={() => handleCancelAppointment(appointment)}
-                              className="text-red-600"
+                              className={cn("text-red-600", isRTL && "flex-row-reverse")}
                             >
-                              <XCircle className="mr-2 h-4 w-4" />
+                              <XCircle className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
                               {t("Cancel")}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
@@ -1381,20 +1384,20 @@ const Appointments = () => {
                 </Select>
               </div>
               
-              <div className="flex items-center space-x-1">
+              <div className={cn("flex items-center", isRTL ? "space-x-reverse space-x-1" : "space-x-1")}>
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  className="text-xs h-8 px-2"
+                  className={cn("text-xs h-8 px-2 flex items-center gap-2", isRTL && "flex-row-reverse")}
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage <= 1}
                 >
-                  <ChevronLeft className="h-3 w-3 mr-1" />
+                  <ChevronLeft className={cn("h-3 w-3", isRTL && "scale-x-[-1]")} />
                   {t("Previous")}
                 </Button>
                 
                 {/* Page numbers */}
-                <div className="flex items-center space-x-1">
+                <div className={cn("flex items-center", isRTL ? "space-x-reverse space-x-1" : "space-x-1")}>
                   {Array.from({ length: Math.min(5, pagination.pages) }, (_, i) => {
                     let pageNum: number;
                     if (pagination.pages <= 5) {
@@ -1422,14 +1425,14 @@ const Appointments = () => {
                 </div>
                 
                 <Button 
-                  variant="outline" 
+                  variant="outline"
                   size="sm" 
-                  className="text-xs h-8 px-2"
+                  className={cn("text-xs h-8 px-2 flex items-center gap-2", isRTL && "flex-row-reverse")}
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage >= pagination.pages}
                 >
                   {t("Next")}
-                  <ChevronRight className="h-3 w-3 ml-1" />
+                  <ChevronRight className={cn("h-3 w-3", isRTL && "scale-x-[-1]")} />
                 </Button>
               </div>
             </div>
@@ -1445,13 +1448,14 @@ const Appointments = () => {
                         year: "numeric",
                       })}
                     </h3>
-                    <div className="flex items-center space-x-2">
+                    <div className={cn("flex items-center", isRTL ? "space-x-reverse space-x-2" : "space-x-2")}>
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => navigateCalendar('prev')}
+                        className={cn(isRTL && "flex-row-reverse")}
                       >
-                        <ChevronLeft className="h-4 w-4" />
+                        <ChevronLeft className={cn("h-4 w-4", isRTL && "scale-x-[-1]")} />
                       </Button>
                       <Button
                         variant="outline"
@@ -1464,8 +1468,9 @@ const Appointments = () => {
                         variant="outline"
                         size="sm"
                         onClick={() => navigateCalendar('next')}
+                        className={cn(isRTL && "flex-row-reverse")}
                       >
-                        <ChevronRight className="h-4 w-4" />
+                        <ChevronRight className={cn("h-4 w-4", isRTL && "scale-x-[-1]")} />
                       </Button>
                     </div>
                   </div>
@@ -1658,9 +1663,9 @@ const Appointments = () => {
                 variant="outline"
                 size="sm"
                 onClick={() => handleDownloadSlip(viewDetailsModal.appointment)}
-                className="ml-4"
+                className={cn("ml-4 flex items-center gap-2", isRTL && "flex-row-reverse mr-4 ml-0")}
               >
-                <Download className="h-4 w-4 mr-2" />
+                <Download className="h-4 w-4" />
                 {t("Download Slip")}
               </Button>
             </div>

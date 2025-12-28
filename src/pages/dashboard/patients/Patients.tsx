@@ -9,6 +9,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Patient as ApiPatient } from "@/services/api";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { useIsRTL } from "@/hooks/useIsRTL";
+import { cn } from "@/lib/utils";
 import {
   Card,
   CardContent,
@@ -57,6 +59,7 @@ import DeleteConfirmModal from "@/components/modals/DeleteConfirmModal";
 const Patients = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const isRTL = useIsRTL();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedGender, setSelectedGender] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
@@ -285,17 +288,18 @@ const Patients = () => {
     {
       key: 'patient',
       label: t('Patient'),
+      className: cn(isRTL && "text-right patient-column"),
       render: (patient: Patient) => (
-        <div className="flex items-center space-x-3">
-          <Avatar className="avatar-responsive">
+        <div className={cn("flex items-center patient-cell", isRTL ? "space-x-reverse space-x-0 flex-row-reverse justify-end gap-2" : "space-x-3")}>
+          <Avatar className="avatar-responsive flex-shrink-0">
             <AvatarImage src={patient.avatar} alt={patient.firstName} />
             <AvatarFallback>{getInitials(patient.firstName, patient.lastName)}</AvatarFallback>
           </Avatar>
-          <div>
-            <div className="font-medium text-sm xs:text-base">
+          <div className={cn(isRTL && "text-right flex-1")}>
+            <div className={cn("font-medium text-sm xs:text-base", isRTL && "text-right")}>
               {patient.firstName} {patient.lastName}
             </div>
-            <div className="text-xs xs:text-sm text-muted-foreground">
+            <div className={cn("text-xs xs:text-sm text-muted-foreground", isRTL && "text-right")}>
               {patient.gender} • {calculateAge(patient.dateOfBirth)} {t('years')}
             </div>
           </div>
@@ -305,15 +309,16 @@ const Patients = () => {
     {
       key: 'contact',
       label: t('Contact'),
+      className: cn(isRTL && "text-right contact-column"),
       render: (patient: Patient) => (
-        <div className="space-y-1">
-          <div className="flex items-center space-x-2">
-            <Phone className="icon-sm text-muted-foreground" />
-            <span className="text-xs xs:text-sm">{patient.phone}</span>
+        <div className={cn("space-y-1 contact-cell", isRTL && "text-right w-full")}>
+          <div className={cn("flex items-center w-full", isRTL ? "space-x-reverse space-x-2 flex-row-reverse justify-end" : "space-x-2")}>
+            <Phone className="icon-sm text-muted-foreground flex-shrink-0" />
+            <span className={cn("text-xs xs:text-sm", isRTL && "text-right")}>{patient.phone}</span>
           </div>
-          <div className="flex items-center space-x-2">
-            <Mail className="icon-sm text-muted-foreground" />
-            <span className="text-xs xs:text-sm truncate max-w-32">{patient.email}</span>
+          <div className={cn("flex items-center w-full", isRTL ? "space-x-reverse space-x-2 flex-row-reverse justify-end" : "space-x-2")}>
+            <Mail className="icon-sm text-muted-foreground flex-shrink-0" />
+            <span className={cn("text-xs xs:text-sm truncate max-w-32", isRTL && "text-right")}>{patient.email}</span>
           </div>
         </div>
       ),
@@ -321,24 +326,29 @@ const Patients = () => {
     {
       key: 'age',
       label: t('Age'),
+      className: cn(isRTL && "text-right"),
       render: (patient: Patient) => (
-        <span className="text-sm font-medium">{calculateAge(patient.dateOfBirth)} {t("years")}</span>
+        <span className={cn("text-sm font-medium", isRTL && "text-right")}>{calculateAge(patient.dateOfBirth)} {t("years")}</span>
       ),
     },
     {
       key: 'bloodGroup',
       label: t('Blood Group'),
+      className: cn(isRTL && "text-right"),
       render: (patient: Patient) => (
-        <Badge variant="outline" className="badge-responsive">
-                        {patient.bloodGroup || t('N/A')}
-        </Badge>
+        <div className={cn(isRTL && "text-right")}>
+          <Badge variant="outline" className="badge-responsive">
+            {patient.bloodGroup || t('N/A')}
+          </Badge>
+        </div>
       ),
     },
     {
       key: 'lastVisit',
       label: t('Last Visit'),
+      className: cn(isRTL && "text-right"),
       render: (patient: Patient) => (
-        <span className="text-xs xs:text-sm text-muted-foreground">
+        <span className={cn("text-xs xs:text-sm text-muted-foreground", isRTL && "text-right")}>
           {patient.lastVisit?.toLocaleDateString() || t('Never')}
         </span>
       ),
@@ -421,25 +431,25 @@ const Patients = () => {
   const tableActions = (patient: Patient) => (
               <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="h-8">
-                <MoreVertical className="h-4 w-4 mr-1" />
+              <Button variant="outline" size="sm" className={cn("h-8", isRTL && "flex-row-reverse")}>
+                <MoreVertical className={cn("h-4 w-4", isRTL ? "ml-1" : "mr-1")} />
                 {t("Actions")}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => handleViewDetails(patient)}>
-                <Eye className="mr-2 h-4 w-4" />
+            <DropdownMenuContent align={isRTL ? "start" : "end"}>
+              <DropdownMenuItem onClick={() => handleViewDetails(patient)} className={cn(isRTL && "flex-row-reverse")}>
+                <Eye className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
                 {t("View Details")}
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleEdit(patient)}>
-                <Edit className="mr-2 h-4 w-4" />
+              <DropdownMenuItem onClick={() => handleEdit(patient)} className={cn(isRTL && "flex-row-reverse")}>
+                <Edit className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
                 {t("Edit Patient")}
               </DropdownMenuItem>
               <DropdownMenuItem 
                 onClick={() => handleDelete(patient)}
-                className="text-destructive"
+                className={cn("text-destructive", isRTL && "flex-row-reverse")}
               >
-                <Trash2 className="mr-2 h-4 w-4" />
+                <Trash2 className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
                 {t("Delete Patient")}
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -514,8 +524,8 @@ const Patients = () => {
         actions={
           <AddPatientModal
             trigger={
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
+              <Button className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                <Plus className="h-4 w-4" />
                 {t("Add Patient")}
               </Button>
             }
@@ -605,14 +615,17 @@ const Patients = () => {
               </Alert>
             )}
 
-            <ResponsiveTable
-              data={filteredPatients}
-              columns={tableColumns}
-              mobileCard={mobileCardConfig}
-              actions={tableActions}
-              loading={isLoading}
-              emptyMessage={t("No patients found. Add your first patient to get started.")}
-            />
+            <div className="patients-table" dir={isRTL ? 'rtl' : 'ltr'}>
+              <ResponsiveTable
+                data={filteredPatients}
+                columns={tableColumns}
+                mobileCard={mobileCardConfig}
+                actions={tableActions}
+                loading={isLoading}
+                emptyMessage={t("No patients found. Add your first patient to get started.")}
+                actionsLabel={t("Actions")}
+              />
+            </div>
 
             {/* Pagination */}
             {totalPages > 1 && (

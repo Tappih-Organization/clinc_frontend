@@ -24,6 +24,8 @@ import { UserPlus, Plus, Globe, Phone, Mail, Users, Loader2 } from "lucide-react
 import { toast } from "@/hooks/use-toast";
 import { useCreateLead } from "@/hooks/useApi";
 import { parseApiError } from "@/utils/errorHandler";
+import { useIsRTL } from "@/hooks/useIsRTL";
+import { cn } from "@/lib/utils";
 
 interface AddLeadModalProps {
   trigger?: React.ReactNode;
@@ -31,6 +33,7 @@ interface AddLeadModalProps {
 
 const AddLeadModal: React.FC<AddLeadModalProps> = ({ trigger }) => {
   const { t } = useTranslation();
+  const isRTL = useIsRTL();
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
@@ -121,78 +124,85 @@ const AddLeadModal: React.FC<AddLeadModalProps> = ({ trigger }) => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button className="flex items-center gap-2">
+          <Button className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
             <Plus className="h-4 w-4" />
             {t("Add Lead")}
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className={cn("max-w-2xl max-h-[90vh] overflow-y-auto", isRTL && "text-right")} dir={isRTL ? 'rtl' : 'ltr'}>
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
             <UserPlus className="h-5 w-5" />
             {t("Add New Lead")}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className={cn(isRTL && "text-right")}>
             {t("Capture information about potential patients and track them through the conversion process.")}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Contact Information */}
-          <Card
-          >
+          <Card>
             <CardHeader>
-              <CardTitle className="text-lg flex items-center">
-                <Phone className="h-4 w-4 mr-2" />
+              <CardTitle className={cn("text-lg flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                <Phone className="h-4 w-4" />
                 {t("Contact Information")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName">{t("First Name *")}</Label>
+                  <Label htmlFor="firstName" className={cn(isRTL && "text-right")}>{t("First Name *")}</Label>
                   <Input
                     id="firstName"
                     value={formData.firstName}
                     onChange={(e) => handleChange("firstName", e.target.value)}
                     placeholder={t("Enter first name")}
                     required
+                    className={cn(isRTL && "text-right")}
+                    dir={isRTL ? 'rtl' : 'ltr'}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="lastName">{t("Last Name *")}</Label>
+                  <Label htmlFor="lastName" className={cn(isRTL && "text-right")}>{t("Last Name *")}</Label>
                   <Input
                     id="lastName"
                     value={formData.lastName}
                     onChange={(e) => handleChange("lastName", e.target.value)}
                     placeholder={t("Enter last name")}
                     required
+                    className={cn(isRTL && "text-right")}
+                    dir={isRTL ? 'rtl' : 'ltr'}
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email">{t("Email")}</Label>
+                  <Label htmlFor="email" className={cn(isRTL && "text-right")}>{t("Email")}</Label>
                   <Input
                     id="email"
                     type="email"
                     value={formData.email}
                     onChange={(e) => handleChange("email", e.target.value)}
                     placeholder={t("Enter email address")}
+                    className={cn(isRTL && "text-right")}
+                    dir={isRTL ? 'rtl' : 'ltr'}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="phone">{t("Phone Number *")}</Label>
+                  <Label htmlFor="phone" className={cn(isRTL && "text-right")}>{t("Phone Number *")}</Label>
                   <Input
                     id="phone"
                     value={formData.phone}
                     onChange={(e) => handleChange("phone", e.target.value)}
                     placeholder={t("Enter phone number")}
                     required
+                    className={cn(isRTL && "text-right")}
+                    dir={isRTL ? 'rtl' : 'ltr'}
                   />
                 </div>
               </div>
@@ -202,25 +212,25 @@ const AddLeadModal: React.FC<AddLeadModalProps> = ({ trigger }) => {
           {/* Lead Details */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg flex items-center">
-                <Globe className="h-4 w-4 mr-2" />
+              <CardTitle className={cn("text-lg flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                <Globe className="h-4 w-4" />
                 {t("Lead Details")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="source">{t("Lead Source *")}</Label>
+                  <Label htmlFor="source" className={cn(isRTL && "text-right")}>{t("Lead Source *")}</Label>
                   <Select
                     value={formData.source}
                     onValueChange={(value) => handleChange("source", value)}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className={cn(isRTL && "text-right")} dir={isRTL ? 'rtl' : 'ltr'}>
                       <SelectValue placeholder={t("How did they find us?")} />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent dir={isRTL ? 'rtl' : 'ltr'}>
                       {leadSources.map((source) => (
-                        <SelectItem key={source.value} value={source.value}>
+                        <SelectItem key={source.value} value={source.value} className={cn(isRTL && "text-right")}>
                           {source.label}
                         </SelectItem>
                       ))}
@@ -229,19 +239,19 @@ const AddLeadModal: React.FC<AddLeadModalProps> = ({ trigger }) => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="serviceInterest">{t("Service Interest *")}</Label>
+                  <Label htmlFor="serviceInterest" className={cn(isRTL && "text-right")}>{t("Service Interest *")}</Label>
                   <Select
                     value={formData.serviceInterest}
                     onValueChange={(value) =>
                       handleChange("serviceInterest", value)
                     }
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className={cn(isRTL && "text-right")} dir={isRTL ? 'rtl' : 'ltr'}>
                       <SelectValue placeholder={t("What service are they interested in?")} />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent dir={isRTL ? 'rtl' : 'ltr'}>
                       {services.map((service) => (
-                        <SelectItem key={service} value={service}>
+                        <SelectItem key={service} value={service} className={cn(isRTL && "text-right")}>
                           {service}
                         </SelectItem>
                       ))}
@@ -251,30 +261,34 @@ const AddLeadModal: React.FC<AddLeadModalProps> = ({ trigger }) => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="assignedTo">{t("Assigned To")}</Label>
+                <Label htmlFor="assignedTo" className={cn(isRTL && "text-right")}>{t("Assigned To")}</Label>
                 <Input
                   id="assignedTo"
                   value={formData.assignedTo}
                   onChange={(e) => handleChange("assignedTo", e.target.value)}
                   placeholder={t("Assign to staff member (optional)")}
+                  className={cn(isRTL && "text-right")}
+                  dir={isRTL ? 'rtl' : 'ltr'}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="notes">{t("Notes")}</Label>
+                <Label htmlFor="notes" className={cn(isRTL && "text-right")}>{t("Notes")}</Label>
                 <Textarea
                   id="notes"
                   value={formData.notes}
                   onChange={(e) => handleChange("notes", e.target.value)}
                   placeholder={t("Additional information about the lead, their needs, timeline, etc.")}
                   rows={3}
+                  className={cn(isRTL && "text-right")}
+                  dir={isRTL ? 'rtl' : 'ltr'}
                 />
               </div>
             </CardContent>
           </Card>
 
           {/* Action Buttons */}
-          <div className="flex justify-end space-x-3 pt-4">
+          <div className={cn("flex pt-4", isRTL ? "justify-end gap-3 flex-row-reverse" : "justify-end gap-3")}>
             <Button
               type="button"
               variant="outline"
@@ -286,15 +300,16 @@ const AddLeadModal: React.FC<AddLeadModalProps> = ({ trigger }) => {
             <Button
               type="submit"
               disabled={createLeadMutation.isPending}
+              className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}
             >
               {createLeadMutation.isPending ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="h-4 w-4 animate-spin" />
                   {t("Adding Lead...")}
                 </>
               ) : (
                 <>
-                  <UserPlus className="mr-2 h-4 w-4" />
+                  <UserPlus className="h-4 w-4" />
                   {t("Add Lead")}
                 </>
               )}

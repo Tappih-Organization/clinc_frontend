@@ -14,6 +14,8 @@ import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { useIsRTL } from "@/hooks/useIsRTL";
+import { cn } from "@/lib/utils";
 import { Patient } from "@/types";
 import { apiService, type AITestComparison, type AITestComparisonStats, type ParameterComparison } from "@/services/api";
 import { ResponsiveTable } from "@/components/ui/table";
@@ -49,6 +51,7 @@ import {
 const AITestComparison: React.FC = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const isRTL = useIsRTL();
   const { toast } = useToast();
 
   // State management
@@ -488,9 +491,9 @@ const AITestComparison: React.FC = () => {
       {
         key: 'parameter',
         label: t('Parameter'),
-        className: 'font-medium',
+        className: cn('font-medium', isRTL && 'text-right'),
         render: (item: any) => (
-          <div className="flex items-center gap-2">
+          <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
             <span>{item.parameter}</span>
             {item.is_concerning && (
               <AlertTriangle className="w-4 h-4 text-red-600" />
@@ -528,9 +531,9 @@ const AITestComparison: React.FC = () => {
     const trendColumn = {
       key: 'trend',
       label: t('Trend'),
-      className: 'text-center',
+      className: cn('text-center', isRTL && 'text-right'),
       render: (item: any) => (
-        <div className="flex items-center justify-center gap-2">
+        <div className={cn("flex items-center justify-center gap-2", isRTL && "flex-row-reverse")}>
           {getTrendIcon(item.trend)}
           <span className="text-xs capitalize">{item.trend}</span>
         </div>
@@ -555,28 +558,32 @@ const AITestComparison: React.FC = () => {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className={cn("p-6 space-y-6", isRTL && "text-right")} dir={isRTL ? 'ltr' : 'ltr'}>
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+      <div className={cn("flex items-center justify-between", isRTL && "flex-row-reverse")}>
+        <div className={cn(isRTL && "text-right")}>
+          <h1 className={cn("text-2xl font-bold tracking-tight text-foreground flex items-center gap-2", isRTL && "flex-row-reverse")}>
             <Brain className="w-7 h-7 text-blue-600" />
             {t("Compare Test Reports using AI")}
           </h1>
-          <p className="text-muted-foreground">
+          <p className={cn("text-muted-foreground", isRTL && "text-right")}>
             {t("Upload multiple test reports to compare parameters across different dates")}
           </p>
         </div>
-        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-          <Microscope className="w-3 h-3 mr-1" />
+        <Badge variant="outline" className={cn("bg-blue-50 text-blue-700 border-blue-200", isRTL && "flex-row-reverse")}>
+          <Microscope className={cn("w-3 h-3", isRTL ? "ml-1" : "mr-1")} />
           {t("AI Powered")}
         </Badge>
       </div>
 
       <Tabs defaultValue="compare" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="compare">{t("Compare Reports")}</TabsTrigger>
-          <TabsTrigger value="history">{t("Comparison History")}</TabsTrigger>
+        <TabsList className={cn("grid w-full grid-cols-2", isRTL && "lg:mr-auto lg:ml-0")}>
+          <TabsTrigger value="compare" className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+            {t("Compare Reports")}
+          </TabsTrigger>
+          <TabsTrigger value="history" className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+            {t("Comparison History")}
+          </TabsTrigger>
         </TabsList>
 
         {/* Compare Reports Tab */}
@@ -585,12 +592,12 @@ const AITestComparison: React.FC = () => {
             <>
               {/* Upload Section */}
               <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                <CardHeader className={cn(isRTL && "text-right")}>
+                  <CardTitle className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
                     <Upload className="w-5 h-5 text-blue-600" />
                     {t("Upload Test Reports")}
                   </CardTitle>
-                  <CardDescription>
+                  <CardDescription className={cn(isRTL && "text-right")}>
                     {t("Upload 2-10 test reports (PDF or Images) to compare parameters across different dates. For PDFs, first 5 pages are analyzed.")}
                   </CardDescription>
                 </CardHeader>
@@ -624,18 +631,18 @@ const AITestComparison: React.FC = () => {
 
                   {/* Selected Files Display */}
                   {selectedFiles.length > 0 && (
-                    <div className="space-y-2">
-                      <Label className="font-medium">{t("Selected Files")} ({selectedFiles.length})</Label>
+                    <div className={cn("space-y-2", isRTL && "text-right")}>
+                      <Label className={cn("font-medium", isRTL && "text-right")}>{t("Selected Files")} ({selectedFiles.length})</Label>
                       <div className="grid gap-3">
                         {selectedFiles.map((file, index) => (
-                          <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                            <div className="flex items-center gap-3">
+                          <div key={index} className={cn("flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg", isRTL && "flex-row-reverse")}>
+                            <div className={cn("flex items-center gap-3", isRTL && "flex-row-reverse")}>
                               {file.type.includes('pdf') ? (
                                 <FileText className="w-6 h-6 text-red-600" />
                               ) : (
                                 <FileImage className="w-6 h-6 text-blue-600" />
                               )}
-                              <div>
+                              <div className={cn(isRTL && "text-right")}>
                                 <p className="font-medium truncate max-w-xs">{file.name}</p>
                                 <p className="text-xs text-gray-500">
                                   {(file.size / (1024 * 1024)).toFixed(2)} MB
@@ -657,13 +664,13 @@ const AITestComparison: React.FC = () => {
                   )}
 
                   {/* Patient Selection */}
-                  <div className="grid gap-2">
-                    <Label htmlFor="patient">{t("Select Patient")} *</Label>
+                  <div className={cn("grid gap-2", isRTL && "text-right")}>
+                    <Label htmlFor="patient" className={cn(isRTL && "text-right")}>{t("Select Patient")} *</Label>
                     <Select value={selectedPatient} onValueChange={setSelectedPatient}>
-                      <SelectTrigger>
+                      <SelectTrigger className={cn(isRTL && "text-right")}>
                         <SelectValue placeholder={t("Choose a patient")} />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent align={isRTL ? "start" : "end"}>
                         {patients && patients.length > 0 ? (
                           patients.map((patient) => (
                             <SelectItem key={patient.id || patient._id} value={patient.id || patient._id}>
@@ -681,33 +688,35 @@ const AITestComparison: React.FC = () => {
                   </div>
 
                   {/* Comparison Name */}
-                  <div className="grid gap-2">
-                    <Label htmlFor="comparison-name">{t("Comparison Name")} ({t("Optional")})</Label>
+                  <div className={cn("grid gap-2", isRTL && "text-right")}>
+                    <Label htmlFor="comparison-name" className={cn(isRTL && "text-right")}>{t("Comparison Name")} ({t("Optional")})</Label>
                     <Input
                       id="comparison-name"
                       value={comparisonName}
                       onChange={(e) => setComparisonName(e.target.value)}
                       placeholder={t("e.g., Blood Tests - Q1 2024 vs Q2 2024")}
+                      className={cn(isRTL && "text-right")}
                     />
                   </div>
 
                   {/* Custom Prompt */}
-                  <div className="grid gap-2">
-                    <Label htmlFor="custom-prompt">{t("Custom Instructions")} ({t("Optional")})</Label>
+                  <div className={cn("grid gap-2", isRTL && "text-right")}>
+                    <Label htmlFor="custom-prompt" className={cn(isRTL && "text-right")}>{t("Custom Instructions")} ({t("Optional")})</Label>
                     <Textarea
                       id="custom-prompt"
                       value={customPrompt}
                       onChange={(e) => setCustomPrompt(e.target.value)}
                       placeholder={t("Any specific instructions for the AI analysis and comparison...")}
                       rows={3}
+                      className={cn(isRTL && "text-right")}
                     />
                   </div>
 
                   {/* Progress Bar */}
                   {isUploading && (
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium">{t("Processing comparison...")}</span>
+                    <div className={cn("space-y-2", isRTL && "text-right")}>
+                      <div className={cn("flex justify-between items-center", isRTL && "flex-row-reverse")}>
+                        <span className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Processing comparison...")}</span>
                         <span className="text-sm text-gray-500">{uploadProgress}%</span>
                       </div>
                       <Progress value={uploadProgress} className="h-2" />
@@ -718,17 +727,17 @@ const AITestComparison: React.FC = () => {
                   <Button
                     onClick={handleCompareReports}
                     disabled={selectedFiles.length < 2 || !selectedPatient || isUploading}
-                    className="w-full"
+                    className={cn("w-full", isRTL && "flex-row-reverse")}
                     size="lg"
                   >
                     {isUploading ? (
                       <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        <Loader2 className={cn("w-4 h-4 animate-spin", isRTL ? "ml-2" : "mr-2")} />
                         {t("Comparing Reports...")}
                       </>
                     ) : (
                       <>
-                        <Brain className="w-4 h-4 mr-2" />
+                        <Brain className={cn("w-4 h-4", isRTL ? "ml-2" : "mr-2")} />
                         {t("Compare Test Reports")}
                       </>
                     )}
@@ -742,22 +751,22 @@ const AITestComparison: React.FC = () => {
               <div className="space-y-6">
                 {/* Results Header */}
                 <Card>
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <CardTitle className="flex items-center gap-2">
+                  <CardHeader className={cn(isRTL && "text-right")}>
+                    <div className={cn("flex items-start justify-between", isRTL && "flex-row-reverse")}>
+                      <div className={cn(isRTL && "text-right")}>
+                        <CardTitle className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
                           <Brain className="w-5 h-5 text-blue-600" />
                           {currentComparison.comparison_name}
                         </CardTitle>
-                        <CardDescription className="mt-1">
+                        <CardDescription className={cn("mt-1", isRTL && "text-right")}>
                           {t("Comparison of")} {currentComparison.report_count} {t("test reports from")} {' '}
                           {new Date(currentComparison.date_range.start_date).toLocaleDateString()} {t("to")} {' '}
                           {new Date(currentComparison.date_range.end_date).toLocaleDateString()}
                         </CardDescription>
                       </div>
-                      <div className="flex gap-2">
-                        <Button variant="outline" onClick={() => setShowResults(false)}>
-                          <Plus className="w-4 h-4 mr-2" />
+                      <div className={cn("flex gap-2", isRTL && "flex-row-reverse")}>
+                        <Button variant="outline" onClick={() => setShowResults(false)} className={cn(isRTL && "flex-row-reverse")}>
+                          <Plus className={cn("w-4 h-4", isRTL ? "ml-2" : "mr-2")} />
                           {t("New Comparison")}
                         </Button>
                       </div>
@@ -765,27 +774,27 @@ const AITestComparison: React.FC = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                      <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                      <div className={cn("text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg", isRTL && "text-right")}>
                         <div className="text-2xl font-bold text-blue-600">{currentComparison.report_count}</div>
-                        <div className="text-sm text-gray-600">{t("Reports Analyzed")}</div>
+                        <div className={cn("text-sm text-gray-600", isRTL && "text-right")}>{t("Reports Analyzed")}</div>
                       </div>
-                      <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                      <div className={cn("text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg", isRTL && "text-right")}>
                         <div className="text-2xl font-bold text-green-600">
                           {currentComparison.comparison_analysis?.stable_parameters?.length || 0}
                         </div>
-                        <div className="text-sm text-gray-600">{t("Stable Parameters")}</div>
+                        <div className={cn("text-sm text-gray-600", isRTL && "text-right")}>{t("Stable Parameters")}</div>
                       </div>
-                      <div className="text-center p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                      <div className={cn("text-center p-4 bg-red-50 dark:bg-red-900/20 rounded-lg", isRTL && "text-right")}>
                         <div className="text-2xl font-bold text-red-600">
                           {currentComparison.comparison_analysis?.concerning_parameters?.length || 0}
                         </div>
-                        <div className="text-sm text-gray-600">{t("Concerning Changes")}</div>
+                        <div className={cn("text-sm text-gray-600", isRTL && "text-right")}>{t("Concerning Changes")}</div>
                       </div>
-                      <div className="text-center p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                      <div className={cn("text-center p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg", isRTL && "text-right")}>
                         <div className="text-2xl font-bold text-yellow-600">
                           {Math.round(currentComparison.processing_time_ms / 1000)}s
                         </div>
-                        <div className="text-sm text-gray-600">{t("Processing Time")}</div>
+                        <div className={cn("text-sm text-gray-600", isRTL && "text-right")}>{t("Processing Time")}</div>
                       </div>
                     </div>
                   </CardContent>
@@ -793,17 +802,17 @@ const AITestComparison: React.FC = () => {
 
                 {/* Comparison Table */}
                 <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
+                  <CardHeader className={cn(isRTL && "text-right")}>
+                    <CardTitle className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
                       <BarChart3 className="w-5 h-5 text-blue-600" />
                       {t("Parameter Comparison")}
                     </CardTitle>
-                    <CardDescription>
+                    <CardDescription className={cn(isRTL && "text-right")}>
                       {t("Compare test parameter values across different report dates")}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="border rounded-lg overflow-hidden">
+                    <div className="border rounded-lg overflow-hidden" dir={isRTL ? 'rtl' : 'ltr'}>
                       <ResponsiveTable
                         data={getComparisonTableData(currentComparison)}
                         columns={getComparisonTableColumns(currentComparison)}
@@ -819,13 +828,13 @@ const AITestComparison: React.FC = () => {
                     {/* Key Changes */}
                     {currentComparison.comparison_analysis.key_changes.length > 0 && (
                       <Card>
-                        <CardHeader>
-                          <CardTitle className="text-lg">{t("Key Changes")}</CardTitle>
+                        <CardHeader className={cn(isRTL && "text-right")}>
+                          <CardTitle className={cn("text-lg", isRTL && "text-right")}>{t("Key Changes")}</CardTitle>
                         </CardHeader>
-                        <CardContent>
+                        <CardContent className={cn(isRTL && "text-right")}>
                           <div className="space-y-2">
                             {currentComparison.comparison_analysis.key_changes.map((change, index) => (
-                              <Badge key={index} variant="outline" className="mr-2 mb-1">
+                              <Badge key={index} variant="outline" className={cn(isRTL ? "ml-2" : "mr-2", "mb-1")}>
                                 {change}
                               </Badge>
                             ))}
@@ -837,20 +846,20 @@ const AITestComparison: React.FC = () => {
                     {/* Recommendations */}
                     {currentComparison.comparison_analysis.recommendations.length > 0 && (
                       <Card>
-                        <CardHeader>
-                          <CardTitle className="text-lg">{t("Recommendations")}</CardTitle>
+                        <CardHeader className={cn(isRTL && "text-right")}>
+                          <CardTitle className={cn("text-lg", isRTL && "text-right")}>{t("Recommendations")}</CardTitle>
                         </CardHeader>
-                        <CardContent>
+                        <CardContent className={cn(isRTL && "text-right")}>
                           <div className="space-y-3">
                             {currentComparison.comparison_analysis.recommendations.map((rec, index) => (
-                              <div key={index} className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                                <div className="flex items-center gap-2 mb-1">
+                              <div key={index} className={cn("p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg", isRTL && "text-right")}>
+                                <div className={cn("flex items-center gap-2 mb-1", isRTL && "flex-row-reverse")}>
                                   <Badge variant={rec.priority === 'high' ? 'destructive' : rec.priority === 'medium' ? 'default' : 'secondary'}>
                                     {rec.priority}
                                   </Badge>
                                   <span className="text-xs text-gray-500">{rec.timeline}</span>
                                 </div>
-                                <p className="text-sm">{rec.action}</p>
+                                <p className={cn("text-sm", isRTL && "text-right")}>{rec.action}</p>
                               </div>
                             ))}
                           </div>
@@ -860,26 +869,26 @@ const AITestComparison: React.FC = () => {
 
                     {/* Patient Summary */}
                     <Card className="lg:col-span-2">
-                      <CardHeader>
-                        <CardTitle className="text-lg">{t("Patient Summary")}</CardTitle>
+                      <CardHeader className={cn(isRTL && "text-right")}>
+                        <CardTitle className={cn("text-lg", isRTL && "text-right")}>{t("Patient Summary")}</CardTitle>
                       </CardHeader>
-                      <CardContent>
+                      <CardContent className={cn(isRTL && "text-right")}>
                         <div className="space-y-4">
                           <div>
-                            <h4 className="font-medium mb-2">{t("Overall Status")}:</h4>
-                            <p className="text-sm text-gray-700 dark:text-gray-300">
+                            <h4 className={cn("font-medium mb-2", isRTL && "text-right")}>{t("Overall Status")}:</h4>
+                            <p className={cn("text-sm text-gray-700 dark:text-gray-300", isRTL && "text-right")}>
                               {currentComparison.comparison_analysis.patient_summary.overall_status}
                             </p>
                           </div>
                           <div>
-                            <h4 className="font-medium mb-2">{t("Main Findings")}:</h4>
-                            <p className="text-sm text-gray-700 dark:text-gray-300">
+                            <h4 className={cn("font-medium mb-2", isRTL && "text-right")}>{t("Main Findings")}:</h4>
+                            <p className={cn("text-sm text-gray-700 dark:text-gray-300", isRTL && "text-right")}>
                               {currentComparison.comparison_analysis.patient_summary.main_findings}
                             </p>
                           </div>
                           <div>
-                            <h4 className="font-medium mb-2">{t("Next Steps")}:</h4>
-                            <p className="text-sm text-gray-700 dark:text-gray-300">
+                            <h4 className={cn("font-medium mb-2", isRTL && "text-right")}>{t("Next Steps")}:</h4>
+                            <p className={cn("text-sm text-gray-700 dark:text-gray-300", isRTL && "text-right")}>
                               {currentComparison.comparison_analysis.patient_summary.next_steps}
                             </p>
                           </div>
@@ -899,44 +908,44 @@ const AITestComparison: React.FC = () => {
           {comparisonStats && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between">
+                <CardContent className={cn("pt-6", isRTL && "text-right")}>
+                  <div className={cn("flex items-center justify-between", isRTL && "flex-row-reverse")}>
                     <div>
                       <p className="text-2xl font-bold">{comparisonStats.total_comparisons}</p>
-                      <p className="text-xs text-muted-foreground">{t("Total Comparisons")}</p>
+                      <p className={cn("text-xs text-muted-foreground", isRTL && "text-right")}>{t("Total Comparisons")}</p>
                     </div>
                     <Brain className="w-4 h-4 text-muted-foreground" />
                   </div>
                 </CardContent>
               </Card>
               <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between">
+                <CardContent className={cn("pt-6", isRTL && "text-right")}>
+                  <div className={cn("flex items-center justify-between", isRTL && "flex-row-reverse")}>
                     <div>
                       <p className="text-2xl font-bold">{comparisonStats.completed}</p>
-                      <p className="text-xs text-muted-foreground">{t("Completed")}</p>
+                      <p className={cn("text-xs text-muted-foreground", isRTL && "text-right")}>{t("Completed")}</p>
                     </div>
                     <CheckCircle className="w-4 h-4 text-green-600" />
                   </div>
                 </CardContent>
               </Card>
               <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between">
+                <CardContent className={cn("pt-6", isRTL && "text-right")}>
+                  <div className={cn("flex items-center justify-between", isRTL && "flex-row-reverse")}>
                     <div>
                       <p className="text-2xl font-bold">{comparisonStats.processing}</p>
-                      <p className="text-xs text-muted-foreground">{t("Processing")}</p>
+                      <p className={cn("text-xs text-muted-foreground", isRTL && "text-right")}>{t("Processing")}</p>
                     </div>
                     <Clock className="w-4 h-4 text-blue-600" />
                   </div>
                 </CardContent>
               </Card>
               <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between">
+                <CardContent className={cn("pt-6", isRTL && "text-right")}>
+                  <div className={cn("flex items-center justify-between", isRTL && "flex-row-reverse")}>
                     <div>
                       <p className="text-2xl font-bold">{comparisonStats.this_month}</p>
-                      <p className="text-xs text-muted-foreground">{t("This Month")}</p>
+                      <p className={cn("text-xs text-muted-foreground", isRTL && "text-right")}>{t("This Month")}</p>
                     </div>
                     <Calendar className="w-4 h-4 text-muted-foreground" />
                   </div>
@@ -947,25 +956,25 @@ const AITestComparison: React.FC = () => {
 
           {/* Filters */}
           <Card>
-            <CardContent className="pt-6">
-              <div className="flex flex-col sm:flex-row gap-4">
+            <CardContent className={cn("pt-6", isRTL && "text-right")}>
+              <div className={cn("flex flex-col sm:flex-row gap-4", isRTL && "sm:flex-row-reverse")}>
                 <div className="flex-1">
                   <div className="relative">
-                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Search className={cn("absolute top-2.5 h-4 w-4 text-muted-foreground", isRTL ? "right-2" : "left-2")} />
                     <Input
                       placeholder={t("Search comparisons...")}
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-8"
+                      className={cn(isRTL ? "pr-8" : "pl-8", isRTL && "text-right")}
                     />
                   </div>
                 </div>
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-full sm:w-40">
-                    <Filter className="w-4 h-4 mr-2" />
+                  <SelectTrigger className={cn("w-full sm:w-40", isRTL && "text-right flex-row-reverse")}>
+                    <Filter className={cn("w-4 h-4", isRTL ? "ml-2" : "mr-2")} />
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent align={isRTL ? "start" : "end"}>
                     <SelectItem value="all">{t("All Status")}</SelectItem>
                     <SelectItem value="completed">{t("Completed")}</SelectItem>
                     <SelectItem value="processing">{t("Processing")}</SelectItem>
@@ -973,8 +982,8 @@ const AITestComparison: React.FC = () => {
                     <SelectItem value="failed">{t("Failed")}</SelectItem>
                   </SelectContent>
                 </Select>
-                <Button variant="outline" onClick={() => fetchComparisons()}>
-                  <RefreshCw className="w-4 h-4 mr-2" />
+                <Button variant="outline" onClick={() => fetchComparisons()} className={cn(isRTL && "flex-row-reverse")}>
+                  <RefreshCw className={cn("w-4 h-4", isRTL ? "ml-2" : "mr-2")} />
                   {t("Refresh")}
                 </Button>
               </div>
@@ -983,26 +992,29 @@ const AITestComparison: React.FC = () => {
 
           {/* Comparisons Table */}
           <Card>
-            <CardHeader>
-              <CardTitle>{t("Comparison History")}</CardTitle>
-              <CardDescription>
+            <CardHeader className={cn(isRTL && "text-right")}>
+              <CardTitle className={cn(isRTL && "text-right")}>{t("Comparison History")}</CardTitle>
+              <CardDescription className={cn(isRTL && "text-right")}>
                 {t("View and manage your AI test report comparisons")}
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ResponsiveTable
-                data={comparisons.filter(comparison => 
-                  searchTerm === "" || 
-                  comparison.comparison_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                  (typeof comparison.patient_id === 'object' && comparison.patient_id && 
-                   `${comparison.patient_id.first_name} ${comparison.patient_id.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()))
-                )}
-                columns={[
+              <div dir={isRTL ? 'rtl' : 'ltr'}>
+                <ResponsiveTable
+                  data={comparisons.filter(comparison => 
+                    searchTerm === "" || 
+                    comparison.comparison_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    (typeof comparison.patient_id === 'object' && comparison.patient_id && 
+                     `${comparison.patient_id.first_name} ${comparison.patient_id.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()))
+                  )}
+                  actionsLabel={t("Actions")}
+                  columns={[
                   {
                     key: "comparison_name",
                     label: t("Comparison Name"),
+                    className: cn(isRTL && "text-right"),
                     render: (comparison) => (
-                      <div>
+                      <div className={cn(isRTL && "text-right")}>
                         <p className="font-medium">{comparison.comparison_name}</p>
                         <p className="text-sm text-gray-500">
                           {comparison.report_count} {t("reports")}
@@ -1013,8 +1025,9 @@ const AITestComparison: React.FC = () => {
                   {
                     key: "patient",
                     label: t("Patient"),
+                    className: cn(isRTL && "text-right"),
                     render: (comparison) => (
-                      <div>
+                      <div className={cn(isRTL && "text-right")}>
                         <p className="font-medium">
                           {typeof comparison.patient_id === 'object' && comparison.patient_id ? 
                             `${comparison.patient_id.first_name} ${comparison.patient_id.last_name}` : 
@@ -1026,19 +1039,21 @@ const AITestComparison: React.FC = () => {
                   {
                     key: "date_range",
                     label: t("Date Range"),
+                    className: cn(isRTL && "text-right"),
                     render: (comparison) => (
-                      <div className="text-sm">
+                      <div className={cn("text-sm", isRTL && "text-right")}>
                         <div>{new Date(comparison.date_range.start_date).toLocaleDateString()}</div>
-                        <div className="text-gray-500">to {new Date(comparison.date_range.end_date).toLocaleDateString()}</div>
+                        <div className="text-gray-500">{t("to")} {new Date(comparison.date_range.end_date).toLocaleDateString()}</div>
                       </div>
                     )
                   },
                   {
                     key: "status",
                     label: t("Status"),
+                    className: cn(isRTL && "text-right"),
                     render: (comparison) => (
                       <Badge className={getStatusColor(comparison.status)}>
-                        <div className="flex items-center gap-1">
+                        <div className={cn("flex items-center gap-1", isRTL && "flex-row-reverse")}>
                           {getStatusIcon(comparison.status)}
                           {comparison.status}
                         </div>
@@ -1048,8 +1063,9 @@ const AITestComparison: React.FC = () => {
                   {
                     key: "actions",
                     label: t("Actions"),
+                    className: cn(isRTL ? "text-right" : "text-left"),
                     render: (comparison) => (
-                      <div className="flex gap-2">
+                      <div className={cn("flex gap-2", isRTL ? "flex-row-reverse justify-end" : "justify-start")}>
                         {comparison.status === 'completed' && (
                           <Button 
                             variant="ghost" 
@@ -1076,6 +1092,7 @@ const AITestComparison: React.FC = () => {
                 ]}
                 emptyMessage={t("No comparisons found")}
               />
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -1088,13 +1105,13 @@ const AITestComparison: React.FC = () => {
           setViewModalComparison(null);
         }
       }}>
-        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+        <DialogContent className={cn("max-w-6xl max-h-[90vh] overflow-y-auto", isRTL && "text-right")} dir={isRTL ? 'rtl' : 'ltr'}>
+          <DialogHeader className={cn(isRTL && "text-right")}>
+            <DialogTitle className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
               <Brain className="w-5 h-5 text-blue-600" />
               {t("Test Comparison Details")}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className={cn(isRTL && "text-right")}>
               {viewModalComparison?.comparison_name}
             </DialogDescription>
           </DialogHeader>
@@ -1102,31 +1119,31 @@ const AITestComparison: React.FC = () => {
           {viewModalComparison && (
             <div className="space-y-6">
               {/* Summary Info */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <div className={cn("grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg", isRTL && "text-right")}>
                 <div>
-                  <p className="text-sm font-medium">{t("Patient")}:</p>
-                  <p className="text-sm">
+                  <p className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Patient")}:</p>
+                  <p className={cn("text-sm", isRTL && "text-right")}>
                     {typeof viewModalComparison.patient_id === 'object' && viewModalComparison.patient_id ? 
                       `${viewModalComparison.patient_id.first_name} ${viewModalComparison.patient_id.last_name}` : 
                       'Unknown Patient'}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium">{t("Date Range")}:</p>
-                  <p className="text-sm">
+                  <p className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Date Range")}:</p>
+                  <p className={cn("text-sm", isRTL && "text-right")}>
                     {new Date(viewModalComparison.date_range.start_date).toLocaleDateString()} - {' '}
                     {new Date(viewModalComparison.date_range.end_date).toLocaleDateString()}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium">{t("Reports Analyzed")}:</p>
-                  <p className="text-sm">{viewModalComparison.report_count}</p>
+                  <p className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Reports Analyzed")}:</p>
+                  <p className={cn("text-sm", isRTL && "text-right")}>{viewModalComparison.report_count}</p>
                 </div>
               </div>
 
               {/* Comparison Table */}
-              <div>
-                <h4 className="font-medium mb-3">{t("Parameter Comparison")}:</h4>
+              <div className={cn(isRTL && "text-right")} dir={isRTL ? 'rtl' : 'ltr'}>
+                <h4 className={cn("font-medium mb-3", isRTL && "text-right")}>{t("Parameter Comparison")}:</h4>
                 <div className="border rounded-lg overflow-hidden">
                   <ResponsiveTable
                     data={getComparisonTableData(viewModalComparison)}
@@ -1137,7 +1154,7 @@ const AITestComparison: React.FC = () => {
               </div>
 
               {/* Close Button */}
-              <div className="flex justify-end">
+              <div className={cn("flex justify-end", isRTL && "flex-row-reverse")}>
                 <Button
                   variant="outline"
                   onClick={() => {
@@ -1160,29 +1177,29 @@ const AITestComparison: React.FC = () => {
           setComparisonToDelete(null);
         }
       }}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-red-600">
+        <DialogContent className={cn("max-w-md", isRTL && "text-right")} dir={isRTL ? 'rtl' : 'ltr'}>
+          <DialogHeader className={cn(isRTL && "text-right")}>
+            <DialogTitle className={cn("flex items-center gap-2 text-red-600", isRTL && "flex-row-reverse")}>
               <Trash2 className="w-5 h-5" />
               {t("Delete Comparison")}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className={cn(isRTL && "text-right")}>
               {t("This action cannot be undone. This will permanently delete the test comparison.")}
             </DialogDescription>
           </DialogHeader>
 
           {comparisonToDelete && (
             <div className="py-4">
-              <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-lg p-4">
-                <div className="flex items-center gap-3">
+              <div className={cn("bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-lg p-4", isRTL && "text-right")}>
+                <div className={cn("flex items-center gap-3", isRTL && "flex-row-reverse")}>
                   <div className="flex-shrink-0">
                     <AlertTriangle className="w-5 h-5 text-red-600" />
                   </div>
                   <div className="flex-1">
-                    <p className="font-medium text-red-800 dark:text-red-200">
+                    <p className={cn("font-medium text-red-800 dark:text-red-200", isRTL && "text-right")}>
                       {comparisonToDelete.comparison_name}
                     </p>
-                    <p className="text-sm text-red-600 dark:text-red-300">
+                    <p className={cn("text-sm text-red-600 dark:text-red-300", isRTL && "text-right")}>
                       {comparisonToDelete.report_count} {t("reports")} • {new Date(comparisonToDelete.comparison_date).toLocaleDateString()}
                     </p>
                   </div>
@@ -1191,7 +1208,7 @@ const AITestComparison: React.FC = () => {
             </div>
           )}
 
-          <div className="flex justify-end gap-3">
+          <div className={cn("flex justify-end gap-3", isRTL && "flex-row-reverse")}>
             <Button
               variant="outline"
               onClick={() => {
@@ -1204,8 +1221,9 @@ const AITestComparison: React.FC = () => {
             <Button
               variant="destructive"
               onClick={confirmDeleteComparison}
+              className={cn(isRTL && "flex-row-reverse")}
             >
-              <Trash2 className="w-4 h-4 mr-2" />
+              <Trash2 className={cn("w-4 h-4", isRTL ? "ml-2" : "mr-2")} />
               {t("Delete")}
             </Button>
           </div>

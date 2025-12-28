@@ -43,6 +43,7 @@ import {
   Plus,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { useIsRTL } from "@/hooks/useIsRTL";
 import ToothChart from "@/components/odontogram/ToothChart";
 import ToothConditionModal from "@/components/modals/ToothConditionModal";
 import ExportModal from "@/components/modals/ExportModal";
@@ -73,6 +74,7 @@ const OdontogramDetailModal: React.FC<OdontogramDetailModalProps> = ({
   odontogramId,
   editable = false,
 }) => {
+  const isRTL = useIsRTL();
   const [odontogram, setOdontogram] = useState<Odontogram | null>(null);
   const [loading, setLoading] = useState(false);
   const [selectedTooth, setSelectedTooth] = useState<number | null>(null);

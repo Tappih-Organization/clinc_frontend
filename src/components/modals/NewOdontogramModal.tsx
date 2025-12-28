@@ -35,6 +35,9 @@ import {
   Check,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { useIsRTL } from "@/hooks/useIsRTL";
+import { useTranslation } from "react-i18next";
+import { cn } from "@/lib/utils";
 import { CreateOdontogramRequest, ToothNumberingSystem } from "@/types";
 import odontogramApi from "@/services/api/odontogramApi";
 import { apiService, Patient as ApiPatient } from "@/services/api";
@@ -61,6 +64,8 @@ const NewOdontogramModal: React.FC<NewOdontogramModalProps> = ({
   onOpenChange,
   onSuccess,
 }) => {
+  const { t } = useTranslation();
+  const isRTL = useIsRTL();
   const [step, setStep] = useState<'patient' | 'details'>('patient');
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -283,14 +288,14 @@ const NewOdontogramModal: React.FC<NewOdontogramModalProps> = ({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle className="flex items-center">
-            <Plus className="h-5 w-5 mr-2 text-blue-600" />
-            Create New Odontogram
+          <DialogTitle className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+            <Plus className="h-5 w-5 text-blue-600" />
+            {t("Create New Odontogram")}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className={cn(isRTL && "text-right")}>
             {step === 'patient' 
-              ? "Search and select a patient to create their dental chart"
-              : `Creating dental chart for ${selectedPatient?.firstName} ${selectedPatient?.lastName}`
+              ? t("Search and select a patient to create their dental chart")
+              : t("Creating dental chart for") + ` ${selectedPatient?.firstName} ${selectedPatient?.lastName}`
             }
           </DialogDescription>
         </DialogHeader>
@@ -298,24 +303,26 @@ const NewOdontogramModal: React.FC<NewOdontogramModalProps> = ({
         {step === 'patient' && (
           <div className="space-y-4">
             {/* Selection Method Toggle */}
-            <div className="flex items-center space-x-4 p-2 bg-gray-50 rounded-lg">
-              <Label className="text-sm font-medium">Select method:</Label>
-              <div className="flex space-x-2">
+            <div className={cn("flex items-center gap-4 p-2 bg-gray-50 rounded-lg", isRTL && "flex-row-reverse")}>
+              <Label className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Select method:")}</Label>
+              <div className={cn("flex gap-2", isRTL && "flex-row-reverse")}>
                 <Button
                   variant={selectionMethod === 'search' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setSelectionMethod('search')}
+                  className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}
                 >
-                  <Search className="h-4 w-4 mr-2" />
-                  Search
+                  <Search className="h-4 w-4" />
+                  {t("Search")}
                 </Button>
                 <Button
                   variant={selectionMethod === 'dropdown' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setSelectionMethod('dropdown')}
+                  className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}
                 >
-                  <Users className="h-4 w-4 mr-2" />
-                  All Patients
+                  <Users className="h-4 w-4" />
+                  {t("All Patients")}
                 </Button>
               </div>
             </div>
@@ -324,15 +331,15 @@ const NewOdontogramModal: React.FC<NewOdontogramModalProps> = ({
             {selectionMethod === 'search' && (
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="patient-search">Search Patient</Label>
+                  <Label htmlFor="patient-search" className={cn(isRTL && "text-right")}>{t("Search Patient")}</Label>
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                    <Search className={cn("absolute top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400", isRTL ? "right-3" : "left-3")} />
                     <Input
                       id="patient-search"
-                      placeholder="Search by name or email..."
+                      placeholder={t("Search by name or email...")}
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10"
+                      className={cn(isRTL ? "pr-10" : "pl-10")}
                     />
                   </div>
                 </div>
@@ -345,25 +352,25 @@ const NewOdontogramModal: React.FC<NewOdontogramModalProps> = ({
                   )}
                   
                   {!loadingPatients && searchTerm.length >= 2 && patients.length === 0 && (
-                    <div className="text-center py-4 text-gray-500">
-                      No patients found matching your search
+                    <div className={cn("text-center py-4 text-gray-500", isRTL && "text-right")}>
+                      {t("No patients found matching your search")}
                     </div>
                   )}
 
                   {patients.map((patient) => (
                     <Card key={patient.id} className="cursor-pointer hover:bg-gray-50 transition-colors">
                       <CardContent className="p-4" onClick={() => handlePatientSelect(patient)}>
-                        <div className="flex items-center space-x-3">
-                          <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                        <div className={cn("flex items-center gap-3", isRTL && "flex-row-reverse")}>
+                          <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
                             <User className="h-5 w-5 text-blue-600" />
                           </div>
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between">
+                          <div className={cn("flex-1", isRTL && "text-right")}>
+                            <div className={cn("flex items-center justify-between", isRTL && "flex-row-reverse")}>
                               <div className="font-medium">
                                 {patient.firstName} {patient.lastName}
                               </div>
                               <div className="text-sm text-gray-500">
-                                Age: {patient.age}
+                                {t("Age:")} {patient.age}
                               </div>
                             </div>
                             <div className="text-sm text-gray-500">
@@ -376,9 +383,9 @@ const NewOdontogramModal: React.FC<NewOdontogramModalProps> = ({
                   ))}
 
                   {searchTerm.length < 2 && (
-                    <div className="text-center py-8 text-gray-500">
+                    <div className={cn("text-center py-8 text-gray-500", isRTL && "text-right")}>
                       <Search className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                      <p>Type at least 2 characters to search for patients</p>
+                      <p>{t("Type at least 2 characters to search for patients")}</p>
                     </div>
                   )}
                 </div>
@@ -389,41 +396,41 @@ const NewOdontogramModal: React.FC<NewOdontogramModalProps> = ({
             {selectionMethod === 'dropdown' && (
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="patient-dropdown">Select Patient</Label>
+                  <Label htmlFor="patient-dropdown" className={cn(isRTL && "text-right")}>{t("Select Patient")}</Label>
                   <Select onValueChange={(patientId) => {
                     const patient = allPatients.find(p => p.id === patientId);
                     if (patient) {
                       handlePatientSelect(patient);
                     }
                   }}>
-                    <SelectTrigger>
+                    <SelectTrigger className={cn(isRTL && "text-right")}>
                       <SelectValue placeholder={
                         loadingAllPatients 
-                          ? "Loading patients..." 
+                          ? t("Loading patients...") 
                           : allPatients.length === 0 
-                            ? "No patients available"
-                            : "Select a patient"
+                            ? t("No patients available")
+                            : t("Select a patient")
                       } />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent align={isRTL ? "start" : "end"}>
                       {loadingAllPatients ? (
                         <SelectItem value="loading" disabled>
-                          <div className="flex items-center">
-                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                            Loading patients...
+                          <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            {t("Loading patients...")}
                           </div>
                         </SelectItem>
                       ) : allPatients.length === 0 ? (
                         <SelectItem value="no-patients" disabled>
-                          No patients found in this clinic
+                          {t("No patients found in this clinic")}
                         </SelectItem>
                       ) : (
                         allPatients.map((patient) => (
                           <SelectItem key={patient.id} value={patient.id}>
-                            <div className="flex items-center justify-between w-full">
+                            <div className={cn("flex items-center justify-between w-full", isRTL && "flex-row-reverse")}>
                               <span>{patient.firstName} {patient.lastName}</span>
-                              <span className="text-sm text-gray-500 ml-2">
-                                Age: {patient.age}
+                              <span className={cn("text-sm text-gray-500", isRTL ? "mr-2" : "ml-2")}>
+                                {t("Age:")} {patient.age}
                               </span>
                             </div>
                           </SelectItem>
@@ -435,17 +442,17 @@ const NewOdontogramModal: React.FC<NewOdontogramModalProps> = ({
 
                 {/* Patient count display */}
                 {!loadingAllPatients && allPatients.length > 0 && (
-                  <div className="text-sm text-gray-500 text-center">
-                    {allPatients.length} patient{allPatients.length !== 1 ? 's' : ''} available in this clinic
+                  <div className={cn("text-sm text-gray-500 text-center", isRTL && "text-right")}>
+                    {allPatients.length} {t("patient")}{allPatients.length !== 1 ? 's' : ''} {t("available in this clinic")}
                   </div>
                 )}
 
                 {/* Empty state */}
                 {!loadingAllPatients && allPatients.length === 0 && (
-                  <div className="text-center py-8 text-gray-500">
+                  <div className={cn("text-center py-8 text-gray-500", isRTL && "text-right")}>
                     <Users className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                    <p>No patients found in this clinic</p>
-                    <p className="text-sm mt-1">Add patients first to create dental charts</p>
+                    <p>{t("No patients found in this clinic")}</p>
+                    <p className="text-sm mt-1">{t("Add patients first to create dental charts")}</p>
                   </div>
                 )}
               </div>
@@ -458,25 +465,25 @@ const NewOdontogramModal: React.FC<NewOdontogramModalProps> = ({
             {/* Selected Patient Info */}
             <Card className="bg-blue-50 border-blue-200">
               <CardContent className="p-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                <div className={cn("flex items-center gap-3", isRTL && "flex-row-reverse")}>
+                  <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
                     <User className="h-5 w-5 text-white" />
                   </div>
-                  <div>
+                  <div className={cn("flex-1", isRTL && "text-right")}>
                     <div className="font-medium text-blue-900">
                       {selectedPatient.firstName} {selectedPatient.lastName}
                     </div>
                     <div className="text-sm text-blue-700">
-                      Age: {selectedPatient.age} • {selectedPatient.gender}
+                      {t("Age:")} {selectedPatient.age} • {selectedPatient.gender}
                     </div>
                   </div>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setStep('patient')}
-                    className="ml-auto"
+                    className={cn(isRTL ? "mr-auto" : "ml-auto", "flex items-center gap-2", isRTL && "flex-row-reverse")}
                   >
-                    Change Patient
+                    {t("Change Patient")}
                   </Button>
                 </div>
               </CardContent>
@@ -485,38 +492,39 @@ const NewOdontogramModal: React.FC<NewOdontogramModalProps> = ({
             {/* Odontogram Details Form */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="examination-date">Examination Date</Label>
+                <Label htmlFor="examination-date" className={cn(isRTL && "text-right")}>{t("Examination Date")}</Label>
                 <Input
                   id="examination-date"
                   type="date"
                   value={formData.examination_date}
                   onChange={(e) => handleFormChange('examination_date', e.target.value)}
+                  className={cn(isRTL && "text-right")}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="numbering-system">Numbering System</Label>
+                <Label htmlFor="numbering-system" className={cn(isRTL && "text-right")}>{t("Numbering System")}</Label>
                 <Select value={formData.numbering_system} onValueChange={(value) => handleFormChange('numbering_system', value)}>
-                  <SelectTrigger>
+                  <SelectTrigger className={cn(isRTL && "text-right")}>
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="universal">Universal (1-32)</SelectItem>
-                    <SelectItem value="palmer">Palmer Notation</SelectItem>
-                    <SelectItem value="fdi">FDI (ISO 3950)</SelectItem>
+                  <SelectContent align={isRTL ? "start" : "end"}>
+                    <SelectItem value="universal">{t("Universal (1-32)")}</SelectItem>
+                    <SelectItem value="palmer">{t("Palmer Notation")}</SelectItem>
+                    <SelectItem value="fdi">{t("FDI (ISO 3950)")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="patient-type">Patient Type</Label>
+                <Label htmlFor="patient-type" className={cn(isRTL && "text-right")}>{t("Patient Type")}</Label>
                 <Select value={formData.patient_type} onValueChange={(value) => handleFormChange('patient_type', value)}>
-                  <SelectTrigger>
+                  <SelectTrigger className={cn(isRTL && "text-right")}>
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="adult">Adult (Permanent Teeth)</SelectItem>
-                    <SelectItem value="child">Child (Primary Teeth)</SelectItem>
+                  <SelectContent align={isRTL ? "start" : "end"}>
+                    <SelectItem value="adult">{t("Adult (Permanent Teeth)")}</SelectItem>
+                    <SelectItem value="child">{t("Child (Primary Teeth)")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -524,12 +532,12 @@ const NewOdontogramModal: React.FC<NewOdontogramModalProps> = ({
 
             {/* Periodontal Assessment */}
             <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Initial Periodontal Assessment</CardTitle>
+              <CardHeader className={cn(isRTL && "text-right")}>
+                <CardTitle className={cn("text-lg", isRTL && "text-right")}>{t("Initial Periodontal Assessment")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="flex items-center space-x-2">
+                  <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
                     <input
                       type="checkbox"
                       id="bleeding-on-probing"
@@ -537,10 +545,10 @@ const NewOdontogramModal: React.FC<NewOdontogramModalProps> = ({
                       onChange={(e) => handlePeriodontalChange('bleeding_on_probing', e.target.checked)}
                       className="rounded border-gray-300"
                     />
-                    <Label htmlFor="bleeding-on-probing">Bleeding on Probing</Label>
+                    <Label htmlFor="bleeding-on-probing" className={cn(isRTL && "text-right")}>{t("Bleeding on Probing")}</Label>
                   </div>
 
-                  <div className="flex items-center space-x-2">
+                  <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
                     <input
                       type="checkbox"
                       id="calculus-present"
@@ -548,13 +556,13 @@ const NewOdontogramModal: React.FC<NewOdontogramModalProps> = ({
                       onChange={(e) => handlePeriodontalChange('calculus_present', e.target.checked)}
                       className="rounded border-gray-300"
                     />
-                    <Label htmlFor="calculus-present">Calculus Present</Label>
+                    <Label htmlFor="calculus-present" className={cn(isRTL && "text-right")}>{t("Calculus Present")}</Label>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="plaque-index">Plaque Index (0-3)</Label>
+                    <Label htmlFor="plaque-index" className={cn(isRTL && "text-right")}>{t("Plaque Index (0-3)")}</Label>
                     <Input
                       id="plaque-index"
                       type="number"
@@ -563,11 +571,12 @@ const NewOdontogramModal: React.FC<NewOdontogramModalProps> = ({
                       step="0.1"
                       value={formData.periodontal_assessment.plaque_index || ''}
                       onChange={(e) => handlePeriodontalChange('plaque_index', e.target.value ? parseFloat(e.target.value) : undefined)}
+                      className={cn(isRTL && "text-right")}
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="gingival-index">Gingival Index (0-3)</Label>
+                    <Label htmlFor="gingival-index" className={cn(isRTL && "text-right")}>{t("Gingival Index (0-3)")}</Label>
                     <Input
                       id="gingival-index"
                       type="number"
@@ -576,6 +585,7 @@ const NewOdontogramModal: React.FC<NewOdontogramModalProps> = ({
                       step="0.1"
                       value={formData.periodontal_assessment.gingival_index || ''}
                       onChange={(e) => handlePeriodontalChange('gingival_index', e.target.value ? parseFloat(e.target.value) : undefined)}
+                      className={cn(isRTL && "text-right")}
                     />
                   </div>
                 </div>
@@ -584,40 +594,41 @@ const NewOdontogramModal: React.FC<NewOdontogramModalProps> = ({
 
             {/* General Notes */}
             <div className="space-y-2">
-              <Label htmlFor="general-notes">General Notes</Label>
+              <Label htmlFor="general-notes" className={cn(isRTL && "text-right")}>{t("General Notes")}</Label>
               <Textarea
                 id="general-notes"
-                placeholder="Initial examination notes..."
+                placeholder={t("Initial examination notes...")}
                 value={formData.general_notes}
                 onChange={(e) => handleFormChange('general_notes', e.target.value)}
                 rows={3}
+                className={cn(isRTL && "text-right")}
               />
             </div>
           </div>
         )}
 
         {/* Actions */}
-        <div className="flex justify-end space-x-2 pt-4 border-t">
-          <Button variant="outline" onClick={() => handleOpenChange(false)}>
-            <X className="h-4 w-4 mr-2" />
-            Cancel
+        <div className={cn("flex justify-end gap-2 pt-4 border-t", isRTL && "flex-row-reverse")}>
+          <Button variant="outline" onClick={() => handleOpenChange(false)} className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+            <X className="h-4 w-4" />
+            {t("Cancel")}
           </Button>
           
           {step === 'details' && (
             <Button 
               onClick={handleCreate}
               disabled={creating}
-              className="bg-blue-600 hover:bg-blue-700"
+              className={cn("bg-blue-600 hover:bg-blue-700 flex items-center gap-2", isRTL && "flex-row-reverse")}
             >
               {creating ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Creating...
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  {t("Creating...")}
                 </>
               ) : (
                 <>
-                  <Check className="h-4 w-4 mr-2" />
-                  Create Odontogram
+                  <Check className="h-4 w-4" />
+                  {t("Create Odontogram")}
                 </>
               )}
             </Button>

@@ -877,14 +877,16 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
               </div>
 
               {/* Analysis Table */}
-              <ResponsiveTable
-                data={filteredAnalyses}
-                columns={[
+              <div className="xray-analysis-table" dir={isRTL ? 'rtl' : 'ltr'}>
+                <ResponsiveTable
+                  data={filteredAnalyses}
+                  actionsLabel={t("Actions")}
+                  columns={[
                   {
                     key: "patient",
                     label: t("Patient"),
                     render: (analysis) => (
-                      <div className={`flex items-center gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                      <div className={`flex items-center gap-3 `} dir={isRTL ? 'rtl' : 'ltr'}>
                         <Avatar className="h-8 w-8">
                           <AvatarFallback>
                             {analysis.patient_id?.first_name?.[0] || 'U'}{analysis.patient_id?.last_name?.[0] || 'P'}
@@ -970,6 +972,7 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
                 )}
                 emptyMessage={t("No X-ray analyses found")}
               />
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

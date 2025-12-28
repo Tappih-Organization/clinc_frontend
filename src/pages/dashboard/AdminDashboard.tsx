@@ -616,8 +616,9 @@ const AdminDashboard = () => {
                       variant="outline"
                       size="sm"
                       onClick={() => navigate("/dashboard/appointments")}
+                      className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}
                     >
-                      <Calendar className="h-4 w-4 mr-2" />
+                      <Calendar className="h-4 w-4" />
                       {t("View All")}
                     </Button>
                   </div>
@@ -688,8 +689,9 @@ const AdminDashboard = () => {
                       variant="outline"
                       size="sm"
                       onClick={() => navigate("/dashboard/leads")}
+                      className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}
                     >
-                      <UserPlus className="h-4 w-4 mr-2" />
+                      <UserPlus className="h-4 w-4" />
                       {t("View All")}
                     </Button>
                   </div>

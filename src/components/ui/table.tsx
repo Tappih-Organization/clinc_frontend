@@ -130,6 +130,7 @@ interface ResponsiveTableProps<T> {
     actions?: (item: T) => React.ReactNode;
   };
   actions?: (item: T) => React.ReactNode;
+  actionsLabel?: string;
   loading?: boolean;
   emptyMessage?: string;
   className?: string;
@@ -150,6 +151,7 @@ function ResponsiveTable<T extends Record<string, any>>({
   columns,
   mobileCard,
   actions,
+  actionsLabel = "Actions",
   loading,
   emptyMessage = "No data available",
   className,
@@ -167,7 +169,7 @@ function ResponsiveTable<T extends Record<string, any>>({
                     {column.label}
                   </TableHead>
                 ))}
-                {actions && <TableHead className="text-right w-24">Actions</TableHead>}
+                {actions && <TableHead className="text-right w-24">{actionsLabel}</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -228,7 +230,7 @@ function ResponsiveTable<T extends Record<string, any>>({
                   {column.label}
                 </TableHead>
               ))}
-              {actions && <TableHead className="text-right w-24">Actions</TableHead>}
+              {actions && <TableHead className="text-right w-24">{actionsLabel}</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>

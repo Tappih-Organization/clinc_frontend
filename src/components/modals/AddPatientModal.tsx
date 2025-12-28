@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useIsRTL } from "@/hooks/useIsRTL";
+import { cn } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -42,6 +44,7 @@ interface AddPatientModalProps {
 
 const AddPatientModal: React.FC<AddPatientModalProps> = ({ trigger }) => {
   const { t } = useTranslation();
+  const isRTL = useIsRTL();
   const [open, setOpen] = useState(false);
   const createPatientMutation = useCreatePatient();
   const [formData, setFormData] = useState({
@@ -145,20 +148,20 @@ const AddPatientModal: React.FC<AddPatientModalProps> = ({ trigger }) => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
+          <Button className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+            <Plus className="h-4 w-4" />
             {t("Add Patient")}
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="w-[95vw] max-w-4xl h-[90vh] max-h-[90vh] overflow-hidden p-0">
+      <DialogContent className={cn("w-[95vw] max-w-4xl h-[90vh] max-h-[90vh] overflow-hidden p-0", isRTL && "text-right")} dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="flex flex-col h-full min-h-0">
-          <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-4 border-b flex-shrink-0">
-            <DialogTitle className="flex items-center text-lg sm:text-xl">
-              <User className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-blue-600" />
+          <DialogHeader className={cn("px-4 sm:px-6 pt-4 sm:pt-6 pb-4 border-b flex-shrink-0", isRTL && "text-right")}>
+            <DialogTitle className={cn("flex items-center gap-2 text-lg sm:text-xl", isRTL && "flex-row-reverse justify-end")}>
+              <User className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
               {t("Add New Patient")}
             </DialogTitle>
-            <DialogDescription className="text-sm text-muted-foreground">
+            <DialogDescription className={cn("text-sm text-muted-foreground", isRTL && "text-right")}>
               {t("Enter patient information to create a new medical record in the system.")}
             </DialogDescription>
           </DialogHeader>
@@ -167,82 +170,87 @@ const AddPatientModal: React.FC<AddPatientModalProps> = ({ trigger }) => {
             <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
               {/* Personal Information */}
               <Card className="border border-border">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base sm:text-lg flex items-center">
-                    <User className="h-4 w-4 mr-2" />
+                <CardHeader className={cn("pb-3", isRTL && "text-right")}>
+                  <CardTitle className={cn("text-base sm:text-lg flex items-center gap-2", isRTL && "flex-row-reverse justify-end")}>
+                    <User className="h-4 w-4" />
                     {t("Personal Information")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3 sm:space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="firstName" className="text-sm font-medium">{t("First Name")} *</Label>
+                    <div className={cn("space-y-2", isRTL && "text-right")}>
+                      <Label htmlFor="firstName" className={cn("text-sm font-medium", isRTL && "text-right")}>{t("First Name")} *</Label>
                       <Input
                         id="firstName"
                         value={formData.firstName}
                         onChange={(e) => handleChange("firstName", e.target.value)}
                         placeholder={t("John")}
                         required
-                        className="h-9 sm:h-10"
+                        className={cn("h-9 sm:h-10", isRTL && "text-right")}
+                        dir={isRTL ? 'rtl' : 'ltr'}
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="lastName" className="text-sm font-medium">{t("Last Name")} *</Label>
+                    <div className={cn("space-y-2", isRTL && "text-right")}>
+                      <Label htmlFor="lastName" className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Last Name")} *</Label>
                       <Input
                         id="lastName"
                         value={formData.lastName}
                         onChange={(e) => handleChange("lastName", e.target.value)}
                         placeholder={t("Doe")}
                         required
-                        className="h-9 sm:h-10"
+                        className={cn("h-9 sm:h-10", isRTL && "text-right")}
+                        dir={isRTL ? 'rtl' : 'ltr'}
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="email" className="text-sm font-medium">{t("Email")}</Label>
+                    <div className={cn("space-y-2", isRTL && "text-right")}>
+                      <Label htmlFor="email" className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Email")}</Label>
                       <Input
                         id="email"
                         type="email"
                         value={formData.email}
                         onChange={(e) => handleChange("email", e.target.value)}
                         placeholder={t("john.doe@email.com")}
-                        className="h-9 sm:h-10"
+                        className={cn("h-9 sm:h-10", isRTL && "text-right")}
+                        dir={isRTL ? 'rtl' : 'ltr'}
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="phone" className="text-sm font-medium">{t("Phone Number")} *</Label>
+                    <div className={cn("space-y-2", isRTL && "text-right")}>
+                      <Label htmlFor="phone" className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Phone Number")} *</Label>
                       <Input
                         id="phone"
                         value={formData.phone}
                         onChange={(e) => handleChange("phone", e.target.value)}
                         placeholder={t("+1 (555) 123-4567")}
                         required
-                        className="h-9 sm:h-10"
+                        className={cn("h-9 sm:h-10", isRTL && "text-right")}
+                        dir={isRTL ? 'rtl' : 'ltr'}
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="dateOfBirth" className="text-sm font-medium">{t("Date of Birth")} *</Label>
+                    <div className={cn("space-y-2", isRTL && "text-right")}>
+                      <Label htmlFor="dateOfBirth" className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Date of Birth")} *</Label>
                       <Input
                         id="dateOfBirth"
                         type="date"
                         value={formData.dateOfBirth}
                         onChange={(e) => handleChange("dateOfBirth", e.target.value)}
                         required
-                        className="h-9 sm:h-10"
+                        className={cn("h-9 sm:h-10", isRTL && "text-right")}
+                        dir={isRTL ? 'rtl' : 'ltr'}
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="gender" className="text-sm font-medium">{t("Gender")} *</Label>
+                    <div className={cn("space-y-2", isRTL && "text-right")}>
+                      <Label htmlFor="gender" className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Gender")} *</Label>
                       <Select value={formData.gender} onValueChange={(value) => handleChange("gender", value)}>
-                        <SelectTrigger className="h-9 sm:h-10">
+                        <SelectTrigger className={cn("h-9 sm:h-10", isRTL && "text-right")}>
                           <SelectValue placeholder={t("Select gender")} />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent align={isRTL ? "start" : "end"}>
                           <SelectItem value="male">{t("Male")}</SelectItem>
                           <SelectItem value="female">{t("Female")}</SelectItem>
                           <SelectItem value="other">{t("Other")}</SelectItem>
@@ -252,14 +260,15 @@ const AddPatientModal: React.FC<AddPatientModalProps> = ({ trigger }) => {
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="lastVisit" className="text-sm font-medium">{t("Last Visit Date")}</Label>
+                    <div className={cn("space-y-2", isRTL && "text-right")}>
+                      <Label htmlFor="lastVisit" className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Last Visit Date")}</Label>
                       <Input
                         id="lastVisit"
                         type="date"
                         value={formData.lastVisit}
                         onChange={(e) => handleChange("lastVisit", e.target.value)}
-                        className="h-9 sm:h-10"
+                        className={cn("h-9 sm:h-10", isRTL && "text-right")}
+                        dir={isRTL ? 'rtl' : 'ltr'}
                       />
                     </div>
                     <div className="space-y-2">
@@ -267,14 +276,15 @@ const AddPatientModal: React.FC<AddPatientModalProps> = ({ trigger }) => {
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="address" className="text-sm font-medium">{t("Address")}</Label>
+                  <div className={cn("space-y-2", isRTL && "text-right")}>
+                    <Label htmlFor="address" className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Address")}</Label>
                     <Textarea
                       id="address"
                       value={formData.address}
                       onChange={(e) => handleChange("address", e.target.value)}
                       placeholder={t("Street address, city, state, ZIP code")}
-                      className="min-h-[80px] resize-none"
+                      className={cn("min-h-[80px] resize-none", isRTL && "text-right")}
+                      dir={isRTL ? 'rtl' : 'ltr'}
                     />
                   </div>
                 </CardContent>
@@ -282,43 +292,46 @@ const AddPatientModal: React.FC<AddPatientModalProps> = ({ trigger }) => {
 
               {/* Emergency Contact */}
               <Card className="border border-border">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base sm:text-lg flex items-center">
-                    <Phone className="h-4 w-4 mr-2" />
+                <CardHeader className={cn("pb-3", isRTL && "text-right")}>
+                  <CardTitle className={cn("text-base sm:text-lg flex items-center gap-2", isRTL && "flex-row-reverse justify-end")}>
+                    <Phone className="h-4 w-4" />
                     {t("Emergency Contact")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3 sm:space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="emergencyContactName" className="text-sm font-medium">{t("Contact Name")}</Label>
+                    <div className={cn("space-y-2", isRTL && "text-right")}>
+                      <Label htmlFor="emergencyContactName" className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Contact Name")}</Label>
                       <Input
                         id="emergencyContactName"
                         value={formData.emergencyContactName}
                         onChange={(e) => handleChange("emergencyContactName", e.target.value)}
                         placeholder={t("Jane Doe")}
-                        className="h-9 sm:h-10"
+                        className={cn("h-9 sm:h-10", isRTL && "text-right")}
+                        dir={isRTL ? 'rtl' : 'ltr'}
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="emergencyContactRelationship" className="text-sm font-medium">{t("Relationship")}</Label>
+                    <div className={cn("space-y-2", isRTL && "text-right")}>
+                      <Label htmlFor="emergencyContactRelationship" className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Relationship")}</Label>
                       <Input
                         id="emergencyContactRelationship"
                         value={formData.emergencyContactRelationship}
                         onChange={(e) => handleChange("emergencyContactRelationship", e.target.value)}
                         placeholder={t("Spouse, Parent, Sibling...")}
-                        className="h-9 sm:h-10"
+                        className={cn("h-9 sm:h-10", isRTL && "text-right")}
+                        dir={isRTL ? 'rtl' : 'ltr'}
                       />
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="emergencyContactPhone" className="text-sm font-medium">{t("Contact Phone")}</Label>
+                  <div className={cn("space-y-2", isRTL && "text-right")}>
+                    <Label htmlFor="emergencyContactPhone" className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Contact Phone")}</Label>
                     <Input
                       id="emergencyContactPhone"
                       value={formData.emergencyContactPhone}
                       onChange={(e) => handleChange("emergencyContactPhone", e.target.value)}
                       placeholder={t("+1 (555) 987-6543")}
-                      className="h-9 sm:h-10"
+                      className={cn("h-9 sm:h-10", isRTL && "text-right")}
+                      dir={isRTL ? 'rtl' : 'ltr'}
                     />
                   </div>
                 </CardContent>
@@ -326,21 +339,21 @@ const AddPatientModal: React.FC<AddPatientModalProps> = ({ trigger }) => {
 
               {/* Medical Information */}
               <Card className="border border-border">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base sm:text-lg flex items-center">
-                    <Heart className="h-4 w-4 mr-2" />
+                <CardHeader className={cn("pb-3", isRTL && "text-right")}>
+                  <CardTitle className={cn("text-base sm:text-lg flex items-center gap-2", isRTL && "flex-row-reverse justify-end")}>
+                    <Heart className="h-4 w-4" />
                     {t("Medical Information")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3 sm:space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="bloodGroup" className="text-sm font-medium">{t("Blood Group")}</Label>
+                    <div className={cn("space-y-2", isRTL && "text-right")}>
+                      <Label htmlFor="bloodGroup" className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Blood Group")}</Label>
                       <Select value={formData.bloodGroup} onValueChange={(value) => handleChange("bloodGroup", value)}>
-                        <SelectTrigger className="h-9 sm:h-10">
+                        <SelectTrigger className={cn("h-9 sm:h-10", isRTL && "text-right")}>
                           <SelectValue placeholder={t("Select blood group")} />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent align={isRTL ? "start" : "end"}>
                           <SelectItem value="A+">A+</SelectItem>
                           <SelectItem value="A-">A-</SelectItem>
                           <SelectItem value="B+">B+</SelectItem>
@@ -352,49 +365,53 @@ const AddPatientModal: React.FC<AddPatientModalProps> = ({ trigger }) => {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="height" className="text-sm font-medium">{t("Height (cm)")}</Label>
+                    <div className={cn("space-y-2", isRTL && "text-right")}>
+                      <Label htmlFor="height" className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Height (cm)")}</Label>
                       <Input
                         id="height"
                         type="number"
                         value={formData.height}
                         onChange={(e) => handleChange("height", e.target.value)}
                         placeholder={t("170")}
-                        className="h-9 sm:h-10"
+                        className={cn("h-9 sm:h-10", isRTL && "text-right")}
+                        dir={isRTL ? 'rtl' : 'ltr'}
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="weight" className="text-sm font-medium">{t("Weight (kg)")}</Label>
+                    <div className={cn("space-y-2", isRTL && "text-right")}>
+                      <Label htmlFor="weight" className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Weight (kg)")}</Label>
                       <Input
                         id="weight"
                         type="number"
                         value={formData.weight}
                         onChange={(e) => handleChange("weight", e.target.value)}
                         placeholder={t("70")}
-                        className="h-9 sm:h-10"
+                        className={cn("h-9 sm:h-10", isRTL && "text-right")}
+                        dir={isRTL ? 'rtl' : 'ltr'}
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="allergies" className="text-sm font-medium">{t("Allergies")}</Label>
+                  <div className={cn("space-y-2", isRTL && "text-right")}>
+                    <Label htmlFor="allergies" className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Allergies")}</Label>
                     <Textarea
                       id="allergies"
                       value={formData.allergies}
                       onChange={(e) => handleChange("allergies", e.target.value)}
                       placeholder={t("List any known allergies (medications, food, environmental)")}
-                      className="min-h-[80px] resize-none"
+                      className={cn("min-h-[80px] resize-none", isRTL && "text-right")}
+                      dir={isRTL ? 'rtl' : 'ltr'}
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="medicalHistory" className="text-sm font-medium">{t("Medical History")}</Label>
+                  <div className={cn("space-y-2", isRTL && "text-right")}>
+                    <Label htmlFor="medicalHistory" className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Medical History")}</Label>
                     <Textarea
                       id="medicalHistory"
                       value={formData.medicalHistory}
                       onChange={(e) => handleChange("medicalHistory", e.target.value)}
                       placeholder={t("Previous medical conditions, surgeries, medications")}
-                      className="min-h-[80px] resize-none"
+                      className={cn("min-h-[80px] resize-none", isRTL && "text-right")}
+                      dir={isRTL ? 'rtl' : 'ltr'}
                     />
                   </div>
                 </CardContent>
@@ -402,32 +419,34 @@ const AddPatientModal: React.FC<AddPatientModalProps> = ({ trigger }) => {
 
               {/* Insurance Information */}
               <Card className="border border-border">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base sm:text-lg flex items-center">
-                    <Shield className="h-4 w-4 mr-2" />
+                <CardHeader className={cn("pb-3", isRTL && "text-right")}>
+                  <CardTitle className={cn("text-base sm:text-lg flex items-center gap-2", isRTL && "flex-row-reverse justify-end")}>
+                    <Shield className="h-4 w-4" />
                     {t("Insurance Information")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3 sm:space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="insuranceProvider" className="text-sm font-medium">{t("Insurance Provider")}</Label>
+                    <div className={cn("space-y-2", isRTL && "text-right")}>
+                      <Label htmlFor="insuranceProvider" className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Insurance Provider")}</Label>
                       <Input
                         id="insuranceProvider"
                         value={formData.insuranceProvider}
                         onChange={(e) => handleChange("insuranceProvider", e.target.value)}
                         placeholder={t("Blue Cross Blue Shield")}
-                        className="h-9 sm:h-10"
+                        className={cn("h-9 sm:h-10", isRTL && "text-right")}
+                        dir={isRTL ? 'rtl' : 'ltr'}
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="insurancePolicyNumber" className="text-sm font-medium">{t("Policy Number")}</Label>
+                    <div className={cn("space-y-2", isRTL && "text-right")}>
+                      <Label htmlFor="insurancePolicyNumber" className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Policy Number")}</Label>
                       <Input
                         id="insurancePolicyNumber"
                         value={formData.insurancePolicyNumber}
                         onChange={(e) => handleChange("insurancePolicyNumber", e.target.value)}
                         placeholder={t("ABC123456789")}
-                        className="h-9 sm:h-10"
+                        className={cn("h-9 sm:h-10", isRTL && "text-right")}
+                        dir={isRTL ? 'rtl' : 'ltr'}
                       />
                     </div>
                   </div>
@@ -437,8 +456,8 @@ const AddPatientModal: React.FC<AddPatientModalProps> = ({ trigger }) => {
           </div>
 
           {/* Footer with buttons */}
-          <div className="border-t bg-background px-4 sm:px-6 py-3 sm:py-4 flex-shrink-0">
-            <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3">
+          <div className={cn("border-t bg-background px-4 sm:px-6 py-3 sm:py-4 flex-shrink-0", isRTL && "text-right")}>
+            <div className={cn("flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3", isRTL && "sm:flex-row-reverse")}>
               <Button 
                 type="button" 
                 variant="outline" 
@@ -451,16 +470,16 @@ const AddPatientModal: React.FC<AddPatientModalProps> = ({ trigger }) => {
                 type="submit" 
                 onClick={handleSubmit}
                 disabled={createPatientMutation.isPending}
-                className="w-full sm:w-auto"
+                className={cn("w-full sm:w-auto flex items-center gap-2", isRTL && "flex-row-reverse")}
               >
                 {createPatientMutation.isPending ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     {t("Adding Patient...")}
                   </>
                 ) : (
                   <>
-                    <Plus className="h-4 w-4 mr-2" />
+                    <Plus className="h-4 w-4" />
                     {t("Add Patient")}
                   </>
                 )}

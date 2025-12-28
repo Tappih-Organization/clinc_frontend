@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useIsRTL } from "@/hooks/useIsRTL";
+import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -43,6 +45,7 @@ const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
   onOpenChange: externalOnOpenChange,
 }) => {
   const { t } = useTranslation();
+  const isRTL = useIsRTL();
   const [internalOpen, setInternalOpen] = useState(false);
   
   // Use external open state if provided, otherwise use internal state
@@ -295,21 +298,21 @@ const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
+          <Button className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+            <Plus className="h-4 w-4" />
             {t("New Appointment")}
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="w-[95vw] max-w-4xl h-[90vh] max-h-[90vh] overflow-hidden p-0">
+      <DialogContent className={cn("w-[95vw] max-w-4xl h-[90vh] max-h-[90vh] overflow-hidden p-0", isRTL && "text-right")} dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="flex flex-col h-full min-h-0">
-          <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6 pb-4 border-b flex-shrink-0">
-            <DialogTitle className="flex items-center text-lg sm:text-xl">
-              <Calendar className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-blue-600" />
+          <DialogHeader className={cn("px-4 sm:px-6 pt-4 sm:pt-6 pb-4 border-b flex-shrink-0", isRTL && "text-right")}>
+            <DialogTitle className={cn("flex items-center gap-2 text-lg sm:text-xl", isRTL && "flex-row-reverse justify-end")}>
+              <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
               {t("Schedule New Appointment")}
             </DialogTitle>
-            <DialogDescription className="text-sm text-muted-foreground">
-              Create a new appointment for a patient with a doctor.
+            <DialogDescription className={cn("text-sm text-muted-foreground", isRTL && "text-right")}>
+              {t("Create a new appointment for a patient with a doctor.")}
             </DialogDescription>
           </DialogHeader>
 
@@ -317,25 +320,25 @@ const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
             <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
               {/* Patient & Doctor Selection */}
               <Card className="border border-border">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base sm:text-lg flex items-center">
-                    <User className="h-4 w-4 mr-2" />
-                    Patient & Doctor Selection
+                <CardHeader className={cn("pb-3", isRTL && "text-right")}>
+                  <CardTitle className={cn("text-base sm:text-lg flex items-center gap-2", isRTL && "flex-row-reverse justify-end")}>
+                    <User className="h-4 w-4" />
+                    {t("Patient & Doctor Selection")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3 sm:space-y-4">
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="patientId" className="text-sm font-medium">Patient *</Label>
+                    <div className={cn("space-y-2", isRTL && "text-right")}>
+                      <Label htmlFor="patientId" className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Patient")} *</Label>
                       <Select
                         value={formData.patientId}
                         onValueChange={(value) => handleChange("patientId", value)}
                         disabled={loadingData}
                       >
-                        <SelectTrigger className="h-9 sm:h-10">
-                          <SelectValue placeholder={loadingData ? "Loading patients..." : "Select a patient"} />
+                        <SelectTrigger className={cn("h-9 sm:h-10", isRTL && "text-right")}>
+                          <SelectValue placeholder={loadingData ? t("Loading patients...") : t("Select a patient")} />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent align={isRTL ? "start" : "end"}>
                           {patients.map((patient) => (
                             <SelectItem key={patient._id} value={patient._id}>
                               {patient.first_name} {patient.last_name} - {patient.phone}
@@ -345,17 +348,17 @@ const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
                       </Select>
                     </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="doctorId" className="text-sm font-medium">Doctor *</Label>
+                    <div className={cn("space-y-2", isRTL && "text-right")}>
+                      <Label htmlFor="doctorId" className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Doctor")} *</Label>
                       <Select
                         value={formData.doctorId}
                         onValueChange={(value) => handleChange("doctorId", value)}
                         disabled={loadingData}
                       >
-                        <SelectTrigger className="h-9 sm:h-10">
-                          <SelectValue placeholder={loadingData ? "Loading doctors..." : "Select a doctor"} />
+                        <SelectTrigger className={cn("h-9 sm:h-10", isRTL && "text-right")}>
+                          <SelectValue placeholder={loadingData ? t("Loading doctors...") : t("Select a doctor")} />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent align={isRTL ? "start" : "end"}>
                           {doctors.map((doctor) => (
                             <SelectItem key={doctor._id} value={doctor._id}>
                               Dr. {doctor.first_name} {doctor.last_name}
@@ -367,17 +370,17 @@ const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
                   </div>
 
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="nurseId" className="text-sm font-medium">Nurse (Optional)</Label>
+                    <div className={cn("space-y-2", isRTL && "text-right")}>
+                      <Label htmlFor="nurseId" className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Nurse (Optional)")}</Label>
                       <Select
                         value={formData.nurseId}
                         onValueChange={(value) => handleChange("nurseId", value)}
                         disabled={loadingData}
                       >
-                        <SelectTrigger className="h-9 sm:h-10">
-                          <SelectValue placeholder={loadingData ? "Loading nurses..." : "Select a nurse"} />
+                        <SelectTrigger className={cn("h-9 sm:h-10", isRTL && "text-right")}>
+                          <SelectValue placeholder={loadingData ? t("Loading nurses...") : t("Select a nurse")} />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent align={isRTL ? "start" : "end"}>
                           {nurses.map((nurse) => (
                             <SelectItem key={nurse._id} value={nurse._id}>
                               {nurse.first_name} {nurse.last_name}
@@ -387,17 +390,17 @@ const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
                       </Select>
                     </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="serviceId" className="text-sm font-medium">Service (Optional)</Label>
+                    <div className={cn("space-y-2", isRTL && "text-right")}>
+                      <Label htmlFor="serviceId" className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Service (Optional)")}</Label>
                       <Select
                         value={formData.serviceId}
                         onValueChange={(value) => handleChange("serviceId", value)}
                         disabled={loadingData}
                       >
-                        <SelectTrigger className="h-9 sm:h-10">
-                          <SelectValue placeholder={loadingData ? "Loading services..." : "Select a service"} />
+                        <SelectTrigger className={cn("h-9 sm:h-10", isRTL && "text-right")}>
+                          <SelectValue placeholder={loadingData ? t("Loading services...") : t("Select a service")} />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent align={isRTL ? "start" : "end"}>
                           {services.map((service) => (
                             <SelectItem key={service.id} value={service.id}>
                               {service.name} - ${service.price} ({service.duration}min)
@@ -412,36 +415,37 @@ const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
 
               {/* Date & Time */}
               <Card className="border border-border">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base sm:text-lg flex items-center">
-                    <Clock className="h-4 w-4 mr-2" />
-                    Date & Time
+                <CardHeader className={cn("pb-3", isRTL && "text-right")}>
+                  <CardTitle className={cn("text-base sm:text-lg flex items-center gap-2", isRTL && "flex-row-reverse justify-end")}>
+                    <Clock className="h-4 w-4" />
+                    {t("Date & Time")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3 sm:space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="date" className="text-sm font-medium">Date *</Label>
+                    <div className={cn("space-y-2", isRTL && "text-right")}>
+                      <Label htmlFor="date" className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Date")} *</Label>
                       <Input
                         id="date"
                         type="date"
                         value={formData.date}
                         onChange={(e) => handleChange("date", e.target.value)}
                         required
-                        className="h-9 sm:h-10"
+                        className={cn("h-9 sm:h-10", isRTL && "text-right")}
+                        dir={isRTL ? 'rtl' : 'ltr'}
                       />
                     </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="time" className="text-sm font-medium">Time *</Label>
+                    <div className={cn("space-y-2", isRTL && "text-right")}>
+                      <Label htmlFor="time" className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Time")} *</Label>
                       <Select
                         value={formData.time}
                         onValueChange={(value) => handleChange("time", value)}
                       >
-                        <SelectTrigger className="h-9 sm:h-10">
-                          <SelectValue placeholder="Select time" />
+                        <SelectTrigger className={cn("h-9 sm:h-10", isRTL && "text-right")}>
+                          <SelectValue placeholder={t("Select time")} />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent align={isRTL ? "start" : "end"}>
                           {timeSlots.map((slot) => (
                             <SelectItem key={slot} value={slot}>
                               {slot}
@@ -451,44 +455,44 @@ const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
                       </Select>
                     </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="duration" className="text-sm font-medium">Duration (min)</Label>
+                    <div className={cn("space-y-2", isRTL && "text-right")}>
+                      <Label htmlFor="duration" className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Duration")} ({t("minutes")})</Label>
                       <Select
                         value={formData.duration}
                         onValueChange={(value) => handleChange("duration", value)}
                       >
-                        <SelectTrigger className="h-9 sm:h-10">
-                          <SelectValue placeholder="Duration" />
+                        <SelectTrigger className={cn("h-9 sm:h-10", isRTL && "text-right")}>
+                          <SelectValue placeholder={t("Duration")} />
                         </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="15">15 min</SelectItem>
-                          <SelectItem value="30">30 min</SelectItem>
-                          <SelectItem value="45">45 min</SelectItem>
-                          <SelectItem value="60">60 min</SelectItem>
-                          <SelectItem value="90">90 min</SelectItem>
+                        <SelectContent align={isRTL ? "start" : "end"}>
+                          <SelectItem value="15">15 {t("minutes")}</SelectItem>
+                          <SelectItem value="30">30 {t("minutes")}</SelectItem>
+                          <SelectItem value="45">45 {t("minutes")}</SelectItem>
+                          <SelectItem value="60">60 {t("minutes")}</SelectItem>
+                          <SelectItem value="90">90 {t("minutes")}</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="appointmentType" className="text-sm font-medium">Type</Label>
+                    <div className={cn("space-y-2", isRTL && "text-right")}>
+                      <Label htmlFor="appointmentType" className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Type")}</Label>
                       <Select
                         value={formData.appointmentType}
                         onValueChange={(value) => handleChange("appointmentType", value)}
                       >
-                        <SelectTrigger className="h-9 sm:h-10">
-                          <SelectValue placeholder="Type" />
+                        <SelectTrigger className={cn("h-9 sm:h-10", isRTL && "text-right")}>
+                          <SelectValue placeholder={t("Type")} />
                         </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="consultation">Consultation</SelectItem>
-                          <SelectItem value="follow-up">Follow-up</SelectItem>
-                          <SelectItem value="check-up">Check-up</SelectItem>
-                          <SelectItem value="vaccination">Vaccination</SelectItem>
-                          <SelectItem value="procedure">Procedure</SelectItem>
-                          <SelectItem value="emergency">Emergency</SelectItem>
-                          <SelectItem value="screening">Screening</SelectItem>
-                          <SelectItem value="therapy">Therapy</SelectItem>
-                          <SelectItem value="other">Other</SelectItem>
+                        <SelectContent align={isRTL ? "start" : "end"}>
+                          <SelectItem value="consultation">{t("Consultation")}</SelectItem>
+                          <SelectItem value="follow-up">{t("Follow-up")}</SelectItem>
+                          <SelectItem value="check-up">{t("Check-up")}</SelectItem>
+                          <SelectItem value="vaccination">{t("Vaccination")}</SelectItem>
+                          <SelectItem value="procedure">{t("Procedure")}</SelectItem>
+                          <SelectItem value="emergency">{t("Emergency")}</SelectItem>
+                          <SelectItem value="screening">{t("Screening")}</SelectItem>
+                          <SelectItem value="therapy">{t("Therapy")}</SelectItem>
+                          <SelectItem value="other">{t("Other")}</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -508,32 +512,34 @@ const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
 
               {/* Additional Information */}
               <Card className="border border-border">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base sm:text-lg flex items-center">
-                    <Stethoscope className="h-4 w-4 mr-2" />
-                    Additional Information
+                <CardHeader className={cn("pb-3", isRTL && "text-right")}>
+                  <CardTitle className={cn("text-base sm:text-lg flex items-center gap-2", isRTL && "flex-row-reverse justify-end")}>
+                    <Stethoscope className="h-4 w-4" />
+                    {t("Additional Information")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3 sm:space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="symptoms" className="text-sm font-medium">Symptoms</Label>
+                  <div className={cn("space-y-2", isRTL && "text-right")}>
+                    <Label htmlFor="symptoms" className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Symptoms")}</Label>
                     <Textarea
                       id="symptoms"
                       value={formData.symptoms}
                       onChange={(e) => handleChange("symptoms", e.target.value)}
-                      placeholder="Describe the patient's symptoms..."
-                      className="min-h-[80px] resize-none"
+                      placeholder={t("Describe the patient's symptoms...")}
+                      className={cn("min-h-[80px] resize-none", isRTL && "text-right")}
+                      dir={isRTL ? 'rtl' : 'ltr'}
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="notes" className="text-sm font-medium">Notes</Label>
+                  <div className={cn("space-y-2", isRTL && "text-right")}>
+                    <Label htmlFor="notes" className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Notes")}</Label>
                     <Textarea
                       id="notes"
                       value={formData.notes}
                       onChange={(e) => handleChange("notes", e.target.value)}
-                      placeholder="Any additional notes for the appointment..."
-                      className="min-h-[80px] resize-none"
+                      placeholder={t("Any additional notes for the appointment...")}
+                      className={cn("min-h-[80px] resize-none", isRTL && "text-right")}
+                      dir={isRTL ? 'rtl' : 'ltr'}
                     />
                   </div>
                 </CardContent>
@@ -542,8 +548,8 @@ const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
           </div>
 
           {/* Footer with buttons */}
-          <div className="border-t bg-background px-4 sm:px-6 py-3 sm:py-4 flex-shrink-0">
-            <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3">
+          <div className={cn("border-t bg-background px-4 sm:px-6 py-3 sm:py-4 flex-shrink-0", isRTL && "text-right")}>
+            <div className={cn("flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3", isRTL && "sm:flex-row-reverse")}>
               <Button 
                 type="button" 
                 variant="outline" 
@@ -551,23 +557,23 @@ const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
                 disabled={createAppointmentMutation.isPending}
                 className="w-full sm:w-auto"
               >
-                Cancel
+                {t("Cancel")}
               </Button>
               <Button 
                 type="submit" 
                 onClick={handleSubmit}
                 disabled={createAppointmentMutation.isPending || loadingData}
-                className="w-full sm:w-auto"
+                className={cn("w-full sm:w-auto flex items-center gap-2", isRTL && "flex-row-reverse")}
               >
                 {createAppointmentMutation.isPending ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                    Scheduling...
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    {t("Scheduling...")}
                   </>
                 ) : (
                   <>
-                    <Calendar className="h-4 w-4 mr-2" />
-                    Schedule Appointment
+                    <Calendar className="h-4 w-4" />
+                    {t("Schedule Appointment")}
                   </>
                 )}
               </Button>

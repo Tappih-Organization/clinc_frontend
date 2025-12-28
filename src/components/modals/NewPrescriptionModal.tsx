@@ -35,6 +35,8 @@ import { toast } from "@/hooks/use-toast";
 import { parseApiError } from "@/utils/errorHandler";
 import { apiService, type Patient, type User as ApiUser, type Appointment } from "@/services/api";
 import { CreatePrescriptionRequest, Medication } from "@/types";
+import { useIsRTL } from "@/hooks/useIsRTL";
+import { cn } from "@/lib/utils";
 
 interface NewPrescriptionModalProps {
   trigger?: React.ReactNode;
@@ -50,6 +52,7 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
   onSuccess,
 }) => {
   const { t } = useTranslation();
+  const isRTL = useIsRTL();
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [patientsLoading, setPatientsLoading] = useState(false);
@@ -332,7 +335,7 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
         (med) => med.name && med.dosage && med.frequency && med.duration,
       );
       if (validMedications.length === 0) {
-        throw new Error("Please add at least one complete medication");
+        throw new Error(t("Please add at least one complete medication"));
       }
 
       // Prepare prescription data for API
@@ -365,8 +368,13 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
       const selectedDoctor = doctors.find((d) => d._id === formData.doctorId);
 
       toast({
-        title: "Prescription created successfully",
-        description: `Prescription ${createdPrescription.prescription_id} for ${selectedPatient?.first_name} ${selectedPatient?.last_name} by ${selectedDoctor?.first_name} ${selectedDoctor?.last_name} has been created with ${validMedications.length} medication(s).`,
+        title: t("Prescription created successfully"),
+        description: t("Prescription {{id}} for {{patientName}} by {{doctorName}} has been created with {{count}} medication(s).", {
+          id: createdPrescription.prescription_id,
+          patientName: `${selectedPatient?.first_name} ${selectedPatient?.last_name}`,
+          doctorName: `${selectedDoctor?.first_name} ${selectedDoctor?.last_name}`,
+          count: validMedications.length
+        }),
       });
 
       // Reset form and close modal
@@ -394,21 +402,20 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
+          <Button className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+            <Plus className="h-4 w-4" />
             {t("New Prescription")}
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className={cn("max-w-4xl max-h-[90vh] overflow-y-auto", isRTL && "text-right")} dir={isRTL ? 'rtl' : 'ltr'}>
         <DialogHeader>
-          <DialogTitle className="flex items-center text-xl">
-            <Stethoscope className="h-5 w-5 mr-2 text-blue-600" />
+          <DialogTitle className={cn("flex items-center text-xl gap-2", isRTL && "flex-row-reverse")}>
+            <Stethoscope className="h-5 w-5 text-blue-600" />
             {t("Create New Prescription")}
           </DialogTitle>
-          <DialogDescription>
-            Create a digital prescription with medications, dosages, and
-            instructions for the patient.
+          <DialogDescription className={cn(isRTL && "text-right")}>
+            {t("Create a digital prescription with medications, dosages, and instructions for the patient.")}
           </DialogDescription>
         </DialogHeader>
 
@@ -416,40 +423,40 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
           {/* Patient and Doctor Information */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg flex items-center">
-                <User className="h-4 w-4 mr-2" />
-                Patient & Doctor Information
+              <CardTitle className={cn("text-lg flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                <User className="h-4 w-4" />
+                {t("Patient & Doctor Information")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="patientId">Select Patient *</Label>
+                  <Label htmlFor="patientId" className={cn(isRTL && "text-right")}>{t("Select Patient *")}</Label>
                   <Select
                     value={formData.patientId}
                     onValueChange={(value) => handleChange("patientId", value)}
                     disabled={patientsLoading}
                   >
-                    <SelectTrigger>
-                      <SelectValue placeholder={patientsLoading ? "Loading patients..." : "Choose a patient"} />
+                    <SelectTrigger className={cn(isRTL && "text-right")} dir={isRTL ? 'rtl' : 'ltr'}>
+                      <SelectValue placeholder={patientsLoading ? t("Loading patients...") : t("Choose a patient")} />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent dir={isRTL ? 'rtl' : 'ltr'}>
                       {patientsLoading ? (
                         <SelectItem value="loading" disabled>
-                          <div className="flex items-center">
-                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                            Loading patients...
+                          <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            {t("Loading patients...")}
                           </div>
                         </SelectItem>
                       ) : (
                         patients.map((patient) => (
                           <SelectItem key={patient._id} value={patient._id}>
-                            <div className="flex flex-col">
+                            <div className={cn("flex flex-col", isRTL && "text-right")}>
                               <span className="font-medium">
                                 {patient.first_name} {patient.last_name}
                               </span>
                               <span className="text-xs text-gray-500">
-                                Age: {calculateAge(patient.date_of_birth)} • {patient.phone}
+                                {t("Age:")} {calculateAge(patient.date_of_birth)} • {patient.phone}
                               </span>
                             </div>
                           </SelectItem>
@@ -460,31 +467,31 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="doctorId">Prescribing Doctor *</Label>
+                  <Label htmlFor="doctorId" className={cn(isRTL && "text-right")}>{t("Prescribing Doctor *")}</Label>
                   <Select
                     value={formData.doctorId}
                     onValueChange={(value) => handleChange("doctorId", value)}
                     disabled={doctorsLoading}
                   >
-                    <SelectTrigger>
-                      <SelectValue placeholder={doctorsLoading ? "Loading doctors..." : "Choose a doctor"} />
+                    <SelectTrigger className={cn(isRTL && "text-right")} dir={isRTL ? 'rtl' : 'ltr'}>
+                      <SelectValue placeholder={doctorsLoading ? t("Loading doctors...") : t("Choose a doctor")} />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent dir={isRTL ? 'rtl' : 'ltr'}>
                       {doctorsLoading ? (
                         <SelectItem value="loading" disabled>
-                          <div className="flex items-center">
-                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                            Loading doctors...
+                          <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            {t("Loading doctors...")}
                           </div>
                         </SelectItem>
                       ) : doctors.length === 0 ? (
-                        <SelectItem value="no-doctors" disabled>
-                          No doctors available
+                        <SelectItem value="no-doctors" disabled className={cn(isRTL && "text-right")}>
+                          {t("No doctors available")}
                         </SelectItem>
                       ) : (
                         doctors.map((doctor) => (
                           <SelectItem key={doctor._id} value={doctor._id}>
-                            <div className="flex flex-col">
+                            <div className={cn("flex flex-col", isRTL && "text-right")}>
                               <span className="font-medium">
                                 {doctor.first_name} {doctor.last_name}
                               </span>
@@ -502,70 +509,72 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="diagnosis">Diagnosis *</Label>
+                  <Label htmlFor="diagnosis" className={cn(isRTL && "text-right")}>{t("Diagnosis *")}</Label>
                   <Input
                     id="diagnosis"
                     value={formData.diagnosis}
                     onChange={(e) => handleChange("diagnosis", e.target.value)}
-                    placeholder="Primary diagnosis"
+                    placeholder={t("Primary diagnosis")}
                     required
+                    className={cn(isRTL && "text-right")}
+                    dir={isRTL ? 'rtl' : 'ltr'}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="status">Status</Label>
+                  <Label htmlFor="status" className={cn(isRTL && "text-right")}>{t("Status")}</Label>
                   <Select
                     value={formData.status}
                     onValueChange={(value) => handleChange("status", value)}
                   >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select status" />
+                    <SelectTrigger className={cn(isRTL && "text-right")} dir={isRTL ? 'rtl' : 'ltr'}>
+                      <SelectValue placeholder={t("Select status")} />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="completed">Completed</SelectItem>
+                    <SelectContent dir={isRTL ? 'rtl' : 'ltr'}>
+                      <SelectItem value="pending" className={cn(isRTL && "text-right")}>{t("Pending")}</SelectItem>
+                      <SelectItem value="active" className={cn(isRTL && "text-right")}>{t("Active")}</SelectItem>
+                      <SelectItem value="completed" className={cn(isRTL && "text-right")}>{t("Completed")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="appointmentId">Related Appointment (Optional)</Label>
+                <Label htmlFor="appointmentId" className={cn(isRTL && "text-right")}>{t("Related Appointment (Optional)")}</Label>
                                   <Select
                     value={formData.appointmentId}
                     onValueChange={(value) => handleChange("appointmentId", value)}
                     disabled={!formData.patientId || appointmentsLoading}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className={cn(isRTL && "text-right")} dir={isRTL ? 'rtl' : 'ltr'}>
                       <SelectValue placeholder={
                         !formData.patientId 
-                          ? "Select a patient first" 
+                          ? t("Select a patient first")
                           : appointmentsLoading 
-                            ? "Loading appointments..." 
-                            : "Select an appointment (optional)"
+                            ? t("Loading appointments...")
+                            : t("Select an appointment (optional)")
                       } />
                     </SelectTrigger>
-                                      <SelectContent>
+                                      <SelectContent dir={isRTL ? 'rtl' : 'ltr'}>
                       {!formData.patientId ? (
-                        <SelectItem value="no-patient" disabled>
-                          Please select a patient first
+                        <SelectItem value="no-patient" disabled className={cn(isRTL && "text-right")}>
+                          {t("Please select a patient first")}
                         </SelectItem>
                       ) : appointmentsLoading ? (
                         <SelectItem value="loading" disabled>
-                          <div className="flex items-center">
-                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                            Loading appointments...
+                          <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            {t("Loading appointments...")}
                           </div>
                         </SelectItem>
                       ) : appointments.length === 0 ? (
-                        <SelectItem value="no-appointments" disabled>
-                          No appointments found for this patient
+                        <SelectItem value="no-appointments" disabled className={cn(isRTL && "text-right")}>
+                          {t("No appointments found for this patient")}
                         </SelectItem>
                       ) : (
                                             <>
-                        <SelectItem value="none">
-                          <span className="text-gray-500">No appointment selected</span>
+                        <SelectItem value="none" className={cn(isRTL && "text-right")}>
+                          <span className="text-gray-500">{t("No appointment selected")}</span>
                         </SelectItem>
                         {appointments.map((appointment) => {
                            // Handle both populated and unpopulated patient/doctor data
@@ -579,13 +588,13 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
                           
                           return (
                             <SelectItem key={appointment._id} value={appointment._id}>
-                              <div className="flex flex-col">
+                              <div className={cn("flex flex-col", isRTL && "text-right")}>
                                 <span className="font-medium">
-                                  {patient ? `${patient.first_name} ${patient.last_name}` : 'Unknown Patient'}
+                                  {patient ? `${patient.first_name} ${patient.last_name}` : t('Unknown Patient')}
                                 </span>
                                 <span className="text-xs text-gray-500">
-                                  {appointmentDate.toLocaleDateString()} at {appointmentDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                  {doctor && ` • Dr. ${doctor.first_name} ${doctor.last_name}`}
+                                  {appointmentDate.toLocaleDateString()} {t("at")} {appointmentDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                  {doctor && ` • ${t("Dr.")} ${doctor.first_name} ${doctor.last_name}`}
                                 </span>
                               </div>
                             </SelectItem>
@@ -602,23 +611,24 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
           {/* Medications */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg flex items-center justify-between">
-                <div className="flex items-center">
-                  <Pill className="h-4 w-4 mr-2" />
-                  Medications
+              <CardTitle className={cn("text-lg flex items-center justify-between", isRTL && "flex-row-reverse")}>
+                <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                  <Pill className="h-4 w-4" />
+                  {t("Medications")}
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
                   <Badge variant="outline">
-                    Total: {calculateTotalQuantity()} units
+                    {t("Total:")} {calculateTotalQuantity()} {t("units")}
                   </Badge>
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
                     onClick={addMedication}
+                    className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}
                   >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Medication
+                    <Plus className="h-4 w-4" />
+                    {t("Add Medication")}
                   </Button>
                 </div>
               </CardTitle>
@@ -629,8 +639,8 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
                   key={medication.id}
                   className="p-4 border rounded-lg space-y-4"
                 >
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-medium">Medication {index + 1}</h4>
+                  <div className={cn("flex items-center justify-between", isRTL && "flex-row-reverse")}>
+                    <h4 className={cn("font-medium", isRTL && "text-right")}>{t("Medication")} {index + 1}</h4>
                     {medications.length > 1 && (
                       <Button
                         type="button"
@@ -645,7 +655,7 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>Medication Name *</Label>
+                      <Label className={cn(isRTL && "text-right")}>{t("Medication Name *")}</Label>
                       <Input
                         value={medication.name}
                         onChange={(e) =>
@@ -655,20 +665,22 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
                             e.target.value,
                           )
                         }
-                        placeholder="Enter medication name"
+                        placeholder={t("Enter medication name")}
                         required
+                        className={cn(isRTL && "text-right")}
+                        dir={isRTL ? 'rtl' : 'ltr'}
                       />
                       <Select
                         onValueChange={(value) =>
                           selectCommonMedication(medication.id, value)
                         }
                       >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Or select from common medications" />
+                        <SelectTrigger className={cn(isRTL && "text-right")} dir={isRTL ? 'rtl' : 'ltr'}>
+                          <SelectValue placeholder={t("Or select from common medications")} />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent dir={isRTL ? 'rtl' : 'ltr'}>
                           {commonMedications.map((med) => (
-                            <SelectItem key={med.name} value={med.name}>
+                            <SelectItem key={med.name} value={med.name} className={cn(isRTL && "text-right")}>
                               {med.name}
                             </SelectItem>
                           ))}
@@ -677,7 +689,7 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
                     </div>
 
                     <div className="space-y-2">
-                      <Label>Dosage *</Label>
+                      <Label className={cn(isRTL && "text-right")}>{t("Dosage *")}</Label>
                       <Input
                         value={medication.dosage}
                         onChange={(e) =>
@@ -687,27 +699,29 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
                             e.target.value,
                           )
                         }
-                        placeholder="e.g., 500mg"
+                        placeholder={t("e.g., 500mg")}
                         required
+                        className={cn(isRTL && "text-right")}
+                        dir={isRTL ? 'rtl' : 'ltr'}
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="space-y-2">
-                      <Label>Frequency *</Label>
+                      <Label className={cn(isRTL && "text-right")}>{t("Frequency *")}</Label>
                       <Select
                         value={medication.frequency}
                         onValueChange={(value) =>
                           updateMedication(medication.id, "frequency", value)
                         }
                       >
-                        <SelectTrigger>
-                          <SelectValue placeholder="How often" />
+                        <SelectTrigger className={cn(isRTL && "text-right")} dir={isRTL ? 'rtl' : 'ltr'}>
+                          <SelectValue placeholder={t("How often")} />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent dir={isRTL ? 'rtl' : 'ltr'}>
                           {frequencies.map((freq) => (
-                            <SelectItem key={freq} value={freq}>
+                            <SelectItem key={freq} value={freq} className={cn(isRTL && "text-right")}>
                               {freq}
                             </SelectItem>
                           ))}
@@ -716,19 +730,19 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
                     </div>
 
                     <div className="space-y-2">
-                      <Label>Duration *</Label>
+                      <Label className={cn(isRTL && "text-right")}>{t("Duration *")}</Label>
                       <Select
                         value={medication.duration}
                         onValueChange={(value) =>
                           updateMedication(medication.id, "duration", value)
                         }
                       >
-                        <SelectTrigger>
-                          <SelectValue placeholder="How long" />
+                        <SelectTrigger className={cn(isRTL && "text-right")} dir={isRTL ? 'rtl' : 'ltr'}>
+                          <SelectValue placeholder={t("How long")} />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent dir={isRTL ? 'rtl' : 'ltr'}>
                           {durations.map((duration) => (
-                            <SelectItem key={duration} value={duration}>
+                            <SelectItem key={duration} value={duration} className={cn(isRTL && "text-right")}>
                               {duration}
                             </SelectItem>
                           ))}
@@ -737,7 +751,7 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
                     </div>
 
                     <div className="space-y-2">
-                      <Label>Quantity</Label>
+                      <Label className={cn(isRTL && "text-right")}>{t("Quantity")}</Label>
                       <Input
                         type="number"
                         min="1"
@@ -749,12 +763,14 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
                             parseInt(e.target.value) || 1,
                           )
                         }
+                        className={cn(isRTL && "text-right")}
+                        dir={isRTL ? 'rtl' : 'ltr'}
                       />
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Instructions</Label>
+                    <Label className={cn(isRTL && "text-right")}>{t("Instructions")}</Label>
                     <Textarea
                       value={medication.instructions}
                       onChange={(e) =>
@@ -764,8 +780,10 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
                           e.target.value,
                         )
                       }
-                      placeholder="Special instructions for taking this medication..."
+                      placeholder={t("Special instructions for taking this medication...")}
                       rows={2}
+                      className={cn(isRTL && "text-right")}
+                      dir={isRTL ? 'rtl' : 'ltr'}
                     />
                   </div>
                 </div>
@@ -776,45 +794,48 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
           {/* Additional Information */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg flex items-center">
-                <Calendar className="h-4 w-4 mr-2" />
-                Additional Information
+              <CardTitle className={cn("text-lg flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                <Calendar className="h-4 w-4" />
+                {t("Additional Information")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="followUpDate">Follow-up Date</Label>
+                <Label htmlFor="followUpDate" className={cn(isRTL && "text-right")}>{t("Follow-up Date")}</Label>
                 <Input
                   id="followUpDate"
                   type="date"
                   value={formData.followUpDate}
                   onChange={(e) => handleChange("followUpDate", e.target.value)}
                   min={new Date().toISOString().split("T")[0]}
+                  className={cn(isRTL && "text-right")}
+                  dir={isRTL ? 'rtl' : 'ltr'}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="notes">Clinical Notes</Label>
+                <Label htmlFor="notes" className={cn(isRTL && "text-right")}>{t("Clinical Notes")}</Label>
                 <Textarea
                   id="notes"
                   value={formData.notes}
                   onChange={(e) => handleChange("notes", e.target.value)}
-                  placeholder="Additional clinical notes, warnings, or special instructions..."
+                  placeholder={t("Additional clinical notes, warnings, or special instructions...")}
                   rows={3}
+                  className={cn(isRTL && "text-right")}
+                  dir={isRTL ? 'rtl' : 'ltr'}
                 />
               </div>
 
               {/* Warning for drug interactions */}
-              <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <div className="flex items-start space-x-2">
-                  <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5" />
-                  <div>
-                    <h4 className="font-medium text-yellow-800">
-                      Drug Interaction Check
+              <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg" dir={isRTL ? 'rtl' : 'ltr'}>
+                <div className={cn("flex items-start gap-2", isRTL && "flex-row-reverse")}>
+                  <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+                  <div className={cn("flex-1", isRTL && "text-right")}>
+                    <h4 className={cn("font-medium text-yellow-800", isRTL && "text-right")}>
+                      {t("Drug Interaction Check")}
                     </h4>
-                    <p className="text-sm text-yellow-700 mt-1">
-                      Please verify drug interactions and patient allergies
-                      before finalizing this prescription.
+                    <p className={cn("text-sm text-yellow-700 mt-1", isRTL && "text-right")}>
+                      {t("Please verify drug interactions and patient allergies before finalizing this prescription.")}
                     </p>
                   </div>
                 </div>
@@ -823,7 +844,7 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
           </Card>
 
           {/* Action Buttons */}
-          <div className="flex justify-end space-x-4 pt-4">
+          <div className={cn("flex pt-4", isRTL ? "justify-end gap-4 flex-row-reverse" : "justify-end gap-4")}>
             <Button
               type="button"
               variant="outline"
@@ -833,18 +854,18 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
               }}
               disabled={isLoading}
             >
-              Cancel
+              {t("Cancel")}
             </Button>
-            <Button type="submit" disabled={isLoading}>
+            <Button type="submit" disabled={isLoading} className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
               {isLoading ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Creating Prescription...
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  {t("Creating Prescription...")}
                 </>
               ) : (
                 <>
-                  <Stethoscope className="h-4 w-4 mr-2" />
-                  Create Prescription
+                  <Stethoscope className="h-4 w-4" />
+                  {t("Create Prescription")}
                 </>
               )}
             </Button>

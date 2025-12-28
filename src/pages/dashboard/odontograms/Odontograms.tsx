@@ -54,6 +54,8 @@ import {
   DollarSign,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { useIsRTL } from "@/hooks/useIsRTL";
+import { cn } from "@/lib/utils";
 import { Odontogram, OdontogramStats } from "@/types";
 import odontogramApi from "@/services/api/odontogramApi";
 import OdontogramDetailModal from "@/components/modals/OdontogramDetailModal";
@@ -62,6 +64,7 @@ import OdontogramHistoryModal from "@/components/modals/OdontogramHistoryModal";
 
 const Odontograms = () => {
   const { t } = useTranslation();
+  const isRTL = useIsRTL();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPatient, setSelectedPatient] = useState("all");
   const [selectedDoctor, setSelectedDoctor] = useState("all");
@@ -312,24 +315,48 @@ const Odontograms = () => {
             onClick={handleRecalculateStats}
             disabled={loading}
             title="Recalculate treatment statistics"
-            className="w-full sm:w-auto"
+            className="w-full sm:w-auto flex items-center gap-2"
           >
-            {loading ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            {isRTL ? (
+              <>
+                <span className="hidden sm:inline">{t("Refresh Stats")}</span>
+                <span className="sm:hidden">{t("Refresh")}</span>
+                {loading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <TrendingUp className="h-4 w-4" />
+                )}
+              </>
             ) : (
-              <TrendingUp className="mr-2 h-4 w-4" />
+              <>
+                {loading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <TrendingUp className="h-4 w-4" />
+                )}
+                <span className="hidden sm:inline">{t("Refresh Stats")}</span>
+                <span className="sm:hidden">{t("Refresh")}</span>
+              </>
             )}
-            <span className="hidden sm:inline">{t("Refresh Stats")}</span>
-            <span className="sm:hidden">{t("Refresh")}</span>
           </Button>
           
           <Button 
-            className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto"
+            className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto flex items-center gap-2"
             onClick={() => setNewOdontogramModalOpen(true)}
           >
-            <Plus className="mr-2 h-4 w-4" />
-            <span className="hidden sm:inline">{t("New Odontogram")}</span>
-            <span className="sm:hidden">{t("New")}</span>
+            {isRTL ? (
+              <>
+                <span className="hidden sm:inline">{t("New Odontogram")}</span>
+                <span className="sm:hidden">{t("New")}</span>
+                <Plus className="h-4 w-4" />
+              </>
+            ) : (
+              <>
+                <Plus className="h-4 w-4" />
+                <span className="hidden sm:inline">{t("New Odontogram")}</span>
+                <span className="sm:hidden">{t("New")}</span>
+              </>
+            )}
           </Button>
         </div>
       </div>
@@ -447,10 +474,19 @@ const Odontograms = () => {
               <Button
                 variant={activeOnly ? "default" : "outline"}
                 onClick={() => setActiveOnly(!activeOnly)}
-                className="w-full sm:w-auto"
+                className="w-full sm:w-auto flex items-center gap-2"
               >
-                <Filter className="mr-2 h-4 w-4" />
-                {t("Active Only")}
+                {isRTL ? (
+                  <>
+                    {t("Active Only")}
+                    <Filter className="h-4 w-4" />
+                  </>
+                ) : (
+                  <>
+                    <Filter className="h-4 w-4" />
+                    {t("Active Only")}
+                  </>
+                )}
               </Button>
             </div>
           </div>
@@ -474,28 +510,29 @@ const Odontograms = () => {
             <div className="space-y-4">
               {/* Desktop Table View */}
               <div className="hidden lg:block">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>{t("Patient")}</TableHead>
-                      <TableHead>{t("Doctor")}</TableHead>
-                      <TableHead>{t("Examination Date / Time")}</TableHead>
-                      <TableHead>{t("Version")}</TableHead>
-                      <TableHead>{t("Status")}</TableHead>
-                      <TableHead>{t("Progress")}</TableHead>
-                      <TableHead>{t("Treatments")}</TableHead>
-                      <TableHead>{t("Actions")}</TableHead>
-                    </TableRow>
-                  </TableHeader>
+                <div className={cn("odontograms-table", isRTL && "rtl")} dir={isRTL ? 'rtl' : 'ltr'}>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className={cn("min-w-[200px] w-[200px]", isRTL && "text-right")}>{t("Patient")}</TableHead>
+                        <TableHead className={cn("min-w-[180px]", isRTL && "text-right")}>{t("Doctor")}</TableHead>
+                        <TableHead className={cn("min-w-[180px]", isRTL && "text-right")}>{t("Examination Date / Time")}</TableHead>
+                        <TableHead className={cn("min-w-[100px]", isRTL ? "text-right" : "text-center")}>{t("Version")}</TableHead>
+                        <TableHead className={cn("min-w-[100px]", isRTL ? "text-right" : "text-center")}>{t("Status")}</TableHead>
+                        <TableHead className={cn("min-w-[150px]", isRTL ? "text-right" : "text-left")}>{t("Progress")}</TableHead>
+                        <TableHead className={cn("min-w-[120px]", isRTL ? "text-right" : "text-left")}>{t("Treatments")}</TableHead>
+                        <TableHead className={cn("min-w-[150px]", isRTL ? "text-left" : "text-right")}>{t("Actions")}</TableHead>
+                      </TableRow>
+                    </TableHeader>
                   <TableBody>
                     {odontograms.map((odontogram) => (
                       <TableRow key={odontogram._id}>
-                        <TableCell>
-                          <div className="flex items-center space-x-3">
-                            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                        <TableCell className={cn("min-w-[200px] w-[200px]", isRTL && "text-right")}>
+                          <div className={cn("flex items-center patient-cell", isRTL ? "flex-row-reverse justify-end gap-2" : "gap-3")}>
+                            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
                               <User className="h-4 w-4 text-blue-600" />
                             </div>
-                            <div>
+                            <div className={cn("flex flex-col", isRTL ? "text-right items-end" : "items-start")}>
                               <div className="font-medium">{getPatientFullName(odontogram.patient_id)}</div>
                               <div className="text-sm text-gray-500">
                                 {t("Age:")}: {calculateAge(odontogram.patient_id?.date_of_birth)}
@@ -504,8 +541,8 @@ const Odontograms = () => {
                           </div>
                         </TableCell>
 
-                        <TableCell>
-                          <div>
+                        <TableCell className={cn(isRTL && "text-right")}>
+                          <div className={cn(isRTL && "text-right")}>
                             <div className="font-medium">
                               Dr. {odontogram.doctor_id.first_name} {odontogram.doctor_id.last_name}
                             </div>
@@ -517,27 +554,27 @@ const Odontograms = () => {
                           </div>
                         </TableCell>
 
-                        <TableCell>
-                          <div className="flex items-center">
-                            <Calendar className="mr-2 h-4 w-4 text-gray-400" />
+                        <TableCell className={cn(isRTL && "text-right")}>
+                          <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                            <Calendar className="h-4 w-4 text-gray-400" />
                             {formatDateTime(odontogram.examination_date)}
                           </div>
                         </TableCell>
 
-                        <TableCell>
-                          <Badge variant="outline">
+                        <TableCell className={cn(isRTL ? "text-right" : "text-center")}>
+                          <Badge variant="outline" className={cn(isRTL && "justify-end")}>
                             v{odontogram.version}
                           </Badge>
                         </TableCell>
 
-                        <TableCell>
-                          <Badge variant={getStatusBadgeVariant(odontogram)}>
+                        <TableCell className={cn(isRTL ? "text-right" : "text-center")}>
+                          <Badge variant={getStatusBadgeVariant(odontogram)} className={cn(isRTL && "justify-end")}>
                             {odontogram.is_active ? t("Active") : t("Inactive")}
                           </Badge>
                         </TableCell>
 
-                        <TableCell>
-                          <div className="flex items-center space-x-2">
+                        <TableCell className={cn(isRTL ? "text-right" : "text-left")}>
+                          <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse justify-end")}>
                             <div className={`text-sm font-medium ${getProgressColor(odontogram.treatment_progress || 0)}`}>
                               {odontogram.treatment_progress || 0}%
                             </div>
@@ -550,25 +587,34 @@ const Odontograms = () => {
                           </div>
                         </TableCell>
 
-                        <TableCell>
-                          <div className="text-sm">
+                        <TableCell className={cn(isRTL ? "text-right" : "text-left")}>
+                          <div className={cn("text-sm", isRTL && "text-right")}>
                             <div>{odontogram.treatment_summary?.completed_treatments || 0} / {odontogram.treatment_summary?.total_planned_treatments || 0}</div>
                             <div className="text-gray-500">{t("treatments")}</div>
                           </div>
                         </TableCell>
 
-                        <TableCell>
-                          <div className="flex items-center gap-1">
+                        <TableCell className={cn(isRTL ? "text-left" : "text-right")}>
+                          <div className={cn("flex items-center gap-1", isRTL ? "justify-start" : "justify-end")}>
                             {/* Primary Action Buttons */}
                             <Button 
                               variant="outline" 
                               size="sm"
                               onClick={() => handleViewDetails(odontogram._id)}
-                              className="h-8 px-2 text-xs"
+                              className="h-8 px-2 text-xs flex items-center gap-1"
                               title="View Chart"
                             >
-                              <Eye className="h-3 w-3 mr-1" />
-                              {t("View")}
+                              {isRTL ? (
+                                <>
+                                  {t("View")}
+                                  <Eye className="h-3 w-3" />
+                                </>
+                              ) : (
+                                <>
+                                  <Eye className="h-3 w-3" />
+                                  {t("View")}
+                                </>
+                              )}
                             </Button>
                             
                             <Button 
@@ -576,11 +622,20 @@ const Odontograms = () => {
                               size="sm"
                               onClick={() => odontogram.patient_id?._id && handleViewHistory(odontogram.patient_id._id)}
                               disabled={!odontogram.patient_id}
-                              className="h-8 px-2 text-xs"
+                              className="h-8 px-2 text-xs flex items-center gap-1"
                               title={odontogram.patient_id ? "View History" : "No patient data"}
                             >
-                              <History className="h-3 w-3 mr-1" />
-                              {t("History")}
+                              {isRTL ? (
+                                <>
+                                  {t("History")}
+                                  <History className="h-3 w-3" />
+                                </>
+                              ) : (
+                                <>
+                                  <History className="h-3 w-3" />
+                                  {t("History")}
+                                </>
+                              )}
                             </Button>
 
                             {/* More Actions Dropdown */}
@@ -597,14 +652,32 @@ const Odontograms = () => {
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end" className="w-48">
-                                <DropdownMenuItem onClick={() => handleViewDetails(odontogram._id)}>
-                                  <Edit className="mr-2 h-4 w-4" />
-                                  {t("Edit Chart")}
+                                <DropdownMenuItem onClick={() => handleViewDetails(odontogram._id)} className="flex items-center gap-2">
+                                  {isRTL ? (
+                                    <>
+                                      {t("Edit Chart")}
+                                      <Edit className="h-4 w-4" />
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Edit className="h-4 w-4" />
+                                      {t("Edit Chart")}
+                                    </>
+                                  )}
                                 </DropdownMenuItem>
                                 {!odontogram.is_active && (
-                                  <DropdownMenuItem onClick={() => handleSetActive(odontogram._id)}>
-                                    <CheckCircle className="mr-2 h-4 w-4" />
-                                    {t("Set as Active")}
+                                  <DropdownMenuItem onClick={() => handleSetActive(odontogram._id)} className="flex items-center gap-2">
+                                    {isRTL ? (
+                                      <>
+                                        {t("Set as Active")}
+                                        <CheckCircle className="h-4 w-4" />
+                                      </>
+                                    ) : (
+                                      <>
+                                        <CheckCircle className="h-4 w-4" />
+                                        {t("Set as Active")}
+                                      </>
+                                    )}
                                   </DropdownMenuItem>
                                 )}
                               </DropdownMenuContent>
@@ -615,6 +688,7 @@ const Odontograms = () => {
                     ))}
                   </TableBody>
                 </Table>
+                </div>
               </div>
 
               {/* Mobile Cards View */}
@@ -628,7 +702,7 @@ const Odontograms = () => {
                   >
                     {/* Patient and Status Header */}
                     <div className="flex items-start justify-between">
-                      <div className="flex items-center space-x-3">
+                      <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
                           <User className="h-5 w-5 text-blue-600" />
                         </div>
@@ -648,7 +722,7 @@ const Odontograms = () => {
                     </div>
 
                     {/* Doctor Info */}
-                    <div className="flex items-center space-x-2 text-sm">
+                    <div className="flex items-center gap-2 text-sm">
                       <User className="h-4 w-4 text-muted-foreground" />
                       <div>
                         <span className="font-medium">
@@ -663,7 +737,7 @@ const Odontograms = () => {
                     </div>
 
                     {/* Date & Time */}
-                    <div className="flex items-center space-x-2 text-sm">
+                    <div className="flex items-center gap-2 text-sm">
                       <Calendar className="h-4 w-4 text-muted-foreground" />
                       <span>{t("Examination:")}: {formatDateTime(odontogram.examination_date)}</span>
                     </div>
@@ -689,15 +763,24 @@ const Odontograms = () => {
 
                     {/* Action Buttons */}
                     <div className="flex flex-col space-y-2 pt-2 border-t">
-                      <div className="flex space-x-2">
+                      <div className="flex gap-2">
                         <Button 
                           variant="outline" 
                           size="sm"
                           onClick={() => handleViewDetails(odontogram._id)}
-                          className="flex-1"
+                          className="flex-1 flex items-center gap-2"
                         >
-                          <Eye className="h-4 w-4 mr-2" />
-                          {t("View Chart")}
+                          {isRTL ? (
+                            <>
+                              {t("View Chart")}
+                              <Eye className="h-4 w-4" />
+                            </>
+                          ) : (
+                            <>
+                              <Eye className="h-4 w-4" />
+                              {t("View Chart")}
+                            </>
+                          )}
                         </Button>
                         
                         <Button 
@@ -705,24 +788,42 @@ const Odontograms = () => {
                           size="sm"
                           onClick={() => odontogram.patient_id?._id && handleViewHistory(odontogram.patient_id._id)}
                           disabled={!odontogram.patient_id}
-                          className="flex-1"
+                          className="flex-1 flex items-center gap-2"
                         >
-                          <History className="h-4 w-4 mr-2" />
-                          {t("History")}
+                          {isRTL ? (
+                            <>
+                              {t("History")}
+                              <History className="h-4 w-4" />
+                            </>
+                          ) : (
+                            <>
+                              <History className="h-4 w-4" />
+                              {t("History")}
+                            </>
+                          )}
                         </Button>
                       </div>
 
                       {/* Additional Actions */}
-                      <div className="flex space-x-2">
+                      <div className="flex gap-2">
                         {!odontogram.is_active && (
                           <Button 
                             variant="outline" 
                             size="sm"
                             onClick={() => handleSetActive(odontogram._id)}
-                            className="flex-1"
+                            className="flex-1 flex items-center gap-2"
                           >
-                            <CheckCircle className="h-4 w-4 mr-2" />
-                            {t("Set Active")}
+                            {isRTL ? (
+                              <>
+                                {t("Set Active")}
+                                <CheckCircle className="h-4 w-4" />
+                              </>
+                            ) : (
+                              <>
+                                <CheckCircle className="h-4 w-4" />
+                                {t("Set Active")}
+                              </>
+                            )}
                           </Button>
                         )}
                         
@@ -737,9 +838,18 @@ const Odontograms = () => {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-40">
-                            <DropdownMenuItem onClick={() => handleViewDetails(odontogram._id)}>
-                              <Edit className="mr-2 h-4 w-4" />
-                              {t("Edit Chart")}
+                            <DropdownMenuItem onClick={() => handleViewDetails(odontogram._id)} className="flex items-center gap-2">
+                              {isRTL ? (
+                                <>
+                                  {t("Edit Chart")}
+                                  <Edit className="h-4 w-4" />
+                                </>
+                              ) : (
+                                <>
+                                  <Edit className="h-4 w-4" />
+                                  {t("Edit Chart")}
+                                </>
+                              )}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -754,11 +864,20 @@ const Odontograms = () => {
                 <div className="text-center py-8">
                   <div className="text-muted-foreground">{t("No dental records found")}</div>
                   <Button 
-                    className="mt-4"
+                    className="mt-4 flex items-center gap-2"
                     onClick={() => setNewOdontogramModalOpen(true)}
                   >
-                    <Plus className="mr-2 h-4 w-4" />
-                    {t("Create First Odontogram")}
+                    {isRTL ? (
+                      <>
+                        {t("Create First Odontogram")}
+                        <Plus className="h-4 w-4" />
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="h-4 w-4" />
+                        {t("Create First Odontogram")}
+                      </>
+                    )}
                   </Button>
                 </div>
               )}
@@ -771,7 +890,7 @@ const Odontograms = () => {
                     {Math.min(currentPage * pagination.items_per_page, pagination.total_items)} {t("of")} 
                     {pagination.total_items} {t("results")}
                   </div>
-                  <div className="flex space-x-2 order-1 sm:order-2">
+                  <div className="flex gap-2 order-1 sm:order-2">
                     <Button
                       variant="outline"
                       size="sm"

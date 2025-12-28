@@ -16,8 +16,9 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
-import { getApiErrorMessage } from "@/lib/utils";
+import { getApiErrorMessage, cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import { useIsRTL } from "@/hooks/useIsRTL";
 import { apiService, type AITestAnalysis, type AITestAnalysisStats, type Patient } from "@/services/api";
 import {
   Upload,
@@ -47,6 +48,7 @@ import {
 const AITestAnalysis: React.FC = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const isRTL = useIsRTL();
   const { toast } = useToast();
   
   // State management
@@ -617,13 +619,13 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
   if (isLoading) {
     return (
       <div className="p-6 space-y-6">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className={cn("flex flex-col md:flex-row justify-between items-start md:items-center gap-4")}>
           <div>
-            <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
+            <h1 className={cn("text-3xl font-bold text-foreground flex items-center gap-2")}>
               <Brain className="w-8 h-8 text-primary" />
               {t("AI Test Report Analysis")}
             </h1>
-            <p className="text-muted-foreground mt-1">
+            <p className={cn("text-muted-foreground mt-1")}>
               {t("Loading...")}
             </p>
           </div>
@@ -631,11 +633,11 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[1, 2, 3, 4].map((i) => (
             <Card key={i}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardHeader className={cn("flex flex-row items-center justify-between space-y-0 pb-2", isRTL && "flex-row-reverse")}>
                 <div className="h-4 bg-gray-200 rounded animate-pulse w-24"></div>
                 <div className="h-4 w-4 bg-gray-200 rounded animate-pulse"></div>
               </CardHeader>
-              <CardContent>
+              <CardContent className={cn(isRTL && "text-right")}>
                 <div className="h-8 bg-gray-200 rounded animate-pulse w-16 mb-2"></div>
                 <div className="h-3 bg-gray-200 rounded animate-pulse w-32"></div>
               </CardContent>
@@ -647,15 +649,15 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6" dir={isRTL ? 'ltr' : 'ltr'}>
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
+      <div className={cn("flex flex-col md:flex-row justify-between items-start md:items-center gap-4", isRTL && "md:flex-row-reverse")}>
+        <div className={cn(isRTL && "text-right")}>
+          <h1 className={cn("text-3xl font-bold text-foreground flex items-center gap-2", isRTL && "flex-row-reverse")}>
             <Brain className="w-8 h-8 text-primary" />
             {t("AI Test Report Analysis")}
           </h1>
-          <p className="text-muted-foreground mt-1">
+          <p className={cn("text-muted-foreground mt-1", isRTL && "text-right")}>
             {t("Upload test reports and get AI-powered analysis and interpretation")}
           </p>
         </div>
@@ -665,11 +667,11 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
       {stats && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{t("Total Analyses")}</CardTitle>
+            <CardHeader className={cn("flex flex-row items-center justify-between space-y-0 pb-2", isRTL && "flex-row-reverse")}>
+              <CardTitle className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Total Analyses")}</CardTitle>
               <TestTube2 className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
+            <CardContent className={cn(isRTL && "text-right")}>
               <div className="text-2xl font-bold">{stats.total_analyses}</div>
               <p className="text-xs text-muted-foreground">
                 {stats.recent_analyses} {t("in last 30 days")}
@@ -678,11 +680,11 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
           </Card>
 
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{t("Completed")}</CardTitle>
+            <CardHeader className={cn("flex flex-row items-center justify-between space-y-0 pb-2", isRTL && "flex-row-reverse")}>
+              <CardTitle className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Completed")}</CardTitle>
               <CheckCircle className="h-4 w-4 text-green-600" />
             </CardHeader>
-            <CardContent>
+            <CardContent className={cn(isRTL && "text-right")}>
               <div className="text-2xl font-bold text-green-600">{stats.completed_analyses}</div>
               <p className="text-xs text-muted-foreground">
                 {stats.total_analyses > 0 ? Math.round((stats.completed_analyses / stats.total_analyses) * 100) : 0}% {t("success rate")}
@@ -691,11 +693,11 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
           </Card>
 
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{t("Processing")}</CardTitle>
+            <CardHeader className={cn("flex flex-row items-center justify-between space-y-0 pb-2", isRTL && "flex-row-reverse")}>
+              <CardTitle className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Processing")}</CardTitle>
               <Clock className="h-4 w-4 text-yellow-600" />
             </CardHeader>
-            <CardContent>
+            <CardContent className={cn(isRTL && "text-right")}>
               <div className="text-2xl font-bold text-yellow-600">{stats.processing_analyses}</div>
               <p className="text-xs text-muted-foreground">
                 {t("Currently processing")}
@@ -704,11 +706,11 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
           </Card>
 
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{t("Top Test Type")}</CardTitle>
+            <CardHeader className={cn("flex flex-row items-center justify-between space-y-0 pb-2", isRTL && "flex-row-reverse")}>
+              <CardTitle className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Top Test Type")}</CardTitle>
               <Microscope className="h-4 w-4 text-blue-600" />
             </CardHeader>
-            <CardContent>
+            <CardContent className={cn(isRTL && "text-right")}>
               <div className="text-2xl font-bold text-blue-600">
                 {stats.top_test_types?.[0]?.count || 0}
               </div>
@@ -722,12 +724,12 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
 
       {/* Main Content Tabs */}
       <Tabs defaultValue="analyze" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
-          <TabsTrigger value="analyze" className="flex items-center gap-2">
+        <TabsList className={cn("grid w-full grid-cols-2 lg:w-[400px]", isRTL && "lg:mr-auto lg:ml-0")}>
+          <TabsTrigger value="analyze" className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
             <Upload className="w-4 h-4" />
             {t("New Analysis")}
           </TabsTrigger>
-          <TabsTrigger value="history" className="flex items-center gap-2">
+          <TabsTrigger value="history" className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
             <FileText className="w-4 h-4" />
             {t("Analysis History")}
           </TabsTrigger>
@@ -736,12 +738,12 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
         {/* New Analysis Tab */}
         <TabsContent value="analyze" className="space-y-6">
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+            <CardHeader className={cn(isRTL && "text-right")}>
+              <CardTitle className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
                 <FileImage className="w-5 h-5" />
                 {t("Upload Test Report")}
               </CardTitle>
-              <CardDescription>
+              <CardDescription className={cn(isRTL && "text-right")}>
                 {t("Select a test report image or PDF and add optional analysis instructions. PDFs are limited to first 5 pages for analysis.")}
               </CardDescription>
             </CardHeader>
@@ -799,13 +801,13 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
               </div>
 
               {/* Patient Selection */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium">{t("Select Patient")}</label>
+              <div className={cn("space-y-2", isRTL && "text-right")}>
+                <label className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Select Patient")}</label>
                 <Select value={selectedPatient} onValueChange={setSelectedPatient}>
-                  <SelectTrigger>
+                  <SelectTrigger className={cn(isRTL && "text-right")}>
                     <SelectValue placeholder={t("Choose a patient...")} />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent align={isRTL ? "start" : "end"}>
                     {patients.map((patient) => (
                       <SelectItem key={patient._id} value={patient._id}>
                         {patient?.first_name || t('Unknown')} {patient?.last_name || t('Patient')} - {patient?.phone || 'N/A'}
@@ -816,8 +818,8 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
               </div>
 
               {/* Custom Prompt */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium">
+              <div className={cn("space-y-2", isRTL && "text-right")}>
+                <label className={cn("text-sm font-medium", isRTL && "text-right")}>
                   {t("Custom Analysis Instructions (Optional)")}
                 </label>
                 <Textarea
@@ -825,24 +827,25 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
                   value={customPrompt}
                   onChange={(e) => setCustomPrompt(e.target.value)}
                   rows={3}
+                  className={cn(isRTL && "text-right")}
                 />
-                <p className="text-xs text-muted-foreground">
+                <p className={cn("text-xs text-muted-foreground", isRTL && "text-right")}>
                   {t("Leave empty to use default comprehensive analysis")}
                 </p>
               </div>
 
               {/* Upload Progress */}
               {isAnalyzing && (
-                <div className="space-y-3">
-                  <div className="flex justify-between text-sm">
-                    <span className="flex items-center gap-2">
+                <div className={cn("space-y-3", isRTL && "text-right")}>
+                  <div className={cn("flex justify-between text-sm", isRTL && "flex-row-reverse")}>
+                    <span className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
                       <Clock className="w-4 h-4 animate-spin" />
                       {analysisStage}
                     </span>
                     <span>{Math.round(uploadProgress)}%</span>
                   </div>
                   <Progress value={uploadProgress} className="w-full" />
-                  <p className="text-xs text-muted-foreground text-center">
+                  <p className={cn("text-xs text-muted-foreground text-center", isRTL && "text-right")}>
                     {t("This may take several minutes. Please don't close the browser.")}
                   </p>
                 </div>
@@ -852,17 +855,17 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
               <Button
                 onClick={handleAnalyzeTestReport}
                 disabled={!selectedFile || !selectedPatient || isAnalyzing}
-                className="w-full"
+                className={cn("w-full", isRTL && "flex-row-reverse")}
                 size="lg"
               >
                 {isAnalyzing ? (
                   <>
-                    <Clock className="w-4 h-4 mr-2 animate-spin" />
+                    <Clock className={cn("w-4 h-4 animate-spin", isRTL ? "ml-2" : "mr-2")} />
                     {t("Analyzing Report...")}
                   </>
                 ) : (
                   <>
-                    <Brain className="w-4 h-4 mr-2" />
+                    <Brain className={cn("w-4 h-4", isRTL ? "ml-2" : "mr-2")} />
                     {t("Analyze Test Report")}
                   </>
                 )}
@@ -878,20 +881,20 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
               className="space-y-6"
             >
               <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                <CardHeader className={cn(isRTL && "text-right")}>
+                  <CardTitle className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
                     <CheckCircle className="w-5 h-5 text-green-600" />
                     {t("Analysis Results")}
                   </CardTitle>
-                  <CardDescription>
+                  <CardDescription className={cn(isRTL && "text-right")}>
                     {t("AI-generated analysis for test report")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {/* Test Information */}
                   {currentAnalysis.structured_data?.test_name && (
-                    <div>
-                      <h4 className="font-medium mb-2">{t("Test Identified")}:</h4>
+                    <div className={cn(isRTL && "text-right")}>
+                      <h4 className={cn("font-medium mb-2", isRTL && "text-right")}>{t("Test Identified")}:</h4>
                       <Badge variant="outline" className="text-sm">
                         {currentAnalysis.structured_data.test_name}
                       </Badge>
@@ -904,9 +907,9 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
                     const abnormalFindings = getAbnormalFindings(currentAnalysis);
                     
                     return testValues.length > 0 ? (
-                      <div className="space-y-4">
+                      <div className={cn("space-y-4", isRTL && "text-right")}>
                         <div>
-                          <h4 className="font-medium mb-3 text-foreground">{t("Test Results")}:</h4>
+                          <h4 className={cn("font-medium mb-3 text-foreground", isRTL && "text-right")}>{t("Test Results")}:</h4>
                           <ResponsiveTable 
                             data={testValues}
                             columns={[
@@ -954,12 +957,12 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
                         {(() => {
                           const patientSummary = getPatientSummary(currentAnalysis);
                           return patientSummary && (
-                            <div className="bg-blue-50 dark:bg-blue-900/10 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
-                              <h4 className="font-medium mb-2 text-blue-800 dark:text-blue-300 flex items-center gap-2">
+                            <div className={cn("bg-blue-50 dark:bg-blue-900/10 p-4 rounded-lg border border-blue-200 dark:border-blue-800", isRTL && "text-right")}>
+                              <h4 className={cn("font-medium mb-2 text-blue-800 dark:text-blue-300 flex items-center gap-2", isRTL && "flex-row-reverse")}>
                                 <FileText className="w-4 h-4" />
                                 {t("Clinical Summary")}:
                               </h4>
-                              <p className="text-sm text-blue-700 dark:text-blue-300 leading-relaxed">
+                              <p className={cn("text-sm text-blue-700 dark:text-blue-300 leading-relaxed", isRTL && "text-right")}>
                                 {patientSummary}
                               </p>
                             </div>
@@ -968,14 +971,14 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
                         
                         {/* Abnormal Findings Summary */}
                         {abnormalFindings.length > 0 && (
-                          <div className="bg-red-50 dark:bg-red-900/10 p-4 rounded-lg border border-red-200 dark:border-red-800">
-                            <h4 className="font-medium mb-2 text-red-800 dark:text-red-300 flex items-center gap-2">
+                          <div className={cn("bg-red-50 dark:bg-red-900/10 p-4 rounded-lg border border-red-200 dark:border-red-800", isRTL && "text-right")}>
+                            <h4 className={cn("font-medium mb-2 text-red-800 dark:text-red-300 flex items-center gap-2", isRTL && "flex-row-reverse")}>
                               <AlertCircle className="w-4 h-4" />
                               {t("Key Abnormal Findings")}:
                             </h4>
-                            <ul className="space-y-1 text-sm text-red-700 dark:text-red-300">
+                            <ul className={cn("space-y-1 text-sm text-red-700 dark:text-red-300", isRTL && "text-right")}>
                               {abnormalFindings.map((finding, index) => (
-                                <li key={index} className="flex items-start gap-2">
+                                <li key={index} className={cn("flex items-start gap-2", isRTL && "flex-row-reverse")}>
                                   <span className="w-1 h-1 bg-red-500 rounded-full mt-2 flex-shrink-0"></span>
                                   {finding}
                                 </li>
@@ -986,10 +989,10 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
                       </div>
                     ) : (
                       // Fallback to formatted text if parsing fails
-                      <div className="prose max-w-none">
-                        <div className="bg-muted p-4 rounded-lg">
-                          <h4 className="font-medium mb-2 text-foreground">{t("Detailed Analysis")}:</h4>
-                          <div className="text-sm leading-relaxed text-foreground">
+                      <div className={cn("prose max-w-none", isRTL && "text-right")}>
+                        <div className={cn("bg-muted p-4 rounded-lg", isRTL && "text-right")}>
+                          <h4 className={cn("font-medium mb-2 text-foreground", isRTL && "text-right")}>{t("Detailed Analysis")}:</h4>
+                          <div className={cn("text-sm leading-relaxed text-foreground", isRTL && "text-right")}>
                             {formatAnalysisText(currentAnalysis?.analysis_result || '')}
                           </div>
                         </div>
@@ -999,13 +1002,13 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
 
                   {/* Structured Data */}
                   {currentAnalysis.structured_data && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className={cn("grid grid-cols-1 md:grid-cols-2 gap-6", isRTL && "text-right")}>
                       {currentAnalysis.structured_data.abnormal_findings?.length > 0 && (
                         <div>
-                          <h4 className="font-medium mb-2">{t("Abnormal Findings")}:</h4>
+                          <h4 className={cn("font-medium mb-2", isRTL && "text-right")}>{t("Abnormal Findings")}:</h4>
                           <div className="space-y-1">
                             {currentAnalysis.structured_data.abnormal_findings.map((finding, index) => (
-                              <Badge key={index} variant="destructive" className="mr-2 mb-1">
+                              <Badge key={index} variant="destructive" className={cn(isRTL ? "ml-2" : "mr-2", "mb-1")}>
                                 {typeof finding === 'string' ? finding : `${finding.parameter}: ${finding.value} (${finding.status})`}
                               </Badge>
                             ))}
@@ -1015,10 +1018,10 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
 
                       {currentAnalysis.structured_data.recommendations?.length > 0 && (
                         <div>
-                          <h4 className="font-medium mb-2">{t("Recommendations")}:</h4>
+                          <h4 className={cn("font-medium mb-2", isRTL && "text-right")}>{t("Recommendations")}:</h4>
                           <div className="space-y-1">
                             {currentAnalysis.structured_data.recommendations.map((rec, index) => (
-                              <Badge key={index} variant="outline" className="mr-2 mb-1">
+                              <Badge key={index} variant="outline" className={cn(isRTL ? "ml-2" : "mr-2", "mb-1")}>
                                 {typeof rec === 'string' ? rec : rec.action || rec}
                               </Badge>
                             ))}
@@ -1036,29 +1039,29 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
         {/* Analysis History Tab */}
         <TabsContent value="history" className="space-y-6">
           <Card>
-            <CardHeader>
-              <CardTitle>{t("Analysis History")}</CardTitle>
-              <CardDescription>
+            <CardHeader className={cn(isRTL && "text-right")}>
+              <CardTitle className={cn(isRTL && "text-right")}>{t("Analysis History")}</CardTitle>
+              <CardDescription className={cn(isRTL && "text-right")}>
                 {t("View and manage all AI test report analyses")}
               </CardDescription>
             </CardHeader>
             <CardContent>
               {/* Search and Filter */}
-              <div className="flex flex-col md:flex-row gap-4 mb-6">
+              <div className={cn("flex flex-col md:flex-row gap-4 mb-6", isRTL && "md:flex-row-reverse")}>
                 <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Search className={cn("absolute top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4", isRTL ? "right-3" : "left-3")} />
                   <Input
                     placeholder={t("Search by test name...")}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
+                    className={cn(isRTL ? "pr-10" : "pl-10", isRTL && "text-right")}
                   />
                 </div>
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-[180px]">
+                  <SelectTrigger className={cn("w-[180px]", isRTL && "text-right")}>
                     <SelectValue placeholder={t("Filter by status")} />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent align={isRTL ? "start" : "end"}>
                     <SelectItem value="all">{t("All Status")}</SelectItem>
                     <SelectItem value="completed">{t("Completed")}</SelectItem>
                     <SelectItem value="processing">{t("Processing")}</SelectItem>
@@ -1068,19 +1071,61 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
               </div>
 
               {/* Analysis Table */}
-              <ResponsiveTable
-                data={filteredAnalyses}
-                columns={[
+              <div dir={isRTL ? 'rtl' : 'ltr'}>
+                <ResponsiveTable
+                  data={filteredAnalyses}
+                  className={cn(isRTL && "text-right")}
+                  actionsLabel={t("Actions")}
+                  columns={isRTL ? [
+                  // RTL: ترتيب الأعمدة من اليمين لليسار
                   {
-                    key: "test",
-                    label: t("Test Type"),
+                    key: "findings",
+                    label: t("Key Findings"),
+                    className: cn("min-w-[140px]", isRTL && "text-right pr-4"),
                     render: (analysis) => (
-                      <div>
+                      <div className={cn("space-y-1", isRTL && "text-right")}>
+                        {analysis.structured_data?.abnormal_findings?.length > 0 ? (
+                          <Badge variant="destructive" className={cn("text-xs", isRTL && "flex items-center gap-1 flex-row-reverse")}>
+                            {isRTL ? (
+                              <>
+                                {t("abnormal")} {analysis.structured_data.abnormal_findings.length}
+                              </>
+                            ) : (
+                              <>
+                                {analysis.structured_data.abnormal_findings.length} {t("abnormal")}
+                              </>
+                            )}
+                          </Badge>
+                        ) : (
+                          <Badge variant="secondary" className="text-xs">{t("Normal")}</Badge>
+                        )}
+                      </div>
+                    )
+                  },
+                  {
+                    key: "status",
+                    label: t("Status"),
+                    className: cn("min-w-[120px]", isRTL && "text-right pr-4"),
+                    render: (analysis) => (
+                      <Badge className={getStatusColor(analysis.status)}>
+                        <span className={cn("flex items-center gap-1", isRTL && "flex-row-reverse")}>
+                          {getStatusIcon(analysis.status)}
+                          {analysis.status.charAt(0).toUpperCase() + analysis.status.slice(1)}
+                        </span>
+                      </Badge>
+                    )
+                  },
+                  {
+                    key: "date",
+                    label: t("Analysis Date"),
+                    className: cn("min-w-[150px]", isRTL && "text-right pr-4"),
+                    render: (analysis) => (
+                      <div className={cn(isRTL && "text-right")}>
                         <p className="font-medium">
-                          {analysis.structured_data?.test_name || t('Unknown Test')}
+                          {new Date(analysis.analysis_date).toLocaleDateString()}
                         </p>
                         <p className="text-sm text-gray-500">
-                          {analysis.file_type === 'application/pdf' ? 'PDF' : 'Image'}
+                          {new Date(analysis.analysis_date).toLocaleTimeString()}
                         </p>
                       </div>
                     )
@@ -1088,8 +1133,9 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
                   {
                     key: "patient",
                     label: t("Patient"),
+                    className: cn("min-w-[180px]", isRTL && "text-right pr-4"),
                     render: (analysis) => (
-                      <div className="flex items-center gap-3">
+                      <div className={cn("flex items-center gap-3", isRTL && "flex-row-reverse")}>
                         <Avatar className="h-8 w-8">
                           <AvatarFallback>
                             {(() => {
@@ -1102,7 +1148,72 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
                             })()}
                           </AvatarFallback>
                         </Avatar>
-                        <div>
+                        <div className={cn(isRTL && "text-right")}>
+                          <p className="font-medium">
+                            {(() => {
+                              if (analysis.patient_id && typeof analysis.patient_id === 'object') {
+                                const firstName = analysis.patient_id.first_name || '';
+                                const lastName = analysis.patient_id.last_name || '';
+                                return `${firstName} ${lastName}`.trim() || 'Unknown Patient';
+                              }
+                              return String(analysis.patient_id || 'Unknown Patient');
+                            })()}
+                          </p>
+                        </div>
+                      </div>
+                    )
+                  },
+                  {
+                    key: "test",
+                    label: t("Test Type"),
+                    className: cn("min-w-[200px]", isRTL && "text-right pr-4"),
+                    render: (analysis) => (
+                      <div className={cn(isRTL && "text-right")}>
+                        <p className="font-medium">
+                          {analysis.structured_data?.test_name || t('Unknown Test')}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          {analysis.file_type === 'application/pdf' ? 'PDF' : 'Image'}
+                        </p>
+                      </div>
+                    )
+                  }
+                ] : [
+                  // LTR: ترتيب الأعمدة من اليسار لليمين
+                  {
+                    key: "test",
+                    label: t("Test Type"),
+                    className: cn("min-w-[200px]", isRTL && "text-right pr-4"),
+                    render: (analysis) => (
+                      <div className={cn(isRTL && "text-right")}>
+                        <p className="font-medium">
+                          {analysis.structured_data?.test_name || t('Unknown Test')}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          {analysis.file_type === 'application/pdf' ? 'PDF' : 'Image'}
+                        </p>
+                      </div>
+                    )
+                  },
+                  {
+                    key: "patient",
+                    label: t("Patient"),
+                    className: cn("min-w-[180px]", isRTL && "text-right pr-4"),
+                    render: (analysis) => (
+                      <div className={cn("flex items-center gap-3", isRTL && "flex-row-reverse")}>
+                        <Avatar className="h-8 w-8">
+                          <AvatarFallback>
+                            {(() => {
+                              if (analysis.patient_id && typeof analysis.patient_id === 'object') {
+                                const firstInitial = analysis.patient_id.first_name?.charAt(0) || '';
+                                const lastInitial = analysis.patient_id.last_name?.charAt(0) || '';
+                                return (firstInitial + lastInitial).toUpperCase() || 'PA';
+                              }
+                              return String(analysis.patient_id || '').slice(0, 2).toUpperCase() || 'PA';
+                            })()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className={cn(isRTL && "text-right")}>
                           <p className="font-medium">
                             {(() => {
                               if (analysis.patient_id && typeof analysis.patient_id === 'object') {
@@ -1120,8 +1231,9 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
                   {
                     key: "date",
                     label: t("Analysis Date"),
+                    className: cn("min-w-[150px]", isRTL && "text-right pr-4"),
                     render: (analysis) => (
-                      <div>
+                      <div className={cn(isRTL && "text-right")}>
                         <p className="font-medium">
                           {new Date(analysis.analysis_date).toLocaleDateString()}
                         </p>
@@ -1134,9 +1246,10 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
                   {
                     key: "status",
                     label: t("Status"),
+                    className: cn("min-w-[120px]", isRTL && "text-right pr-4"),
                     render: (analysis) => (
                       <Badge className={getStatusColor(analysis.status)}>
-                        <span className="flex items-center gap-1">
+                        <span className={cn("flex items-center gap-1", isRTL && "flex-row-reverse")}>
                           {getStatusIcon(analysis.status)}
                           {analysis.status.charAt(0).toUpperCase() + analysis.status.slice(1)}
                         </span>
@@ -1146,11 +1259,20 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
                   {
                     key: "findings",
                     label: t("Key Findings"),
+                    className: cn("min-w-[140px]", isRTL && "text-right pr-4"),
                     render: (analysis) => (
-                      <div className="space-y-1">
+                      <div className={cn("space-y-1", isRTL && "text-right")}>
                         {analysis.structured_data?.abnormal_findings?.length > 0 ? (
-                          <Badge variant="destructive" className="text-xs">
-                            {analysis.structured_data.abnormal_findings.length} {t("abnormal")}
+                          <Badge variant="destructive" className={cn("text-xs", isRTL && "flex items-center gap-1 flex-row-reverse")}>
+                            {isRTL ? (
+                              <>
+                                {t("abnormal")} {analysis.structured_data.abnormal_findings.length}
+                              </>
+                            ) : (
+                              <>
+                                {analysis.structured_data.abnormal_findings.length} {t("abnormal")}
+                              </>
+                            )}
                           </Badge>
                         ) : (
                           <Badge variant="secondary" className="text-xs">{t("Normal")}</Badge>
@@ -1166,20 +1288,20 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
                         <MoreVertical className="w-4 h-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleViewReport(analysis)}>
-                        <Eye className="w-4 h-4 mr-2" />
+                    <DropdownMenuContent align={isRTL ? "start" : "end"}>
+                      <DropdownMenuItem onClick={() => handleViewReport(analysis)} className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                        <Eye className={cn("w-4 h-4", isRTL ? "ml-2" : "mr-2")} />
                         {t("View Report")}
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleDownloadReport(analysis)}>
-                        <Download className="w-4 h-4 mr-2" />
+                      <DropdownMenuItem onClick={() => handleDownloadReport(analysis)} className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                        <Download className={cn("w-4 h-4", isRTL ? "ml-2" : "mr-2")} />
                         {t("Download")}
                       </DropdownMenuItem>
                       <DropdownMenuItem 
-                        className="text-red-600"
+                        className={cn("text-red-600 flex items-center gap-2", isRTL && "flex-row-reverse")}
                         onClick={() => handleDeleteAnalysis(analysis)}
                       >
-                        <Trash2 className="w-4 h-4 mr-2" />
+                        <Trash2 className={cn("w-4 h-4", isRTL ? "ml-2" : "mr-2")} />
                         {t("Delete")}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -1187,6 +1309,7 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
                 )}
                 emptyMessage={t("No AI test analyses found")}
               />
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -1199,13 +1322,13 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
           setViewModalAnalysis(null);
         }
       }}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+        <DialogContent className={cn("max-w-4xl max-h-[90vh] overflow-y-auto", isRTL && "text-right")}>
+          <DialogHeader className={cn(isRTL && "text-right")}>
+            <DialogTitle className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
               <Brain className="w-5 h-5 text-blue-600" />
               {t("AI Test Report Analysis")}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className={cn(isRTL && "text-right")}>
               {t("Detailed analysis report for")} {viewModalAnalysis?.structured_data?.test_name || t('test report')}
             </DialogDescription>
           </DialogHeader>
@@ -1213,26 +1336,26 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
           {viewModalAnalysis && (
             <div className="space-y-6">
               {/* Analysis Info */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium text-card-foreground">{t("Analysis Information")}</CardTitle>
+              <div className={cn("grid grid-cols-1 md:grid-cols-2 gap-4", isRTL && "text-right")}>
+                <Card>  
+                  <CardHeader className={cn("pb-3", isRTL && "text-right")}>
+                    <CardTitle className={cn("text-sm font-medium text-card-foreground", isRTL && "text-right")}>{t("Analysis Information")}</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-2">
+                  <CardContent className={cn("space-y-2", isRTL && "text-right")}>
                     <div className="space-y-1">
-                      <p className="text-sm text-foreground">
+                      <p className={cn("text-sm text-foreground", isRTL && "text-right")}>
                         <span className="font-medium">{t("Test Type")}:</span> {viewModalAnalysis.structured_data?.test_name || t('Unknown')}
                       </p>
-                      <p className="text-sm text-foreground">
+                      <p className={cn("text-sm text-foreground", isRTL && "text-right")}>
                         <span className="font-medium">{t("Date")}:</span> {new Date(viewModalAnalysis.analysis_date).toLocaleDateString()}
                       </p>
-                      <p className="text-sm text-foreground">
+                      <p className={cn("text-sm text-foreground", isRTL && "text-right")}>
                         <span className="font-medium">{t("File Type")}:</span> {viewModalAnalysis.file_type === 'application/pdf' ? t('PDF') : t('Image')}
                       </p>
-                      <div className="flex items-center gap-2">
+                      <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
                         <span className="text-sm font-medium">{t("Status")}:</span>
                         <Badge className={getStatusColor(viewModalAnalysis.status)}>
-                          <span className="flex items-center gap-1">
+                          <span className={cn("flex items-center gap-1", isRTL && "flex-row-reverse")}>
                             {getStatusIcon(viewModalAnalysis.status)}
                             {t(viewModalAnalysis.status.charAt(0).toUpperCase() + viewModalAnalysis.status.slice(1))}
                           </span>
@@ -1243,12 +1366,12 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
                 </Card>
 
                 <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium text-card-foreground">{t("Patient & Doctor")}</CardTitle>
+                  <CardHeader className={cn("pb-3", isRTL && "text-right")}>
+                    <CardTitle className={cn("text-sm font-medium text-card-foreground", isRTL && "text-right")}>{t("Patient & Doctor")}</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-2">
+                  <CardContent className={cn("space-y-2", isRTL && "text-right")}>
                     <div className="space-y-1">
-                      <p className="text-sm text-foreground">
+                      <p className={cn("text-sm text-foreground", isRTL && "text-right")}>
                         <span className="font-medium">{t("Patient")}:</span> {(() => {
                           if (viewModalAnalysis.patient_id && typeof viewModalAnalysis.patient_id === 'object') {
                             const firstName = viewModalAnalysis.patient_id.first_name || '';
@@ -1258,7 +1381,7 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
                           return String(viewModalAnalysis.patient_id || 'Unknown Patient');
                         })()}
                       </p>
-                      <p className="text-sm text-foreground">
+                      <p className={cn("text-sm text-foreground", isRTL && "text-right")}>
                         <span className="font-medium">{t("Doctor")}:</span> {(() => {
                           if (viewModalAnalysis.doctor_id && typeof viewModalAnalysis.doctor_id === 'object') {
                             const firstName = viewModalAnalysis.doctor_id.first_name || '';
@@ -1275,8 +1398,8 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
 
               {/* Analysis Results */}
               <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                <CardHeader className={cn(isRTL && "text-right")}>
+                  <CardTitle className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
                     <FileText className="w-5 h-5" />
                     {t("Test Results")}
                   </CardTitle>
@@ -1334,12 +1457,12 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
                         {(() => {
                           const patientSummary = getPatientSummary(viewModalAnalysis);
                           return patientSummary && (
-                            <div className="bg-blue-50 dark:bg-blue-900/10 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
-                              <h4 className="font-medium mb-2 text-blue-800 dark:text-blue-300 flex items-center gap-2">
+                            <div className={cn("bg-blue-50 dark:bg-blue-900/10 p-4 rounded-lg border border-blue-200 dark:border-blue-800", isRTL && "text-right")}>
+                              <h4 className={cn("font-medium mb-2 text-blue-800 dark:text-blue-300 flex items-center gap-2", isRTL && "flex-row-reverse")}>
                                 <FileText className="w-4 h-4" />
                                 {t("Clinical Summary")}:
                               </h4>
-                              <p className="text-sm text-blue-700 dark:text-blue-300 leading-relaxed">
+                              <p className={cn("text-sm text-blue-700 dark:text-blue-300 leading-relaxed", isRTL && "text-right")}>
                                 {patientSummary}
                               </p>
                             </div>
@@ -1348,14 +1471,14 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
                         
                         {/* Abnormal Findings Summary */}
                         {abnormalFindings.length > 0 && (
-                          <div className="bg-red-50 dark:bg-red-900/10 p-4 rounded-lg border border-red-200 dark:border-red-800">
-                            <h4 className="font-medium mb-2 text-red-800 dark:text-red-300 flex items-center gap-2">
+                          <div className={cn("bg-red-50 dark:bg-red-900/10 p-4 rounded-lg border border-red-200 dark:border-red-800", isRTL && "text-right")}>
+                            <h4 className={cn("font-medium mb-2 text-red-800 dark:text-red-300 flex items-center gap-2", isRTL && "flex-row-reverse")}>
                               <AlertCircle className="w-4 h-4" />
                               {t("Key Abnormal Findings")}:
                             </h4>
-                            <ul className="space-y-1 text-sm text-red-700 dark:text-red-300">
+                            <ul className={cn("space-y-1 text-sm text-red-700 dark:text-red-300", isRTL && "text-right")}>
                               {abnormalFindings.map((finding, index) => (
-                                <li key={index} className="flex items-start gap-2">
+                                <li key={index} className={cn("flex items-start gap-2", isRTL && "flex-row-reverse")}>
                                   <span className="w-1 h-1 bg-red-500 rounded-full mt-2 flex-shrink-0"></span>
                                   {finding}
                                 </li>
@@ -1366,8 +1489,8 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
                       </div>
                     ) : (
                       // Fallback to formatted text if parsing fails
-                      <div className="bg-muted p-4 rounded-lg">
-                        <div className="text-sm leading-relaxed text-foreground">
+                      <div className={cn("bg-muted p-4 rounded-lg", isRTL && "text-right")}>
+                        <div className={cn("text-sm leading-relaxed text-foreground", isRTL && "text-right")}>
                           {formatAnalysisText(viewModalAnalysis.analysis_result || '')}
                         </div>
                       </div>
@@ -1378,11 +1501,11 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
 
               {/* Structured Data */}
               {viewModalAnalysis.structured_data && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className={cn("grid grid-cols-1 md:grid-cols-2 gap-6", isRTL && "text-right")}>
                   {viewModalAnalysis.structured_data.abnormal_findings?.length > 0 && (
                     <Card>
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
+                      <CardHeader className={cn(isRTL && "text-right")}>
+                        <CardTitle className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
                           <AlertCircle className="w-5 h-5 text-red-600" />
                           {t("Abnormal Findings")}
                         </CardTitle>
@@ -1390,7 +1513,7 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
                       <CardContent>
                         <div className="space-y-2">
                           {viewModalAnalysis.structured_data.abnormal_findings.map((finding, index) => (
-                            <Badge key={index} variant="destructive" className="mr-2 mb-1">
+                            <Badge key={index} variant="destructive" className={cn(isRTL ? "ml-2" : "mr-2", "mb-1")}>
                               {typeof finding === 'string' ? finding : `${finding.parameter}: ${finding.value} (${finding.status})`}
                             </Badge>
                           ))}
@@ -1401,8 +1524,8 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
 
                   {viewModalAnalysis.structured_data.recommendations?.length > 0 && (
                     <Card>
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
+                      <CardHeader className={cn(isRTL && "text-right")}>
+                        <CardTitle className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
                           <CheckCircle className="w-5 h-5 text-green-600" />
                           {t("Recommendations")}
                         </CardTitle>
@@ -1410,7 +1533,7 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
                       <CardContent>
                         <div className="space-y-2">
                           {viewModalAnalysis.structured_data.recommendations.map((rec, index) => (
-                            <Badge key={index} variant="outline" className="mr-2 mb-1">
+                            <Badge key={index} variant="outline" className={cn(isRTL ? "ml-2" : "mr-2", "mb-1")}>
                               {typeof rec === 'string' ? rec : rec.action || rec}
                             </Badge>
                           ))}
@@ -1422,13 +1545,14 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
               )}
 
               {/* Action Buttons */}
-              <div className="flex flex-wrap gap-2 pt-4 border-t">
+              <div className={cn("flex flex-wrap gap-2 pt-4 border-t", isRTL && "flex-row-reverse")}>
                 <Button 
                   variant="outline" 
                   size="sm"
                   onClick={() => handleDownloadReport(viewModalAnalysis)}
+                  className={cn(isRTL && "flex-row-reverse")}
                 >
-                  <Download className="w-4 h-4 mr-2" />
+                  <Download className={cn("w-4 h-4", isRTL ? "ml-2" : "mr-2")} />
                   {t("Download Report")}
                 </Button>
                 <Button 
@@ -1454,29 +1578,29 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
           setAnalysisToDelete(null);
         }
       }}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-red-600">
+        <DialogContent className={cn("max-w-md", isRTL && "text-right")}>
+          <DialogHeader className={cn(isRTL && "text-right")}>
+            <DialogTitle className={cn("flex items-center gap-2 text-red-600", isRTL && "flex-row-reverse")}>
               <Trash2 className="w-5 h-5" />
               {t("Delete Analysis")}
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className={cn(isRTL && "text-right")}>
               {t("This action cannot be undone. This will permanently delete the AI test analysis.")}
             </DialogDescription>
           </DialogHeader>
 
           {analysisToDelete && (
             <div className="py-4">
-              <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-lg p-4">
-                <div className="flex items-center gap-3">
+              <div className={cn("bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-lg p-4", isRTL && "text-right")}>
+                <div className={cn("flex items-center gap-3", isRTL && "flex-row-reverse")}>
                   <div className="flex-shrink-0">
                     <AlertTriangle className="w-5 h-5 text-red-600" />
                   </div>
                   <div className="flex-1">
-                    <p className="font-medium text-red-800 dark:text-red-200">
+                    <p className={cn("font-medium text-red-800 dark:text-red-200", isRTL && "text-right")}>
                       {analysisToDelete.structured_data?.test_name || 'Unknown Test'}
                     </p>
-                    <p className="text-sm text-red-600 dark:text-red-300">
+                    <p className={cn("text-sm text-red-600 dark:text-red-300", isRTL && "text-right")}>
                       {t("Analysis Date")}: {new Date(analysisToDelete.analysis_date).toLocaleDateString()}
                     </p>
                   </div>
@@ -1485,7 +1609,7 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
             </div>
           )}
 
-          <div className="flex justify-end gap-3">
+          <div className={cn("flex justify-end gap-3", isRTL && "flex-row-reverse")}>
             <Button
               variant="outline"
               onClick={() => {
@@ -1498,8 +1622,9 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
             <Button
               variant="destructive"
               onClick={confirmDeleteAnalysis}
+              className={cn(isRTL && "flex-row-reverse")}
             >
-              <Trash2 className="w-4 h-4 mr-2" />
+              <Trash2 className={cn("w-4 h-4", isRTL ? "ml-2" : "mr-2")} />
               {t("Delete")}
             </Button>
           </div>

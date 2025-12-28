@@ -70,10 +70,13 @@ import {
   ClinicInfo 
 } from "@/utils/prescriptionSlipPdf";
 import { useClinic } from "@/contexts/ClinicContext";
+import { useIsRTL } from "@/hooks/useIsRTL";
+import { cn } from "@/lib/utils";
 
 const Prescriptions = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { currentClinic } = useClinic();
+  const isRTL = useIsRTL();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [selectedDoctor, setSelectedDoctor] = useState("all");
@@ -307,7 +310,8 @@ const Prescriptions = () => {
 
   const formatDate = (dateString: string | Date | null) => {
     if (!dateString) return "-";
-    return new Date(dateString).toLocaleDateString("en-US", {
+    const locale = i18n.language || "en-US";
+    return new Date(dateString).toLocaleDateString(locale, {
       month: "short",
       day: "numeric",
       year: "numeric",
@@ -331,7 +335,7 @@ const Prescriptions = () => {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="h-8 w-8 animate-spin" />
-        <span className="ml-2">{t("Loading prescriptions...")}</span>
+        <span className={cn(isRTL ? "mr-2" : "ml-2")}>{t("Loading prescriptions...")}</span>
       </div>
     );
   }
@@ -351,19 +355,19 @@ const Prescriptions = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Header */}
       <div className="flex flex-col space-y-4 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between sm:flex-wrap">
         <div className="flex-1 min-w-0">
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+          <h1 className={cn("text-2xl sm:text-3xl font-bold text-foreground", isRTL && "text-right")}>
             {t("Prescriptions")}
           </h1>
-          <p className="text-muted-foreground mt-1">
+          <p className={cn("text-muted-foreground mt-1", isRTL && "text-right")}>
             {t("Manage patient prescriptions and medications")}
           </p>
-        </div>
-        <div className="flex-shrink-0">
-                        <NewPrescriptionModal onSuccess={() => refetch()} />
+          <div className="mt-4">
+            <NewPrescriptionModal onSuccess={() => refetch()} />
+          </div>
         </div>
       </div>
 
@@ -376,12 +380,12 @@ const Prescriptions = () => {
         >
           <Card>
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
+              <div className={cn("flex items-center justify-between", isRTL && "flex-row-reverse")}>
+                <div className={cn(isRTL && "text-right")}>
+                  <p className={cn("text-sm font-medium text-muted-foreground", isRTL && "text-right")}>
                     {t("Total Prescriptions")}
                   </p>
-                  <p className="text-3xl font-bold text-foreground">
+                  <p className={cn("text-3xl font-bold text-foreground", isRTL && "text-right")}>
                     {stats?.totalPrescriptions || 0}
                   </p>
                 </div>
@@ -398,10 +402,10 @@ const Prescriptions = () => {
         >
           <Card>
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">{t("Active")}</p>
-                  <p className="text-3xl font-bold text-green-600 dark:text-green-400">
+              <div className={cn("flex items-center justify-between", isRTL && "flex-row-reverse")}>
+                <div className={cn(isRTL && "text-right")}>
+                  <p className={cn("text-sm font-medium text-muted-foreground", isRTL && "text-right")}>{t("Active")}</p>
+                  <p className={cn("text-3xl font-bold text-green-600 dark:text-green-400", isRTL && "text-right")}>
                     {stats?.activePrescriptions || 0}
                   </p>
                 </div>
@@ -418,10 +422,10 @@ const Prescriptions = () => {
         >
           <Card>
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">{t("Pending")}</p>
-                  <p className="text-3xl font-bold text-orange-600 dark:text-orange-400">
+              <div className={cn("flex items-center justify-between", isRTL && "flex-row-reverse")}>
+                <div className={cn(isRTL && "text-right")}>
+                  <p className={cn("text-sm font-medium text-muted-foreground", isRTL && "text-right")}>{t("Pending")}</p>
+                  <p className={cn("text-3xl font-bold text-orange-600 dark:text-orange-400", isRTL && "text-right")}>
                     {stats?.pendingPrescriptions || 0}
                   </p>
                 </div>
@@ -438,10 +442,10 @@ const Prescriptions = () => {
         >
           <Card>
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">{t("Dispensed")}</p>
-                  <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">
+              <div className={cn("flex items-center justify-between", isRTL && "flex-row-reverse")}>
+                <div className={cn(isRTL && "text-right")}>
+                  <p className={cn("text-sm font-medium text-muted-foreground", isRTL && "text-right")}>{t("Dispensed")}</p>
+                  <p className={cn("text-3xl font-bold text-purple-600 dark:text-purple-400", isRTL && "text-right")}>
                     {stats?.dispensedPrescriptions || 0}
                   </p>
                 </div>
@@ -458,12 +462,12 @@ const Prescriptions = () => {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:flex-wrap">
             {/* Search Bar */}
             <div className="relative flex-1 min-w-0 sm:min-w-[250px]">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className={cn("absolute top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground", isRTL ? "right-3" : "left-3")} />
               <Input
                 placeholder={t("Search by prescription ID, patient name, doctor, or diagnosis...")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 w-full"
+                className={cn("w-full", isRTL ? "pr-10" : "pl-10")}
               />
             </div>
 
@@ -532,7 +536,7 @@ const Prescriptions = () => {
             {isLoading ? (
               <div className="flex items-center justify-center h-32">
                 <Loader2 className="h-6 w-6 animate-spin" />
-                <span className="ml-2">{t("Loading...")}</span>
+                <span className={cn(isRTL ? "mr-2" : "ml-2")}>{t("Loading...")}</span>
               </div>
             ) : prescriptions.length === 0 ? (
               <div className="text-center py-8">
@@ -542,45 +546,45 @@ const Prescriptions = () => {
             ) : (
               <>
                 {/* Desktop Table View */}
-                <div className="hidden md:block">
+                <div className="hidden md:block" dir={isRTL ? 'rtl' : 'ltr'}>
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>{t("Prescription")}</TableHead>
-                        <TableHead>{t("Patient")}</TableHead>
-                        <TableHead>{t("Doctor")}</TableHead>
-                        <TableHead>{t("Diagnosis")}</TableHead>
-                        <TableHead>{t("Medications")}</TableHead>
-                        <TableHead>{t("Status")}</TableHead>
-                        <TableHead>{t("Date")}</TableHead>
-                        <TableHead className="text-right">{t("Actions")}</TableHead>
+                        <TableHead className={cn(isRTL && "text-right")}>{t("Prescription")}</TableHead>
+                        <TableHead className={cn(isRTL && "text-right")}>{t("Patient")}</TableHead>
+                        <TableHead className={cn(isRTL && "text-right")}>{t("Doctor")}</TableHead>
+                        <TableHead className={cn(isRTL && "text-right")}>{t("Diagnosis")}</TableHead>
+                        <TableHead className={cn(isRTL && "text-right")}>{t("Medications")}</TableHead>
+                        <TableHead className={cn(isRTL && "text-right")}>{t("Status")}</TableHead>
+                        <TableHead className={cn(isRTL && "text-right")}>{t("Date")}</TableHead>
+                        <TableHead className={cn(isRTL ? "text-left" : "text-right")}>{t("Actions")}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {prescriptions.map((prescription) => (
                         <TableRow key={prescription._id}>
-                          <TableCell>
-                            <div className="flex items-center space-x-2">
-                              <Stethoscope className="h-4 w-4 text-primary" />
-                              <div>
-                                <div className="font-medium">{prescription.prescription_id}</div>
+                          <TableCell className={cn(isRTL && "text-right")}>
+                            <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                              <Stethoscope className="h-4 w-4 text-primary flex-shrink-0" />
+                              <div className={cn(isRTL && "text-right")}>
+                                <div className={cn("font-medium", isRTL && "text-right")}>{prescription.prescription_id}</div>
                                 {prescription.appointment_id && (
-                                  <div className="text-sm text-muted-foreground">
+                                  <div className={cn("text-sm text-muted-foreground", isRTL && "text-right")}>
                                     {t("Apt:")}: {prescription.appointment_id._id}
                                   </div>
                                 )}
                               </div>
                             </div>
                           </TableCell>
-                          <TableCell>
-                            <div>
-                              <div className="font-medium">
+                          <TableCell className={cn(isRTL && "text-right")}>
+                            <div className={cn(isRTL && "text-right")}>
+                              <div className={cn("font-medium", isRTL && "text-right")}>
                                 {prescription.patient_id ? 
                                   `${prescription.patient_id.first_name} ${prescription.patient_id.last_name}` : 
                                   t('Unknown Patient')
                                 }
                               </div>
-                              <div className="text-sm text-gray-500">
+                              <div className={cn("text-sm text-gray-500", isRTL && "text-right")}>
                                 {prescription.patient_id?.date_of_birth ? 
                                   `${t("Age:")}: ${calculateAge(prescription.patient_id.date_of_birth)}` : 
                                   t('Age: N/A')
@@ -588,81 +592,87 @@ const Prescriptions = () => {
                               </div>
                             </div>
                           </TableCell>
-                          <TableCell>
-                            {prescription.doctor_id ? 
-                              `${prescription.doctor_id.first_name} ${prescription.doctor_id.last_name}` : 
-                              t('Unknown Doctor')
-                            }
+                          <TableCell className={cn(isRTL && "text-right")}>
+                            <span className={cn(isRTL && "text-right")}>
+                              {prescription.doctor_id ? 
+                                `${prescription.doctor_id.first_name} ${prescription.doctor_id.last_name}` : 
+                                t('Unknown Doctor')
+                              }
+                            </span>
                           </TableCell>
-                          <TableCell>
-                            <Badge variant="outline" className="text-xs">
+                          <TableCell className={cn(isRTL && "text-right")}>
+                            <Badge variant="outline" className={cn("text-xs", isRTL && "text-right")}>
                               {prescription.diagnosis}
                             </Badge>
                           </TableCell>
-                          <TableCell>
-                            <div className="space-y-1">
+                          <TableCell className={cn(isRTL && "text-right")}>
+                            <div className={cn("space-y-1", isRTL && "text-right")}>
                               {prescription.medications
                                 .slice(0, 2)
                                 .map((med, index) => (
-                                  <div key={index} className="text-sm">
+                                  <div key={index} className={cn("text-sm", isRTL && "text-right")}>
                                     <span className="font-medium">{med.name}</span>
-                                    <span className="text-gray-500 ml-2">
+                                    <span className={cn("text-gray-500", isRTL ? "mr-2" : "ml-2")}>
                                       {med.dosage}
                                     </span>
                                   </div>
                                 ))}
                               {prescription.medications.length > 2 && (
-                                <div className="text-xs text-gray-500">
+                                <div className={cn("text-xs text-gray-500", isRTL && "text-right")}>
                                   +{prescription.medications.length - 2} {t("more")}
                                 </div>
                               )}
                             </div>
                           </TableCell>
-                          <TableCell>
-                            <div className="flex items-center space-x-2">
+                          <TableCell className={cn(isRTL && "text-right")}>
+                            <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
                               {getStatusIcon(prescription.status)}
                               <Badge
-                                className={`text-xs ${getStatusColor(prescription.status)}`}
+                                className={cn("text-xs", getStatusColor(prescription.status), isRTL && "text-right")}
                               >
                                 {prescription.status}
                               </Badge>
                             </div>
                           </TableCell>
-                          <TableCell>
-                            <div className="text-sm">
+                          <TableCell className={cn(isRTL && "text-right")}>
+                            <div className={cn("text-sm", isRTL && "text-right")}>
                               {formatDate(prescription.created_at)}
                             </div>
                           </TableCell>
-                          <TableCell className="text-right">
+                          <TableCell className={cn(isRTL ? "text-left" : "text-right")}>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
-                                <Button variant="outline" size="sm" className="h-8">
-                                  <MoreVertical className="h-4 w-4 mr-1" />
+                                <Button variant="outline" size="sm" className={cn("h-8 flex items-center gap-1", isRTL && "flex-row-reverse")}>
+                                  <MoreVertical className="h-4 w-4" />
                                   {t("Actions")}
                                 </Button>
                               </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
+                              <DropdownMenuContent align={isRTL ? "start" : "end"}>
                                 <DropdownMenuItem
                                   onClick={() => handleViewPrescription(prescription._id)}
+                                  className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}
                                 >
-                                  <Eye className="mr-2 h-4 w-4" />
+                                  <Eye className="h-4 w-4" />
                                   {t("View Details")}
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                   onClick={() => handleEditPrescription(prescription._id)}
+                                  className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}
                                 >
-                                  <Edit className="mr-2 h-4 w-4" />
+                                  <Edit className="h-4 w-4" />
                                   {t("Edit Prescription")}
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                   onClick={() => handleDownloadSlip(prescription._id)}
+                                  className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}
                                 >
-                                  <Download className="mr-2 h-4 w-4" />
+                                  <Download className="h-4 w-4" />
                                   {t("Download Slip")}
                                 </DropdownMenuItem>
                                 {prescription.status === "active" && (
                                   <DropdownMenuItem
                                     onClick={() => handleStatusUpdate(prescription._id, "completed")}
+                                    className={cn(isRTL && "flex-row-reverse")}
                                   >
                                     {t("Mark as Completed")}
                                   </DropdownMenuItem>
@@ -677,31 +687,31 @@ const Prescriptions = () => {
                 </div>
 
                 {/* Mobile Card View */}
-                <div className="md:hidden space-y-4">
+                <div className="md:hidden space-y-4" dir={isRTL ? 'rtl' : 'ltr'}>
                   {prescriptions.map((prescription) => (
                     <Card
                       key={prescription._id}
                       className="p-4 space-y-3 bg-white shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
                     >
                       {/* Header with Prescription and Status */}
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          <Stethoscope className="h-5 w-5 text-blue-600" />
-                          <div>
-                            <div className="font-semibold text-base">
+                      <div className={cn("flex items-center justify-between", isRTL && "flex-row-reverse")}>
+                        <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                          <Stethoscope className="h-5 w-5 text-blue-600 flex-shrink-0" />
+                          <div className={cn(isRTL && "text-right")}>
+                            <div className={cn("font-semibold text-base", isRTL && "text-right")}>
                               #{prescription.prescription_id}
                             </div>
                             {prescription.appointment_id && (
-                              <div className="text-xs text-gray-500">
+                              <div className={cn("text-xs text-gray-500", isRTL && "text-right")}>
                                 Apt: {prescription.appointment_id._id}
                               </div>
                             )}
                           </div>
                         </div>
-                        <div className="flex items-center space-x-2">
+                        <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
                           {getStatusIcon(prescription.status)}
                           <Badge
-                            className={`text-xs flex items-center space-x-1 ${getStatusColor(prescription.status)}`}
+                            className={cn("text-xs flex items-center gap-1", getStatusColor(prescription.status), isRTL && "flex-row-reverse")}
                           >
                             <span className="capitalize">{prescription.status}</span>
                           </Badge>
@@ -710,16 +720,16 @@ const Prescriptions = () => {
 
                       {/* Patient Information */}
                       <div className="p-3 bg-gray-50 rounded-lg">
-                        <div className="flex items-center space-x-3">
-                          <User className="h-4 w-4 text-gray-400" />
-                          <div className="flex-1">
-                            <div className="font-medium text-sm">
+                        <div className={cn("flex items-center gap-3", isRTL && "flex-row-reverse")}>
+                          <User className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                          <div className={cn("flex-1", isRTL && "text-right")}>
+                            <div className={cn("font-medium text-sm", isRTL && "text-right")}>
                               {prescription.patient_id ? 
                                 `${prescription.patient_id.first_name} ${prescription.patient_id.last_name}` : 
                                 t('Unknown Patient')
                               }
                             </div>
-                            <div className="text-xs text-gray-500">
+                            <div className={cn("text-xs text-gray-500", isRTL && "text-right")}>
                               {prescription.patient_id?.date_of_birth ? 
                                 `Age: ${calculateAge(prescription.patient_id.date_of_birth)}` : 
                                 t('Age: N/A')
@@ -730,34 +740,34 @@ const Prescriptions = () => {
                       </div>
 
                       {/* Doctor and Diagnosis */}
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between text-sm">
-                          <div className="flex items-center space-x-2">
-                            <Stethoscope className="h-4 w-4 text-purple-600" />
-                            <span className="font-medium text-gray-500">{t("Doctor")}</span>
+                      <div className={cn("space-y-3", isRTL && "text-right")}>
+                        <div className={cn("flex items-center justify-between text-sm", isRTL && "flex-row-reverse")}>
+                          <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                            <Stethoscope className="h-4 w-4 text-purple-600 flex-shrink-0" />
+                            <span className={cn("font-medium text-gray-500", isRTL && "text-right")}>{t("Doctor")}</span>
                           </div>
-                          <span className="text-gray-900 font-medium">
+                          <span className={cn("text-gray-900 font-medium", isRTL && "text-right")}>
                             {prescription.doctor_id ? 
                               `${prescription.doctor_id.first_name} ${prescription.doctor_id.last_name}` : 
                               t('Unknown Doctor')
                             }
                           </span>
                         </div>
-                        <div className="flex items-center justify-between text-sm">
-                          <div className="flex items-center space-x-2">
-                            <Calendar className="h-4 w-4 text-green-600" />
-                            <span className="font-medium text-gray-500">{t("Diagnosis")}</span>
+                        <div className={cn("flex items-center justify-between text-sm", isRTL && "flex-row-reverse")}>
+                          <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                            <Calendar className="h-4 w-4 text-green-600 flex-shrink-0" />
+                            <span className={cn("font-medium text-gray-500", isRTL && "text-right")}>{t("Diagnosis")}</span>
                           </div>
-                          <Badge variant="outline" className="text-xs">
+                          <Badge variant="outline" className={cn("text-xs", isRTL && "text-right")}>
                             {prescription.diagnosis}
                           </Badge>
                         </div>
                       </div>
 
                       {/* Medications */}
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <div className="text-sm font-medium text-gray-700">
+                      <div className={cn("space-y-2", isRTL && "text-right")}>
+                        <div className={cn("flex items-center justify-between", isRTL && "flex-row-reverse")}>
+                          <div className={cn("text-sm font-medium text-gray-700", isRTL && "text-right")}>
                             {t("Medications")} ({prescription.medications.length})
                           </div>
                         </div>
@@ -765,26 +775,26 @@ const Prescriptions = () => {
                           {prescription.medications.slice(0, 3).map((med, index) => (
                             <div
                               key={index}
-                              className="flex items-center justify-between p-2 bg-blue-50 rounded text-sm"
+                              className={cn("flex items-center justify-between p-2 bg-blue-50 rounded text-sm", isRTL && "flex-row-reverse")}
                             >
-                              <div className="flex items-center space-x-2 flex-1 min-w-0">
+                              <div className={cn("flex items-center flex-1 min-w-0 gap-2", isRTL && "flex-row-reverse")}>
                                 <Pill className="h-3 w-3 text-blue-600 flex-shrink-0" />
-                                <div className="min-w-0 flex-1">
-                                  <div className="font-medium text-sm truncate">
+                                <div className={cn("min-w-0 flex-1", isRTL && "text-right")}>
+                                  <div className={cn("font-medium text-sm truncate", isRTL && "text-right")}>
                                     {med.name}
                                   </div>
-                                  <div className="text-xs text-gray-500">
+                                  <div className={cn("text-xs text-gray-500", isRTL && "text-right")}>
                                     {med.dosage}
                                   </div>
                                 </div>
                               </div>
-                              <div className="text-xs text-gray-600 flex-shrink-0 ml-2">
+                              <div className={cn("text-xs text-gray-600 flex-shrink-0", isRTL ? "mr-2" : "ml-2")}>
                                 {med.frequency}
                               </div>
                             </div>
                           ))}
                           {prescription.medications.length > 3 && (
-                            <div className="text-xs text-gray-500 text-center py-1">
+                            <div className={cn("text-xs text-gray-500 text-center py-1", isRTL && "text-right")}>
                               +{prescription.medications.length - 3} {t("more medications")}
                             </div>
                           )}
@@ -792,39 +802,43 @@ const Prescriptions = () => {
                       </div>
 
                       {/* Date and Actions */}
-                      <div className="flex items-center justify-between pt-2 border-t">
-                        <div className="text-xs text-gray-500">
+                      <div className={cn("flex items-center justify-between pt-2 border-t", isRTL && "flex-row-reverse")}>
+                        <div className={cn("text-xs text-gray-500", isRTL && "text-right")}>
                           {formatDate(prescription.created_at)}
                         </div>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="sm" className="h-8">
-                              <MoreVertical className="h-4 w-4 mr-1" />
+                            <Button variant="outline" size="sm" className={cn("h-8 flex items-center gap-1", isRTL && "flex-row-reverse")}>
+                              <MoreVertical className="h-4 w-4" />
                               {t("Actions")}
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
+                          <DropdownMenuContent align={isRTL ? "start" : "end"}>
                             <DropdownMenuItem
                               onClick={() => handleViewPrescription(prescription._id)}
+                              className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}
                             >
-                              <Eye className="mr-2 h-4 w-4" />
+                              <Eye className="h-4 w-4" />
                               {t("View Details")}
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => handleEditPrescription(prescription._id)}
+                              className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}
                             >
-                              <Edit className="mr-2 h-4 w-4" />
+                              <Edit className="h-4 w-4" />
                               {t("Edit Prescription")}
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => handleDownloadSlip(prescription._id)}
+                              className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}
                             >
-                              <Download className="mr-2 h-4 w-4" />
+                              <Download className="h-4 w-4" />
                               {t("Download Slip")}
                             </DropdownMenuItem>
                             {prescription.status === "active" && (
                               <DropdownMenuItem
                                 onClick={() => handleStatusUpdate(prescription._id, "completed")}
+                                className={cn(isRTL && "flex-row-reverse")}
                               >
                                 {t("Mark as Completed")}
                               </DropdownMenuItem>
@@ -838,7 +852,7 @@ const Prescriptions = () => {
 
                 {/* Pagination */}
                 {totalPages > 1 && (
-                  <div className="flex items-center justify-between mt-6">
+                  <div className={cn("flex items-center justify-between mt-6", isRTL && "flex-row-reverse")}>
                     <Button
                       variant="outline"
                       onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
@@ -846,7 +860,7 @@ const Prescriptions = () => {
                     >
                       {t("Previous")}
                     </Button>
-                    <span className="text-sm text-gray-600">
+                    <span className={cn("text-sm text-gray-600", isRTL && "text-right")}>
                       {t("Page")} {currentPage} {t("of")} {totalPages}
                     </span>
                     <Button
