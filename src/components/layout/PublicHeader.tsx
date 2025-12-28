@@ -7,6 +7,9 @@ import { Heart, ArrowLeft, Building2 } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import Logo from "@/assets/logo.svg";
 import Logoar from "@/assets/logoar.svg";
+import DarkLogo from "@/assets/darklogo.svg";
+import DarkLogoAr from "@/assets/darklogoar.svg";
+import { useTheme } from "@/contexts/ThemeContext";
 interface PublicHeaderProps {
   showBackToHome?: boolean;
   showActions?: boolean;
@@ -19,6 +22,7 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({
   variant = "default"
 }) => {
   const { i18n } = useTranslation();
+  const { theme } = useTheme();
   const [isRTL, setIsRTL] = React.useState(false);
 
   // Check if current language is RTL (Arabic, Hebrew, etc.)
@@ -104,7 +108,7 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({
   isRTL ? "order-2" : "order-1"
 )}>
   <img
-    src={isRTL ? Logoar : Logo}
+    src={isRTL ? (theme === "dark" ? DarkLogoAr : Logoar) : (theme === "dark" ? DarkLogo : Logo)}
     alt="ClinicPro Logo"
     className="h-10 w-auto"
   />

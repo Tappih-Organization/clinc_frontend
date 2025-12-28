@@ -9,6 +9,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import Logo from "@/assets/logomini.svg";
 import Logoar from "@/assets/logoar.svg";
+import DarkLogo from "@/assets/darklogo.svg";
+import DarkLogoAr from "@/assets/darklogoar.svg";
+import { useTheme } from "@/contexts/ThemeContext";
 import { Badge } from "@/components/ui/badge";
 import {
   Heart,
@@ -33,6 +36,7 @@ import {
   Building,
   ChevronDown,
   ChevronRight,
+  ChevronLeft,
   Clock,
   Droplets,
   Folder,
@@ -67,6 +71,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const { hasPermission } = useClinic();
+  const { theme } = useTheme();
   const [isTestModulesOpen, setIsTestModulesOpen] = useState(false);
   const [isRTL, setIsRTL] = useState(false);
 
@@ -327,7 +332,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     <>
       <div
         className={cn(
-          "fixed inset-y-0 z-50 w-64 max-w-[16rem] bg-sidebar transform transition-transform duration-200 ease-in-out lg:translate-x-0 overflow-x-hidden dashboard-sidebar",
+          "fixed inset-y-0 z-50 w-64 max-w-[16rem] bg-sidebar transform transition-transform duration-200 ease-in-out lg:translate-x-0 overflow-x-hidden overflow-y-auto dashboard-sidebar",
           // Position based on RTL/LTR
           isRTL ? "right-0 border-l border-sidebar-border" : "left-0 border-r border-sidebar-border",
           // Slide animation based on RTL/LTR
@@ -347,7 +352,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
            isRTL ? "ml-auto" : ""
          )}>
   <img
-    src= {isRTL ? Logoar : Logo}
+    src={isRTL ? (theme === "dark" ? DarkLogoAr : Logoar) : (theme === "dark" ? DarkLogo : Logo)}
     alt="tappih Logo"
     className="h-10 w-auto"
   />
@@ -435,8 +440,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
                     // Special handling for Test Reports with dropdown
                     if (
-                      item.name === "Test Reports" &&
-                      section.title === "Patient Management"
+                      item.href === "/dashboard/test-reports"
                     ) {
                       return (
                         <div key={item.name}>
@@ -467,19 +471,30 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                                 isRTL ? "mr-2" : "ml-2"
                               )} />
                             ) : (
-                              <ChevronRight className={cn(
-                                "h-4 w-4",
-                                isRTL ? "mr-2" : "ml-2"
-                              )} />
+                              isRTL ? (
+                                <ChevronLeft className={cn(
+                                  "h-4 w-4",
+                                  "mr-2"
+                                )} />
+                              ) : (
+                                <ChevronRight className={cn(
+                                  "h-4 w-4",
+                                  "ml-2"
+                                )} />
+                              )
                             )}
                           </button>
 
                           {/* Test Reports submenu */}
                           {isTestModulesOpen && (
-                            <div className={cn(
-                              "mt-1 space-y-1",
-                              isRTL ? "mr-6" : "ml-6"
-                            )}>
+                            <div 
+                              className={cn(
+                                "mt-1 space-y-1 overflow-visible",
+                                isRTL ? "mr-6" : "ml-6"
+                              )}
+                              dir={isRTL ? 'rtl' : 'ltr'}
+                              style={{ display: 'block', visibility: 'visible' }}
+                            >
                               {(user?.role === 'super_admin' || user?.role === 'admin' || hasPermission("tests.view")) && (
                                 <Link
                                   to="/dashboard/tests"
@@ -499,7 +514,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                                   <span className={cn(
                                     "flex-1",
                                     isRTL ? "text-right" : "text-left"
-                                  )}>Tests</span>
+                                  )}>{t("Tests")}</span>
                                 </Link>
                               )}
 
@@ -547,7 +562,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                                   <span className={cn(
                                     "flex-1",
                                     isRTL ? "text-right" : "text-left"
-                                  )}>Methodology</span>
+                                  )}>{t("Methodology")}</span>
                                 </Link>
                               )}
 
@@ -571,7 +586,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                                   <span className={cn(
                                     "flex-1",
                                     isRTL ? "text-right" : "text-left"
-                                  )}>Turnaround Time</span>
+                                  )}>{t("Turnaround Time")}</span>
                                 </Link>
                               )}
 

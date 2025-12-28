@@ -53,9 +53,12 @@ import {
 } from "lucide-react";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
+import { useIsRTL } from "@/hooks/useIsRTL";
+import { cn } from "@/lib/utils";
 
 const AdminDashboard = () => {
   const { t } = useTranslation();
+  const isRTL = useIsRTL();
   const { formatAmount, currencyInfo } = useCurrency();
   const navigate = useNavigate();
 
@@ -625,33 +628,33 @@ const AdminDashboard = () => {
                       recentAppointments.map((appointment, index) => (
                         <div
                           key={index}
-                          className="flex flex-col xs:flex-row xs:items-center justify-between p-3 bg-muted/50 rounded-lg space-y-2 xs:space-y-0"
+                          className={cn("flex flex-col xs:flex-row xs:items-center justify-between p-3 bg-muted/50 rounded-lg gap-2", isRTL && "xs:flex-row-reverse")}
                         >
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center space-x-2">
+                            <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
                               <p className="text-sm font-medium text-foreground truncate">
                                 {appointment.patient}
                               </p>
                               <Badge
                                 variant="secondary"
-                                className={`text-xs ${getStatusBadgeColor(appointment.status)}`}
+                                className={cn("text-xs flex items-center gap-1.5", getStatusBadgeColor(appointment.status), isRTL && "flex-row-reverse")}
                               >
                                 {getStatusIcon(appointment.status)}
-                                <span className="ml-1 hidden xs:inline">{appointment.status}</span>
+                                <span className="hidden xs:inline">{appointment.status}</span>
                               </Badge>
                             </div>
-                            <div className="flex flex-col xs:flex-row xs:items-center xs:space-x-4 mt-1 text-xs text-gray-500">
-                              <span className="flex items-center">
-                                <Stethoscope className="h-3 w-3 mr-1" />
+                            <div className={cn("flex flex-col xs:flex-row xs:items-center gap-4 mt-1 text-xs text-gray-500", isRTL && "xs:flex-row-reverse")}>
+                              <span className={cn("flex items-center gap-1", isRTL && "flex-row-reverse")}>
+                                <Stethoscope className="h-3 w-3" />
                                 {appointment.doctor}
                               </span>
-                              <span className="flex items-center">
-                                <Clock className="h-3 w-3 mr-1" />
+                              <span className={cn("flex items-center gap-1", isRTL && "flex-row-reverse")}>
+                                <Clock className="h-3 w-3" />
                                 {appointment.time}
                               </span>
                             </div>
                           </div>
-                          <div className="flex items-center space-x-2 xs:ml-3">
+                          <div className={cn("flex items-center", isRTL ? "xs:mr-0" : "xs:ml-0")}>
                             <Badge variant="outline" className="text-xs">
                               {appointment.type}
                             </Badge>
@@ -697,33 +700,33 @@ const AdminDashboard = () => {
                       recentLeads.map((lead, index) => (
                         <div
                           key={index}
-                          className="flex flex-col xs:flex-row xs:items-center justify-between p-3 bg-muted/50 rounded-lg space-y-2 xs:space-y-0"
+                          className={cn("flex flex-col xs:flex-row xs:items-center justify-between p-3 bg-muted/50 rounded-lg gap-2", isRTL && "xs:flex-row-reverse")}
                         >
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center space-x-2">
+                            <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
                               <p className="text-sm font-medium text-foreground truncate">
                                 {lead.name}
                               </p>
                               <Badge
                                 variant="secondary"
-                                className={`text-xs ${getLeadStatusColor(lead.status)}`}
+                                className={cn("text-xs flex items-center gap-1.5", getLeadStatusColor(lead.status), isRTL && "flex-row-reverse")}
                               >
                                 {getLeadIcon(lead.status)}
-                                <span className="ml-1 hidden xs:inline capitalize">{lead.status}</span>
+                                <span className="hidden xs:inline capitalize">{lead.status}</span>
                               </Badge>
                             </div>
-                            <div className="flex flex-col xs:flex-row xs:items-center xs:space-x-4 mt-1 text-xs text-gray-500">
-                              <span className="flex items-center">
-                                <Phone className="h-3 w-3 mr-1" />
+                            <div className={cn("flex flex-col xs:flex-row xs:items-center gap-4 mt-1 text-xs text-gray-500", isRTL && "xs:flex-row-reverse")}>
+                              <span className={cn("flex items-center gap-1", isRTL && "flex-row-reverse")}>
+                                <Phone className="h-3 w-3" />
                                 {lead.phone}
                               </span>
-                              <span className="flex items-center truncate">
-                                <Mail className="h-3 w-3 mr-1" />
+                              <span className={cn("flex items-center gap-1 truncate", isRTL && "flex-row-reverse")}>
+                                <Mail className="h-3 w-3" />
                                 {lead.email}
                               </span>
                             </div>
                           </div>
-                          <div className="flex items-center space-x-2 xs:ml-3">
+                          <div className={cn("flex items-center", isRTL ? "xs:mr-0" : "xs:ml-0")}>
                             <Badge variant="outline" className="text-xs">
                               {lead.source}
                             </Badge>

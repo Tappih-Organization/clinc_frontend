@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
+import { useIsRTL } from "@/hooks/useIsRTL";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -58,6 +61,8 @@ import {
 } from "@/hooks/useApi";
 
 const SampleType = () => {
+  const { t } = useTranslation();
+  const isRTL = useIsRTL();
   // State management
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -172,21 +177,21 @@ const SampleType = () => {
   };
 
   const handleDelete = async (sampleId: string) => {
-    if (!confirm('Are you sure you want to delete this sample type?')) {
+    if (!confirm(t("Are you sure you want to delete this sample type?"))) {
       return;
     }
 
     try {
       await deleteMutation.mutateAsync(sampleId);
       toast({
-        title: "Success",
-        description: "Sample type deleted successfully",
+        title: t("Success"),
+        description: t("Sample type deleted successfully"),
       });
       refetch();
     } catch (err: any) {
       toast({
-        title: "Error",
-        description: err.response?.data?.message || "Failed to delete sample type",
+        title: t("Error"),
+        description: err.response?.data?.message || t("Failed to delete sample type"),
         variant: "destructive",
       });
     }
@@ -196,14 +201,14 @@ const SampleType = () => {
     try {
       await toggleStatusMutation.mutateAsync(sampleId);
       toast({
-        title: "Success",
-        description: "Sample type status updated successfully",
+        title: t("Success"),
+        description: t("Sample type status updated successfully"),
       });
       refetch();
     } catch (err: any) {
       toast({
-        title: "Error",
-        description: err.response?.data?.message || "Failed to update sample type status",
+        title: t("Error"),
+        description: err.response?.data?.message || t("Failed to update sample type status"),
         variant: "destructive",
       });
     }
@@ -227,17 +232,17 @@ const SampleType = () => {
   // Handle loading and error states
   if (error && sampleTypes.length === 0) {
     return (
-      <div className="space-y-6">
-        <div className="text-center py-10">
+      <div className={cn("space-y-6", isRTL && "text-right")} dir={isRTL ? 'rtl' : 'ltr'}>
+        <div className={cn("text-center py-10", isRTL && "text-right")}>
           <AlertTriangle className="h-16 w-16 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            Error Loading Sample Types
+          <h2 className={cn("text-xl font-semibold text-gray-900 mb-2", isRTL && "text-right")}>
+            {t("Error Loading Sample Types")}
           </h2>
-          <p className="text-gray-600 mb-4">
-            Failed to load sample type data. Please try again.
+          <p className={cn("text-gray-600 mb-4", isRTL && "text-right")}>
+            {t("Failed to load sample type data. Please try again.")}
           </p>
-          <Button onClick={() => refetch()}>
-            Try Again
+          <Button onClick={() => refetch()} className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+            {t("Try Again")}
           </Button>
         </div>
       </div>
@@ -245,32 +250,32 @@ const SampleType = () => {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6 lg:space-y-8">
+    <div className={cn("space-y-4 sm:space-y-6 lg:space-y-8", isRTL && "text-right")} dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="min-w-0 flex-1">
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">Sample Types</h1>
-          <p className="text-sm sm:text-base text-muted-foreground mt-1">
-            Manage laboratory sample types and their configurations
+      <div className={cn("flex flex-col sm:flex-row sm:items-center justify-between gap-4", isRTL && "sm:flex-row-reverse")}>
+        <div className={cn("min-w-0 flex-1", isRTL && "text-right sm:order-2")}>
+          <h1 className={cn("text-2xl sm:text-3xl font-bold tracking-tight truncate", isRTL && "text-right")}>{t("Sample Types")}</h1>
+          <p className={cn("text-sm sm:text-base text-muted-foreground mt-1", isRTL && "text-right")}>
+            {t("Manage laboratory sample types and their configurations")}
           </p>
         </div>
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className={cn("flex items-center gap-2 flex-shrink-0", isRTL && "flex-row-reverse sm:order-1")}>
           <Button 
             variant="outline" 
             size="sm" 
             onClick={handleRefresh}
             disabled={isLoading}
-            className="h-9"
+            className={cn("h-9 flex items-center gap-2", isRTL && "flex-row-reverse")}
           >
-            <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-            <span className="hidden sm:inline">Refresh</span>
+            <RefreshCw className={cn(`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`)} />
+            <span className="hidden sm:inline">{t("Refresh")}</span>
           </Button>
           <AddSampleTypeModal 
             trigger={
-              <Button size="sm" className="h-9">
-                <Plus className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Add Sample Type</span>
-                <span className="sm:hidden">Add</span>
+              <Button size="sm" className={cn("h-9 flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                <Plus className="h-4 w-4" />
+                <span className="hidden sm:inline">{t("Add Sample Type")}</span>
+                <span className="sm:hidden">{t("Add")}</span>
               </Button>
             }
             onSuccess={handleModalSuccess}
@@ -281,45 +286,45 @@ const SampleType = () => {
       {/* Stats Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium">Total Sample Types</CardTitle>
-            <TestTube className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+          <CardHeader className={cn("flex flex-row items-center justify-between space-y-0 pb-2 gap-2", isRTL && "flex-row-reverse")}>
+            <TestTube className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
+            <CardTitle className={cn("text-xs sm:text-sm font-medium", isRTL && "text-right")}>{t("Total Sample Types")}</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className={isRTL && "text-right"}>
             <div className="text-xl sm:text-2xl font-bold">{stats?.totalSampleTypes || 0}</div>
             <p className="text-xs text-muted-foreground">
-              {stats?.activeSampleTypes || 0} active
+              {stats?.activeSampleTypes || 0} {t("active")}
             </p>
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium">Active</CardTitle>
-            <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
+          <CardHeader className={cn("flex flex-row items-center justify-between space-y-0 pb-2 gap-2", isRTL && "flex-row-reverse")}>
+            <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 flex-shrink-0" />
+            <CardTitle className={cn("text-xs sm:text-sm font-medium", isRTL && "text-right")}>{t("Active")}</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className={isRTL && "text-right"}>
             <div className="text-xl sm:text-2xl font-bold">{stats?.activeSampleTypes || 0}</div>
-            <p className="text-xs text-muted-foreground">Currently active</p>
+            <p className="text-xs text-muted-foreground">{t("Currently active")}</p>
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium">Blood Samples</CardTitle>
-            <Droplets className="h-3 w-3 sm:h-4 sm:w-4 text-red-600" />
+          <CardHeader className={cn("flex flex-row items-center justify-between space-y-0 pb-2 gap-2", isRTL && "flex-row-reverse")}>
+            <Droplets className="h-3 w-3 sm:h-4 sm:w-4 text-red-600 flex-shrink-0" />
+            <CardTitle className={cn("text-xs sm:text-sm font-medium", isRTL && "text-right")}>{t("Blood Samples")}</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className={isRTL && "text-right"}>
             <div className="text-xl sm:text-2xl font-bold">{sampleTypes.filter(st => st.category === 'blood').length}</div>
-            <p className="text-xs text-muted-foreground">Blood-based</p>
+            <p className="text-xs text-muted-foreground">{t("Blood-based")}</p>
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium">Other Types</CardTitle>
-            <FlaskConical className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
+          <CardHeader className={cn("flex flex-row items-center justify-between space-y-0 pb-2 gap-2", isRTL && "flex-row-reverse")}>
+            <FlaskConical className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600 flex-shrink-0" />
+            <CardTitle className={cn("text-xs sm:text-sm font-medium", isRTL && "text-right")}>{t("Other Types")}</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className={isRTL && "text-right"}>
             <div className="text-xl sm:text-2xl font-bold">{sampleTypes.filter(st => st.category !== 'blood').length}</div>
-            <p className="text-xs text-muted-foreground">Non-blood</p>
+            <p className="text-xs text-muted-foreground">{t("Non-blood")}</p>
           </CardContent>
         </Card>
       </div>
@@ -327,25 +332,25 @@ const SampleType = () => {
       {/* Filters */}
       <Card>
         <CardContent className="pt-4 sm:pt-6">
-          <div className="space-y-3 sm:space-y-0 sm:flex sm:gap-4">
+          <div className={cn("space-y-3 sm:space-y-0 sm:flex sm:gap-4", isRTL && "sm:flex-row-reverse")}>
             <div className="flex-1">
               <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Search className={cn("absolute top-2.5 h-4 w-4 text-muted-foreground", isRTL ? "right-2" : "left-2")} />
                 <Input
-                  placeholder="Search sample types..."
+                  placeholder={t("Search sample types...")}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-8 h-9 sm:h-10"
+                  className={cn("h-9 sm:h-10", isRTL ? "pr-8" : "pl-8")}
                 />
               </div>
             </div>
-            <div className="flex flex-col xs:flex-row gap-2">
+            <div className={cn("flex flex-col xs:flex-row gap-2", isRTL && "xs:flex-row-reverse")}>
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="w-full xs:w-[160px] sm:w-[180px] h-9 sm:h-10">
-                  <SelectValue placeholder="Category" />
+                <SelectTrigger className={cn("w-full xs:w-[160px] sm:w-[180px] h-9 sm:h-10", isRTL && "text-right")}>
+                  <SelectValue placeholder={t("Category")} />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
+                <SelectContent align={isRTL ? "start" : "end"}>
+                  <SelectItem value="all">{t("All Categories")}</SelectItem>
                   {categories.slice(1).map((category) => (
                     <SelectItem key={category} value={category}>
                       {getCategoryLabel(category)}
@@ -354,13 +359,13 @@ const SampleType = () => {
                 </SelectContent>
               </Select>
               <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                <SelectTrigger className="w-full xs:w-[100px] sm:w-[120px] h-9 sm:h-10">
-                  <SelectValue placeholder="Status" />
+                <SelectTrigger className={cn("w-full xs:w-[100px] sm:w-[120px] h-9 sm:h-10", isRTL && "text-right")}>
+                  <SelectValue placeholder={t("Status")} />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
+                <SelectContent align={isRTL ? "start" : "end"}>
+                  <SelectItem value="all">{t("All Status")}</SelectItem>
+                  <SelectItem value="active">{t("Active")}</SelectItem>
+                  <SelectItem value="inactive">{t("Inactive")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -370,31 +375,31 @@ const SampleType = () => {
 
       {/* Sample Types Table */}
       <Card>
-        <CardHeader>
-          <CardTitle className="text-lg sm:text-xl">Sample Types ({stats?.totalSampleTypes || 0})</CardTitle>
-          <CardDescription className="text-sm">
-            Manage your laboratory sample types and their properties.
+        <CardHeader className={isRTL && "text-right"}>
+          <CardTitle className={cn("text-lg sm:text-xl", isRTL && "text-right")}>{t("Sample Types")} ({stats?.totalSampleTypes || 0})</CardTitle>
+          <CardDescription className={cn("text-sm", isRTL && "text-right")}>
+            {t("Manage your laboratory sample types and their properties.")}
           </CardDescription>
         </CardHeader>
                   <CardContent className="p-0">
           {isLoading ? (
-            <div className="flex justify-center items-center py-12">
+            <div className={cn("flex justify-center items-center py-12 gap-2", isRTL && "flex-row-reverse")}>
               <Loader2 className="h-8 w-8 animate-spin" />
-              <span className="ml-2">Loading sample types...</span>
+              <span>{t("Loading sample types...")}</span>
             </div>
           ) : sampleTypes.length === 0 ? (
-            <div className="text-center py-12">
+            <div className={cn("text-center py-12", isRTL && "text-right")}>
               <TestTube className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500 mb-4">
                 {debouncedSearch || selectedCategory !== "all" || selectedStatus !== "all" 
-                  ? "No sample types found matching your filters." 
-                  : "No sample types found. Add your first sample type to get started."}
+                  ? t("No sample types found matching your filters.") 
+                  : t("No sample types found. Add your first sample type to get started.")}
               </p>
               <AddSampleTypeModal 
                 trigger={
-                  <Button>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Your First Sample Type
+                  <Button className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                    <Plus className="h-4 w-4" />
+                    {t("Add Your First Sample Type")}
                   </Button>
                 }
                 onSuccess={handleModalSuccess}
@@ -404,15 +409,15 @@ const SampleType = () => {
             <>
               {/* Desktop Table View */}
               <div className="hidden md:block overflow-x-auto">
-                <Table>
+                <Table dir={isRTL ? 'rtl' : 'ltr'}>
               <TableHeader>
                 <TableRow className="hover:bg-transparent">
-                  <TableHead className="min-w-[200px]">Sample Type Details</TableHead>
-                  <TableHead className="min-w-[120px] hidden sm:table-cell">Category</TableHead>
-                  <TableHead className="min-w-[100px] hidden md:table-cell">Collection</TableHead>
-                  <TableHead className="min-w-[80px] hidden lg:table-cell">Storage</TableHead>
-                  <TableHead className="min-w-[80px]">Status</TableHead>
-                  <TableHead className="text-right min-w-[70px]">Actions</TableHead>
+                  <TableHead className={cn("min-w-[200px]", isRTL && "text-right")}>{t("Sample Type Details")}</TableHead>
+                  <TableHead className={cn("min-w-[120px] hidden sm:table-cell", isRTL ? "text-right pr-3" : "text-left")}>{t("Category")}</TableHead>
+                  <TableHead className={cn("min-w-[100px] hidden md:table-cell", isRTL && "text-right")}>{t("Collection")}</TableHead>
+                  <TableHead className={cn("min-w-[80px] hidden lg:table-cell", isRTL && "text-right")}>{t("Storage")}</TableHead>
+                  <TableHead className={cn("min-w-[80px]", isRTL && "text-right")}>{t("Status")}</TableHead>
+                  <TableHead className={cn("min-w-[70px]", isRTL ? "text-left" : "text-right")}>{t("Actions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -444,22 +449,22 @@ const SampleType = () => {
                   ))
                 ) : sampleTypes.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8">
+                    <TableCell colSpan={6} className={cn("py-8", isRTL ? "text-right" : "text-center")}>
                       <div className="text-muted-foreground">
-                        No sample types found. {debouncedSearch || selectedCategory !== "all" || selectedStatus !== "all" 
-                          ? "Try adjusting your filters." 
-                          : "Add your first sample type to get started."}
+                        {t("No sample types found.")} {debouncedSearch || selectedCategory !== "all" || selectedStatus !== "all" 
+                          ? t("Try adjusting your filters.") 
+                          : t("Add your first sample type to get started.")}
                       </div>
                     </TableCell>
                   </TableRow>
                 ) : (
                   sampleTypes.map((sampleType) => (
                     <TableRow key={sampleType._id}>
-                      <TableCell>
-                        <div className="space-y-1">
+                      <TableCell className={isRTL && "text-right"}>
+                        <div className={cn("space-y-1", isRTL && "text-right")}>
                           <div className="font-medium text-sm sm:text-base">{sampleType.name}</div>
                           <div className="text-xs sm:text-sm text-muted-foreground">
-                            Code: {sampleType.code}
+                            {t("Code:")} {sampleType.code}
                           </div>
                           {sampleType.description && (
                             <div className="text-xs text-muted-foreground max-w-[180px] truncate">
@@ -467,68 +472,68 @@ const SampleType = () => {
                             </div>
                           )}
                           {/* Mobile-only additional info */}
-                          <div className="sm:hidden space-y-1 pt-1 border-t border-muted">
-                            <div className="flex items-center space-x-2 text-xs">
+                          <div className={cn("sm:hidden space-y-1 pt-1 border-t border-muted", isRTL && "text-right")}>
+                            <div className={cn("flex items-center gap-2 text-xs", isRTL && "flex-row-reverse")}>
                               {getCategoryIcon(sampleType.category)}
                               <span>{getCategoryLabel(sampleType.category)}</span>
                             </div>
                             {sampleType.collectionMethod && (
                               <div className="text-xs text-muted-foreground">
-                                Collection: {sampleType.collectionMethod}
+                                {t("Collection")}: {sampleType.collectionMethod}
                               </div>
                             )}
                                         {sampleType.storageTemp && (
               <div className="text-xs text-muted-foreground">
-                Storage: {sampleType.storageTemp}
+                {t("Storage")}: {sampleType.storageTemp}
               </div>
             )}
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell">
-                        <div className="flex items-center space-x-2">
+                      <TableCell className={cn("hidden sm:table-cell", isRTL ? "text-right pr-3" : "text-left")}>
+                        <div className={cn("flex items-center gap-2", isRTL ? "flex-row-reverse justify-end" : "justify-start")}>
                           {getCategoryIcon(sampleType.category)}
                           <Badge variant="outline" className={`text-xs ${getCategoryColor(sampleType.category)}`}>
                             {getCategoryLabel(sampleType.category)}
                           </Badge>
                         </div>
                       </TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        <span className="text-sm">{sampleType.collectionMethod || "N/A"}</span>
+                      <TableCell className={cn("hidden md:table-cell", isRTL && "text-right")}>
+                        <span className="text-sm">{sampleType.collectionMethod || t("N/A")}</span>
                       </TableCell>
-                      <TableCell className="hidden lg:table-cell">
-                        <span className="text-sm">{sampleType.storageTemp || "N/A"}</span>
+                      <TableCell className={cn("hidden lg:table-cell", isRTL && "text-right")}>
+                        <span className="text-sm">{sampleType.storageTemp || t("N/A")}</span>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className={isRTL && "text-right"}>
                         <Badge
                           variant={sampleType.isActive ? "default" : "secondary"}
                           className="text-xs"
                         >
-                          {sampleType.isActive ? "Active" : "Inactive"}
+                          {sampleType.isActive ? t("Active") : t("Inactive")}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className={isRTL ? "text-left" : "text-right"}>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="sm" className="h-8">
-                              <MoreVertical className="h-4 w-4 mr-1" />
-                              Actions
+                            <Button variant="outline" size="sm" className={cn("h-8 flex items-center gap-1", isRTL && "flex-row-reverse")}>
+                              <MoreVertical className="h-4 w-4" />
+                              {t("Actions")}
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleEdit(sampleType)}>
-                              <Edit className="h-4 w-4 mr-2" />
-                              Edit Sample Type
+                          <DropdownMenuContent align={isRTL ? "start" : "end"}>
+                            <DropdownMenuItem onClick={() => handleEdit(sampleType)} className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                              <Edit className="h-4 w-4" />
+                              {t("Edit Sample Type")}
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handleToggleStatus(sampleType._id)}>
-                              {sampleType.isActive ? "Deactivate" : "Activate"}
+                              {sampleType.isActive ? t("Deactivate") : t("Activate")}
                             </DropdownMenuItem>
                             <DropdownMenuItem 
                               onClick={() => handleDelete(sampleType._id)}
-                              className="text-red-600"
+                              className={cn("text-red-600 flex items-center gap-2", isRTL && "flex-row-reverse")}
                             >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Delete
+                              <Trash2 className="h-4 w-4" />
+                              {t("Delete")}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -688,11 +693,11 @@ const SampleType = () => {
       {totalPages > 1 && (
         <Card>
           <CardContent className="pt-4">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-              <div className="text-xs sm:text-sm text-muted-foreground order-2 sm:order-1">
-                Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, sampleTypes.length)} sample types
+            <div className={cn("flex flex-col sm:flex-row items-center justify-between gap-3", isRTL && "sm:flex-row-reverse")}>
+              <div className={cn("text-xs sm:text-sm text-muted-foreground order-2 sm:order-1", isRTL && "text-right")}>
+                {t("Showing")} {((currentPage - 1) * pageSize) + 1} {t("to")} {Math.min(currentPage * pageSize, sampleTypes.length)} {t("sample types")}
               </div>
-              <div className="flex items-center space-x-2 order-1 sm:order-2">
+              <div className={cn("flex items-center gap-2 order-1 sm:order-2", isRTL && "flex-row-reverse")}>
                 <Button
                   variant="outline"
                   size="sm"
@@ -700,10 +705,10 @@ const SampleType = () => {
                   disabled={currentPage === 1}
                   className="h-8"
                 >
-                  Previous
+                  {t("Previous")}
                 </Button>
                 <div className="text-xs sm:text-sm px-2">
-                  Page {currentPage} of {totalPages}
+                  {t("Page")} {currentPage} {t("of")} {totalPages}
                 </div>
                 <Button
                   variant="outline"
@@ -712,7 +717,7 @@ const SampleType = () => {
                   disabled={currentPage === totalPages}
                   className="h-8"
                 >
-                  Next
+                  {t("Next")}
                 </Button>
               </div>
             </div>

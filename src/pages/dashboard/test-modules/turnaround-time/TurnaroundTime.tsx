@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
+import { useIsRTL } from "@/hooks/useIsRTL";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -61,6 +64,8 @@ import { TurnaroundTime as TurnaroundTimeType } from "@/types";
 // Remove the local interface since we're using the one from types
 
 const TurnaroundTimePage = () => {
+  const { t } = useTranslation();
+  const isRTL = useIsRTL();
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedPriority, setSelectedPriority] = useState("all");
@@ -136,9 +141,9 @@ const TurnaroundTimePage = () => {
   };
 
   const formatDuration = (minutes: number) => {
-    if (minutes < 60) return `${minutes} min`;
-    if (minutes < 1440) return `${Math.round(minutes / 60)} hrs`;
-    return `${Math.round(minutes / 1440)} days`;
+    if (minutes < 60) return `${minutes} ${t("min")}`;
+    if (minutes < 1440) return `${Math.round(minutes / 60)} ${t("hrs")}`;
+    return `${Math.round(minutes / 1440)} ${t("days")}`;
   };
 
   const handleView = (timeId: string) => {
@@ -155,14 +160,14 @@ const TurnaroundTimePage = () => {
     try {
       await deleteMutation.mutateAsync(timeId);
       toast({
-        title: "Success",
-        description: "Turnaround time deleted successfully",
+        title: t("Success"),
+        description: t("Turnaround time deleted successfully"),
       });
       refetch();
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to delete turnaround time",
+        title: t("Error"),
+        description: t("Failed to delete turnaround time"),
         variant: "destructive",
       });
     }
@@ -172,14 +177,14 @@ const TurnaroundTimePage = () => {
     try {
       await toggleStatusMutation.mutateAsync(timeId);
       toast({
-        title: "Success",
-        description: "Turnaround time status updated successfully",
+        title: t("Success"),
+        description: t("Turnaround time status updated successfully"),
       });
       refetch();
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to update turnaround time status",
+        title: t("Error"),
+        description: t("Failed to update turnaround time status"),
         variant: "destructive",
       });
     }
@@ -194,17 +199,17 @@ const TurnaroundTimePage = () => {
   // Handle loading and error states
   if (error) {
     return (
-      <div className="space-y-6">
-        <div className="text-center py-10">
+      <div className={cn("space-y-6", isRTL && "text-right")} dir={isRTL ? 'rtl' : 'ltr'}>
+        <div className={cn("text-center py-10", isRTL && "text-right")}>
           <AlertTriangle className="h-16 w-16 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            Error Loading Turnaround Times
+          <h2 className={cn("text-xl font-semibold text-gray-900 mb-2", isRTL && "text-right")}>
+            {t("Error Loading Turnaround Times")}
           </h2>
-          <p className="text-gray-600 mb-4">
-            Failed to load turnaround time data. Please try again.
+          <p className={cn("text-gray-600 mb-4", isRTL && "text-right")}>
+            {t("Failed to load turnaround time data. Please try again.")}
           </p>
-          <Button onClick={() => refetch()}>
-            Try Again
+          <Button onClick={() => refetch()} className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+            {t("Try Again")}
           </Button>
         </div>
       </div>
@@ -212,32 +217,32 @@ const TurnaroundTimePage = () => {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6 lg:space-y-8">
+    <div className={cn("space-y-4 sm:space-y-6 lg:space-y-8", isRTL && "text-right")} dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="min-w-0 flex-1">
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">Turnaround Times</h1>
-          <p className="text-sm sm:text-base text-muted-foreground mt-1">
-            Manage laboratory test turnaround times and priorities
+      <div className={cn("flex flex-col sm:flex-row sm:items-center justify-between gap-4", isRTL && "sm:flex-row-reverse")}>
+        <div className={cn("min-w-0 flex-1", isRTL && "text-right sm:order-2")}>
+          <h1 className={cn("text-2xl sm:text-3xl font-bold tracking-tight truncate", isRTL && "text-right")}>{t("Turnaround Times")}</h1>
+          <p className={cn("text-sm sm:text-base text-muted-foreground mt-1", isRTL && "text-right")}>
+            {t("Manage laboratory test turnaround times and priorities")}
           </p>
         </div>
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className={cn("flex items-center gap-2 flex-shrink-0", isRTL && "flex-row-reverse sm:order-1")}>
           <Button 
             variant="outline" 
             size="sm" 
             onClick={() => refetch()}
             disabled={isLoading}
-            className="h-9"
+            className={cn("h-9 flex items-center gap-2", isRTL && "flex-row-reverse")}
           >
-            <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-            <span className="hidden sm:inline">Refresh</span>
+            <RefreshCw className={cn(`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`)} />
+            <span className="hidden sm:inline">{t("Refresh")}</span>
           </Button>
           <AddTurnaroundTimeModal 
             trigger={
-              <Button size="sm" className="h-9">
-                <Plus className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Add Turnaround Time</span>
-                <span className="sm:hidden">Add</span>
+              <Button size="sm" className={cn("h-9 flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                <Plus className="h-4 w-4" />
+                <span className="hidden sm:inline">{t("Add Turnaround Time")}</span>
+                <span className="sm:hidden">{t("Add")}</span>
               </Button>
             }
 
@@ -248,45 +253,45 @@ const TurnaroundTimePage = () => {
       {/* Stats Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium">Total Times</CardTitle>
-            <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+          <CardHeader className={cn("flex flex-row items-center justify-between space-y-0 pb-2 gap-2", isRTL && "flex-row-reverse")}>
+            <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
+            <CardTitle className={cn("text-xs sm:text-sm font-medium", isRTL && "text-right")}>{t("Total Times")}</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className={isRTL && "text-right"}>
             <div className="text-xl sm:text-2xl font-bold">{totalTimes}</div>
             <p className="text-xs text-muted-foreground">
-              {activeTimes} active
+              {activeTimes} {t("active")}
             </p>
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium">STAT Tests</CardTitle>
-            <Zap className="h-3 w-3 sm:h-4 sm:w-4 text-red-600" />
+          <CardHeader className={cn("flex flex-row items-center justify-between space-y-0 pb-2 gap-2", isRTL && "flex-row-reverse")}>
+            <Zap className="h-3 w-3 sm:h-4 sm:w-4 text-red-600 flex-shrink-0" />
+            <CardTitle className={cn("text-xs sm:text-sm font-medium", isRTL && "text-right")}>{t("STAT Tests")}</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className={isRTL && "text-right"}>
             <div className="text-xl sm:text-2xl font-bold">{statTimes}</div>
-            <p className="text-xs text-muted-foreground">Emergency priority</p>
+            <p className="text-xs text-muted-foreground">{t("Emergency priority")}</p>
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium">Average Time</CardTitle>
-            <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
+          <CardHeader className={cn("flex flex-row items-center justify-between space-y-0 pb-2 gap-2", isRTL && "flex-row-reverse")}>
+            <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600 flex-shrink-0" />
+            <CardTitle className={cn("text-xs sm:text-sm font-medium", isRTL && "text-right")}>{t("Average Time")}</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className={isRTL && "text-right"}>
             <div className="text-xl sm:text-2xl font-bold">{formatDuration(averageMinutes)}</div>
-            <p className="text-xs text-muted-foreground">Across all tests</p>
+            <p className="text-xs text-muted-foreground">{t("Across all tests")}</p>
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium">Active Times</CardTitle>
-            <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
+          <CardHeader className={cn("flex flex-row items-center justify-between space-y-0 pb-2 gap-2", isRTL && "flex-row-reverse")}>
+            <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 flex-shrink-0" />
+            <CardTitle className={cn("text-xs sm:text-sm font-medium", isRTL && "text-right")}>{t("Active Times")}</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className={isRTL && "text-right"}>
             <div className="text-xl sm:text-2xl font-bold">{activeTimes}</div>
-            <p className="text-xs text-muted-foreground">Currently active</p>
+            <p className="text-xs text-muted-foreground">{t("Currently active")}</p>
           </CardContent>
         </Card>
       </div>
@@ -294,25 +299,25 @@ const TurnaroundTimePage = () => {
       {/* Filters */}
       <Card>
         <CardContent className="pt-4 sm:pt-6">
-          <div className="space-y-3 sm:space-y-0 sm:flex sm:gap-4">
+          <div className={cn("space-y-3 sm:space-y-0 sm:flex sm:gap-4", isRTL && "sm:flex-row-reverse")}>
             <div className="flex-1">
               <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Search className={cn("absolute top-2.5 h-4 w-4 text-muted-foreground", isRTL ? "right-2" : "left-2")} />
                 <Input
-                  placeholder="Search turnaround times..."
+                  placeholder={t("Search turnaround times...")}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-8 h-9 sm:h-10"
+                  className={cn("h-9 sm:h-10", isRTL ? "pr-8" : "pl-8")}
                 />
               </div>
             </div>
-            <div className="flex flex-col xs:flex-row gap-2">
+            <div className={cn("flex flex-col xs:flex-row gap-2", isRTL && "xs:flex-row-reverse")}>
               <Select value={selectedPriority} onValueChange={setSelectedPriority}>
-                <SelectTrigger className="w-full xs:w-[160px] sm:w-[180px] h-9 sm:h-10">
-                  <SelectValue placeholder="Priority" />
+                <SelectTrigger className={cn("w-full xs:w-[160px] sm:w-[180px] h-9 sm:h-10", isRTL && "text-right")}>
+                  <SelectValue placeholder={t("Priority")} />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Priorities</SelectItem>
+                <SelectContent align={isRTL ? "start" : "end"}>
+                  <SelectItem value="all">{t("All Priorities")}</SelectItem>
                   {priorities.slice(1).map((priority) => (
                     <SelectItem key={priority} value={priority}>
                       {priority.charAt(0).toUpperCase() + priority.slice(1)}
@@ -321,13 +326,13 @@ const TurnaroundTimePage = () => {
                 </SelectContent>
               </Select>
               <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                <SelectTrigger className="w-full xs:w-[100px] sm:w-[120px] h-9 sm:h-10">
-                  <SelectValue placeholder="Status" />
+                <SelectTrigger className={cn("w-full xs:w-[100px] sm:w-[120px] h-9 sm:h-10", isRTL && "text-right")}>
+                  <SelectValue placeholder={t("Status")} />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
+                <SelectContent align={isRTL ? "start" : "end"}>
+                  <SelectItem value="all">{t("All Status")}</SelectItem>
+                  <SelectItem value="active">{t("Active")}</SelectItem>
+                  <SelectItem value="inactive">{t("Inactive")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -337,31 +342,31 @@ const TurnaroundTimePage = () => {
 
       {/* Turnaround Times Table */}
       <Card>
-        <CardHeader>
-          <CardTitle className="text-lg sm:text-xl">Turnaround Times ({totalTimes})</CardTitle>
-          <CardDescription className="text-sm">
-            Manage your laboratory test turnaround times and their priorities.
+        <CardHeader className={isRTL && "text-right"}>
+          <CardTitle className={cn("text-lg sm:text-xl", isRTL && "text-right")}>{t("Turnaround Times")} ({totalTimes})</CardTitle>
+          <CardDescription className={cn("text-sm", isRTL && "text-right")}>
+            {t("Manage your laboratory test turnaround times and their priorities.")}
           </CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           {isLoading ? (
-            <div className="flex justify-center items-center py-12">
+            <div className={cn("flex justify-center items-center py-12 gap-2", isRTL && "flex-row-reverse")}>
               <Loader2 className="h-8 w-8 animate-spin" />
-              <span className="ml-2">Loading turnaround times...</span>
+              <span>{t("Loading turnaround times...")}</span>
             </div>
           ) : turnaroundTimes.length === 0 ? (
-            <div className="text-center py-12">
+            <div className={cn("text-center py-12", isRTL && "text-right")}>
               <Clock className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500 mb-4">
+              <p className={cn("text-gray-500 mb-4", isRTL && "text-right")}>
                 {searchTerm || selectedPriority !== "all" || selectedStatus !== "all" 
-                  ? "No turnaround times found matching your filters." 
-                  : "No turnaround times found. Add your first turnaround time to get started."}
+                  ? t("No turnaround times found matching your filters.") 
+                  : t("No turnaround times found. Add your first turnaround time to get started.")}
               </p>
               <AddTurnaroundTimeModal 
                 trigger={
-                  <Button>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Your First Turnaround Time
+                  <Button className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                    <Plus className="h-4 w-4" />
+                    {t("Add Your First Turnaround Time")}
                   </Button>
                 }
               />
@@ -370,15 +375,15 @@ const TurnaroundTimePage = () => {
             <>
               {/* Desktop Table View */}
               <div className="hidden md:block overflow-x-auto">
-                <Table>
+                <Table dir={isRTL ? 'rtl' : 'ltr'}>
               <TableHeader>
                 <TableRow className="hover:bg-transparent">
-                  <TableHead className="min-w-[200px]">Time Details</TableHead>
-                  <TableHead className="min-w-[120px] hidden sm:table-cell">Priority</TableHead>
-                  <TableHead className="min-w-[100px] hidden md:table-cell">Duration</TableHead>
-                  <TableHead className="min-w-[80px] hidden lg:table-cell">Category</TableHead>
-                  <TableHead className="min-w-[80px]">Status</TableHead>
-                  <TableHead className="text-right min-w-[70px]">Actions</TableHead>
+                  <TableHead className={cn("min-w-[200px] pr-3", isRTL && "text-right")}>{t("Time Details")}</TableHead>
+                  <TableHead className={cn("min-w-[120px] hidden sm:table-cell pr-3", isRTL && "text-right")}>{t("Priority")}</TableHead>
+                  <TableHead className={cn("min-w-[100px] hidden md:table-cell pr-3", isRTL && "text-right")}>{t("Duration")}</TableHead>
+                  <TableHead className={cn("min-w-[80px] hidden lg:table-cell pr-3", isRTL && "text-right")}>{t("Category")}</TableHead>
+                  <TableHead className={cn("min-w-[80px] pr-3", isRTL && "text-right")}>{t("Status")}</TableHead>
+                  <TableHead className={cn("min-w-[70px] pr-3", isRTL ? "text-right" : "text-right")}>{t("Actions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -410,93 +415,93 @@ const TurnaroundTimePage = () => {
                   ))
                 ) : turnaroundTimes.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8">
+                    <TableCell colSpan={6} className={cn("text-center py-8", isRTL && "text-right")}>
                       <div className="text-muted-foreground">
-                        No turnaround times found. {searchTerm || selectedPriority !== "all" || selectedStatus !== "all" 
-                          ? "Try adjusting your filters." 
-                          : "Add your first turnaround time to get started."}
+                        {t("No turnaround times found.")} {searchTerm || selectedPriority !== "all" || selectedStatus !== "all" 
+                          ? t("Try adjusting your filters.") 
+                          : t("Add your first turnaround time to get started.")}
                       </div>
                     </TableCell>
                   </TableRow>
                 ) : (
                   turnaroundTimes.map((time) => (
                     <TableRow key={time._id}>
-                      <TableCell>
-                        <div className="space-y-1">
+                      <TableCell className={cn("pr-3", isRTL && "text-right")}>
+                        <div className={cn("space-y-1", isRTL && "text-right")}>
                           <div className="font-medium text-sm sm:text-base">{time.name}</div>
-                          <div className="text-xs sm:text-sm text-muted-foreground">
-                            Code: {time.code}
+                          <div className={cn("text-xs sm:text-sm text-muted-foreground", isRTL && "text-right")}>
+                            {t("Code")}: {time.code}
                           </div>
                           {time.description && (
-                            <div className="text-xs text-muted-foreground max-w-[180px] truncate">
+                            <div className={cn("text-xs text-muted-foreground max-w-[180px] truncate", isRTL && "text-right")}>
                               {time.description}
                             </div>
                           )}
                           {/* Mobile-only additional info */}
-                          <div className="sm:hidden space-y-1 pt-1 border-t border-muted">
-                            <div className="flex items-center space-x-2 text-xs">
+                          <div className={cn("sm:hidden space-y-1 pt-1 border-t border-muted", isRTL && "text-right")}>
+                            <div className={cn("flex items-center gap-2 text-xs", isRTL && "flex-row-reverse justify-end")}>
                               {getPriorityIcon(time.priority)}
                               <span className={`px-2 py-1 rounded-full ${getPriorityColor(time.priority)}`}>
                                 {time.priority.charAt(0).toUpperCase() + time.priority.slice(1)}
                               </span>
                             </div>
-                            <div className="text-xs text-muted-foreground">
-                              Duration: {formatDuration(time.durationMinutes)}
+                            <div className={cn("text-xs text-muted-foreground", isRTL && "text-right")}>
+                              {t("Duration")}: {formatDuration(time.durationMinutes)}
                             </div>
-                            <div className="text-xs text-muted-foreground">
-                              Category: {time.category}
+                            <div className={cn("text-xs text-muted-foreground", isRTL && "text-right")}>
+                              {t("Category")}: {time.category}
                             </div>
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell">
-                        <div className="flex items-center space-x-2">
+                      <TableCell className={cn("hidden sm:table-cell pr-3", isRTL && "text-right")}>
+                        <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse justify-end")}>
                           {getPriorityIcon(time.priority)}
                           <Badge variant="outline" className={`text-xs ${getPriorityColor(time.priority)}`}>
                             {time.priority.charAt(0).toUpperCase() + time.priority.slice(1)}
                           </Badge>
                         </div>
                       </TableCell>
-                      <TableCell className="hidden md:table-cell">
+                      <TableCell className={cn("hidden md:table-cell pr-3", isRTL && "text-right")}>
                         <span className="text-sm">{formatDuration(time.durationMinutes)}</span>
                       </TableCell>
-                      <TableCell className="hidden lg:table-cell">
+                      <TableCell className={cn("hidden lg:table-cell pr-3", isRTL && "text-right")}>
                         <span className="text-sm">{time.category}</span>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className={cn("pr-3", isRTL && "text-right")}>
                         <Badge
                           variant={time.isActive ? "default" : "secondary"}
                           className="text-xs"
                         >
-                          {time.isActive ? "Active" : "Inactive"}
+                          {time.isActive ? t("Active") : t("Inactive")}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className={cn("pr-3", isRTL ? "text-right" : "text-right")}>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="sm" className="h-8">
-                              <MoreVertical className="h-4 w-4 mr-1" />
-                              Actions
+                            <Button variant="outline" size="sm" className={cn("h-8 flex items-center gap-1", isRTL && "flex-row-reverse")}>
+                              <MoreVertical className="h-4 w-4" />
+                              {t("Actions")}
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleView(time._id)}>
-                              <Eye className="h-4 w-4 mr-2" />
-                              View Details
+                          <DropdownMenuContent align={isRTL ? "start" : "end"}>
+                            <DropdownMenuItem onClick={() => handleView(time._id)} className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                              <Eye className="h-4 w-4" />
+                              {t("View Details")}
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleEdit(time._id)}>
-                              <Edit className="h-4 w-4 mr-2" />
-                              Edit Time
+                            <DropdownMenuItem onClick={() => handleEdit(time._id)} className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                              <Edit className="h-4 w-4" />
+                              {t("Edit Time")}
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handleToggleStatus(time._id)}>
-                              {time.isActive ? "Deactivate" : "Activate"}
+                              {time.isActive ? t("Deactivate") : t("Activate")}
                             </DropdownMenuItem>
                             <DropdownMenuItem 
                               onClick={() => handleDelete(time._id)}
-                              className="text-red-600"
+                              className={cn("text-red-600 flex items-center gap-2", isRTL && "flex-row-reverse")}
                             >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Delete
+                              <Trash2 className="h-4 w-4" />
+                              {t("Delete")}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -509,37 +514,37 @@ const TurnaroundTimePage = () => {
           </div>
 
           {/* Mobile Card View */}
-          <div className="md:hidden space-y-4 p-4">
+          <div className={cn("md:hidden space-y-4 p-4", isRTL && "text-right")}>
             {turnaroundTimes.map((time) => (
               <div
                 key={time._id}
-                className="border rounded-lg p-4 space-y-3 bg-white shadow-sm"
+                className={cn("border rounded-lg p-4 space-y-3 bg-white shadow-sm", isRTL && "text-right")}
               >
                 {/* Header with Name and Status */}
-                <div className="flex items-center justify-between">
-                  <div className="min-w-0 flex-1">
-                    <div className="font-semibold text-sm truncate">
+                <div className={cn("flex items-center justify-between", isRTL && "flex-row-reverse")}>
+                  <div className={cn("min-w-0 flex-1", isRTL && "text-right")}>
+                    <div className={cn("font-semibold text-sm truncate", isRTL && "text-right")}>
                       {time.name}
                     </div>
-                    <div className="text-xs text-muted-foreground">
-                      Code: {time.code}
+                    <div className={cn("text-xs text-muted-foreground", isRTL && "text-right")}>
+                      {t("Code")}: {time.code}
                     </div>
                   </div>
                   <Badge
                     variant={time.isActive ? "default" : "secondary"}
-                    className="text-xs ml-2"
+                    className={cn("text-xs", isRTL ? "mr-2" : "ml-2")}
                   >
-                    {time.isActive ? "Active" : "Inactive"}
+                    {time.isActive ? t("Active") : t("Inactive")}
                   </Badge>
                 </div>
 
                 {/* Description */}
                 {time.description && (
-                  <div className="p-3 bg-gray-50 rounded-lg">
-                    <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">
-                      Description
+                  <div className={cn("p-3 bg-gray-50 rounded-lg", isRTL && "text-right")}>
+                    <div className={cn("text-xs text-gray-500 uppercase tracking-wide mb-1", isRTL && "text-right")}>
+                      {t("Description")}
                     </div>
-                    <div className="text-sm text-gray-900">
+                    <div className={cn("text-sm text-gray-900", isRTL && "text-right")}>
                       {time.description}
                     </div>
                   </div>
@@ -547,83 +552,83 @@ const TurnaroundTimePage = () => {
 
                 {/* Details Grid */}
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <div className="text-xs text-gray-500 uppercase tracking-wide">
-                      Priority
+                  <div className={cn("space-y-1", isRTL && "text-right")}>
+                    <div className={cn("text-xs text-gray-500 uppercase tracking-wide", isRTL && "text-right")}>
+                      {t("Priority")}
                     </div>
-                    <div className="flex items-center space-x-2">
+                    <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse justify-end")}>
                       {getPriorityIcon(time.priority)}
                       <Badge variant="outline" className={`text-xs ${getPriorityColor(time.priority)}`}>
                         {time.priority.charAt(0).toUpperCase() + time.priority.slice(1)}
                       </Badge>
                     </div>
                   </div>
-                  <div className="space-y-1">
-                    <div className="text-xs text-gray-500 uppercase tracking-wide">
-                      Duration
+                  <div className={cn("space-y-1", isRTL && "text-right")}>
+                    <div className={cn("text-xs text-gray-500 uppercase tracking-wide", isRTL && "text-right")}>
+                      {t("Duration")}
                     </div>
-                    <div className="text-sm text-gray-900">
+                    <div className={cn("text-sm text-gray-900", isRTL && "text-right")}>
                       {formatDuration(time.durationMinutes)}
                     </div>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <div className="text-xs text-gray-500 uppercase tracking-wide">
-                      Category
+                  <div className={cn("space-y-1", isRTL && "text-right")}>
+                    <div className={cn("text-xs text-gray-500 uppercase tracking-wide", isRTL && "text-right")}>
+                      {t("Category")}
                     </div>
-                    <div className="text-sm text-gray-900">
+                    <div className={cn("text-sm text-gray-900", isRTL && "text-right")}>
                       {time.category}
                     </div>
                   </div>
-                  <div className="space-y-1">
-                    <div className="text-xs text-gray-500 uppercase tracking-wide">
-                      Status
+                  <div className={cn("space-y-1", isRTL && "text-right")}>
+                    <div className={cn("text-xs text-gray-500 uppercase tracking-wide", isRTL && "text-right")}>
+                      {t("Status")}
                     </div>
-                    <div className="flex items-center space-x-2">
+                    <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse justify-end")}>
                       {time.isActive ? (
                         <CheckCircle className="h-4 w-4 text-green-600" />
                       ) : (
                         <CheckCircle className="h-4 w-4 text-gray-400" />
                       )}
-                      <span className="text-sm text-gray-900">
-                        {time.isActive ? "Active" : "Inactive"}
+                      <span className={cn("text-sm text-gray-900", isRTL && "text-right")}>
+                        {time.isActive ? t("Active") : t("Inactive")}
                       </span>
                     </div>
                   </div>
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center justify-between pt-2 border-t">
-                  <div className="text-xs text-gray-400">
+                <div className={cn("flex items-center justify-between pt-2 border-t", isRTL && "flex-row-reverse")}>
+                  <div className={cn("text-xs text-gray-400", isRTL && "text-right")}>
                     ID: {time._id.slice(-8)}
                   </div>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm">
-                        <MoreVertical className="h-4 w-4 mr-1" />
-                        Actions
+                      <Button variant="outline" size="sm" className={cn("flex items-center gap-1", isRTL && "flex-row-reverse")}>
+                        <MoreVertical className="h-4 w-4" />
+                        {t("Actions")}
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleView(time._id)}>
-                        <Eye className="h-4 w-4 mr-2" />
-                        View Details
+                    <DropdownMenuContent align={isRTL ? "start" : "end"}>
+                      <DropdownMenuItem onClick={() => handleView(time._id)} className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                        <Eye className="h-4 w-4" />
+                        {t("View Details")}
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleEdit(time._id)}>
-                        <Edit className="h-4 w-4 mr-2" />
-                        Edit Time
+                      <DropdownMenuItem onClick={() => handleEdit(time._id)} className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                        <Edit className="h-4 w-4" />
+                        {t("Edit Time")}
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleToggleStatus(time._id)}>
-                        {time.isActive ? "Deactivate" : "Activate"}
+                        {time.isActive ? t("Deactivate") : t("Activate")}
                       </DropdownMenuItem>
                       <DropdownMenuItem 
                         onClick={() => handleDelete(time._id)}
-                        className="text-red-600"
+                        className={cn("text-red-600 flex items-center gap-2", isRTL && "flex-row-reverse")}
                       >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Delete
+                        <Trash2 className="h-4 w-4" />
+                        {t("Delete")}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -640,11 +645,11 @@ const TurnaroundTimePage = () => {
       {pagination && pagination.pages > 1 && (
         <Card>
           <CardContent className="pt-4">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-              <div className="text-xs sm:text-sm text-muted-foreground order-2 sm:order-1">
-                Showing {((currentPage - 1) * pageLimit) + 1} to {Math.min(currentPage * pageLimit, pagination.total)} of {pagination.total} turnaround times
+            <div className={cn("flex flex-col sm:flex-row items-center justify-between gap-3", isRTL && "sm:flex-row-reverse")}>
+              <div className={cn("text-xs sm:text-sm text-muted-foreground order-2 sm:order-1", isRTL && "sm:order-2 text-right")}>
+                {t("Showing")} {((currentPage - 1) * pageLimit) + 1} {t("to")} {Math.min(currentPage * pageLimit, pagination.total)} {t("of")} {pagination.total} {t("turnaround times")}
               </div>
-              <div className="flex items-center space-x-2 order-1 sm:order-2">
+              <div className={cn("flex items-center gap-2 order-1 sm:order-2", isRTL && "sm:order-1 flex-row-reverse")}>
                 <Button
                   variant="outline"
                   size="sm"
@@ -652,10 +657,10 @@ const TurnaroundTimePage = () => {
                   disabled={currentPage === 1}
                   className="h-8"
                 >
-                  Previous
+                  {t("Previous")}
                 </Button>
-                <div className="text-xs sm:text-sm px-2">
-                  Page {currentPage} of {pagination.pages}
+                <div className={cn("text-xs sm:text-sm px-2", isRTL && "text-right")}>
+                  {t("Page")} {currentPage} {t("of")} {pagination.pages}
                 </div>
                 <Button
                   variant="outline"
@@ -664,7 +669,7 @@ const TurnaroundTimePage = () => {
                   disabled={currentPage === pagination.pages}
                   className="h-8"
                 >
-                  Next
+                  {t("Next")}
                 </Button>
               </div>
             </div>

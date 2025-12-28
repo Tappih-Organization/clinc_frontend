@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { useIsRTL } from "@/hooks/useIsRTL";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -466,8 +467,9 @@ const TestReports = () => {
     {
       key: "reportNumber",
       label: t("Report Details"),
+      className: cn(isRTL && "text-right pr-3"),
       render: (report: TestReport) => (
-        <div>
+        <div className={cn(isRTL && "text-right pr-3")}>
           <div className="font-medium">{report.reportNumber}</div>
           <div className="text-sm text-muted-foreground">
             {t('Recorded:')}: {report.recordedDate ? formatDate(report.recordedDate) : t('Not recorded')}
@@ -478,10 +480,11 @@ const TestReports = () => {
     {
       key: "patientId",
       label: t("Patient"),
+      className: cn(isRTL && "text-right pr-3"),
       render: (report: TestReport) => (
-        <div>
+        <div className={cn(isRTL && "text-right pr-3")}>
           <div className="font-medium">{getPatientName(report.patientId)}</div>
-          <div className="text-sm text-muted-foreground flex items-center space-x-1">
+          <div className={cn("text-sm text-muted-foreground flex items-center gap-1", isRTL && "flex-row-reverse")}>
             <User className="h-3 w-3" />
             <span>{t('Patient')}</span>
           </div>
@@ -491,8 +494,9 @@ const TestReports = () => {
     {
       key: "testId",
       label: t("Test"),
+      className: cn(isRTL && "text-right pr-3"),
       render: (report: TestReport) => (
-        <div>
+        <div className={cn(isRTL && "text-right pr-3")}>
           <div className="font-medium">{getTestName(report.testId)}</div>
           <div className="text-sm text-muted-foreground">
             {t('Code:')}: {getTestCode(report.testId)}
@@ -503,8 +507,9 @@ const TestReports = () => {
     {
       key: "externalVendor",
       label: t("Vendor"),
+      className: cn(isRTL && "text-right pr-3"),
       render: (report: TestReport) => (
-        <span className="text-sm">
+        <span className={cn("text-sm", isRTL && "text-right pr-3 block")}>
           {report.externalVendor || t('Internal')}
         </span>
       ),
@@ -512,9 +517,10 @@ const TestReports = () => {
     {
       key: "testDate",
       label: t("Test Date"),
+      className: cn(isRTL && "text-right pr-3"),
       render: (report: TestReport) => (
-        <div className="flex items-center space-x-1">
-          <Calendar className="h-3 w-3 text-muted-foreground" />
+        <div className={cn("flex items-center gap-1", isRTL && "flex-row-reverse pr-3 justify-end")}>
+          <Calendar className="h-3 w-3 text-muted-foreground flex-shrink-0" />
           <span className="text-sm">{formatDate(report.testDate)}</span>
         </div>
       ),
@@ -522,8 +528,9 @@ const TestReports = () => {
     {
       key: "status",
       label: t("Status"),
+      className: cn(isRTL && "text-right pr-3"),
       render: (report: TestReport) => (
-        <div className={`flex items-center space-x-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+        <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse pr-3 justify-end")}>
           {getStatusIcon(report.status)}
           <Badge className={getStatusColor(report.status)}>
             {report.status.replace('_', ' ').toUpperCase()}
@@ -534,14 +541,15 @@ const TestReports = () => {
     {
       key: "attachments",
       label: t("Attachments"),
+      className: cn(isRTL && "text-right pr-3"),
       render: (report: TestReport) => (
         report.attachments && report.attachments.length > 0 ? (
-          <div className="flex items-center space-x-1">
-            <FileImage className="h-4 w-4 text-muted-foreground" />
+          <div className={cn("flex items-center gap-1", isRTL && "flex-row-reverse pr-3 justify-end")}>
+            <FileImage className="h-4 w-4 text-muted-foreground flex-shrink-0" />
             <span className="text-sm">{report.attachments.length}</span>
           </div>
         ) : (
-          <span className="text-sm text-muted-foreground">{t('None')}</span>
+          <span className={cn("text-sm text-muted-foreground", isRTL && "text-right pr-3 block")}>{t('None')}</span>
         )
       ),
     },
@@ -694,20 +702,21 @@ const TestReports = () => {
         title={t("Test Reports")}
         subtitle={t("Manage laboratory test reports and results")}
         actions={
-          <div className="flex items-center space-x-2">
+          <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
             <Button 
               variant="outline" 
               size="sm" 
               onClick={handleRefresh}
               disabled={isLoading}
+              className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}
             >
-              <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+              <RefreshCw className={cn(`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`)} />
               {t('Refresh')}
             </Button>
             <RecordTestReportModal 
               trigger={
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
+                <Button className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                  <Plus className="h-4 w-4" />
                   {t('Record Report')}
                 </Button>
               }

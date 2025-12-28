@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
+import { useIsRTL } from "@/hooks/useIsRTL";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -66,6 +69,8 @@ interface MethodologyStats {
 }
 
 const Methodology = () => {
+  const { t } = useTranslation();
+  const isRTL = useIsRTL();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState("all");
@@ -103,8 +108,8 @@ const Methodology = () => {
     } catch (error) {
       console.error("Error fetching methodologies:", error);
       toast({
-        title: "Error",
-        description: "Failed to load methodologies. Please try again.",
+        title: t("Error"),
+        description: t("Failed to load methodologies. Please try again."),
         variant: "destructive",
       });
     } finally {
@@ -159,16 +164,16 @@ const Methodology = () => {
       setDuplicateLoading(methodId);
       const duplicated = await api.duplicateTestMethodology(methodId);
       toast({
-        title: "Success",
-        description: `Methodology "${duplicated.name}" has been duplicated successfully`,
+        title: t("Success"),
+        description: t("Methodology \"{name}\" has been duplicated successfully").replace("{name}", duplicated.name),
       });
       fetchMethodologies();
       fetchStats();
     } catch (error) {
       console.error("Error duplicating methodology:", error);
       toast({
-        title: "Error",
-        description: "Failed to duplicate methodology. Please try again.",
+        title: t("Error"),
+        description: t("Failed to duplicate methodology. Please try again."),
         variant: "destructive",
       });
     } finally {
@@ -189,8 +194,8 @@ const Methodology = () => {
       setDeleteLoading(true);
       await api.deleteTestMethodology(selectedMethodologyId);
       toast({
-        title: "Success",
-        description: `Methodology "${selectedMethodologyName}" has been deleted successfully`,
+        title: t("Success"),
+        description: t("Methodology \"{name}\" has been deleted successfully").replace("{name}", selectedMethodologyName),
       });
       fetchMethodologies();
       fetchStats();
@@ -198,8 +203,8 @@ const Methodology = () => {
     } catch (error) {
       console.error("Error deleting methodology:", error);
       toast({
-        title: "Error",
-        description: "Failed to delete methodology. Please try again.",
+        title: t("Error"),
+        description: t("Failed to delete methodology. Please try again."),
         variant: "destructive",
       });
     } finally {
@@ -211,16 +216,16 @@ const Methodology = () => {
     try {
       await api.toggleTestMethodologyStatus(methodId);
       toast({
-        title: "Success",
-        description: "Methodology status has been updated successfully",
+        title: t("Success"),
+        description: t("Methodology status has been updated successfully"),
       });
       fetchMethodologies();
       fetchStats();
     } catch (error) {
       console.error("Error toggling methodology status:", error);
       toast({
-        title: "Error",
-        description: "Failed to update methodology status. Please try again.",
+        title: t("Error"),
+        description: t("Failed to update methodology status. Please try again."),
         variant: "destructive",
       });
     }
@@ -232,32 +237,32 @@ const Methodology = () => {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6 lg:space-y-8">
+    <div className={cn("space-y-4 sm:space-y-6 lg:space-y-8", isRTL && "text-right")} dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="min-w-0 flex-1">
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">Test Methodologies</h1>
-          <p className="text-sm sm:text-base text-muted-foreground mt-1">
-            Manage laboratory test methodologies and their configurations
+      <div className={cn("flex flex-col sm:flex-row sm:items-center justify-between gap-4", isRTL && "sm:flex-row-reverse")}>
+        <div className={cn("min-w-0 flex-1", isRTL && "text-right sm:order-2")}>
+          <h1 className={cn("text-2xl sm:text-3xl font-bold tracking-tight truncate", isRTL && "text-right")}>{t("Test Methodologies")}</h1>
+          <p className={cn("text-sm sm:text-base text-muted-foreground mt-1", isRTL && "text-right")}>
+            {t("Manage laboratory test methodologies and their configurations")}
           </p>
         </div>
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className={cn("flex items-center gap-2 flex-shrink-0", isRTL && "flex-row-reverse sm:order-1")}>
           <Button 
             variant="outline" 
             size="sm" 
             onClick={handleRefresh}
             disabled={loading}
-            className="h-9"
+            className={cn("h-9 flex items-center gap-2", isRTL && "flex-row-reverse")}
           >
-            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-            <span className="hidden sm:inline">Refresh</span>
+            <RefreshCw className={cn(`h-4 w-4 ${loading ? 'animate-spin' : ''}`)} />
+            <span className="hidden sm:inline">{t("Refresh")}</span>
           </Button>
           <AddMethodologyModal 
             trigger={
-              <Button size="sm" className="h-9">
-                <Plus className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Add Methodology</span>
-                <span className="sm:hidden">Add</span>
+              <Button size="sm" className={cn("h-9 flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                <Plus className="h-4 w-4" />
+                <span className="hidden sm:inline">{t("Add Methodology")}</span>
+                <span className="sm:hidden">{t("Add")}</span>
               </Button>
             }
             onMethodologyAdded={() => {
@@ -271,45 +276,45 @@ const Methodology = () => {
       {/* Stats Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium">Total Methodologies</CardTitle>
-            <Settings className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+          <CardHeader className={cn("flex flex-row items-center justify-between space-y-0 pb-2 gap-2", isRTL && "flex-row-reverse")}>
+            <Settings className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
+            <CardTitle className={cn("text-xs sm:text-sm font-medium", isRTL && "text-right")}>{t("Total Methodologies")}</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className={isRTL && "text-right"}>
             <div className="text-xl sm:text-2xl font-bold">{stats?.totalMethodologies || 0}</div>
             <p className="text-xs text-muted-foreground">
-              {stats?.activeMethodologies || 0} active
+              {stats?.activeMethodologies || 0} {t("active")}
             </p>
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium">Active</CardTitle>
-            <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
+          <CardHeader className={cn("flex flex-row items-center justify-between space-y-0 pb-2 gap-2", isRTL && "flex-row-reverse")}>
+            <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 flex-shrink-0" />
+            <CardTitle className={cn("text-xs sm:text-sm font-medium", isRTL && "text-right")}>{t("Active")}</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className={isRTL && "text-right"}>
             <div className="text-xl sm:text-2xl font-bold">{stats?.activeMethodologies || 0}</div>
-            <p className="text-xs text-muted-foreground">Currently active</p>
+            <p className="text-xs text-muted-foreground">{t("Currently active")}</p>
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium">Categories</CardTitle>
-            <Filter className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+          <CardHeader className={cn("flex flex-row items-center justify-between space-y-0 pb-2 gap-2", isRTL && "flex-row-reverse")}>
+            <Filter className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
+            <CardTitle className={cn("text-xs sm:text-sm font-medium", isRTL && "text-right")}>{t("Categories")}</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className={isRTL && "text-right"}>
             <div className="text-xl sm:text-2xl font-bold">{stats?.categoriesCount || 0}</div>
-            <p className="text-xs text-muted-foreground">Different categories</p>
+            <p className="text-xs text-muted-foreground">{t("Different categories")}</p>
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium">Inactive</CardTitle>
-            <XCircle className="h-3 w-3 sm:h-4 sm:w-4 text-red-600" />
+          <CardHeader className={cn("flex flex-row items-center justify-between space-y-0 pb-2 gap-2", isRTL && "flex-row-reverse")}>
+            <XCircle className="h-3 w-3 sm:h-4 sm:w-4 text-red-600 flex-shrink-0" />
+            <CardTitle className={cn("text-xs sm:text-sm font-medium", isRTL && "text-right")}>{t("Inactive")}</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className={isRTL && "text-right"}>
             <div className="text-xl sm:text-2xl font-bold">{stats?.inactiveMethodologies || 0}</div>
-            <p className="text-xs text-muted-foreground">Currently inactive</p>
+            <p className="text-xs text-muted-foreground">{t("Currently inactive")}</p>
           </CardContent>
         </Card>
       </div>
@@ -317,25 +322,25 @@ const Methodology = () => {
       {/* Filters */}
       <Card>
         <CardContent className="pt-4 sm:pt-6">
-          <div className="space-y-3 sm:space-y-0 sm:flex sm:gap-4">
+          <div className={cn("space-y-3 sm:space-y-0 sm:flex sm:gap-4", isRTL && "sm:flex-row-reverse")}>
             <div className="flex-1">
               <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Search className={cn("absolute top-2.5 h-4 w-4 text-muted-foreground", isRTL ? "right-2" : "left-2")} />
                 <Input
-                  placeholder="Search methodologies..."
+                  placeholder={t("Search methodologies...")}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-8 h-9 sm:h-10"
+                  className={cn("h-9 sm:h-10", isRTL ? "pr-8" : "pl-8")}
                 />
               </div>
             </div>
-            <div className="flex flex-col xs:flex-row gap-2">
+            <div className={cn("flex flex-col xs:flex-row gap-2", isRTL && "xs:flex-row-reverse")}>
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="w-full xs:w-[160px] sm:w-[180px] h-9 sm:h-10">
-                  <SelectValue placeholder="Category" />
+                <SelectTrigger className={cn("w-full xs:w-[160px] sm:w-[180px] h-9 sm:h-10", isRTL && "text-right")}>
+                  <SelectValue placeholder={t("Category")} />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
+                <SelectContent align={isRTL ? "start" : "end"}>
+                  <SelectItem value="all">{t("All Categories")}</SelectItem>
                   {categories.slice(1).map((category) => (
                     <SelectItem key={category} value={category}>
                       {category}
@@ -344,13 +349,13 @@ const Methodology = () => {
                 </SelectContent>
               </Select>
               <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                <SelectTrigger className="w-full xs:w-[100px] sm:w-[120px] h-9 sm:h-10">
-                  <SelectValue placeholder="Status" />
+                <SelectTrigger className={cn("w-full xs:w-[100px] sm:w-[120px] h-9 sm:h-10", isRTL && "text-right")}>
+                  <SelectValue placeholder={t("Status")} />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
+                <SelectContent align={isRTL ? "start" : "end"}>
+                  <SelectItem value="all">{t("All Status")}</SelectItem>
+                  <SelectItem value="active">{t("Active")}</SelectItem>
+                  <SelectItem value="inactive">{t("Inactive")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -360,31 +365,31 @@ const Methodology = () => {
 
       {/* Methodologies Table */}
       <Card>
-        <CardHeader>
-          <CardTitle className="text-lg sm:text-xl">Methodologies ({stats?.totalMethodologies || 0})</CardTitle>
-          <CardDescription className="text-sm">
-            Manage your laboratory test methodologies and their properties.
+        <CardHeader className={isRTL && "text-right"}>
+          <CardTitle className={cn("text-lg sm:text-xl", isRTL && "text-right")}>{t("Methodologies")} ({stats?.totalMethodologies || 0})</CardTitle>
+          <CardDescription className={cn("text-sm", isRTL && "text-right")}>
+            {t("Manage your laboratory test methodologies and their properties.")}
           </CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           {loading ? (
-            <div className="flex justify-center items-center py-12">
+            <div className={cn("flex justify-center items-center py-12 gap-2", isRTL && "flex-row-reverse")}>
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-              <span className="ml-2">Loading methodologies...</span>
+              <span>{t("Loading methodologies...")}</span>
             </div>
           ) : methodologies.length === 0 ? (
-            <div className="text-center py-12">
+            <div className={cn("text-center py-12", isRTL && "text-right")}>
               <Settings className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500 mb-4">
                 {searchTerm || selectedCategory !== "all" || selectedStatus !== "all" 
-                  ? "No methodologies found matching your filters." 
-                  : "No methodologies found. Add your first methodology to get started."}
+                  ? t("No methodologies found matching your filters.") 
+                  : t("No methodologies found. Add your first methodology to get started.")}
               </p>
                              <AddMethodologyModal 
                  trigger={
-                   <Button>
-                     <Plus className="h-4 w-4 mr-2" />
-                     Add Your First Methodology
+                   <Button className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                     <Plus className="h-4 w-4" />
+                     {t("Add Your First Methodology")}
                    </Button>
                  }
                />
@@ -393,15 +398,15 @@ const Methodology = () => {
             <>
               {/* Desktop Table View */}
               <div className="hidden md:block overflow-x-auto">
-                <Table>
+                <Table dir={isRTL ? 'rtl' : 'ltr'}>
               <TableHeader>
                 <TableRow className="hover:bg-transparent">
-                  <TableHead className="min-w-[200px]">Methodology Details</TableHead>
-                  <TableHead className="min-w-[120px] hidden sm:table-cell">Category</TableHead>
-                  <TableHead className="min-w-[100px] hidden md:table-cell">Equipment</TableHead>
-                  <TableHead className="min-w-[80px] hidden lg:table-cell">Sample Volume</TableHead>
-                  <TableHead className="min-w-[80px]">Status</TableHead>
-                  <TableHead className="text-right min-w-[70px]">Actions</TableHead>
+                  <TableHead className={cn("min-w-[200px]", isRTL && "text-right")}>{t("Methodology Details")}</TableHead>
+                  <TableHead className={cn("min-w-[120px] hidden sm:table-cell", isRTL && "text-right")}>{t("Category")}</TableHead>
+                  <TableHead className={cn("min-w-[100px] hidden md:table-cell", isRTL && "text-right")}>{t("Equipment")}</TableHead>
+                  <TableHead className={cn("min-w-[80px] hidden lg:table-cell", isRTL && "text-right")}>{t("Sample Volume")}</TableHead>
+                  <TableHead className={cn("min-w-[80px]", isRTL && "text-right")}>{t("Status")}</TableHead>
+                  <TableHead className={cn("min-w-[70px]", isRTL ? "text-left" : "text-right")}>{t("Actions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -433,22 +438,22 @@ const Methodology = () => {
                   ))
                 ) : methodologies.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8">
+                    <TableCell colSpan={6} className={cn("py-8", isRTL ? "text-right" : "text-center")}>
                       <div className="text-muted-foreground">
-                        No methodologies found. {searchTerm || selectedCategory !== "all" || selectedStatus !== "all" 
-                          ? "Try adjusting your filters." 
-                          : "Add your first methodology to get started."}
+                        {t("No methodologies found.")} {searchTerm || selectedCategory !== "all" || selectedStatus !== "all" 
+                          ? t("Try adjusting your filters.") 
+                          : t("Add your first methodology to get started.")}
                       </div>
                     </TableCell>
                   </TableRow>
                 ) : (
                   methodologies.map((methodology) => (
                     <TableRow key={methodology._id}>
-                      <TableCell>
-                        <div className="space-y-1">
+                      <TableCell className={isRTL && "text-right"}>
+                        <div className={cn("space-y-1", isRTL && "text-right")}>
                           <div className="font-medium text-sm sm:text-base">{methodology.name}</div>
                           <div className="text-xs sm:text-sm text-muted-foreground">
-                            Code: {methodology.code}
+                            {t("Code:")} {methodology.code}
                           </div>
                           {methodology.description && (
                             <div className="text-xs text-muted-foreground max-w-[180px] truncate">
@@ -456,13 +461,13 @@ const Methodology = () => {
                             </div>
                           )}
                           {/* Mobile-only additional info */}
-                          <div className="sm:hidden space-y-1 pt-1 border-t border-muted">
+                          <div className={cn("sm:hidden space-y-1 pt-1 border-t border-muted", isRTL && "text-right")}>
                             <div className="text-xs text-muted-foreground">
-                              Category: {methodology.category}
+                              {t("Category")}: {methodology.category}
                             </div>
                             {methodology.equipment && (
                               <div className="text-xs text-muted-foreground">
-                                Equipment: {methodology.equipment}
+                                {t("Equipment")}: {methodology.equipment}
                               </div>
                             )}
                             {methodology.principles && (
@@ -473,58 +478,59 @@ const Methodology = () => {
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell">
+                      <TableCell className={cn("hidden sm:table-cell", isRTL && "text-right")}>
                         <Badge variant="outline" className="text-xs">
                           {methodology.category}
                         </Badge>
                       </TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        <span className="text-sm">{methodology.equipment || "N/A"}</span>
+                      <TableCell className={cn("hidden md:table-cell", isRTL && "text-right")}>
+                        <span className="text-sm">{methodology.equipment || t("N/A")}</span>
                       </TableCell>
-                      <TableCell className="hidden lg:table-cell">
-                        <span className="text-sm">{methodology.sampleVolume || "N/A"}</span>
+                      <TableCell className={cn("hidden lg:table-cell", isRTL && "text-right")}>
+                        <span className="text-sm">{methodology.sampleVolume || t("N/A")}</span>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className={isRTL && "text-right"}>
                         <Badge
                           variant={methodology.isActive ? "default" : "secondary"}
                           className="text-xs"
                         >
-                          {methodology.isActive ? "Active" : "Inactive"}
+                          {methodology.isActive ? t("Active") : t("Inactive")}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className={isRTL ? "text-left" : "text-right"}>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="sm" className="h-8">
-                              <MoreVertical className="h-4 w-4 mr-1" />
-                              Actions
+                            <Button variant="outline" size="sm" className={cn("h-8 flex items-center gap-1", isRTL && "flex-row-reverse")}>
+                              <MoreVertical className="h-4 w-4" />
+                              {t("Actions")}
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleViewMethodology(methodology._id)}>
-                              <Eye className="h-4 w-4 mr-2" />
-                              View Details
+                          <DropdownMenuContent align={isRTL ? "start" : "end"}>
+                            <DropdownMenuItem onClick={() => handleViewMethodology(methodology._id)} className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                              <Eye className="h-4 w-4" />
+                              {t("View Details")}
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleEditMethodology(methodology._id)}>
-                              <Edit className="h-4 w-4 mr-2" />
-                              Edit Methodology
+                            <DropdownMenuItem onClick={() => handleEditMethodology(methodology._id)} className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                              <Edit className="h-4 w-4" />
+                              {t("Edit Methodology")}
                             </DropdownMenuItem>
                             <DropdownMenuItem 
                               onClick={() => handleDuplicateMethodology(methodology._id)}
                               disabled={duplicateLoading === methodology._id}
+                              className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}
                             >
-                              <Copy className="h-4 w-4 mr-2" />
-                              {duplicateLoading === methodology._id ? "Duplicating..." : "Duplicate"}
+                              <Copy className="h-4 w-4" />
+                              {duplicateLoading === methodology._id ? t("Duplicating...") : t("Duplicate")}
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handleToggleStatus(methodology._id)}>
-                              {methodology.isActive ? "Deactivate" : "Activate"}
+                              {methodology.isActive ? t("Deactivate") : t("Activate")}
                             </DropdownMenuItem>
                             <DropdownMenuItem 
                               onClick={() => handleDeleteMethodology(methodology._id, methodology.name)}
-                              className="text-red-600"
+                              className={cn("text-red-600 flex items-center gap-2", isRTL && "flex-row-reverse")}
                             >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Delete
+                              <Trash2 className="h-4 w-4" />
+                              {t("Delete")}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -672,11 +678,11 @@ const Methodology = () => {
       {totalPages > 1 && (
         <Card>
           <CardContent className="pt-4">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-              <div className="text-xs sm:text-sm text-muted-foreground order-2 sm:order-1">
-                Showing {((page - 1) * 20) + 1} to {Math.min(page * 20, methodologies.length)} methodologies
+            <div className={cn("flex flex-col sm:flex-row items-center justify-between gap-3", isRTL && "sm:flex-row-reverse")}>
+              <div className={cn("text-xs sm:text-sm text-muted-foreground order-2 sm:order-1", isRTL && "text-right")}>
+                {t("Showing")} {((page - 1) * 20) + 1} {t("to")} {Math.min(page * 20, methodologies.length)} {t("methodologies")}
               </div>
-              <div className="flex items-center space-x-2 order-1 sm:order-2">
+              <div className={cn("flex items-center gap-2 order-1 sm:order-2", isRTL && "flex-row-reverse")}>
                 <Button
                   variant="outline"
                   size="sm"
@@ -684,10 +690,10 @@ const Methodology = () => {
                   disabled={page === 1}
                   className="h-8"
                 >
-                  Previous
+                  {t("Previous")}
                 </Button>
                 <div className="text-xs sm:text-sm px-2">
-                  Page {page} of {totalPages}
+                  {t("Page")} {page} {t("of")} {totalPages}
                 </div>
                 <Button
                   variant="outline"
@@ -696,7 +702,7 @@ const Methodology = () => {
                   disabled={page === totalPages}
                   className="h-8"
                 >
-                  Next
+                  {t("Next")}
                 </Button>
               </div>
             </div>
@@ -724,8 +730,8 @@ const Methodology = () => {
       <ConfirmationDialog
         open={deleteConfirmOpen}
         onOpenChange={setDeleteConfirmOpen}
-        title="Delete Methodology"
-        description={`Are you sure you want to delete "${selectedMethodologyName}"? This action cannot be undone.`}
+        title={t("Delete Methodology")}
+        description={t("Are you sure you want to delete \"{name}\"? This action cannot be undone.").replace("{name}", selectedMethodologyName)}
         onConfirm={confirmDeleteMethodology}
         loading={deleteLoading}
         destructive

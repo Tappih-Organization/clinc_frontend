@@ -306,9 +306,14 @@ const MainLogin = () => {
     
           </motion.div>
  
-
-      
       </div>
+      </div>
+      
+      {/* Version Footer */}
+      <div className="w-full flex justify-center pb-4">
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          {t("Version")} 0.2 — {t("Beta")}
+        </p>
       </div>
     </div>
   );

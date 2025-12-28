@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useIsRTL } from "@/hooks/useIsRTL";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -78,6 +80,7 @@ import { TestCategory } from "@/types";
 
 const Category = () => {
   const { t } = useTranslation();
+  const isRTL = useIsRTL();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState("all");
@@ -164,13 +167,13 @@ const Category = () => {
     try {
       await deleteCategory.mutateAsync(categoryId);
       toast({
-        title: "Category Deleted",
-        description: "Category has been successfully deleted",
+        title: t("Category Deleted"),
+        description: t("Category has been successfully deleted"),
       });
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to delete category",
+        title: t("Error"),
+        description: t("Failed to delete category"),
         variant: "destructive",
       });
     }
@@ -180,13 +183,13 @@ const Category = () => {
     try {
       await toggleStatus.mutateAsync(categoryId);
       toast({
-        title: "Status Updated",
-        description: "Category status has been updated successfully",
+        title: t("Status Updated"),
+        description: t("Category status has been updated successfully"),
       });
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to update category status",
+        title: t("Error"),
+        description: t("Failed to update category status"),
         variant: "destructive",
       });
     }
@@ -203,42 +206,42 @@ const Category = () => {
 
   if (categoriesLoading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <div className="flex items-center space-x-2">
+      <div className={cn("flex items-center justify-center h-96", isRTL && "text-right")} dir={isRTL ? 'rtl' : 'ltr'}>
+        <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
           <Loader2 className="h-6 w-6 animate-spin" />
-          <span>Loading categories...</span>
+          <span>{t("Loading categories...")}</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6 lg:space-y-8">
+    <div className={cn("space-y-4 sm:space-y-6 lg:space-y-8", isRTL && "text-right")} dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="min-w-0 flex-1">
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">Test Categories</h1>
-          <p className="text-sm sm:text-base text-muted-foreground mt-1">
-            Manage laboratory test categories and their configurations
+      <div className={cn("flex flex-col sm:flex-row sm:items-center justify-between gap-4", isRTL && "sm:flex-row-reverse")}>
+        <div className={cn("min-w-0 flex-1", isRTL && "text-right sm:order-2")}>
+          <h1 className={cn("text-2xl sm:text-3xl font-bold tracking-tight truncate", isRTL && "text-right")}>{t("Test Categories")}</h1>
+          <p className={cn("text-sm sm:text-base text-muted-foreground mt-1", isRTL && "text-right")}>
+            {t("Manage laboratory test categories and their configurations")}
           </p>
         </div>
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className={cn("flex items-center gap-2 flex-shrink-0", isRTL && "flex-row-reverse sm:order-1")}>
           <Button 
             variant="outline" 
             size="sm" 
             onClick={handleRefresh}
             disabled={categoriesLoading}
-            className="h-9"
+            className={cn("h-9 flex items-center gap-2", isRTL && "flex-row-reverse")}
           >
-            <RefreshCw className={`h-4 w-4 mr-2 ${categoriesLoading ? 'animate-spin' : ''}`} />
-            <span className="hidden sm:inline">Refresh</span>
+            <RefreshCw className={cn(`h-4 w-4 ${categoriesLoading ? 'animate-spin' : ''}`)} />
+            <span className="hidden sm:inline">{t("Refresh")}</span>
           </Button>
           <AddCategoryModal 
             trigger={
-              <Button size="sm" className="h-9">
-                <Plus className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Add Category</span>
-                <span className="sm:hidden">Add</span>
+              <Button size="sm" className={cn("h-9 flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                <Plus className="h-4 w-4" />
+                <span className="hidden sm:inline">{t("Add Category")}</span>
+                <span className="sm:hidden">{t("Add")}</span>
               </Button>
             }
 
@@ -249,45 +252,45 @@ const Category = () => {
       {/* Stats Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium">Total Categories</CardTitle>
-            <Folder className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+          <CardHeader className={cn("flex flex-row items-center justify-between space-y-0 pb-2 gap-2", isRTL && "flex-row-reverse")}>
+            <Folder className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
+            <CardTitle className={cn("text-xs sm:text-sm font-medium", isRTL && "text-right")}>{t("Total Categories")}</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className={isRTL && "text-right"}>
             <div className="text-xl sm:text-2xl font-bold">{stats.totalCategories}</div>
             <p className="text-xs text-muted-foreground">
-              {stats.activeCategories} active
+              {stats.activeCategories} {t("active")}
             </p>
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium">Active Categories</CardTitle>
-            <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
+          <CardHeader className={cn("flex flex-row items-center justify-between space-y-0 pb-2 gap-2", isRTL && "flex-row-reverse")}>
+            <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 flex-shrink-0" />
+            <CardTitle className={cn("text-xs sm:text-sm font-medium", isRTL && "text-right")}>{t("Active Categories")}</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className={isRTL && "text-right"}>
             <div className="text-xl sm:text-2xl font-bold">{stats.activeCategories}</div>
-            <p className="text-xs text-muted-foreground">Currently active</p>
+            <p className="text-xs text-muted-foreground">{t("Currently active")}</p>
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium">{t("Total Tests")}</CardTitle>
-            <TestTube2 className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+          <CardHeader className={cn("flex flex-row items-center justify-between space-y-0 pb-2 gap-2", isRTL && "flex-row-reverse")}>
+            <TestTube2 className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
+            <CardTitle className={cn("text-xs sm:text-sm font-medium", isRTL && "text-right")}>{t("Total Tests")}</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className={isRTL && "text-right"}>
             <div className="text-xl sm:text-2xl font-bold">{stats.totalTests}</div>
-            <p className="text-xs text-muted-foreground">Across all categories</p>
+            <p className="text-xs text-muted-foreground">{t("Across all categories")}</p>
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium">Departments</CardTitle>
-            <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+          <CardHeader className={cn("flex flex-row items-center justify-between space-y-0 pb-2 gap-2", isRTL && "flex-row-reverse")}>
+            <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
+            <CardTitle className={cn("text-xs sm:text-sm font-medium", isRTL && "text-right")}>{t("Departments")}</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className={isRTL && "text-right"}>
             <div className="text-xl sm:text-2xl font-bold">{stats.departmentsCount}</div>
-            <p className="text-xs text-muted-foreground">Different departments</p>
+            <p className="text-xs text-muted-foreground">{t("Different departments")}</p>
           </CardContent>
         </Card>
       </div>
@@ -295,25 +298,25 @@ const Category = () => {
       {/* Filters */}
       <Card>
         <CardContent className="pt-4 sm:pt-6">
-          <div className="space-y-3 sm:space-y-0 sm:flex sm:gap-4">
+          <div className={cn("space-y-3 sm:space-y-0 sm:flex sm:gap-4", isRTL && "sm:flex-row-reverse")}>
             <div className="flex-1">
               <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Search className={cn("absolute top-2.5 h-4 w-4 text-muted-foreground", isRTL ? "right-2" : "left-2")} />
                 <Input
-                  placeholder="Search categories..."
+                  placeholder={t("Search categories...")}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-8 h-9 sm:h-10"
+                  className={cn("h-9 sm:h-10", isRTL ? "pr-8" : "pl-8")}
                 />
               </div>
             </div>
-            <div className="flex flex-col xs:flex-row gap-2">
+            <div className={cn("flex flex-col xs:flex-row gap-2", isRTL && "xs:flex-row-reverse")}>
               <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
-                <SelectTrigger className="w-full xs:w-[160px] sm:w-[180px] h-9 sm:h-10">
-                  <SelectValue placeholder="Department" />
+                <SelectTrigger className={cn("w-full xs:w-[160px] sm:w-[180px] h-9 sm:h-10", isRTL && "text-right")}>
+                  <SelectValue placeholder={t("Department")} />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Departments</SelectItem>
+                <SelectContent align={isRTL ? "start" : "end"}>
+                  <SelectItem value="all">{t("All Departments")}</SelectItem>
                   {departments.slice(1).map((dept) => (
                     <SelectItem key={dept} value={dept}>
                       {dept}
@@ -322,13 +325,13 @@ const Category = () => {
                 </SelectContent>
               </Select>
               <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                <SelectTrigger className="w-full xs:w-[100px] sm:w-[120px] h-9 sm:h-10">
-                  <SelectValue placeholder="Status" />
+                <SelectTrigger className={cn("w-full xs:w-[100px] sm:w-[120px] h-9 sm:h-10", isRTL && "text-right")}>
+                  <SelectValue placeholder={t("Status")} />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
+                <SelectContent align={isRTL ? "start" : "end"}>
+                  <SelectItem value="all">{t("All Status")}</SelectItem>
+                  <SelectItem value="active">{t("Active")}</SelectItem>
+                  <SelectItem value="inactive">{t("Inactive")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -338,31 +341,31 @@ const Category = () => {
 
       {/* Categories Table */}
       <Card>
-        <CardHeader>
-          <CardTitle className="text-lg sm:text-xl">Categories ({stats.totalCategories})</CardTitle>
-          <CardDescription className="text-sm">
-            Manage your laboratory test categories and their properties.
+        <CardHeader className={isRTL && "text-right"}>
+          <CardTitle className={cn("text-lg sm:text-xl", isRTL && "text-right")}>{t("Categories")} ({stats.totalCategories})</CardTitle>
+          <CardDescription className={cn("text-sm", isRTL && "text-right")}>
+            {t("Manage your laboratory test categories and their properties.")}
           </CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           {categoriesLoading ? (
-            <div className="flex justify-center items-center py-12">
+            <div className={cn("flex justify-center items-center py-12 gap-2", isRTL && "flex-row-reverse")}>
               <Loader2 className="h-8 w-8 animate-spin" />
-              <span className="ml-2">Loading categories...</span>
+              <span>{t("Loading categories...")}</span>
             </div>
           ) : categories.length === 0 ? (
-            <div className="text-center py-12">
+            <div className={cn("text-center py-12", isRTL && "text-right")}>
               <Folder className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500 mb-4">
+              <p className={cn("text-gray-500 mb-4", isRTL && "text-right")}>
                 {searchTerm || selectedDepartment !== "all" || selectedStatus !== "all" 
-                  ? "No categories found matching your filters." 
-                  : "No categories found. Add your first category to get started."}
+                  ? t("No categories found matching your filters.") 
+                  : t("No categories found. Add your first category to get started.")}
               </p>
               <AddCategoryModal 
                 trigger={
-                  <Button>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Your First Category
+                  <Button className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                    <Plus className="h-4 w-4" />
+                    {t("Add Your First Category")}
                   </Button>
                 }
               />
@@ -371,110 +374,110 @@ const Category = () => {
             <>
               {/* Desktop Table View */}
               <div className="hidden md:block overflow-x-auto">
-                <Table>
+                <Table dir={isRTL ? 'rtl' : 'ltr'}>
               <TableHeader>
                 <TableRow className="hover:bg-transparent">
-                  <TableHead className="min-w-[200px]">Category Details</TableHead>
-                  <TableHead className="min-w-[120px] hidden sm:table-cell">Department</TableHead>
-                  <TableHead className="min-w-[100px] hidden md:table-cell">Icon</TableHead>
-                  <TableHead className="min-w-[80px] hidden lg:table-cell">Tests Count</TableHead>
-                  <TableHead className="min-w-[80px]">Status</TableHead>
-                  <TableHead className="text-right min-w-[70px]">Actions</TableHead>
+                  <TableHead className={cn("min-w-[200px] pr-3", isRTL && "text-right")}>{t("Category Details")}</TableHead>
+                  <TableHead className={cn("min-w-[120px] hidden sm:table-cell pr-3", isRTL && "text-right")}>{t("Department")}</TableHead>
+                  <TableHead className={cn("min-w-[100px] hidden md:table-cell pr-3", isRTL && "text-right")}>{t("Icon")}</TableHead>
+                  <TableHead className={cn("min-w-[80px] hidden lg:table-cell pr-3", isRTL && "text-right")}>{t("Tests Count")}</TableHead>
+                  <TableHead className={cn("min-w-[80px] pr-3", isRTL && "text-right")}>{t("Status")}</TableHead>
+                  <TableHead className={cn("min-w-[70px] pr-3", isRTL ? "text-right" : "text-right")}>{t("Actions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {categories.map((category) => (
                   <TableRow key={category._id}>
-                    <TableCell>
-                      <div className="space-y-1">
+                    <TableCell className={cn("pr-3", isRTL && "text-right")}>
+                      <div className={cn("space-y-1", isRTL && "text-right")}>
                         <div className="font-medium text-sm sm:text-base">{category.name}</div>
-                        <div className="text-xs sm:text-sm text-muted-foreground">
-                          Code: {category.code}
+                        <div className={cn("text-xs sm:text-sm text-muted-foreground", isRTL && "text-right")}>
+                          {t("Code:")} {category.code}
                         </div>
                         {category.description && (
-                          <div className="text-xs text-muted-foreground max-w-[180px] truncate">
+                          <div className={cn("text-xs text-muted-foreground max-w-[180px] truncate", isRTL && "text-right")}>
                             {category.description}
                           </div>
                         )}
                         {/* Mobile-only additional info */}
-                        <div className="sm:hidden space-y-1 pt-1 border-t border-muted">
-                          <div className="text-xs text-muted-foreground">
-                            Department: {category.department}
+                        <div className={cn("sm:hidden space-y-1 pt-1 border-t border-muted", isRTL && "text-right")}>
+                          <div className={cn("text-xs text-muted-foreground", isRTL && "text-right")}>
+                            {t("Department:")} {category.department}
                           </div>
-                          <div className="flex items-center space-x-2 text-xs">
+                          <div className={cn("flex items-center gap-2 text-xs", isRTL && "flex-row-reverse justify-end")}>
                             {getCategoryIcon(category.icon, category.color)}
-                            <span>Icon: {category.icon}</span>
+                            <span>{t("Icon")}: {category.icon}</span>
                           </div>
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className="hidden sm:table-cell">
+                    <TableCell className={cn("hidden sm:table-cell pr-3", isRTL && "text-right")}>
                       <Badge variant="outline" className="text-xs">
                         {category.department}
                       </Badge>
                     </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      <div className="flex items-center space-x-2">
+                    <TableCell className={cn("hidden md:table-cell pr-3", isRTL && "text-right")}>
+                      <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse justify-end")}>
                         {getCategoryIcon(category.icon, category.color)}
                         <span className="text-sm">{category.icon}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="hidden lg:table-cell">
+                    <TableCell className={cn("hidden lg:table-cell pr-3", isRTL && "text-right")}>
                       <span className="text-sm">{category.testCount || 0}</span>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className={cn("pr-3", isRTL && "text-right")}>
                       <Badge
                         variant={category.isActive ? "default" : "secondary"}
                         className="text-xs"
                       >
-                        {category.isActive ? "Active" : "Inactive"}
+                        {category.isActive ? t("Active") : t("Inactive")}
                       </Badge>
                     </TableCell>
-                                          <TableCell className="text-right">
+                                          <TableCell className={cn("pr-3", isRTL ? "text-right" : "text-right")}>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="sm" className="h-8">
-                              <MoreVertical className="h-4 w-4 mr-1" />
-                              Actions
+                            <Button variant="outline" size="sm" className={cn("h-8 flex items-center gap-1", isRTL && "flex-row-reverse")}>
+                              <MoreVertical className="h-4 w-4" />
+                              {t("Actions")}
                             </Button>
                           </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleView(category._id)}>
-                            <Eye className="h-4 w-4 mr-2" />
-                            View Details
+                        <DropdownMenuContent align={isRTL ? "start" : "end"}>
+                          <DropdownMenuItem onClick={() => handleView(category._id)} className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                            <Eye className="h-4 w-4" />
+                            {t("View Details")}
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleEdit(category._id)}>
-                            <Edit className="h-4 w-4 mr-2" />
-                            Edit Category
+                          <DropdownMenuItem onClick={() => handleEdit(category._id)} className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                            <Edit className="h-4 w-4" />
+                            {t("Edit Category")}
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleViewTests(category._id)}>
-                            <TestTube2 className="h-4 w-4 mr-2" />
-                            View Tests
+                          <DropdownMenuItem onClick={() => handleViewTests(category._id)} className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                            <TestTube2 className="h-4 w-4" />
+                            {t("View Tests")}
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleToggleStatus(category._id)}>
-                            {category.isActive ? "Deactivate" : "Activate"}
+                            {category.isActive ? t("Deactivate") : t("Activate")}
                           </DropdownMenuItem>
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
-                              <div className="relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent focus:bg-accent focus:text-accent-foreground text-red-600">
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                Delete
+                              <div className={cn("relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent focus:bg-accent focus:text-accent-foreground text-red-600 gap-2", isRTL && "flex-row-reverse")}>
+                                <Trash2 className="h-4 w-4" />
+                                {t("Delete")}
                               </div>
                             </AlertDialogTrigger>
-                            <AlertDialogContent>
+                            <AlertDialogContent className={isRTL && "text-right"}>
                               <AlertDialogHeader>
-                                <AlertDialogTitle>Delete Category</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Are you sure you want to delete this category? This action cannot be undone.
+                                <AlertDialogTitle className={isRTL && "text-right"}>{t("Delete Category")}</AlertDialogTitle>
+                                <AlertDialogDescription className={isRTL && "text-right"}>
+                                  {t("Are you sure you want to delete this category? This action cannot be undone.")}
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogFooter className={cn("gap-2", isRTL && "flex-row-reverse")}>
+                                <AlertDialogCancel>{t("Cancel")}</AlertDialogCancel>
                                 <AlertDialogAction 
                                   onClick={() => handleDelete(category._id)}
                                   className="bg-red-600 hover:bg-red-700"
                                 >
-                                  Delete
+                                  {t("Delete")}
                                 </AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>
@@ -486,11 +489,11 @@ const Category = () => {
                 ))}
                 {categories.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8">
+                    <TableCell colSpan={6} className={cn("text-center py-8", isRTL && "text-right")}>
                       <div className="text-muted-foreground">
-                        No categories found. {searchTerm || selectedDepartment !== "all" || selectedStatus !== "all" 
-                          ? "Try adjusting your filters." 
-                          : "Add your first category to get started."}
+                        {t("No categories found.")} {searchTerm || selectedDepartment !== "all" || selectedStatus !== "all" 
+                          ? t("Try adjusting your filters.") 
+                          : t("Add your first category to get started.")}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -500,37 +503,37 @@ const Category = () => {
           </div>
 
           {/* Mobile Card View */}
-          <div className="md:hidden space-y-4 p-4">
+          <div className={cn("md:hidden space-y-4 p-4", isRTL && "text-right")}>
             {categories.map((category) => (
               <div
                 key={category._id}
-                className="border rounded-lg p-4 space-y-3 bg-white shadow-sm"
+                className={cn("border rounded-lg p-4 space-y-3 bg-white shadow-sm", isRTL && "text-right")}
               >
                 {/* Header with Category Name and Status */}
-                <div className="flex items-center justify-between">
-                  <div className="min-w-0 flex-1">
-                    <div className="font-semibold text-sm truncate">
+                <div className={cn("flex items-center justify-between", isRTL && "flex-row-reverse")}>
+                  <div className={cn("min-w-0 flex-1", isRTL && "text-right")}>
+                    <div className={cn("font-semibold text-sm truncate", isRTL && "text-right")}>
                       {category.name}
                     </div>
-                    <div className="text-xs text-muted-foreground">
-                      Code: {category.code}
+                    <div className={cn("text-xs text-muted-foreground", isRTL && "text-right")}>
+                      {t("Code:")} {category.code}
                     </div>
                   </div>
                   <Badge
                     variant={category.isActive ? "default" : "secondary"}
-                    className="text-xs ml-2"
+                    className={cn("text-xs", isRTL ? "mr-2" : "ml-2")}
                   >
-                    {category.isActive ? "Active" : "Inactive"}
+                    {category.isActive ? t("Active") : t("Inactive")}
                   </Badge>
                 </div>
 
                 {/* Description */}
                 {category.description && (
-                  <div className="p-3 bg-gray-50 rounded-lg">
-                    <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">
-                      Description
+                  <div className={cn("p-3 bg-gray-50 rounded-lg", isRTL && "text-right")}>
+                    <div className={cn("text-xs text-gray-500 uppercase tracking-wide mb-1", isRTL && "text-right")}>
+                      {t("Description")}
                     </div>
-                    <div className="text-sm text-gray-900">
+                    <div className={cn("text-sm text-gray-900", isRTL && "text-right")}>
                       {category.description}
                     </div>
                   </div>
@@ -538,19 +541,19 @@ const Category = () => {
 
                 {/* Details Grid */}
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <div className="text-xs text-gray-500 uppercase tracking-wide">
-                      Department
+                  <div className={cn("space-y-1", isRTL && "text-right")}>
+                    <div className={cn("text-xs text-gray-500 uppercase tracking-wide", isRTL && "text-right")}>
+                      {t("Department")}
                     </div>
-                    <Badge variant="outline" className="text-xs w-fit">
+                    <Badge variant="outline" className={cn("text-xs w-fit", isRTL && "ml-auto")}>
                       {category.department}
                     </Badge>
                   </div>
-                  <div className="space-y-1">
-                    <div className="text-xs text-gray-500 uppercase tracking-wide">
-                      Icon
+                  <div className={cn("space-y-1", isRTL && "text-right")}>
+                    <div className={cn("text-xs text-gray-500 uppercase tracking-wide", isRTL && "text-right")}>
+                      {t("Icon")}
                     </div>
-                    <div className="flex items-center space-x-2">
+                    <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse justify-end")}>
                       {getCategoryIcon(category.icon, category.color)}
                       <span className="text-sm text-gray-900">{category.icon}</span>
                     </div>
@@ -558,65 +561,65 @@ const Category = () => {
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <div className="text-xs text-gray-500 uppercase tracking-wide">
-                      Tests Count
+                  <div className={cn("space-y-1", isRTL && "text-right")}>
+                    <div className={cn("text-xs text-gray-500 uppercase tracking-wide", isRTL && "text-right")}>
+                      {t("Tests Count")}
                     </div>
-                    <div className="text-sm text-gray-900">
-                      {category.testCount || 0} tests
+                    <div className={cn("text-sm text-gray-900", isRTL && "text-right")}>
+                      {category.testCount || 0} {t("tests")}
                     </div>
                   </div>
-                  <div className="space-y-1">
-                    <div className="text-xs text-gray-500 uppercase tracking-wide">
-                      Status
+                  <div className={cn("space-y-1", isRTL && "text-right")}>
+                    <div className={cn("text-xs text-gray-500 uppercase tracking-wide", isRTL && "text-right")}>
+                      {t("Status")}
                     </div>
-                    <div className="flex items-center space-x-2">
+                    <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse justify-end")}>
                       {category.isActive ? (
                         <CheckCircle className="h-4 w-4 text-green-600" />
                       ) : (
                         <XCircle className="h-4 w-4 text-red-600" />
                       )}
-                      <span className="text-sm text-gray-900">
-                        {category.isActive ? "Active" : "Inactive"}
+                      <span className={cn("text-sm text-gray-900", isRTL && "text-right")}>
+                        {category.isActive ? t("Active") : t("Inactive")}
                       </span>
                     </div>
                   </div>
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center justify-between pt-2 border-t">
-                  <div className="text-xs text-gray-400">
+                <div className={cn("flex items-center justify-between pt-2 border-t", isRTL && "flex-row-reverse")}>
+                  <div className={cn("text-xs text-gray-400", isRTL && "text-right")}>
                     ID: {category._id.slice(-8)}
                   </div>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm">
-                        <MoreVertical className="h-4 w-4 mr-1" />
-                        Actions
+                      <Button variant="outline" size="sm" className={cn("flex items-center gap-1", isRTL && "flex-row-reverse")}>
+                        <MoreVertical className="h-4 w-4" />
+                        {t("Actions")}
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleView(category._id)}>
-                        <Eye className="h-4 w-4 mr-2" />
-                        View Details
+                    <DropdownMenuContent align={isRTL ? "start" : "end"}>
+                      <DropdownMenuItem onClick={() => handleView(category._id)} className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                        <Eye className="h-4 w-4" />
+                        {t("View Details")}
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleEdit(category._id)}>
-                        <Edit className="h-4 w-4 mr-2" />
-                        Edit Category
+                      <DropdownMenuItem onClick={() => handleEdit(category._id)} className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                        <Edit className="h-4 w-4" />
+                        {t("Edit Category")}
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleViewTests(category._id)}>
-                        <TestTube2 className="h-4 w-4 mr-2" />
-                        View Tests
+                      <DropdownMenuItem onClick={() => handleViewTests(category._id)} className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                        <TestTube2 className="h-4 w-4" />
+                        {t("View Tests")}
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleToggleStatus(category._id)}>
-                        {category.isActive ? "Deactivate" : "Activate"}
+                        {category.isActive ? t("Deactivate") : t("Activate")}
                       </DropdownMenuItem>
                       <DropdownMenuItem 
                         onClick={() => handleDelete(category._id)}
-                        className="text-red-600"
+                        className={cn("text-red-600 flex items-center gap-2", isRTL && "flex-row-reverse")}
                       >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Delete
+                        <Trash2 className="h-4 w-4" />
+                        {t("Delete")}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -633,11 +636,11 @@ const Category = () => {
       {pagination && pagination.pages > 1 && (
         <Card>
           <CardContent className="pt-4">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-              <div className="text-xs sm:text-sm text-muted-foreground order-2 sm:order-1">
-                Showing {((page - 1) * limit) + 1} to {Math.min(page * limit, pagination.total)} of {pagination.total} categories
+            <div className={cn("flex flex-col sm:flex-row items-center justify-between gap-3", isRTL && "sm:flex-row-reverse")}>
+              <div className={cn("text-xs sm:text-sm text-muted-foreground order-2 sm:order-1", isRTL && "sm:order-2 text-right")}>
+                {t("Showing")} {((page - 1) * limit) + 1} {t("to")} {Math.min(page * limit, pagination.total)} {t("of")} {pagination.total} {t("categories")}
               </div>
-              <div className="flex items-center space-x-2 order-1 sm:order-2">
+              <div className={cn("flex items-center gap-2 order-1 sm:order-2", isRTL && "sm:order-1 flex-row-reverse")}>
                 <Button
                   variant="outline"
                   size="sm"
@@ -645,10 +648,10 @@ const Category = () => {
                   disabled={page === 1}
                   className="h-8"
                 >
-                  Previous
+                  {t("Previous")}
                 </Button>
-                <div className="text-xs sm:text-sm px-2">
-                  Page {page} of {pagination.pages}
+                <div className={cn("text-xs sm:text-sm px-2", isRTL && "text-right")}>
+                  {t("Page")} {page} {t("of")} {pagination.pages}
                 </div>
                 <Button
                   variant="outline"
@@ -657,7 +660,7 @@ const Category = () => {
                   disabled={page === pagination.pages}
                   className="h-8"
                 >
-                  Next
+                  {t("Next")}
                 </Button>
               </div>
             </div>
