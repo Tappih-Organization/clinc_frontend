@@ -918,7 +918,7 @@
   "Report Details": "تفاصيل التقرير",
   "Recorded:": "مسجل:",
   "Not recorded": "غير مسجل",
-  "Code:": "الكود:",
+  "Code:": "الشكل:",
   "Internal": "داخلي",
   "Vendor": "مزود",
   "Attachments": "مرفقات",
@@ -1726,8 +1726,131 @@
   "categories": "فئات",
   "Across all categories": "عبر جميع الفئات",
   "Currently active": "نشط حالياً",
-  "Code:": "الكود:",
+
   "Department:": "القسم:",
   "Version": "الإصدار",
-  "Beta": "تجريبي"
+  "Beta": "تجريبي",
+  
+    "addTesttitle": "إضافة تحليل معملي جديد",
+    "addTestdescription": "إنشاء تحليل جديد وإضافته إلى قائمة تحاليل المعمل",
+
+    "addTestbasicInfo": "البيانات الأساسية للتحليل",
+
+    "addTesttestName": "اسم التحليل",
+    "addTesttestCode": "كود التحليل",
+    "addTestgenerate": "توليد",
+
+    "addTestcategory": "الفئة",
+    "addTestselectCategory": "اختر فئة التحليل",
+
+    "addTestturnaroundTime": "مدة ظهور النتيجة",
+    "addTestselectTurnaround": "اختر المدة",
+
+    "addTestdescriptionLabel": "الوصف",
+    "addTestdescriptionPlaceholder": "وصف تفصيلي لما يقيسه هذا التحليل",
+
+    "addTestsampleType": "نوع العينة",
+    "addTestselectSampleType": "اختر نوع العينة",
+
+    "addTestmethodology": "طريقة الفحص",
+    "addTestselectMethodology": "اختر طريقة الفحص",
+
+    "addTestnormalRange": "المدى الطبيعي",
+    "addTestunits": "الوحدات",
+
+    "addTestcancel": "إلغاء",
+
+    "addTestcreating": "جاري الإنشاء...",
+  
+  "addTestcreate": "إنشاء التحليل",
+
+
+  "recordTestReport": "تسجيل تقرير تحليل",
+  "recordTestDescription": "تسجيل نتائج التحاليل المستلمة من المعامل الخارجية",
+  "patientTestInfo": "بيانات المريض والتحليل",
+  "patient": "المريض",
+  "selectPatient": "اختر المريض",
+  "loadingPatients": "جاري تحميل المرضى...",
+  "test": "التحليل",
+  "selectTest": "اختر التحليل",
+  "loadingTests": "جاري تحميل التحاليل...",
+  "testResults": "نتائج التحليل",
+  "results": "النتائج",
+  "resultsPlaceholder": "اكتب نتائج التحليل...",
+  "notes": "ملاحظات إضافية",
+  "notesPlaceholder": "أي ملاحظات إضافية...",
+  "cancel": "إلغاء",
+  "recording": "جاري التسجيل...",
+  "testDetails": "تفاصيل التحليل",
+  "externalVendor": "المختبر الخارجي ",
+  "selectVendor": "اختر المختبر",
+  "testDate": "تاريخ التحليل ",
+  "recordedBy": "تم التسجيل بواسطة ",
+  "selectStaffMember": "اختر الموظف",
+  "reportAttachments": "مرفقات التقرير",
+  "clickToUploadOrDragAndDrop": "اضغط للرفع أو اسحب الملفات هنا",
+  "testResultsInterpretation": "نتائج التحليل والتفسير",
+  "normalValues": "القيم الطبيعية",
+  "referenceRanges": "نطاقات مرجعية للقيم الطبيعية...",
+  "clinicalInterpretation": "التفسير السريري للنتائج...",
+  "abnormalFindings": "النتائج الشاذة",
+  "anyAbnormalFindings": "أي نتائج شاذة أو قيم حرجة...",
+  "recommendations": "التوصيات",
+  "clinicalRecommendations": "التوصيات السريرية بناءً على النتائج...",
+  "additionalNotes": "ملاحظات إضافية",
+  "notesPlaceholder": "أي ملاحظات أو ملاحظات إضافية...",
+
+
+
+
+
+
+
+
+"addTestCategorytitle": "إضافة فئة تحليل جديدة",
+  "addTestCategorydescription": "إنشاء فئة تحليل جديدة لتنظيم تحاليل المعمل بشكل فعال.",
+  "addTestCategorybasicInformation": "البيانات الأساسية",
+
+  "categoryNamelabel": "اسم الفئة *",
+  "categoryNameplaceholder": "مثال: أمراض الدم",
+
+  "categoryCodelabel": "كود الفئة *",
+  "categoryCodeplaceholder": "مثال: HEM",
+  "categoryCodenote": "توليد تلقائي من اسم الفئة أو إدخاله يدويًا",
+
+  "descriptionFieldlabel": "الوصف *",
+  "descriptionFieldplaceholder": "وصف مختصر لهذه الفئة...",
+
+  "departmentlabel": "القسم *",
+  "departmentplaceholder": "اختر القسم",
+
+  "visualSettings": "الإعدادات المرئية",
+  "icon": "الأيقونة",
+
+  "iconOptionsfolder": "مجلد",
+  "iconOptionsbeaker": "دورق",
+  "iconOptionstestTube": "أنبوب اختبار",
+  "iconOptionsheart": "قلب",
+  "iconOptionslightning": "برق",
+  "iconOptionsmicroscope": "مجهر",
+
+  "colorlabel": "اللون",
+  "colorselected": "المختار:",
+
+  "preview": "معاينة",
+  "categoryNamePreview": "اسم الفئة",
+  "categoryCodePreview": "الكود",
+  "additionalInformation": "معلومات إضافية",
+
+  "commonTestslabel": "التحاليل الشائعة",
+  "commonTestsplaceholder": "أدخل التحاليل الشائعة مفصولة بفواصل (مثال: CBC, ESR, تعداد الصفائح)",
+  "commonTestsnote": "أدخل أسماء التحاليل مفصولة بفواصل",
+
+  "sortOrderlabel": "ترتيب العرض",
+  "sortOrderplaceholder": "0",
+  "sortOrdernote": "الأرقام الأقل تظهر أولاً في القوائم",
+
+  "activeCategory": "فئة نشطة",
+
+  "buttonscreateCategory": "إنشاء الفئة"
 }

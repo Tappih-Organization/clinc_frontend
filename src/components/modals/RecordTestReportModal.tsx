@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useTranslation } from "react-i18next";
+import { useIsRTL } from "@/hooks/useIsRTL";
+import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
@@ -53,6 +56,8 @@ interface UploadedFile {
 }
 
 const RecordTestReportModal: React.FC<RecordTestReportModalProps> = ({
+
+
   trigger,
   onReportRecorded,
 }) => {
@@ -91,6 +96,9 @@ const RecordTestReportModal: React.FC<RecordTestReportModalProps> = ({
     "Quick Test Center",
     "Elite Diagnostics",
   ];
+
+  const { t } = useTranslation();
+  const isRTL = useIsRTL();
 
   // Fetch data when modal opens
   useEffect(() => {
@@ -317,19 +325,20 @@ const RecordTestReportModal: React.FC<RecordTestReportModalProps> = ({
         {trigger || (
           <Button>
             <Plus className="h-4 w-4 mr-2" />
-            Record Test Report
+            {t("recordTestReport")}
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto" aria-describedby="record-report-description">
+      <DialogContent className= {cn("max-w-6xl max-h-[90vh] overflow-y-auto", isRTL && 'dir-rtl')} aria-describedby="record-report-description">
         <DialogHeader>
-          <DialogTitle className="flex items-center text-xl">
+          <DialogTitle className={cn("flex items-center text-xl", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
             <TestTube2 className="h-5 w-5 mr-2 text-blue-600" />
-            Record Test Report
+            {t("recordTestReport")}
           </DialogTitle>
-          <DialogDescription id="record-report-description">
-            Record test results received from external laboratories with file
-            attachments.
+          <DialogDescription id="record-report-description"
+          className={cn(isRTL && 'text-right', isRTL && 'flex-row-reverse')}
+          >
+            {t("recordTestDescription")}
           </DialogDescription>
         </DialogHeader>
 
@@ -337,27 +346,27 @@ const RecordTestReportModal: React.FC<RecordTestReportModalProps> = ({
           {/* Patient & Test Information */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg flex items-center">
-                <User className="h-4 w-4 mr-2" />
-                Patient & Test Information
+              <CardTitle className={cn("text-lg flex items-center", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
+                <User className= {cn("h-4 w-4 mr-2", isRTL && 'flex-row-reverse')} />
+               {t("patientTestInfo")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="patient">Patient *</Label>
+                  <Label htmlFor="patient"> {t("patient")} *</Label>
                   <Select
                     value={formData.patientId}
                     onValueChange={handlePatientSelect}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select patient" />
+                      <SelectValue placeholder = {t("selectPatient")} />
                     </SelectTrigger>
                     <SelectContent>
                       {dataLoading ? (
                         <div className="flex items-center justify-center p-2">
                           <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                          Loading patients...
+                          {t("loadingPatients")}
                         </div>
                       ) : (
                         patients.map((patient) => (
@@ -370,19 +379,19 @@ const RecordTestReportModal: React.FC<RecordTestReportModalProps> = ({
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="test">Test *</Label>
+                  <Label htmlFor="test"> {t("test")} *</Label>
                   <Select
                     value={formData.testId}
                     onValueChange={handleTestSelect}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select test" />
+                      <SelectValue placeholder={t("selectTest")} />
                     </SelectTrigger>
                     <SelectContent>
                       {dataLoading ? (
                         <div className="flex items-center justify-center p-2">
                           <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                          Loading tests...
+                          {t("loadingTests")}
                         </div>
                       ) : (
                         tests.map((test) => (
@@ -427,15 +436,15 @@ const RecordTestReportModal: React.FC<RecordTestReportModalProps> = ({
           {/* Vendor & Date Information */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg flex items-center">
-                <Building className="h-4 w-4 mr-2" />
-                Test Details
+              <CardTitle className= {cn("text-lg flex items-center", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
+                <Building className= {cn("h-4 w-4 mr-2", isRTL && 'flex-row-reverse')} />
+                {t("testDetails")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="externalVendor">External Vendor *</Label>
+                  <Label htmlFor="externalVendor"> {t("externalVendor")} *</Label>
                   <Select
                     value={formData.externalVendor}
                     onValueChange={(value) =>
@@ -455,7 +464,7 @@ const RecordTestReportModal: React.FC<RecordTestReportModalProps> = ({
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="testDate">Test Date *</Label>
+                  <Label htmlFor="testDate"> {t("testDate")} *</Label>
                   <Input
                     id="testDate"
                     type="date"
@@ -465,7 +474,7 @@ const RecordTestReportModal: React.FC<RecordTestReportModalProps> = ({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="recordedBy">Recorded By *</Label>
+                  <Label htmlFor="recordedBy"> {t("recordedBy")} *</Label>
                   <Select
                     value={formData.recordedBy}
                     onValueChange={(value) => handleChange("recordedBy", value)}
@@ -477,7 +486,7 @@ const RecordTestReportModal: React.FC<RecordTestReportModalProps> = ({
                       {dataLoading ? (
                         <div className="flex items-center justify-center p-2">
                           <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                          Loading users...
+                          {t("loadingUsers")}
                         </div>
                       ) : (
                         users.map((user) => (
@@ -496,9 +505,9 @@ const RecordTestReportModal: React.FC<RecordTestReportModalProps> = ({
           {/* File Upload */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg flex items-center">
-                <Upload className="h-4 w-4 mr-2" />
-                Report Attachments
+              <CardTitle className= {cn("text-lg flex items-center", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
+                <Upload className= {cn("h-4 w-4 mr-2", isRTL && 'flex-row-reverse')} />
+                {t("reportAttachments")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -515,7 +524,7 @@ const RecordTestReportModal: React.FC<RecordTestReportModalProps> = ({
                   <Upload className="mx-auto h-12 w-12 text-gray-400" />
                   <div className="mt-2">
                     <p className="text-sm text-gray-600">
-                      Click to upload or drag and drop
+                      {t("clickToUploadOrDragAndDrop")}
                     </p>
                     <p className="text-xs text-gray-500">
                       PDF, JPG, PNG, DOC files up to 10MB
@@ -577,15 +586,15 @@ const RecordTestReportModal: React.FC<RecordTestReportModalProps> = ({
           {/* Test Results */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg flex items-center">
-                <TestTube2 className="h-4 w-4 mr-2" />
-                Test Results & Interpretation
+              <CardTitle className= {cn("text-lg flex items-center", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
+                <TestTube2 className= {cn("h-4 w-4 mr-2", isRTL && 'flex-row-reverse')} />
+                {t("testResultsInterpretation")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="results">Test Results</Label>
+                  <Label htmlFor="results"> {t("testResults")}</Label>
                   <Textarea
                     id="results"
                     value={formData.results}
@@ -595,7 +604,7 @@ const RecordTestReportModal: React.FC<RecordTestReportModalProps> = ({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="normalValues">Normal Values</Label>
+                  <Label htmlFor="normalValues"> {t("normalValues")}</Label>
                   <Textarea
                     id="normalValues"
                     value={formData.normalValues}
@@ -609,7 +618,7 @@ const RecordTestReportModal: React.FC<RecordTestReportModalProps> = ({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="interpretation">Clinical Interpretation</Label>
+                <Label htmlFor="interpretation"> {t("clinicalInterpretation")}</Label>
                 <Textarea
                   id="interpretation"
                   value={formData.interpretation}
@@ -623,7 +632,7 @@ const RecordTestReportModal: React.FC<RecordTestReportModalProps> = ({
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="abnormalFindings">Abnormal Findings</Label>
+                  <Label htmlFor="abnormalFindings"> {t("abnormalFindings")}</Label>
                   <Textarea
                     id="abnormalFindings"
                     value={formData.abnormalFindings}
@@ -635,7 +644,7 @@ const RecordTestReportModal: React.FC<RecordTestReportModalProps> = ({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="recommendations">Recommendations</Label>
+                  <Label htmlFor="recommendations"> {t("recommendations")}</Label>
                   <Textarea
                     id="recommendations"
                     value={formData.recommendations}
@@ -649,7 +658,7 @@ const RecordTestReportModal: React.FC<RecordTestReportModalProps> = ({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="notes">Additional Notes</Label>
+                <Label htmlFor="notes"> {t("additionalNotes")}</Label>
                 <Textarea
                   id="notes"
                   value={formData.notes}
@@ -662,25 +671,27 @@ const RecordTestReportModal: React.FC<RecordTestReportModalProps> = ({
           </Card>
 
           {/* Form Actions */}
-          <div className="flex justify-end space-x-3 pt-4">
+          <div className= {cn("flex justify-end space-x-3 pt-4", isRTL && 'flex-row-reverse')}>
             <Button
               type="button"
               variant="outline"
               onClick={() => setOpen(false)}
               disabled={isLoading}
             >
-              Cancel
+              {t("cancel")}
             </Button>
             <Button type="submit" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                  Recording Report...
+                  {t("recordingReport")}
                 </>
               ) : (
                 <>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Record Test Report
+                                    <span className="flex items-center gap-2">
+    {isRTL ? t("recordTestReport") : <Plus className="h-4 w-4" />}
+    {!isRTL ? t("recordTestReport") : <Plus className="h-4 w-4" />}
+  </span>
                 </>
               )}
             </Button>

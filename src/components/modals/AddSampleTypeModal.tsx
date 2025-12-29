@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useTranslation } from "react-i18next";
+import { useIsRTL } from "@/hooks/useIsRTL";
+import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
@@ -78,6 +81,9 @@ const AddSampleTypeModal: React.FC<AddSampleTypeModalProps> = ({
     isActive: true,
   });
 
+
+  const { t } = useTranslation();
+  const isRTL = useIsRTL();
   // Initialize form with sample type data for editing
   useEffect(() => {
     if (sampleType) {
@@ -331,13 +337,13 @@ const AddSampleTypeModal: React.FC<AddSampleTypeModalProps> = ({
           {trigger}
         </DialogTrigger>
       )}
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className= {cn("max-w-4xl max-h-[90vh] overflow-y-auto", isRTL && 'dir-rtl')} aria-describedby="add-sample-type-description">
         <DialogHeader>
-          <DialogTitle className="flex items-center text-xl">
+          <DialogTitle className={cn("flex items-center text-xl", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
             <TestTube className="h-5 w-5 mr-2 text-blue-600" />
             {sampleType ? 'Edit Sample Type' : 'Add New Sample Type'}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className={cn(isRTL && 'text-right', isRTL && 'flex-row-reverse')} id="add-sample-type-description">
             {sampleType ? 'Update the sample type details below.' : 'Create a new sample type with collection and storage specifications.'}
           </DialogDescription>
         </DialogHeader>
@@ -346,7 +352,7 @@ const AddSampleTypeModal: React.FC<AddSampleTypeModalProps> = ({
           {/* Basic Information */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg flex items-center">
+              <CardTitle className= {cn("text-lg flex items-center", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
                 <TestTube className="h-4 w-4 mr-2" />
                 Basic Information
               </CardTitle>
@@ -442,7 +448,7 @@ const AddSampleTypeModal: React.FC<AddSampleTypeModalProps> = ({
           {/* Collection Specifications */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg flex items-center">
+              <CardTitle className= {cn("text-lg flex items-center", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
                 <FlaskConical className="h-4 w-4 mr-2" />
                 Collection Specifications
               </CardTitle>
@@ -534,7 +540,7 @@ const AddSampleTypeModal: React.FC<AddSampleTypeModalProps> = ({
           {/* Storage & Handling */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg flex items-center">
+              <CardTitle className= {cn("text-lg flex items-center", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
                 <Thermometer className="h-4 w-4 mr-2" />
                 Storage & Handling
               </CardTitle>
@@ -621,7 +627,7 @@ const AddSampleTypeModal: React.FC<AddSampleTypeModalProps> = ({
           {/* Quality & Safety */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg flex items-center">
+              <CardTitle className= {cn("text-lg flex items-center", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
                 <AlertTriangle className="h-4 w-4 mr-2" />
                 Quality & Safety
               </CardTitle>
@@ -658,7 +664,7 @@ const AddSampleTypeModal: React.FC<AddSampleTypeModalProps> = ({
           {/* Test Applications */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg flex items-center">
+              <CardTitle className= {cn("text-lg flex items-center", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
                 <CheckCircle className="h-4 w-4 mr-2" />
                 Test Applications
               </CardTitle>
@@ -680,13 +686,13 @@ const AddSampleTypeModal: React.FC<AddSampleTypeModalProps> = ({
           {/* Status */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg flex items-center">
+              <CardTitle className= {cn("text-lg flex items-center", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
                 <CheckCircle className="h-4 w-4 mr-2" />
                 Status
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center space-x-2">
+              <div className= {cn("flex items-center space-x-2", isRTL && 'flex-row-reverse')}>
                 <Checkbox
                   id="isActive"
                   checked={formData.isActive}
@@ -702,7 +708,7 @@ const AddSampleTypeModal: React.FC<AddSampleTypeModalProps> = ({
           </Card>
 
           {/* Form Actions */}
-          <div className="flex justify-end space-x-3 pt-4">
+          <div className= {cn("flex justify-end space-x-3 pt-4", isRTL && 'flex-row-reverse')}>
             <Button
               type="button"
               variant="outline"

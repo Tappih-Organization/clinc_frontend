@@ -956,7 +956,7 @@
   "Report Details": "Report Details",
   "Recorded:": "Recorded:",
   "Not recorded": "Not recorded",
-  "Code:": "Code:",
+ 
   "Internal": "Internal",
   "Vendor": "Vendor",
   "Status": "Status",
@@ -1527,7 +1527,7 @@
   "Vendor Details": "Vendor Details",
   "Contact Info": "Contact Info",
   "Performance": "Performance",
-  "Code:": "Code:",
+  "Code:": "Shape",
   "more": "more",
   "tests": "tests",
   "to": "to",
@@ -1647,7 +1647,138 @@
   "Select a user to view and manage their clinic access.": "Select a user to view and manage their clinic access.",
   "Access Granted": "Access Granted",
   "No Access": "No Access",
-  "clinics": "clinics"
+  "clinics": "clinics",
+  "addTesttitle": "Add New Laboratory Test",
+  "addTestdescription": "Create a new test and add it to the laboratory test list",
+
+  "addTestbasicInfo": "Basic Test Information",
+
+  "addTesttestName": "Test Name",
+  "addTesttestCode": "Test Code",
+  "addTestgenerate": "Generate",
+
+  "addTestcategory": "Category",
+  "addTestselectCategory": "Select test category",
+
+  "addTestturnaroundTime": "Turnaround Time",
+  "addTestselectTurnaround": "Select duration",
+
+  "addTestdescriptionLabel": "Description",
+  "addTestdescriptionPlaceholder": "Detailed description of what this test measures",
+
+  "addTestsampleType": "Sample Type",
+  "addTestselectSampleType": "Select sample type",
+
+  "addTestmethodology": "Methodology",
+  "addTestselectMethodology": "Select methodology",
+
+  "addTestnormalRange": "Normal Range",
+  "addTestunits": "Units",
+
+  "addTestcancel": "Cancel",
+
+  "addTestcreating": "Creating...",
+
+  "addTestcreate": "Create Test",
+
+
+  "recordTestReport": "Record Test Report",
+  "recordTestDescription": "Record test results received from external laboratories",
+
+  "patientTestInfo": "Patient and Test Information",
+
+  "patient": "Patient",
+  "selectPatient": "Select patient",
+  "loadingPatients": "Loading patients...",
+
+  "test": "Test",
+  "selectTest": "Select test",
+  "loadingTests": "Loading tests...",
+
+  "testResults": "Test Results",
+  "results": "Results",
+  "resultsPlaceholder": "Enter test results...",
+
+  "notes": "Additional Notes",
+
+
+  "cancel": "Cancel",
+  "recording": "Recording...",
+
+  "testDetails": "Test Details",
+  "externalVendor": "External Vendor ",
+  "selectVendor": "Select Vendor",
+  "testDate": "Test Date ",
+  "recordedBy": "Recorded By ",
+  "selectStaffMember": "Select Staff Member",
+  "reportAttachments": "Report Attachments",
+  "clickToUploadOrDragAndDrop": "Click to upload or drag and drop files here",
+  "testResultsInterpretation": "Test Results & Interpretation",
+  "normalValues": "Normal Values",
+  "referenceRanges": "Reference ranges for normal values...",
+  "clinicalInterpretation": "Clinical interpretation of results...",
+  "abnormalFindings": "Abnormal Findings",
+  "anyAbnormalFindings": "Any abnormal findings or critical values...",
+  "recommendations": "Recommendations",
+  "clinicalRecommendations": "Clinical recommendations based on results...",
+  "additionalNotes": "Additional Notes",
+  "notesPlaceholder": "Any notes or additional remarks...",
+
+
+
+
+
+ 
+    "addTestCategorytitle": "Add New Test Category",
+    "addTestCategorydescription": "Create a new test category to organize your laboratory tests effectively.",
+    "addTestCategorybasicInformation": "Basic Information",
+   
+      "categoryNamelabel": "Category Name *",
+      "categoryNameplaceholder": "e.g., Hematology",
+ 
+      "categoryCodelabel": "Category Code *",
+      "categoryCodeplaceholder": "e.g., HEM",
+      "categoryCodenote": "Auto-generate from category name or enter manually",
+
+      "descriptionFieldlabel": "Description *",
+      "descriptionFieldplaceholder": "Brief description of this test category...",
+  
+      "departmentlabel": "Department *",
+      "departmentplaceholder": "Select department",
+  
+    "visualSettings": "Visual Settings",
+    "icon": "Icon",
+ 
+      "iconOptionsfolder": "Folder",
+      "iconOptionsbeaker": "Beaker",
+      "iconOptionstestTube": "Test Tube",
+      "iconOptionsheart": "Heart",
+      "iconOptionslightning": "Lightning",
+      "iconOptionsmicroscope": "Microscope"
+    ,
+
+      "colorlabel": "Color",
+      "colorselected": "Selected "
+    ,
+    "preview": "Preview",
+    "categoryNamePreview": "Category Name",
+    "categoryCodePreview": "Code:: CODE",
+    "additionalInformation": "Additional Information",
+  
+      "commonTestslabel": "Common Tests",
+      "commonTestsplaceholder": "Enter common tests, separated by commas (e.g., CBC, ESR, Platelet Count)",
+      "commonTestsnote": "Enter test names separated by commas",
+ 
+      "sortOrderlabel": "Sort Order",
+      "sortOrderplaceholder": "0",
+      "sortOrdernote": "Lower numbers appear first in lists",
+
+    "activeCategory": "Active Category",
+    
+    
+      "buttonscreateCategory": "Create Category"
+    
+  
 }
 
 

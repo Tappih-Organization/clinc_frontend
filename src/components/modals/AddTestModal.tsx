@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useTranslation } from "react-i18next";
+import { useIsRTL } from "@/hooks/useIsRTL";
+import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
@@ -30,6 +33,8 @@ interface AddTestModalProps {
 }
 
 const AddTestModal: React.FC<AddTestModalProps> = ({ open, onOpenChange, onTestAdded }) => {
+  const { t } = useTranslation();
+  const isRTL = useIsRTL();
   const [isLoading, setIsLoading] = useState(false);
   const [categories, setCategories] = useState<TestCategory[]>([]);
   const [sampleTypes, setSampleTypes] = useState<SampleType[]>([]);
@@ -172,15 +177,18 @@ const AddTestModal: React.FC<AddTestModalProps> = ({ open, onOpenChange, onTestA
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+    <Dialog open={open} onOpenChange={onOpenChange} >
+      <DialogContent className={cn("max-w-4xl max-h-[90vh] overflow-y-auto ")}
+   
+      >
         <DialogHeader>
-          <DialogTitle className="flex items-center text-xl">
-            <TestTube2 className="h-5 w-5 mr-2 text-blue-600" />
-            Add New Laboratory Test
-          </DialogTitle>
-          <DialogDescription>
-            Create a new test for your laboratory test catalog.
+          <DialogTitle className={cn("flex items-center text-xl ", isRTL && 'text-right' , isRTL && 'flex-row-reverse')}>
+            <TestTube2 className= {cn("h-5 w-5 mr-2 text-blue-600", isRTL && 'flex-row-reverse')  } />
+
+            {t("addTesttitle")}
+              </DialogTitle>
+          <DialogDescription className={cn(isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
+          {t("addTestdescription")}
           </DialogDescription>
         </DialogHeader>
 
@@ -188,15 +196,15 @@ const AddTestModal: React.FC<AddTestModalProps> = ({ open, onOpenChange, onTestA
           {/* Basic Test Information */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg flex items-center">
+              <CardTitle className= {cn("text-lg flex items-center", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
                 <TestTube2 className="h-4 w-4 mr-2" />
-                Basic Test Information
+               {t("addTestbasicInfo")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Test Name *</Label>
+                  <Label htmlFor="name"> {t("addTesttestName")} *</Label>
                   <Input
                     id="name"
                     value={formData.name}
@@ -206,7 +214,7 @@ const AddTestModal: React.FC<AddTestModalProps> = ({ open, onOpenChange, onTestA
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="code">Test Code *</Label>
+                  <Label htmlFor="code"> {t("addTesttestCode")} *</Label>
                   <div className="flex space-x-2">
                     <Input
                       id="code"
@@ -222,7 +230,7 @@ const AddTestModal: React.FC<AddTestModalProps> = ({ open, onOpenChange, onTestA
                       onClick={generateTestCode}
                       className="whitespace-nowrap"
                     >
-                      Generate
+                     {t("addTestgenerate")}
                     </Button>
                   </div>
                 </div>
@@ -230,7 +238,7 @@ const AddTestModal: React.FC<AddTestModalProps> = ({ open, onOpenChange, onTestA
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="category">Category *</Label>
+                  <Label htmlFor="category"> {t("addTestcategory")} *</Label>
                   <Select
                     value={formData.category}
                     onValueChange={(value) => handleChange("category", value)}
@@ -249,7 +257,7 @@ const AddTestModal: React.FC<AddTestModalProps> = ({ open, onOpenChange, onTestA
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="turnaroundTime">Turnaround Time *</Label>
+                  <Label htmlFor="turnaroundTime"> {t("addTestturnaroundTime")} *</Label>
                   <Select
                     value={formData.turnaroundTime}
                     onValueChange={(value) => handleChange("turnaroundTime", value)}
@@ -269,7 +277,7 @@ const AddTestModal: React.FC<AddTestModalProps> = ({ open, onOpenChange, onTestA
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="description">Description *</Label>
+                <Label htmlFor="description"> {t("addTestdescriptionLabel")} *</Label>
                 <Textarea
                   id="description"
                   value={formData.description}
@@ -282,7 +290,7 @@ const AddTestModal: React.FC<AddTestModalProps> = ({ open, onOpenChange, onTestA
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="sampleType">Sample Type</Label>
+                  <Label htmlFor="sampleType"> {t("addTestsampleType")}</Label>
                   <Select
                     value={formData.sampleType || ""}
                     onValueChange={(value) => handleChange("sampleType", value)}
@@ -301,7 +309,7 @@ const AddTestModal: React.FC<AddTestModalProps> = ({ open, onOpenChange, onTestA
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="methodology">Methodology</Label>
+                  <Label htmlFor="methodology"> {t("addTestmethodology")}</Label>
                   <Select
                     value={formData.methodology || ""}
                     onValueChange={(value) => handleChange("methodology", value)}
@@ -322,7 +330,7 @@ const AddTestModal: React.FC<AddTestModalProps> = ({ open, onOpenChange, onTestA
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="normalRange">Normal Range</Label>
+                  <Label htmlFor="normalRange"> {t("addTestnormalRange")}</Label>
                   <Input
                     id="normalRange"
                     value={formData.normalRange || ""}
@@ -331,7 +339,7 @@ const AddTestModal: React.FC<AddTestModalProps> = ({ open, onOpenChange, onTestA
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="units">Units</Label>
+                  <Label htmlFor="units"> {t("addTestunits")}</Label>
                   <Input
                     id="units"
                     value={formData.units || ""}
@@ -344,25 +352,27 @@ const AddTestModal: React.FC<AddTestModalProps> = ({ open, onOpenChange, onTestA
           </Card>
 
           {/* Form Actions */}
-          <div className="flex justify-end space-x-3 pt-4">
+          <div className= {cn("flex justify-end space-x-3 pt-4", isRTL && 'flex-row-reverse')}>
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isLoading}
             >
-              Cancel
+               {t("addTestcancel")}
             </Button>
             <Button type="submit" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Creating Test...
+                  {t("addTestcreating")}
                 </>
               ) : (
                 <>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create Test
+                   <span className="flex items-center gap-2">
+    {isRTL ? t("addTestcreate") : <Plus className="h-4 w-4" />}
+    {!isRTL ? t("addTestcreate") : <Plus className="h-4 w-4" />}
+  </span>
                 </>
               )}
             </Button>

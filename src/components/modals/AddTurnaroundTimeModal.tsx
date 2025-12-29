@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useTranslation } from "react-i18next";
+import { useIsRTL } from "@/hooks/useIsRTL";
+import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
@@ -76,6 +79,8 @@ const AddTurnaroundTimeModal: React.FC<AddTurnaroundTimeModalProps> = ({
       color: "bg-purple-100 text-purple-800",
     },
   ];
+  const { t } = useTranslation();
+  const isRTL = useIsRTL();
 
   const categories = [
     "Emergency",
@@ -254,13 +259,13 @@ const AddTurnaroundTimeModal: React.FC<AddTurnaroundTimeModalProps> = ({
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className= {cn("max-w-4xl max-h-[90vh] overflow-y-auto", isRTL && 'dir-rtl')} aria-describedby="add-turnaround-time-description">
         <DialogHeader>
-          <DialogTitle className="flex items-center text-xl">
+          <DialogTitle className={cn("flex items-center text-xl", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
             <Clock className="h-5 w-5 mr-2 text-blue-600" />
             Add New Turnaround Time Category
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className={cn(isRTL && 'text-right', isRTL && 'flex-row-reverse')} id="add-turnaround-time-description">
             Create a new turnaround time category for laboratory tests.
           </DialogDescription>
         </DialogHeader>
@@ -269,7 +274,7 @@ const AddTurnaroundTimeModal: React.FC<AddTurnaroundTimeModalProps> = ({
           {/* Basic Information */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg flex items-center">
+              <CardTitle className={cn("text-lg flex items-center", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
                 <Timer className="h-4 w-4 mr-2" />
                 Basic Information
               </CardTitle>
@@ -385,7 +390,7 @@ const AddTurnaroundTimeModal: React.FC<AddTurnaroundTimeModalProps> = ({
           {/* Duration Settings */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg flex items-center">
+              <CardTitle className= {cn("text-lg flex items-center", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
                 <Clock className="h-4 w-4 mr-2" />
                 Duration Settings
               </CardTitle>
@@ -464,7 +469,7 @@ const AddTurnaroundTimeModal: React.FC<AddTurnaroundTimeModalProps> = ({
           {/* Test Examples & Applications */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg flex items-center">
+              <CardTitle className= {cn("text-lg flex items-center", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
                 <CheckCircle className="h-4 w-4 mr-2" />
                 Test Examples & Applications
               </CardTitle>
@@ -499,7 +504,7 @@ const AddTurnaroundTimeModal: React.FC<AddTurnaroundTimeModalProps> = ({
           {/* Critical Handling */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg flex items-center">
+              <CardTitle className= {cn("text-lg flex items-center", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
                 <AlertTriangle className="h-4 w-4 mr-2" />
                 Critical Handling
               </CardTitle>
@@ -538,13 +543,13 @@ const AddTurnaroundTimeModal: React.FC<AddTurnaroundTimeModalProps> = ({
           {/* Status */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg flex items-center">
+              <CardTitle className= {cn("text-lg flex items-center", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
                 <CheckCircle className="h-4 w-4 mr-2" />
                 Status
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center space-x-2">
+              <div className= {cn("flex items-center space-x-2", isRTL && 'flex-row-reverse')}>
                 <Checkbox
                   id="isActive"
                   checked={formData.isActive}
@@ -561,7 +566,7 @@ const AddTurnaroundTimeModal: React.FC<AddTurnaroundTimeModalProps> = ({
           </Card>
 
           {/* Form Actions */}
-          <div className="flex justify-end space-x-3 pt-4">
+          <div className= {cn("flex justify-end space-x-3 pt-4", isRTL && 'flex-row-reverse')}>
             <Button
               type="button"
               variant="outline"

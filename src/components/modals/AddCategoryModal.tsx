@@ -3,6 +3,8 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useIsRTL } from "@/hooks/useIsRTL";
+import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
@@ -43,6 +45,7 @@ interface AddCategoryModalProps {
 }
 
 const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ trigger }) => {
+  const isRTL = useIsRTL();
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState<CreateTestCategoryRequest>({
@@ -75,18 +78,18 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ trigger }) => {
   ];
 
   const iconOptions = [
-    { value: "folder", label: t("Folder"), icon: <Folder className="h-4 w-4" /> },
-    { value: "beaker", label: t("Beaker"), icon: <Beaker className="h-4 w-4" /> },
+    { value: "folder", label: t("iconOptionsfolder"), icon: <Folder className="h-4 w-4" /> },
+    { value: "beaker", label: t("iconOptionsbeaker"), icon: <Beaker className="h-4 w-4" /> },
     {
       value: "test-tube",
-      label: t("Test Tube"),
+      label: t("iconOptionstestTube"),
       icon: <TestTube2 className="h-4 w-4" />,
     },
-    { value: "heart", label: t("Heart"), icon: <Heart className="h-4 w-4" /> },
-    { value: "zap", label: t("Lightning"), icon: <Zap className="h-4 w-4" /> },
+    { value: "heart", label: t("iconOptionsheart"), icon: <Heart className="h-4 w-4" /> },
+    { value: "zap", label: t("iconOptionslightning"), icon: <Zap className="h-4 w-4" /> },
     {
       value: "microscope",
-      label: t("Microscope"),
+      label: t("iconOptionsmicroscope"),
       icon: <Microscope className="h-4 w-4" />,
     },
   ];
@@ -231,11 +234,11 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ trigger }) => {
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className= {cn("max-w-4xl max-h-[90vh] overflow-y-auto", isRTL && 'dir-rtl')} aria-describedby="add-category-description">
         <DialogHeader>
-          <DialogTitle>{t("Add New Test Category")}</DialogTitle>
-          <DialogDescription>
-            {t("Create a new test category to organize your laboratory tests effectively.")}
+          <DialogTitle>{t("addTestCategorytitle")}</DialogTitle>
+          <DialogDescription className={cn(isRTL && 'text-right', isRTL && 'flex-row-reverse')} id="add-category-description">
+            {t("addTestCategorydescription")}
           </DialogDescription>
         </DialogHeader>
 
@@ -245,33 +248,33 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ trigger }) => {
             <Card>
               <CardHeader>
                 <CardTitle className="text-base font-medium">
-                  {t("Basic Information")}
+                  {t("addTestCategorybasicInformation")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">
-                    {t("Category Name")} <span className="text-red-500">*</span>
+                    {t("categoryNamelabel")} <span className="text-red-500"></span>
                   </Label>
                   <Input
                     id="name"
                     value={formData.name}
                     onChange={(e) => handleChange("name", e.target.value)}
-                    placeholder={t("e.g., Hematology")}
+                    placeholder={t("categoryNameplaceholder")}
                     required
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="code">
-                    {t("Category Code")} <span className="text-red-500">*</span>
+                    {t("categoryCodelabel")} <span className="text-red-500"></span>
                   </Label>
                   <div className="flex space-x-2">
                     <Input
                       id="code"
                       value={formData.code}
                       onChange={(e) => handleChange("code", e.target.value.toUpperCase())}
-                      placeholder={t("e.g., HEM")}
+                      placeholder={t("categoryCodeplaceholder")}
                       className="flex-1"
                       required
                     />
@@ -285,7 +288,7 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ trigger }) => {
                     </Button>
                   </div>
                   <p className="text-xs text-gray-500">
-                    {t("Auto-generate from category name or enter manually")}
+                    {t("categoryCodenote")}
                   </p>
                 </div>
 
@@ -297,7 +300,7 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ trigger }) => {
                     id="description"
                     value={formData.description}
                     onChange={(e) => handleChange("description", e.target.value)}
-                    placeholder={t("Brief description of this test category...")}
+                    placeholder={t("descriptionFieldplaceholder")}
                     className="min-h-20"
                     required
                   />
@@ -313,7 +316,7 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ trigger }) => {
                     required
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder={t("Select department")} />
+                      <SelectValue placeholder={t("departmentplaceholder")} />
                     </SelectTrigger>
                     <SelectContent>
                       {departments.map((dept) => (
@@ -330,8 +333,8 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ trigger }) => {
             {/* Visual Settings */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-base font-medium">
-                  {t("Visual Settings")}
+                <CardTitle className= {cn("text-base font-medium", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
+                  {t("visualSettings")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -357,7 +360,7 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ trigger }) => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>{t("Color")}</Label>
+                  <Label>{t("colorlabel")}</Label>
                   <div className="grid grid-cols-6 gap-2">
                     {colorOptions.map((color) => (
                       <button
@@ -373,26 +376,26 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ trigger }) => {
                       />
                     ))}
                   </div>
-                  <div className="flex items-center space-x-2 mt-2">
+                  <div className= {cn("flex items-center space-x-2 mt-2", isRTL && 'flex-row-reverse')}>
                     <Palette className="h-4 w-4 text-gray-500" />
                     <span className="text-sm text-gray-600">
-                      {t("Selected:")}: {formData.color}
+                      {t("colorselected")}: {formData.color}
                     </span>
                   </div>
                 </div>
 
                 {/* Preview */}
-                <div className="space-y-2">
-                  <Label>{t("Preview")}</Label>
-                  <div className="p-3 border rounded-lg bg-gray-50">
-                    <div className="flex items-center space-x-3">
+                <div className= {cn("space-y-2", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
+                  <Label>{t("preview")}</Label>
+                  <div className= {cn("p-3 border rounded-lg bg-gray-50", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
+                    <div className= {cn("flex items-center space-x-3", isRTL && 'flex-row-reverse')}>
                       {getIconComponent(formData.icon, formData.color)}
                       <div>
-                        <div className="font-medium">
-                          {formData.name || t("Category Name")}
+                        <div className= {cn("font-medium", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
+                          {formData.name || t("")}
                         </div>
                         <div className="text-sm text-gray-500">
-                          {t("Code:")}: {formData.code || t("CODE")}
+                          {t("Code:")}
                         </div>
                       </div>
                     </div>
@@ -405,29 +408,27 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ trigger }) => {
           {/* Additional Information */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-base font-medium">
+              <CardTitle className= {cn("text-base font-medium", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
                 {t("Additional Information")}
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className= {cn("space-y-4", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="commonTests">{t("Common Tests")}</Label>
+                  <Label htmlFor="commonTests">{t("commonTestslabel")}</Label>
                   <Textarea
                     id="commonTests"
                     value={commonTestsInput}
                     onChange={(e) => setCommonTestsInput(e.target.value)}
-                    placeholder={t("Enter common tests, separated by commas (e.g., CBC, ESR, Platelet Count)")}
+                    placeholder={t("commonTestsplaceholder")}
                     className="min-h-20"
                   />
-                  <p className="text-xs text-gray-500">
-                    {t("Enter test names separated by commas")}
-                  </p>
+             
                 </div>
 
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="sortOrder">{t("Sort Order")}</Label>
+                    <Label htmlFor="sortOrder">{t("sortOrderlabel")}</Label>
                     <Input
                       id="sortOrder"
                       type="number"
@@ -436,19 +437,19 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ trigger }) => {
                       placeholder={t("0")}
                     />
                     <p className="text-xs text-gray-500">
-                      {t("Lower numbers appear first in lists")}
+                      {t("sortOrdernote")}
                     </p>
                   </div>
 
-                  <div className="flex items-center space-x-2">
+                  <div className= {cn("flex items-center space-x-2", isRTL && 'flex-row-reverse')}>
                     <Checkbox
                       id="isActive"
                       checked={formData.isActive}
                       onCheckedChange={(checked) => handleChange("isActive", checked)}
                     />
-                    <Label htmlFor="isActive" className="flex items-center space-x-2">
-                      <CheckCircle className="h-4 w-4 text-green-600" />
-                      <span>{t("Active Category")}</span>
+                    <Label htmlFor="isActive" className= {cn("flex items-center space-x-3")}>
+                      <CheckCircle className="h-4 w-4 text-green-600 ml-2" />
+                      <span>{t("activeCategory")}</span>
                     </Label>
                   </div>
                 </div>
@@ -457,7 +458,7 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ trigger }) => {
           </Card>
 
           {/* Submit Button */}
-          <div className="flex justify-end space-x-3 pt-4 border-t">
+          <div className= {cn("flex justify-end space-x-3 pt-4 border-t", isRTL && 'flex-row-reverse')}>
             <Button
               type="button"
               variant="outline"
@@ -477,8 +478,8 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ trigger }) => {
                 </>
               ) : (
                 <>
-                  <Plus className="h-4 w-4 mr-2" />
-                  {t("Create Category")}
+                  <span className="flex items-center gap-2">{isRTL ? t("buttonscreateCategory") : <Plus className=" mr-2 h-4 w-4" />}</span>
+                  {!isRTL ? t("buttonscreateCategory") : <Plus className="mr-2 h-4 w-4" />}
                 </>
               )}
             </Button>
