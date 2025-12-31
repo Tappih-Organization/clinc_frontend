@@ -1776,8 +1776,277 @@
     "activeCategory": "Active Category",
     
     
-      "buttonscreateCategory": "Create Category"
+      "buttonscreateCategory": "Create Category",
+
+
+
+
+
+
+
+
+
+      "addMethodologyTitle": "Add New Test Methodology",
+      "addMethodologyDescription": "Create a new testing methodology with detailed specifications and procedures.",
     
+      "basicInformation": "Basic Information",
+    
+      "methodologyNameLabel": "Methodology Name *",
+      "methodologyNamePlaceholder": "e.g., Automated Cell Counter",
+    
+      "methodologyCodeLabel": "Code *",
+      "methodologyCodePlaceholder": "e.g., HEM-AUTOCNT01",
+    
+      "generate": "Generate",
+    
+      "categoryLabel": "Category *",
+      "categoryPlaceholder": "Select category",
+    
+      "descriptionLabel": "Description *",
+      "descriptionPlaceholder": "Detailed description of the methodology...",
+    
+      "technicalSpecifications": "Technical Specifications",
+    
+      "principlesLabel": "Principles *",
+      "principlesPlaceholder": "Scientific principles behind the methodology...",
+    
+      "equipmentRequiredLabel": "Equipment Required",
+      "equipmentRequiredPlaceholder": "List of required equipment...",
+    
+      "applicationsLabel": "Applications",
+      "applicationsPlaceholder": "Tests and applications that use this methodology (one per line or comma-separated)...",
+    
+      "advantagesAndLimitations": "Advantages & Limitations",
+    
+      "advantagesLabel": "Advantages",
+      "advantagesPlaceholder": "Key advantages and benefits...",
+    
+      "limitationsLabel": "Limitations",
+      "limitationsPlaceholder": "Known limitations and considerations...",
+    
+      "status": "Status",
+      "statusDescription": "Make this methodology active and available for use",
+
+      "buttonscreateMethodology": "Create Methodology",
+
+
+
+
+
+
+      "addTatCategoryTitle": "Add New Turnaround Time Category",
+  "addTatCategoryDescription": "Create a new turnaround time category for laboratory tests.",
+
+  "basicInformation": "Basic Information",
+
+  "tatCategoryNameLabel": "Category Name *",
+  "tatCategoryNamePlaceholder": "e.g., STAT (Emergency)",
+
+  "tatCategoryCodeLabel": "Code *",
+  "tatCategoryCodePlaceholder": "e.g., TAT-STAT01",
+
+  "generate": "Generate",
+
+  "priorityLabel": "Priority *",
+  "priorityPlaceholder": "Select priority",
+
+  "categoryLabel": "Category *",
+  "categoryPlaceholder": "Select category",
+
+  "descriptionLabel": "Description *",
+  "descriptionPlaceholder": "Describe when this turnaround time category should be used...",
+
+  "durationSettings": "Duration Settings",
+
+  "durationDisplayLabel": "Duration Display *",
+  "durationDisplayPlaceholder": "e.g., < 1 hour, 4–6 hours",
+
+  "durationMinutesLabel": "Duration (Minutes) *",
+  "durationMinutesPlaceholder": "e.g., 60, 360",
+
+  "quickDurationPresets": "Quick Duration Presets",
+
+  "preset30Min": "< 30 minutes",
+  "preset1Hour": "< 1 hour",
+  "preset1To2Hours": "1–2 hours",
+  "preset2To4Hours": "2–4 hours",
+  "preset4To6Hours": "4–6 hours",
+  "preset6To8Hours": "6–8 hours",
+  "preset8To12Hours": "8–12 hours",
+  "preset12To24Hours": "12–24 hours",
+  "preset1To2Days": "1–2 days",
+  "preset2To3Days": "2–3 days",
+  "preset3To5Days": "3–5 days",
+  "preset1To2Weeks": "1–2 weeks",
+
+  "slaCommitmentLabel": "SLA Commitment",
+  "slaCommitmentPlaceholder": "e.g., 95% of tests within the defined timeframe",
+
+  "reportingHoursLabel": "Reporting Hours",
+  "reportingHoursPlaceholder": "e.g., 24/7, business hours only",
+
+  "testExamplesAndApplications": "Test Examples & Applications",
+
+  "testExamplesLabel": "Test Examples",
+  "testExamplesPlaceholder": "List tests that typically use this turnaround time (separated by commas)...",
+
+  "businessRulesLabel": "Business Rules",
+  "businessRulesPlaceholder": "When should this turnaround time be applied? Any special conditions?",
+
+  "criticalHandling": "Critical Handling",
+
+  "criticalNotesLabel": "Critical Notes",
+  "criticalNotesPlaceholder": "Important notes for handling tests in this category...",
+
+  "escalationProcedureLabel": "Escalation Procedure",
+  "escalationProcedurePlaceholder": "What should be done if the turnaround time cannot be met?",
+
+  "status": "Status",
+  "statusDescription": "Make this turnaround time category active and available for use",
+  "buttonscreateTurnaroundTime": "Create Turnaround Time",
+
+
+
+
+
+
+
+
+
+"sampleType.addTitle": "Add New Sample Type",
+  "sampleType.editTitle": "Edit Sample Type",
+
+  "sampleType.addDescription": "Create a new sample type with collection and storage specifications.",
+  "sampleType.editDescription": "Update the sample type information below.",
+
+  "sampleType.basicInformation": "Basic Information",
+
+  "sampleType.nameLabel": "Sample Type Name *",
+  "sampleType.namePlaceholder": "e.g., Whole Blood",
+
+  "sampleType.codeLabel": "Code *",
+  "sampleType.codePlaceholder": "e.g., WB",
+
+  "sampleType.generate": "Generate",
+
+  "sampleType.categoryLabel": "Category *",
+  "sampleType.categoryPlaceholder": "Select category",
+
+  "sampleType.descriptionLabel": "Description *",
+  "sampleType.descriptionPlaceholder": "Detailed description of the sample type...",
+
+  "sampleType.collectionSpecifications": "Collection Specifications",
+
+  "sampleType.collectionMethodLabel": "Collection Method *",
+  "sampleType.collectionMethodPlaceholder": "Select method",
+
+  "sampleType.volumeLabel": "Volume Required",
+  "sampleType.volumePlaceholder": "e.g., 3–5 mL",
+
+  "sampleType.containerLabel": "Container Type",
+  "sampleType.containerPlaceholder": "Select container",
+
+  "sampleType.preservativeLabel": "Preservative / Anticoagulant",
+  "sampleType.preservativePlaceholder": "e.g., EDTA, Heparin, None",
+
+  "sampleType.specialInstructionsLabel": "Special Collection Instructions",
+  "sampleType.specialInstructionsPlaceholder": "Any special instructions for sample collection...",
+
+  "sampleType.storageAndHandling": "Storage & Handling",
+
+  "sampleType.storageTemperatureLabel": "Storage Temperature",
+  "sampleType.storageTemperaturePlaceholder": "Select temperature",
+
+  "sampleType.storageTimeLabel": "Storage Time / Stability",
+  "sampleType.storageTimePlaceholder": "e.g., 24 hours, 7 days",
+
+  "sampleType.processingTimeLabel": "Processing Time",
+  "sampleType.processingTimePlaceholder": "e.g., Process within 2 hours",
+
+  "sampleType.transportConditionsLabel": "Transport Conditions",
+  "sampleType.transportConditionsPlaceholder": "e.g., Room temperature, Ice",
+
+  "sampleType.handlingRequirementsLabel": "Handling Requirements",
+  "sampleType.handlingRequirementsPlaceholder": "Special handling requirements and precautions...",
+
+  "sampleType.qualityAndSafety": "Quality & Safety",
+
+  "sampleType.rejectionCriteriaLabel": "Rejection Criteria",
+  "sampleType.rejectionCriteriaPlaceholder": "Conditions under which the sample should be rejected...",
+
+  "sampleType.safetyPrecautionsLabel": "Safety Precautions",
+  "sampleType.safetyPrecautionsPlaceholder": "Safety measures and precautions during handling...",
+
+  "sampleType.testApplications": "Test Applications",
+
+  "sampleType.commonTestsLabel": "Common Tests",
+  "sampleType.commonTestsPlaceholder": "List common tests performed on this sample type (comma-separated)...",
+
+  "sampleType.status": "Status",
+  "sampleType.activeLabel": "Make this sample type active and available for use",
+
+  "common.cancel": "Cancel",
+  "common.create": "Create",
+  "common.update": "Update",
+  "common.creating": "Creating...",
+  "common.updating": "Updating...",
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  "test.externalVendorLabel": "External Laboratory *",
+  "test.externalVendorPlaceholder": "Select laboratory",
+
+  "test.testDateLabel": "Test Date *",
+  "test.testDatePlaceholder": "MM/DD/YYYY",
+
+  "test.recordedByLabel": "Recorded By *",
+  "test.recordedByPlaceholder": "Select staff member",
+
+  "test.reportAttachmentsLabel": "Report Attachments",
+  "test.reportAttachmentsPlaceholder": "Click to upload or drag and drop files here",
+  "test.reportAttachmentsHint": "PDF, JPG, PNG, DOC files up to 10MB",
+
+  "test.resultsAndInterpretation": "Test Results and Interpretation",
+
+  "test.testResultsLabel": "Test Results",
+  "test.testResultsPlaceholder": "Enter detailed test results...",
+
+  "test.normalValuesLabel": "Normal Values",
+  "test.normalValuesPlaceholder": "Reference ranges for normal values...",
+
+  "test.clinicalInterpretationLabel": "Clinical Interpretation",
+  "test.clinicalInterpretationPlaceholder": "Clinical interpretation of test results...",
+
+  "test.abnormalFindingsLabel": "Abnormal Findings",
+  "test.abnormalFindingsPlaceholder": "Any abnormal findings or critical values...",
+
+  "test.recommendationsLabel": "Recommendations",
+  "test.recommendationsPlaceholder": "Clinical recommendations based on results...",
+
+  "test.additionalNotesLabel": "Additional Notes",
+  "test.additionalNotesPlaceholder": "Any additional notes or observations...",
+
+  "common.cancel": "Cancel"
+
+
+
+
+
   
 }
 

@@ -66,7 +66,27 @@ const OdontogramHistoryModal: React.FC<OdontogramHistoryModalProps> = ({
     try {
       setLoading(true);
       const response = await odontogramApi.getPatientHistory(patientId);
-      setHistoryData(response);
+      
+      // Construct OdontogramHistory with patient info from the first odontogram
+      const patientInfo = response.odontograms.length > 0 && response.odontograms[0].patient_id
+        ? {
+            _id: response.odontograms[0].patient_id._id,
+            full_name: response.odontograms[0].patient_id.full_name,
+            age: response.odontograms[0].patient_id.age,
+          }
+        : {
+            _id: patientId,
+            full_name: patientName || 'Unknown Patient',
+            age: 0,
+          };
+      
+      const historyData: OdontogramHistory = {
+        patient: patientInfo,
+        odontograms: response.odontograms,
+        pagination: response.pagination,
+      };
+      
+      setHistoryData(historyData);
       
       // Auto-select the most recent odontogram
       if (response.odontograms.length > 0) {

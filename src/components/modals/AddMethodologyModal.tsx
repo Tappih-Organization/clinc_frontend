@@ -191,11 +191,10 @@ const AddMethodologyModal: React.FC<AddMethodologyModalProps> = ({
         <DialogHeader>
           <DialogTitle className={cn("flex items-center text-xl", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
             <Settings className="h-5 w-5 mr-2 text-blue-600" />
-            Add New Test Methodology
+            {t("addMethodologyTitle")}
           </DialogTitle>
           <DialogDescription className={cn(isRTL && 'text-right', isRTL && 'flex-row-reverse')} id="add-methodology-description">
-            Create a new testing methodology with detailed specifications and
-            procedures.
+            {t("addMethodologyDescription")}
           </DialogDescription>
         </DialogHeader>
 
@@ -205,23 +204,23 @@ const AddMethodologyModal: React.FC<AddMethodologyModalProps> = ({
             <CardHeader >
               <CardTitle className={cn("text-lg flex items-center", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
                 <Beaker className="h-4 w-4 mr-2" />
-                Basic Information
+                {t("basicInformation")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Methodology Name *</Label>
+                  <Label htmlFor="name"> {t("methodologyNameLabel")} </Label>
                   <Input
                     id="name"
                     value={formData.name}
                     onChange={(e) => handleChange("name", e.target.value)}
-                    placeholder="e.g., Automated Cell Counter"
+                    placeholder={t("methodologyNamePlaceholder")}
                     required
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="code">Code *</Label>
+                  <Label htmlFor="code"> {t("methodologyCodeLabel")} </Label>
                   <div className="flex space-x-2">
                     <Input
                       id="code"
@@ -229,7 +228,7 @@ const AddMethodologyModal: React.FC<AddMethodologyModalProps> = ({
                       onChange={(e) =>
                         handleChange("code", e.target.value.toUpperCase())
                       }
-                      placeholder="e.g., HEM-AUTOCNT01"
+                      placeholder={t("methodologyCodePlaceholder")}
                       className="flex-1"
                       required
                     />
@@ -239,20 +238,20 @@ const AddMethodologyModal: React.FC<AddMethodologyModalProps> = ({
                       onClick={generateCode}
                       className="whitespace-nowrap"
                     >
-                      Generate
+                      {t("generate")}
                     </Button>
                   </div>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="category">Category *</Label>
+                <Label htmlFor="category"> {t("categoryLabel")} </Label>
                 <Select
                   value={formData.category}
                   onValueChange={(value) => handleChange("category", value)}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
+                    <SelectValue placeholder= {t("categoryPlaceholder")} />
                   </SelectTrigger>
                   <SelectContent>
                     {categories.map((category) => (
@@ -265,12 +264,12 @@ const AddMethodologyModal: React.FC<AddMethodologyModalProps> = ({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="description">Description *</Label>
+                <Label htmlFor="description"> {t("descriptionLabel")} </Label>
                 <Textarea
                   id="description"
                   value={formData.description}
                   onChange={(e) => handleChange("description", e.target.value)}
-                  placeholder="Detailed description of the methodology..."
+                  placeholder= {t("descriptionPlaceholder")}
                   rows={3}
                   required
                 />
@@ -283,17 +282,17 @@ const AddMethodologyModal: React.FC<AddMethodologyModalProps> = ({
             <CardHeader>
               <CardTitle className= {cn("text-lg flex items-center", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
                 <TestTube2 className="h-4 w-4 mr-2" />
-                Technical Specifications
+                {t("technicalSpecifications")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="principles">Principles *</Label>
+                <Label htmlFor="principles"> {t("principlesLabel")} </Label>
                 <Textarea
                   id="principles"
                   value={formData.principles}
                   onChange={(e) => handleChange("principles", e.target.value)}
-                  placeholder="Scientific principles behind the methodology..."
+                  placeholder= {t("principlesPlaceholder")}
                   rows={3}
                   required
                 />
@@ -301,12 +300,12 @@ const AddMethodologyModal: React.FC<AddMethodologyModalProps> = ({
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="equipment">Equipment Required</Label>
+                  <Label htmlFor="equipment"> {t("equipmentRequiredLabel")} </Label>
                   <Textarea
                     id="equipment"
                     value={formData.equipment}
                     onChange={(e) => handleChange("equipment", e.target.value)}
-                    placeholder="List of required equipment..."
+                    placeholder= {t("equipmentRequiredPlaceholder")}
                     rows={3}
                   />
                 </div>
@@ -314,12 +313,12 @@ const AddMethodologyModal: React.FC<AddMethodologyModalProps> = ({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="applications">Applications</Label>
+                <Label htmlFor="applications"> {t("applicationsLabel")} </Label>
                 <Textarea
                   id="applications"
                   value={applicationsText}
                   onChange={(e) => handleApplicationsChange(e.target.value)}
-                  placeholder="Tests and applications that use this methodology (one per line or comma-separated)..."
+                  placeholder= {t("applicationsPlaceholder")}
                   rows={2}
                 />
               </div>
@@ -333,30 +332,30 @@ const AddMethodologyModal: React.FC<AddMethodologyModalProps> = ({
             <CardHeader>
               <CardTitle className= {cn("text-lg flex items-center", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
                 <CheckCircle className="h-4 w-4 mr-2" />
-                Advantages & Limitations
+                {t("advantagesAndLimitations")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="advantages">Advantages</Label>
+                  <Label htmlFor="advantages"> {t("advantagesLabel")} </Label>
                   <Textarea
                     id="advantages"
                     value={formData.advantages}
                     onChange={(e) => handleChange("advantages", e.target.value)}
-                    placeholder="Key advantages and benefits..."
+                    placeholder= {t("advantagesPlaceholder")}
                     rows={3}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="limitations">Limitations</Label>
+                  <Label htmlFor="limitations"> {t("limitationsLabel")} </Label>
                   <Textarea
                     id="limitations"
                     value={formData.limitations}
                     onChange={(e) =>
                       handleChange("limitations", e.target.value)
                     }
-                    placeholder="Known limitations and considerations..."
+                    placeholder= {t("limitationsPlaceholder")}
                     rows={3}
                   />
                 </div>
@@ -371,7 +370,7 @@ const AddMethodologyModal: React.FC<AddMethodologyModalProps> = ({
             <CardHeader>
               <CardTitle className= {cn("text-lg flex items-center", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
                 <CheckCircle className="h-4 w-4 mr-2" />
-                Status
+                {t("status")}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -384,7 +383,7 @@ const AddMethodologyModal: React.FC<AddMethodologyModalProps> = ({
                   }
                 />
                 <Label htmlFor="isActive" className="text-sm">
-                  Make this methodology active and available for use
+                  {t("statusDescription")}
                 </Label>
               </div>
             </CardContent>
@@ -398,7 +397,7 @@ const AddMethodologyModal: React.FC<AddMethodologyModalProps> = ({
               onClick={() => setOpen(false)}
               disabled={isLoading}
             >
-              Cancel
+                { t("cancel")}
             </Button>
             <Button type="submit" disabled={isLoading}>
               {isLoading ? (
@@ -408,8 +407,10 @@ const AddMethodologyModal: React.FC<AddMethodologyModalProps> = ({
                 </>
               ) : (
                 <>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create Methodology
+                   <span className="flex items-center gap-2">
+    {isRTL ? t("buttonscreateMethodology") : <Plus className="h-4 w-4" />}
+    {!isRTL ? t("buttonscreateMethodology") : <Plus className="h-4 w-4" />}
+  </span>
                 </>
               )}
             </Button>

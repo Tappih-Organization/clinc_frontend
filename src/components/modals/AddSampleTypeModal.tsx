@@ -341,10 +341,10 @@ const AddSampleTypeModal: React.FC<AddSampleTypeModalProps> = ({
         <DialogHeader>
           <DialogTitle className={cn("flex items-center text-xl", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
             <TestTube className="h-5 w-5 mr-2 text-blue-600" />
-            {sampleType ? 'Edit Sample Type' : 'Add New Sample Type'}
+            {sampleType ? t("sampleType.editTitle") :t("sampleType.addTitle")}
           </DialogTitle>
           <DialogDescription className={cn(isRTL && 'text-right', isRTL && 'flex-row-reverse')} id="add-sample-type-description">
-            {sampleType ? 'Update the sample type details below.' : 'Create a new sample type with collection and storage specifications.'}
+            {sampleType ? t("sampleType.editDescription") : t("sampleType.addDescription")}
           </DialogDescription>
         </DialogHeader>
 
@@ -354,23 +354,23 @@ const AddSampleTypeModal: React.FC<AddSampleTypeModalProps> = ({
             <CardHeader>
               <CardTitle className= {cn("text-lg flex items-center", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
                 <TestTube className="h-4 w-4 mr-2" />
-                Basic Information
+{t("sampleType.basicInformation")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Sample Type Name *</Label>
+                  <Label htmlFor="name">{t("sampleType.nameLabel")}</Label>
                   <Input
                     id="name"
                     value={formData.name}
                     onChange={(e) => handleChange("name", e.target.value)}
-                    placeholder="e.g., Whole Blood"
+                    placeholder={t("sampleType.namePlaceholder")}
                     required
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="code">Code *</Label>
+                  <Label htmlFor="code"> {t("sampleType.codeLabel")}</Label>
                   <div className="flex space-x-2">
                     <Input
                       id="code"
@@ -378,7 +378,7 @@ const AddSampleTypeModal: React.FC<AddSampleTypeModalProps> = ({
                       onChange={(e) =>
                         handleChange("code", e.target.value.toUpperCase())
                       }
-                      placeholder="e.g., WB"
+                      placeholder={t("sampleType.codePlaceholder")}
                       className="flex-1"
                       required
                     />
@@ -388,20 +388,20 @@ const AddSampleTypeModal: React.FC<AddSampleTypeModalProps> = ({
                       onClick={generateCode}
                       className="whitespace-nowrap"
                     >
-                      Generate
+                      {t("sampleType.generate")}
                     </Button>
                   </div>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="category">Category *</Label>
+                <Label htmlFor="category"> {t("sampleType.categoryLabel")}</Label>
                 <Select
                   value={formData.category}
                   onValueChange={(value) => handleChange("category", value)}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
+                    <SelectValue placeholder={t("sampleType.categoryPlaceholder")} />
                   </SelectTrigger>
                   <SelectContent>
                     {categories.map((category) => (
@@ -417,12 +417,12 @@ const AddSampleTypeModal: React.FC<AddSampleTypeModalProps> = ({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="description">Description *</Label>
+                <Label htmlFor="description"> {t("sampleType.descriptionLabel")}</Label>
                 <Textarea
                   id="description"
                   value={formData.description}
                   onChange={(e) => handleChange("description", e.target.value)}
-                  placeholder="Detailed description of the sample type..."
+                  placeholder={t("sampleType.descriptionPlaceholder")}
                   rows={3}
                   required
                 />
@@ -450,13 +450,13 @@ const AddSampleTypeModal: React.FC<AddSampleTypeModalProps> = ({
             <CardHeader>
               <CardTitle className= {cn("text-lg flex items-center", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
                 <FlaskConical className="h-4 w-4 mr-2" />
-                Collection Specifications
+{t("sampleType.collectionSpecifications")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="collectionMethod">Collection Method *</Label>
+                  <Label htmlFor="collectionMethod"> {t("sampleType.collectionMethodLabel")} </Label>
                   <Select
                     value={formData.collectionMethod}
                     onValueChange={(value) =>
@@ -464,7 +464,7 @@ const AddSampleTypeModal: React.FC<AddSampleTypeModalProps> = ({
                     }
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select method" />
+                      <SelectValue placeholder={t("sampleType.collectionMethodPlaceholder")} />
                     </SelectTrigger>
                     <SelectContent>
                       {collectionMethods.map((method) => (
@@ -476,25 +476,25 @@ const AddSampleTypeModal: React.FC<AddSampleTypeModalProps> = ({
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="volume">Volume Required</Label>
+                  <Label htmlFor="volume"> {t("sampleType.volumeLabel")}</Label>
                   <Input
                     id="volume"
                     value={formData.volume}
                     onChange={(e) => handleChange("volume", e.target.value)}
-                    placeholder="e.g., 3-5 mL"
+                    placeholder={t("sampleType.volumePlaceholder")}
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="container">Container Type</Label>
+                  <Label htmlFor="container">={t("sampleType.containerLabel")}</Label>
                   <Select
                     value={formData.container}
                     onValueChange={(value) => handleChange("container", value)}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select container" />
+                      <SelectValue placeholder={t("sampleType.containerPlaceholder")} />
                     </SelectTrigger>
                     <SelectContent>
                       {containers.map((container) => (
@@ -507,7 +507,7 @@ const AddSampleTypeModal: React.FC<AddSampleTypeModalProps> = ({
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="preservative">
-                    Preservative/Anticoagulant
+                  {t("sampleType.preservativeLabel")}
                   </Label>
                   <Input
                     id="preservative"
@@ -515,14 +515,14 @@ const AddSampleTypeModal: React.FC<AddSampleTypeModalProps> = ({
                     onChange={(e) =>
                       handleChange("preservative", e.target.value)
                     }
-                    placeholder="e.g., EDTA, Heparin, None"
+                    placeholder={t("sampleType.preservativePlaceholder")}
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="specialInstructions">
-                  Special Collection Instructions
+                {t("sampleType.specialInstructionsLabel")}
                 </Label>
                 <Textarea
                   id="specialInstructions"
@@ -530,7 +530,7 @@ const AddSampleTypeModal: React.FC<AddSampleTypeModalProps> = ({
                   onChange={(e) =>
                     handleChange("specialInstructions", e.target.value)
                   }
-                  placeholder="Any special instructions for collection..."
+                  placeholder={t("sampleType.specialInstructionsPlaceholder")}
                   rows={2}
                 />
               </div>
@@ -542,13 +542,13 @@ const AddSampleTypeModal: React.FC<AddSampleTypeModalProps> = ({
             <CardHeader>
               <CardTitle className= {cn("text-lg flex items-center", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
                 <Thermometer className="h-4 w-4 mr-2" />
-                Storage & Handling
+                {t("sampleType.storageAndHandling")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="storageTemp">Storage Temperature</Label>
+                  <Label htmlFor="storageTemp">{t("sampleType.storageTemperatureLabel")}</Label>
                   <Select
                     value={formData.storageTemp}
                     onValueChange={(value) =>
@@ -556,7 +556,7 @@ const AddSampleTypeModal: React.FC<AddSampleTypeModalProps> = ({
                     }
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select temperature" />
+                      <SelectValue placeholder={t("sampleType.storageTemperaturePlaceholder")}/>
                     </SelectTrigger>
                     <SelectContent>
                       {storageTemperatures.map((temp) => (
@@ -568,33 +568,33 @@ const AddSampleTypeModal: React.FC<AddSampleTypeModalProps> = ({
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="storageTime">Storage Time/Stability</Label>
+                  <Label htmlFor="storageTime">{t("sampleType.storageTimeLabel")}</Label>
                   <Input
                     id="storageTime"
                     value={formData.storageTime}
                     onChange={(e) =>
                       handleChange("storageTime", e.target.value)
                     }
-                    placeholder="e.g., 24 hours, 7 days"
+                    placeholder={t("sampleType.storageTimePlaceholder")}
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="processingTime">Processing Time</Label>
+                  <Label htmlFor="processingTime">{t("sampleType.processingTimeLabel")}</Label>
                   <Input
                     id="processingTime"
                     value={formData.processingTime}
                     onChange={(e) =>
                       handleChange("processingTime", e.target.value)
                     }
-                    placeholder="e.g., Process within 2 hours"
+                    placeholder={t("sampleType.processingTimePlaceholder")}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="transportConditions">
-                    Transport Conditions
+                  {t("sampleType.transportConditionsLabel")}
                   </Label>
                   <Input
                     id="transportConditions"
@@ -602,14 +602,14 @@ const AddSampleTypeModal: React.FC<AddSampleTypeModalProps> = ({
                     onChange={(e) =>
                       handleChange("transportConditions", e.target.value)
                     }
-                    placeholder="e.g., Room temperature, Ice"
+                    placeholder={t("sampleType.transportConditionsPlaceholder")}
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="handlingRequirements">
-                  Handling Requirements
+                {t("sampleType.handlingRequirementsLabel")}
                 </Label>
                 <Textarea
                   id="handlingRequirements"
@@ -617,7 +617,7 @@ const AddSampleTypeModal: React.FC<AddSampleTypeModalProps> = ({
                   onChange={(e) =>
                     handleChange("handlingRequirements", e.target.value)
                   }
-                  placeholder="Special handling requirements and precautions..."
+                  placeholder={t("sampleType.handlingRequirementsPlaceholder")}
                   rows={2}
                 />
               </div>
@@ -629,32 +629,32 @@ const AddSampleTypeModal: React.FC<AddSampleTypeModalProps> = ({
             <CardHeader>
               <CardTitle className= {cn("text-lg flex items-center", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
                 <AlertTriangle className="h-4 w-4 mr-2" />
-                Quality & Safety
+                {t("sampleType.qualityAndSafety")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="rejectionCriteria">Rejection Criteria</Label>
+                <Label htmlFor="rejectionCriteria">{t("sampleType.rejectionCriteriaLabel")}</Label>
                 <Textarea
                   id="rejectionCriteria"
                   value={formData.rejectionCriteria}
                   onChange={(e) =>
                     handleChange("rejectionCriteria", e.target.value)
                   }
-                  placeholder="Conditions under which the sample should be rejected..."
+                  placeholder={t("sampleType.rejectionCriteriaPlaceholder")}
                   rows={2}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="safetyPrecautions">Safety Precautions</Label>
+                <Label htmlFor="safetyPrecautions">{t("sampleType.safetyPrecautionsLabel")}</Label>
                 <Textarea
                   id="safetyPrecautions"
                   value={formData.safetyPrecautions}
                   onChange={(e) =>
                     handleChange("safetyPrecautions", e.target.value)
                   }
-                  placeholder="Safety measures and precautions for handling..."
+                  placeholder={t("sampleType.safetyPrecautionsPlaceholder")}
                   rows={2}
                 />
               </div>
@@ -666,17 +666,17 @@ const AddSampleTypeModal: React.FC<AddSampleTypeModalProps> = ({
             <CardHeader>
               <CardTitle className= {cn("text-lg flex items-center", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
                 <CheckCircle className="h-4 w-4 mr-2" />
-                Test Applications
+                {t("sampleType.testApplications")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="commonTests">Common Tests</Label>
+                <Label htmlFor="commonTests">{t("sampleType.commonTestsLabel")}</Label>
                 <Textarea
                   id="commonTests"
                   value={formData.commonTests}
                   onChange={(e) => handleChange("commonTests", e.target.value)}
-                  placeholder="List common tests performed on this sample type (separate with commas)..."
+                  placeholder={t("sampleType.commonTestsPlaceholder")}
                   rows={3}
                 />
               </div>
@@ -688,7 +688,7 @@ const AddSampleTypeModal: React.FC<AddSampleTypeModalProps> = ({
             <CardHeader>
               <CardTitle className= {cn("text-lg flex items-center", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
                 <CheckCircle className="h-4 w-4 mr-2" />
-                Status
+                {t("status")}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -701,7 +701,7 @@ const AddSampleTypeModal: React.FC<AddSampleTypeModalProps> = ({
                   }
                 />
                 <Label htmlFor="isActive" className="text-sm">
-                  Make this sample type active and available for use
+                {t("sampleType.activeLabel")}
                 </Label>
               </div>
             </CardContent>
@@ -715,18 +715,20 @@ const AddSampleTypeModal: React.FC<AddSampleTypeModalProps> = ({
               onClick={() => setModalOpen(false)}
               disabled={isLoading}
             >
-              Cancel
+              {t("cancel")}
             </Button>
             <Button type="submit" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                  {sampleType ? 'Updating...' : 'Creating...'}
+                  {sampleType ? t("common.update") : t("common.creating")}
                 </>
               ) : (
                 <>
-                  <Plus className="h-4 w-4 mr-2" />
-                  {sampleType ? 'Update Sample Type' : 'Create Sample Type'}
+                                     <span className="flex items-center gap-2">
+    {isRTL ? t("common.create") : <Plus className="h-4 w-4" />}
+    {!isRTL ? t("common.create") : <Plus className="h-4 w-4" />}
+  </span>
                 </>
               )}
             </Button>

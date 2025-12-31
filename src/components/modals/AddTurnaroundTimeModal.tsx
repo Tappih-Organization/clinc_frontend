@@ -94,18 +94,18 @@ const AddTurnaroundTimeModal: React.FC<AddTurnaroundTimeModalProps> = ({
   ];
 
   const durationPresets = [
-    { display: "< 30 minutes", minutes: 30 },
-    { display: "< 1 hour", minutes: 60 },
-    { display: "1-2 hours", minutes: 120 },
-    { display: "2-4 hours", minutes: 240 },
-    { display: "4-6 hours", minutes: 360 },
-    { display: "6-8 hours", minutes: 480 },
-    { display: "8-12 hours", minutes: 720 },
-    { display: "12-24 hours", minutes: 1440 },
-    { display: "1-2 days", minutes: 2880 },
-    { display: "2-3 days", minutes: 4320 },
-    { display: "3-5 days", minutes: 7200 },
-    { display: "1-2 weeks", minutes: 20160 },
+    { display: t("preset30Min"), minutes: 30 },
+    { display: t("preset1Hour"), minutes: 60 },
+    { display: t("preset1To2Hours"), minutes: 120 },
+    { display: t("preset2To4Hours"), minutes: 240 },
+    { display: t("preset4To6Hours"), minutes: 360 },
+    { display: t("preset6To8Hours"), minutes: 480 },
+    { display: t("preset8To12Hours"), minutes: 720 },
+    { display: t("preset12To24Hours"), minutes: 1440 },
+    { display: t("preset1To2Days"), minutes: 2880 },
+    { display: t("preset2To3Days"), minutes: 4320 },
+    { display: t("preset3To5Days"), minutes: 7200 },
+    { display: t("preset1To2Weeks"), minutes: 20160 },
   ];
 
   const handleChange = (field: string, value: any) => {
@@ -263,10 +263,10 @@ const AddTurnaroundTimeModal: React.FC<AddTurnaroundTimeModalProps> = ({
         <DialogHeader>
           <DialogTitle className={cn("flex items-center text-xl", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
             <Clock className="h-5 w-5 mr-2 text-blue-600" />
-            Add New Turnaround Time Category
+            {t("addTatCategoryTitle")}
           </DialogTitle>
           <DialogDescription className={cn(isRTL && 'text-right', isRTL && 'flex-row-reverse')} id="add-turnaround-time-description">
-            Create a new turnaround time category for laboratory tests.
+            {t("addTatCategoryDescription")}
           </DialogDescription>
         </DialogHeader>
 
@@ -276,23 +276,23 @@ const AddTurnaroundTimeModal: React.FC<AddTurnaroundTimeModalProps> = ({
             <CardHeader>
               <CardTitle className={cn("text-lg flex items-center", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
                 <Timer className="h-4 w-4 mr-2" />
-                Basic Information
+                {t("basicInformation")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Category Name *</Label>
+                  <Label htmlFor="name"> {t("tatCategoryNameLabel")} </Label>
                   <Input
                     id="name"
                     value={formData.name}
                     onChange={(e) => handleChange("name", e.target.value)}
-                    placeholder="e.g., STAT (Emergency)"
+                    placeholder = {t("tatCategoryNamePlaceholder")}
                     required
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="code">Code *</Label>
+                  <Label htmlFor="code"> {t("tatCategoryCodeLabel")} </Label>
                   <div className="flex space-x-2">
                     <Input
                       id="code"
@@ -300,7 +300,7 @@ const AddTurnaroundTimeModal: React.FC<AddTurnaroundTimeModalProps> = ({
                       onChange={(e) =>
                         handleChange("code", e.target.value.toUpperCase())
                       }
-                      placeholder="e.g., TAT-STAT01"
+                      placeholder = {t("tatCategoryCodePlaceholder")}
                       className="flex-1"
                       required
                     />
@@ -310,7 +310,7 @@ const AddTurnaroundTimeModal: React.FC<AddTurnaroundTimeModalProps> = ({
                       onClick={generateCode}
                       className="whitespace-nowrap"
                     >
-                      Generate
+                        {t("generate")}
                     </Button>
                   </div>
                 </div>
@@ -318,13 +318,13 @@ const AddTurnaroundTimeModal: React.FC<AddTurnaroundTimeModalProps> = ({
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="priority">Priority *</Label>
+                  <Label htmlFor="priority"> {t("priorityLabel")} </Label>
                   <Select
                     value={formData.priority}
                     onValueChange={(value) => handleChange("priority", value)}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select priority" />
+                      <SelectValue placeholder= {t("priorityPlaceholder")} />
                     </SelectTrigger>
                     <SelectContent>
                       {priorities.map((priority) => (
@@ -339,13 +339,13 @@ const AddTurnaroundTimeModal: React.FC<AddTurnaroundTimeModalProps> = ({
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="category">Category *</Label>
+                  <Label htmlFor="category"> {t("categoryLabel")} </Label>
                   <Select
                     value={formData.category}
                     onValueChange={(value) => handleChange("category", value)}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select category" />
+                      <SelectValue placeholder= {t("categoryPlaceholder")} />
                     </SelectTrigger>
                     <SelectContent>
                       {categories.map((category) => (
@@ -359,12 +359,12 @@ const AddTurnaroundTimeModal: React.FC<AddTurnaroundTimeModalProps> = ({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="description">Description *</Label>
+                <Label htmlFor="description"> {t("descriptionLabel")} </Label>
                 <Textarea
                   id="description"
                   value={formData.description}
                   onChange={(e) => handleChange("description", e.target.value)}
-                  placeholder="Describe when this turnaround time category should be used..."
+                  placeholder= {t("descriptionPlaceholder")}
                   rows={3}
                   required
                 />
@@ -392,23 +392,23 @@ const AddTurnaroundTimeModal: React.FC<AddTurnaroundTimeModalProps> = ({
             <CardHeader>
               <CardTitle className= {cn("text-lg flex items-center", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
                 <Clock className="h-4 w-4 mr-2" />
-                Duration Settings
+                {t("durationSettings")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="duration">Duration Display *</Label>
+                  <Label htmlFor="duration"> {t("durationDisplayLabel")} </Label>
                   <Input
                     id="duration"
                     value={formData.duration}
                     onChange={(e) => handleChange("duration", e.target.value)}
-                    placeholder="e.g., < 1 hour, 4-6 hours"
+                    placeholder= {t("durationDisplayPlaceholder")}
                     required
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="durationMinutes">Duration (Minutes) *</Label>
+                  <Label htmlFor="durationMinutes"> {t("durationMinutesLabel")}</Label>
                   <Input
                     id="durationMinutes"
                     type="number"
@@ -417,14 +417,14 @@ const AddTurnaroundTimeModal: React.FC<AddTurnaroundTimeModalProps> = ({
                     onChange={(e) =>
                       handleChange("durationMinutes", e.target.value)
                     }
-                    placeholder="e.g., 60, 360"
+                    placeholder={t("durationMinutesPlaceholder")} 
                     required
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label>Quick Duration Presets</Label>
+                <Label>{t("quickDurationPresets")} </Label>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                   {durationPresets.map((preset) => (
                     <Button
@@ -443,23 +443,23 @@ const AddTurnaroundTimeModal: React.FC<AddTurnaroundTimeModalProps> = ({
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="sla">SLA Commitment</Label>
+                  <Label htmlFor="sla"> {t("slaCommitmentLabel")}</Label>
                   <Input
                     id="sla"
                     value={formData.sla}
                     onChange={(e) => handleChange("sla", e.target.value)}
-                    placeholder="e.g., 95% of tests within timeframe"
+                    placeholder={t("slaCommitmentPlaceholder")}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="reportingHours">Reporting Hours</Label>
+                  <Label htmlFor="reportingHours"> {t("reportingHoursLabel")}</Label>
                   <Input
                     id="reportingHours"
                     value={formData.reportingHours}
                     onChange={(e) =>
                       handleChange("reportingHours", e.target.value)
                     }
-                    placeholder="e.g., 24/7, Business hours only"
+                    placeholder={t("reportingHoursPlaceholder")}
                   />
                 </div>
               </div>
@@ -471,30 +471,30 @@ const AddTurnaroundTimeModal: React.FC<AddTurnaroundTimeModalProps> = ({
             <CardHeader>
               <CardTitle className= {cn("text-lg flex items-center", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
                 <CheckCircle className="h-4 w-4 mr-2" />
-                Test Examples & Applications
-              </CardTitle>
+                {t("testExamplesAndApplications")}
+              </CardTitle> 
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="examples">Test Examples</Label>
+                <Label htmlFor="examples"> {t("testExamplesLabel")}</Label>
                 <Textarea
                   id="examples"
                   value={formData.examples}
                   onChange={(e) => handleChange("examples", e.target.value)}
-                  placeholder="List tests that typically use this turnaround time (separate with commas)..."
+                  placeholder={t("testExamplesPlaceholder")}
                   rows={3}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="businessRules">Business Rules</Label>
+                <Label htmlFor="businessRules">{t("businessRulesLabel")}</Label>
                 <Textarea
                   id="businessRules"
                   value={formData.businessRules}
                   onChange={(e) =>
                     handleChange("businessRules", e.target.value)
                   }
-                  placeholder="When should this turnaround time be applied? Any special conditions..."
+                  placeholder={t("businessRulesPlaceholder")}
                   rows={2}
                 />
               </div>
@@ -506,26 +506,26 @@ const AddTurnaroundTimeModal: React.FC<AddTurnaroundTimeModalProps> = ({
             <CardHeader>
               <CardTitle className= {cn("text-lg flex items-center", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
                 <AlertTriangle className="h-4 w-4 mr-2" />
-                Critical Handling
+                {t("criticalHandling")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="criticalNotes">Critical Notes</Label>
+                <Label htmlFor="criticalNotes">{t("criticalNotesLabel")}</Label>
                 <Textarea
                   id="criticalNotes"
                   value={formData.criticalNotes}
                   onChange={(e) =>
                     handleChange("criticalNotes", e.target.value)
                   }
-                  placeholder="Important notes for handling tests in this category..."
+                  placeholder={t("criticalNotesPlaceholder")}
                   rows={2}
                 />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="escalationProcedure">
-                  Escalation Procedure
+                   {t("escalationProcedureLabel")}
                 </Label>
                 <Textarea
                   id="escalationProcedure"
@@ -533,7 +533,7 @@ const AddTurnaroundTimeModal: React.FC<AddTurnaroundTimeModalProps> = ({
                   onChange={(e) =>
                     handleChange("escalationProcedure", e.target.value)
                   }
-                  placeholder="What to do if turnaround time cannot be met..."
+                  placeholder={t("escalationProcedurePlaceholder")}
                   rows={2}
                 />
               </div>
@@ -545,7 +545,7 @@ const AddTurnaroundTimeModal: React.FC<AddTurnaroundTimeModalProps> = ({
             <CardHeader>
               <CardTitle className= {cn("text-lg flex items-center", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
                 <CheckCircle className="h-4 w-4 mr-2" />
-                Status
+                {t("Status")}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -558,8 +558,7 @@ const AddTurnaroundTimeModal: React.FC<AddTurnaroundTimeModalProps> = ({
                   }
                 />
                 <Label htmlFor="isActive" className="text-sm">
-                  Make this turnaround time category active and available for
-                  use
+                 {t("statusDescription")}
                 </Label>
               </div>
             </CardContent>
@@ -573,7 +572,7 @@ const AddTurnaroundTimeModal: React.FC<AddTurnaroundTimeModalProps> = ({
               onClick={() => setOpen(false)}
               disabled={createMutation.isPending}
             >
-              Cancel
+              {t("Cancel")}
             </Button>
             <Button type="submit" disabled={createMutation.isPending}>
               {createMutation.isPending ? (
@@ -583,8 +582,10 @@ const AddTurnaroundTimeModal: React.FC<AddTurnaroundTimeModalProps> = ({
                 </>
               ) : (
                 <>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create Turnaround Time
+                   <span className="flex items-center gap-2">
+    {isRTL ? t("buttonscreateTurnaroundTime") : <Plus className="h-4 w-4" />}
+    {!isRTL ? t("buttonscreateTurnaroundTime") : <Plus className="h-4 w-4" />}
+  </span>
                 </>
               )}
             </Button>

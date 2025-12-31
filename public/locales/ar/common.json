@@ -1852,5 +1852,259 @@
 
   "activeCategory": "فئة نشطة",
 
-  "buttonscreateCategory": "إنشاء الفئة"
+
+
+
+  "buttonscreateCategory": "إنشاء الفئة",
+
+
+
+
+  "addMethodologyTitle": "إضافة منهجية تحليل جديدة",
+  "addMethodologyDescription": "إنشاء منهجية تحليل جديدة مع مواصفات وإجراءات تفصيلية.",
+
+  "basicInformation": "البيانات الأساسية",
+
+  "methodologyNameLabel": "اسم المنهجية *",
+  "methodologyNamePlaceholder": "مثال: عدّاد خلايا آلي",
+
+  "methodologyCodeLabel": "الكود *",
+  "methodologyCodePlaceholder": "مثال: HEM-AUTOCNT01",
+
+  "generate": "توليد",
+
+  "categoryLabel": "الفئة *",
+  "categoryPlaceholder": "اختر الفئة",
+
+  "descriptionLabel": "الوصف *",
+  "descriptionPlaceholder": "وصف تفصيلي للمنهجية...",
+
+  "technicalSpecifications": "المواصفات الفنية",
+
+  "principlesLabel": "المبادئ *",
+  "principlesPlaceholder": "المبادئ العلمية التي تعتمد عليها المنهجية...",
+
+  "equipmentRequiredLabel": "الأجهزة المطلوبة",
+  "equipmentRequiredPlaceholder": "قائمة الأجهزة والمعدات المطلوبة...",
+
+  "applicationsLabel": "الاستخدامات",
+  "applicationsPlaceholder": "التحاليل والتطبيقات التي تستخدم هذه المنهجية (كل عنصر في سطر أو مفصول بفاصلة)...",
+
+  "advantagesAndLimitations": "المميزات والقيود",
+
+  "advantagesLabel": "المميزات",
+  "advantagesPlaceholder": "أهم المميزات والفوائد...",
+
+  "limitationsLabel": "القيود",
+  "limitationsPlaceholder": "القيود المعروفة والنقاط التي يجب مراعاتها...",
+
+  "status": "الحالة",
+  "statusDescription": "تفعيل هذه المنهجية وجعلها متاحة للاستخدام",
+
+  "buttonscreateMethodology": "إنشاء المنهجية",
+
+
+
+
+  "addTatCategoryTitle": "إضافة فئة زمن إنجاز جديدة",
+  "addTatCategoryDescription": "إنشاء فئة زمن إنجاز جديدة لتحاليل المعمل.",
+
+  "basicInformation": "البيانات الأساسية",
+
+  "tatCategoryNameLabel": "اسم الفئة *",
+  "tatCategoryNamePlaceholder": "مثال: عاجل (طوارئ)",
+
+  "tatCategoryCodeLabel": "الكود *",
+  "tatCategoryCodePlaceholder": "مثال: TAT-STAT01",
+
+  "generate": "توليد",
+
+  "priorityLabel": "الأولوية *",
+  "priorityPlaceholder": "اختر الأولوية",
+
+  "categoryLabel": "الفئة *",
+  "categoryPlaceholder": "اختر الفئة",
+
+  "descriptionLabel": "الوصف *",
+  "descriptionPlaceholder": "وصف الحالات التي يجب استخدام فئة زمن الإنجاز هذه فيها...",
+
+  "durationSettings": "إعدادات المدة",
+
+  "durationDisplayLabel": "عرض المدة *",
+  "durationDisplayPlaceholder": "مثال: أقل من ساعة، 4-6 ساعات",
+
+  "durationMinutesLabel": "المدة (بالدقائق) *",
+  "durationMinutesPlaceholder": "مثال: 60، 360",
+
+  "quickDurationPresets": "إعدادات المدة السريعة",
+
+  "preset30Min": "أقل من 30 دقيقة",
+  "preset1Hour": "أقل من ساعة",
+  "preset1To2Hours": "من 1 إلى 2 ساعة",
+  "preset2To4Hours": "من 2 إلى 4 ساعات",
+  "preset4To6Hours": "من 4 إلى 6 ساعات",
+  "preset6To8Hours": "من 6 إلى 8 ساعات",
+  "preset8To12Hours": "من 8 إلى 12 ساعة",
+  "preset12To24Hours": "من 12 إلى 24 ساعة",
+  "preset1To2Days": "من يوم إلى يومين",
+  "preset2To3Days": "من يومين إلى 3 أيام",
+  "preset3To5Days": "من 3 إلى 5 أيام",
+  "preset1To2Weeks": "من أسبوع إلى أسبوعين",
+
+  "slaCommitmentLabel": "الالتزام باتفاقية مستوى الخدمة (SLA)",
+  "slaCommitmentPlaceholder": "مثال: 95٪ من التحاليل خلال الإطار الزمني المحدد",
+
+  "reportingHoursLabel": "ساعات إصدار النتائج",
+  "reportingHoursPlaceholder": "مثال: على مدار الساعة، ساعات العمل فقط",
+
+  "testExamplesAndApplications": "أمثلة التحاليل والتطبيقات",
+
+  "testExamplesLabel": "أمثلة التحاليل",
+  "testExamplesPlaceholder": "اذكر التحاليل التي تستخدم عادة زمن الإنجاز هذا (مفصولة بفواصل)...",
+
+  "businessRulesLabel": "قواعد العمل",
+  "businessRulesPlaceholder": "متى يجب تطبيق زمن الإنجاز هذا؟ وهل توجد شروط خاصة؟",
+
+  "criticalHandling": "التعامل مع الحالات الحرجة",
+
+  "criticalNotesLabel": "ملاحظات حرجة",
+  "criticalNotesPlaceholder": "ملاحظات مهمة للتعامل مع التحاليل في هذه الفئة...",
+
+  "escalationProcedureLabel": "إجراءات التصعيد",
+  "escalationProcedurePlaceholder": "ما الإجراء المتبع في حال عدم الالتزام بزمن الإنجاز؟",
+
+  "status": "الحالة",
+  "statusDescription": "تفعيل فئة زمن الإنجاز هذه وجعلها متاحة للاستخدام",
+  "buttonscreateTurnaroundTime": "إنشاء فئة زمن الإنجاز",
+
+
+
+
+
+"sampleType.addTitle": "إضافة نوع عيّنة جديد",
+  "sampleType.editTitle": "تعديل نوع العيّنة",
+
+  "sampleType.addDescription": "إنشاء نوع عيّنة جديد مع مواصفات الجمع والتخزين.",
+  "sampleType.editDescription": "تحديث بيانات نوع العيّنة أدناه.",
+
+  "sampleType.basicInformation": "البيانات الأساسية",
+
+  "sampleType.nameLabel": "اسم نوع العيّنة *",
+  "sampleType.namePlaceholder": "مثال: دم كامل",
+
+  "sampleType.codeLabel": "الكود *",
+  "sampleType.codePlaceholder": "مثال: WB",
+
+  "sampleType.generate": "توليد",
+
+  "sampleType.categoryLabel": "الفئة *",
+  "sampleType.categoryPlaceholder": "اختر الفئة",
+
+  "sampleType.descriptionLabel": "الوصف *",
+  "sampleType.descriptionPlaceholder": "وصف تفصيلي لنوع العيّنة...",
+
+  "sampleType.collectionSpecifications": "مواصفات الجمع",
+
+  "sampleType.collectionMethodLabel": "طريقة الجمع *",
+  "sampleType.collectionMethodPlaceholder": "اختر الطريقة",
+
+  "sampleType.volumeLabel": "الكمية المطلوبة",
+  "sampleType.volumePlaceholder": "مثال: 3-5 مل",
+
+  "sampleType.containerLabel": "نوع الوعاء",
+  "sampleType.containerPlaceholder": "اختر الوعاء",
+
+  "sampleType.preservativeLabel": "المادة الحافظة / مضاد التجلط",
+  "sampleType.preservativePlaceholder": "مثال: EDTA، هيبارين، لا يوجد",
+
+  "sampleType.specialInstructionsLabel": "تعليمات جمع خاصة",
+  "sampleType.specialInstructionsPlaceholder": "أي تعليمات خاصة بعملية جمع العيّنة...",
+
+  "sampleType.storageAndHandling": "التخزين والتعامل",
+
+  "sampleType.storageTemperatureLabel": "درجة حرارة التخزين",
+  "sampleType.storageTemperaturePlaceholder": "اختر درجة الحرارة",
+
+  "sampleType.storageTimeLabel": "مدة التخزين / الثبات",
+  "sampleType.storageTimePlaceholder": "مثال: 24 ساعة، 7 أيام",
+
+  "sampleType.processingTimeLabel": "وقت المعالجة",
+  "sampleType.processingTimePlaceholder": "مثال: المعالجة خلال ساعتين",
+
+  "sampleType.transportConditionsLabel": "ظروف النقل",
+  "sampleType.transportConditionsPlaceholder": "مثال: درجة حرارة الغرفة، ثلج",
+
+  "sampleType.handlingRequirementsLabel": "متطلبات التعامل",
+  "sampleType.handlingRequirementsPlaceholder": "متطلبات واحتياطات خاصة للتعامل مع العيّنة...",
+
+  "sampleType.qualityAndSafety": "الجودة والسلامة",
+
+  "sampleType.rejectionCriteriaLabel": "معايير الرفض",
+  "sampleType.rejectionCriteriaPlaceholder": "الحالات التي يجب فيها رفض العيّنة...",
+
+  "sampleType.safetyPrecautionsLabel": "احتياطات السلامة",
+  "sampleType.safetyPrecautionsPlaceholder": "إجراءات واحتياطات السلامة أثناء التعامل...",
+
+  "sampleType.testApplications": "استخدامات التحاليل",
+
+  "sampleType.commonTestsLabel": "التحاليل الشائعة",
+  "sampleType.commonTestsPlaceholder": "اذكر التحاليل الشائعة التي تُجرى على هذا النوع من العيّنات (مفصولة بفواصل)...",
+
+  "sampleType.status": "الحالة",
+  "sampleType.activeLabel": "تفعيل نوع العيّنة هذا وجعله متاحًا للاستخدام",
+
+  "common.cancel": "إلغاء",
+  "common.create": "إنشاء",
+  "common.update": "تحديث",
+  "common.creating": "جاري الإنشاء...",
+  "common.updating": "جاري التحديث...",
+
+
+
+
+
+
+
+
+  "test.externalVendorPlaceholder": "اختر المختبر",
+
+  "test.testDateLabel": "تاريخ التحليل *",
+  "test.testDatePlaceholder": "يوم/شهر/سنة",
+
+  "test.recordedByLabel": "تم التسجيل بواسطة *",
+  "test.recordedByPlaceholder": "اختر عضو الفريق",
+
+  "test.reportAttachmentsLabel": "مرفقات التقرير",
+  "test.reportAttachmentsPlaceholder": "اضغط للرفع أو اسحب الملفات هنا",
+  "test.reportAttachmentsHint": "ملفات PDF، JPG، PNG، DOC بحجم يصل إلى 10 ميجابايت",
+
+  "test.resultsAndInterpretation": "نتائج التحليل والتفسير",
+
+  "test.testResultsLabel": "نتائج التحليل",
+  "test.testResultsPlaceholder": "أدخل نتائج التحليل بالتفصيل...",
+
+  "test.normalValuesLabel": "القيم الطبيعية",
+  "test.normalValuesPlaceholder": "النطاقات المرجعية للقيم الطبيعية...",
+
+  "test.clinicalInterpretationLabel": "التفسير السريري",
+  "test.clinicalInterpretationPlaceholder": "التفسير السريري لنتائج التحليل...",
+
+  "test.abnormalFindingsLabel": "النتائج الشاذة",
+  "test.abnormalFindingsPlaceholder": "أي نتائج غير طبيعية أو قيم حرجة...",
+
+  "test.recommendationsLabel": "التوصيات",
+  "test.recommendationsPlaceholder": "التوصيات السريرية بناءً على النتائج...",
+
+  "test.additionalNotesLabel": "ملاحظات إضافية",
+  "test.additionalNotesPlaceholder": "أي ملاحظات أو ملاحظات إضافية..."
+
+
+
+
+
+
+
+
+
+
 }
