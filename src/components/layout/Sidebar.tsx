@@ -133,6 +133,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           badge: "AI",
           permission: "test_reports.view",
         },
+        {
+          name: t("Settings"),
+          href: "/dashboard/settings",
+          icon: Settings,
+          permission: "settings.view",
+        },
       ],
     },
     {

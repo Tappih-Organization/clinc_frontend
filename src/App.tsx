@@ -53,7 +53,7 @@ import TurnaroundTime from "./pages/dashboard/test-modules/turnaround-time/Turna
 import SampleType from "./pages/dashboard/test-modules/sample-type/SampleType";
 import Category from "./pages/dashboard/test-modules/category/Category";
 import Calendar from "./pages/dashboard/calendar/Calendar";
-
+import Settings from "./pages/dashboard/settings/Settings";
 import Profile from "./pages/dashboard/profile/Profile";
 import Departments from "./pages/dashboard/departments/Departments";
 import Clinics from "./pages/dashboard/clinics/Clinics";
@@ -197,6 +197,21 @@ const App = () => {
                   </RequirePermission>
                 }
               />
+
+              {/* Settings - requires settings.view permission */}
+              <Route
+                path="settings"
+                element={
+                  <RequirePermission permissions="settings.view">
+                    <Settings />
+                  </RequirePermission>
+                }
+              />
+
+
+
+
+
 
               {/* Patients - requires patients.view permission */}
               <Route
