@@ -1,5 +1,7 @@
 import React from "react";
 import { cn } from "@/lib/utils";
+import { useIsRTL } from "@/hooks/useIsRTL";
+import { useTranslation } from "react-i18next";
 
 interface ResponsiveContainerProps {
   children: React.ReactNode;
@@ -237,40 +239,44 @@ export const ResponsiveStatsCard: React.FC<ResponsiveStatsCardProps> = ({
   trend,
   className,
 }) => {
+  const isRTL = useIsRTL();
+  const { t } = useTranslation();
+  
   return (
     <ResponsiveCard className={cn("stats-card", className)}>
-      <div className="flex items-start justify-between">
-        <div className="flex-1">
-          <p className="responsive-text-sm text-muted-foreground font-medium">
+      <div className={cn("flex items-start justify-between", isRTL && "flex-row-reverse")}>
+        <div className={cn("flex-1", isRTL && "text-right")}>
+          <p className={cn("responsive-text-sm text-muted-foreground font-medium", isRTL && "text-right")}>
             {title}
           </p>
-          <p className="text-xl xs:text-2xl sm:text-3xl font-bold text-foreground mt-1">
+          <p className={cn("text-xl xs:text-2xl sm:text-3xl font-bold text-foreground mt-1", isRTL && "text-right")}>
             {value}
           </p>
           {subtitle && (
-            <p className="responsive-text-sm text-muted-foreground mt-1">
+            <p className={cn("responsive-text-sm text-muted-foreground mt-1", isRTL && "text-right")}>
               {subtitle}
             </p>
           )}
           {trend && (
-            <div className="flex items-center mt-2">
+            <div className={cn("flex items-center mt-2 gap-1", isRTL && "flex-row-reverse")}>
               <span
                 className={cn(
                   "responsive-text-sm font-medium",
-                  trend.isPositive ? "text-green-600" : "text-red-600"
+                  trend.isPositive ? "text-green-600" : "text-red-600",
+                  isRTL && "text-right"
                 )}
               >
                 {trend.isPositive ? "+" : ""}
                 {trend.value}%
               </span>
-              <span className="responsive-text-sm text-muted-foreground ml-1">
-                vs last month
+              <span className={cn("responsive-text-sm text-muted-foreground whitespace-nowrap", isRTL && "text-right")}>
+                {t("vs last month")}
               </span>
             </div>
           )}
         </div>
         {Icon && (
-          <div className="flex-shrink-0 p-2 xs:p-3 bg-primary/10 rounded-lg">
+          <div className={cn("flex-shrink-0 p-2 xs:p-3 bg-primary/10 rounded-lg", isRTL && "ml-2")}>
             <Icon className="icon-lg text-primary" />
           </div>
         )}

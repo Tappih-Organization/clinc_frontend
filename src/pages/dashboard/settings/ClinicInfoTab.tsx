@@ -162,6 +162,61 @@ const ClinicInfoTab: React.FC<ClinicInfoTabProps> = ({ data, onChange }) => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Summary Card */}
+      <Card className="bg-muted/50">
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Building className="h-5 w-5" />
+            {t("Summary")}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {formData.name && (
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">{t("Clinic Name")}</span>
+                <span className="font-medium">{formData.name}</span>
+              </div>
+            )}
+            {formData.address && (
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">{t("Address")}</span>
+                <span className="font-medium">{formData.address}</span>
+              </div>
+            )}
+            {formData.phone && (
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">{t("Phone Number")}</span>
+                <span className="font-medium">{formData.phone}</span>
+              </div>
+            )}
+            {formData.email && (
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">{t("Email Address")}</span>
+                <span className="font-medium">{formData.email}</span>
+              </div>
+            )}
+            {formData.website && (
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">{t("Website")}</span>
+                <span className="font-medium">{formData.website}</span>
+              </div>
+            )}
+            {formData.description && (
+              <div className="space-y-1">
+                <span className="text-sm text-muted-foreground">{t("Description")}</span>
+                <p className="text-sm font-medium">{formData.description}</p>
+              </div>
+            )}
+            {!formData.name && !formData.address && !formData.phone && !formData.email && !formData.website && !formData.description && (
+              <p className="text-sm text-muted-foreground text-center py-4">
+                {t("No information entered yet")}
+              </p>
+            )}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

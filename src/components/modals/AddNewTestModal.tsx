@@ -35,6 +35,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 interface AddNewTestModalProps {
   trigger?: React.ReactNode;
@@ -43,6 +44,7 @@ interface AddNewTestModalProps {
 const AddNewTestModal: React.FC<AddNewTestModalProps> = ({ trigger }) => {
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState({
     name: "",
     code: "",
@@ -133,6 +135,14 @@ const AddNewTestModal: React.FC<AddNewTestModalProps> = ({ trigger }) => {
 
   const handleChange = (field: string, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
   };
 
   const generateTestCode = () => {
@@ -174,40 +184,41 @@ const AddNewTestModal: React.FC<AddNewTestModalProps> = ({ trigger }) => {
     }
   };
 
-  const validateForm = () => {
-    const required = [
-      "name",
-      "code",
-      "category",
-      "description",
-      "methodology",
-      "turnaroundTime",
-      "sampleType",
-    ];
-    const missing = required.filter(
-      (field) => !formData[field as keyof typeof formData],
-    );
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
 
-    if (missing.length > 0) {
-      toast({
-        title: "Validation Error",
-        description: `Please fill in all required fields: ${missing.join(", ")}`,
-        variant: "destructive",
-      });
-      return false;
+    if (!formData.name.trim()) {
+      newErrors.name = "Test name is required";
     }
 
-    // Code format validation
-    if (formData.code.length < 2) {
-      toast({
-        title: "Validation Error",
-        description: "Test code must be at least 2 characters long",
-        variant: "destructive",
-      });
-      return false;
+    if (!formData.code.trim()) {
+      newErrors.code = "Test code is required";
+    } else if (formData.code.length < 2) {
+      newErrors.code = "Test code must be at least 2 characters long";
     }
 
-    return true;
+    if (!formData.category) {
+      newErrors.category = "Category is required";
+    }
+
+    if (!formData.description.trim()) {
+      newErrors.description = "Description is required";
+    }
+
+    if (!formData.methodology) {
+      newErrors.methodology = "Methodology is required";
+    }
+
+    if (!formData.turnaroundTime) {
+      newErrors.turnaroundTime = "Turnaround time is required";
+    }
+
+    if (!formData.sampleType) {
+      newErrors.sampleType = "Sample type is required";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -251,11 +262,31 @@ const AddNewTestModal: React.FC<AddNewTestModalProps> = ({ trigger }) => {
         preparationInstructions: "",
       });
 
+      setErrors({});
       setOpen(false);
-    } catch (error) {
+    } catch (error: any) {
+      console.error("Error creating test:", error);
+      
+      // Handle server-side validation errors
+      if (error?.response?.data?.errors && Array.isArray(error.response.data.errors)) {
+        const validationErrors: Record<string, string> = {};
+        
+        error.response.data.errors.forEach((err: any) => {
+          const fieldName = err.path || err.param;
+          if (fieldName) {
+            validationErrors[fieldName] = err.msg || "Invalid value";
+          }
+        });
+        
+        if (Object.keys(validationErrors).length > 0) {
+          setErrors(validationErrors);
+          return;
+        }
+      }
+      
       toast({
         title: "Error",
-        description: "Failed to create test. Please try again.",
+        description: error?.response?.data?.message || "Failed to create test. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -263,8 +294,15 @@ const AddNewTestModal: React.FC<AddNewTestModalProps> = ({ trigger }) => {
     }
   };
 
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen);
+    if (!newOpen) {
+      setErrors({});
+    }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         {trigger || (
           <Button>
@@ -337,7 +375,7 @@ const AddNewTestModal: React.FC<AddNewTestModalProps> = ({ trigger }) => {
                   value={formData.category}
                   onValueChange={(value) => handleChange("category", value)}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className={errors.category ? "border-red-500" : ""}>
                     <SelectValue placeholder="Select test category" />
                   </SelectTrigger>
                   <SelectContent>
@@ -351,6 +389,9 @@ const AddNewTestModal: React.FC<AddNewTestModalProps> = ({ trigger }) => {
                     ))}
                   </SelectContent>
                 </Select>
+                {errors.category && (
+                  <p className="text-sm text-red-500">{errors.category}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -362,7 +403,11 @@ const AddNewTestModal: React.FC<AddNewTestModalProps> = ({ trigger }) => {
                   placeholder="Detailed description of what this test measures..."
                   rows={3}
                   required
+                  className={errors.description ? "border-red-500" : ""}
                 />
+                {errors.description && (
+                  <p className="text-sm text-red-500">{errors.description}</p>
+                )}
               </div>
 
               {formData.category && (
@@ -495,15 +540,18 @@ const AddNewTestModal: React.FC<AddNewTestModalProps> = ({ trigger }) => {
                     <SelectTrigger>
                       <SelectValue placeholder="Select sample type" />
                     </SelectTrigger>
-                    <SelectContent>
-                      {sampleTypes.map((type) => (
-                        <SelectItem key={type} value={type}>
-                          {type}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                  <SelectContent>
+                    {sampleTypes.map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.sampleType && (
+                  <p className="text-sm text-red-500">{errors.sampleType}</p>
+                )}
+              </div>
                 <div className="space-y-2">
                   <Label htmlFor="sampleVolume">Sample Volume</Label>
                   <Input

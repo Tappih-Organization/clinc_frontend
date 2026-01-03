@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
@@ -176,8 +176,7 @@ const Patients = () => {
         description: `${updatedData.firstName} ${updatedData.lastName} ${t("has been updated successfully.")}`,
       });
       
-      // Refetch the patients list to get updated data
-      refetch();
+      // React Query will automatically refetch the patients list after invalidation
 
       // Note: Medical fields (height, weight, allergies, medicalHistory, bloodGroup) 
       // would typically be stored in medical records, not patient profile
@@ -208,6 +207,7 @@ const Patients = () => {
         title: t("Patient deleted"),
         description: t("Patient has been removed from the system."),
       });
+      // React Query will automatically refetch the patients list after invalidation
     } catch (error) {
       toast({
         title: t("Error"),
@@ -216,6 +216,24 @@ const Patients = () => {
       });
     }
   };
+
+  // Listen for patient changes and refetch the list
+  useEffect(() => {
+    const handlePatientChange = () => {
+      // Refetch patients list when patient is created, updated, or deleted
+      refetch();
+    };
+
+    window.addEventListener('patientCreated', handlePatientChange);
+    window.addEventListener('patientUpdated', handlePatientChange);
+    window.addEventListener('patientDeleted', handlePatientChange);
+
+    return () => {
+      window.removeEventListener('patientCreated', handlePatientChange);
+      window.removeEventListener('patientUpdated', handlePatientChange);
+      window.removeEventListener('patientDeleted', handlePatientChange);
+    };
+  }, [refetch]);
 
   // Convert API patients to local Patient type
   const convertApiPatientToLocal = (apiPatient: ApiPatient): Patient => {

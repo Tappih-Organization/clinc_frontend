@@ -42,6 +42,7 @@ import { getDepartmentOptions } from "@/utils/departments";
 import { apiService } from "@/services/api";
 import { useClinic } from "@/contexts/ClinicContext";
 import type { User as StaffUser } from "@/services/api";
+import { cn } from "@/lib/utils";
 
 interface AddStaffModalProps {
   trigger?: React.ReactNode;
@@ -53,6 +54,7 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { currentClinic } = useClinic();
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -116,6 +118,14 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
 
   const handleChange = (field: string, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
   };
 
   const generatePassword = () => {
@@ -157,100 +167,76 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
     });
   };
 
-  const validateForm = () => {
-    const required = [
-      "firstName",
-      "lastName",
-      "email",
-      "phone",
-      "password",
-      "confirmPassword",
-      "role",
-      "department",
-      "salary",
-    ];
-    const missing = required.filter(
-      (field) => !formData[field as keyof typeof formData],
-    );
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
 
-    if (missing.length > 0) {
-      toast({
-        title: "Validation Error",
-        description: `Please fill in all required fields: ${missing.join(", ")}`,
-        variant: "destructive",
-      });
-      return false;
+    // Required fields validation
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = t("First name is required");
     }
 
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      toast({
-        title: "Validation Error",
-        description: "Please enter a valid email address",
-        variant: "destructive",
-      });
-      return false;
+    if (!formData.lastName.trim()) {
+      newErrors.lastName = t("Last name is required");
     }
 
-    // Password validation
-    if (formData.password.length < 8) {
-      toast({
-        title: "Validation Error",
-        description: "Password must be at least 8 characters long",
-        variant: "destructive",
-      });
-      return false;
+    if (!formData.email.trim()) {
+      newErrors.email = t("Email is required");
+    } else {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        newErrors.email = t("Please enter a valid email address");
+      }
     }
 
-    // Password confirmation validation
-    if (formData.password !== formData.confirmPassword) {
-      toast({
-        title: "Validation Error",
-        description: "Passwords do not match",
-        variant: "destructive",
-      });
-      return false;
+    if (!formData.phone.trim()) {
+      newErrors.phone = t("Phone number is required");
     }
 
-    // Password strength validation
-    const passwordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/;
-    if (!passwordRegex.test(formData.password)) {
-      toast({
-        title: "Validation Error",
-        description:
-          "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
-        variant: "destructive",
-      });
-      return false;
+    if (!formData.password) {
+      newErrors.password = t("Password is required");
+    } else if (formData.password.length < 8) {
+      newErrors.password = t("Password must be at least 8 characters long");
+    } else {
+      const passwordRegex =
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/;
+      if (!passwordRegex.test(formData.password)) {
+        newErrors.password = t("Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character");
+      }
     }
 
-    // Salary validation
-    const salary = parseFloat(formData.salary);
-    if (salary <= 0) {
-      toast({
-        title: "Validation Error",
-        description: "Salary must be greater than 0",
-        variant: "destructive",
-      });
-      return false;
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = t("Please confirm your password");
+    } else if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = t("Passwords do not match");
+    }
+
+    if (!formData.role) {
+      newErrors.role = t("Role is required");
+    }
+
+    if (!formData.department) {
+      newErrors.department = t("Department is required");
+    }
+
+    if (!formData.salary.trim()) {
+      newErrors.salary = t("Salary is required");
+    } else {
+      const salary = parseFloat(formData.salary);
+      if (isNaN(salary) || salary <= 0) {
+        newErrors.salary = t("Salary must be greater than 0");
+      }
     }
 
     // Sales percentage validation for doctors
     if (formData.role === 'doctor') {
       const salesPercentage = parseFloat(formData.salesPercentage);
       if (isNaN(salesPercentage) || salesPercentage < 0 || salesPercentage > 100) {
-        toast({
-          title: "Validation Error",
-          description: "Sales percentage must be between 0 and 100",
-          variant: "destructive",
-        });
-        return false;
+        newErrors.salesPercentage = t("Sales percentage must be between 0 and 100");
       }
     }
 
-    return true;
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -339,14 +325,45 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
         sundayWorking: false,
       });
 
+      setErrors({});
       setOpen(false);
       
       // Call the callback to refresh the staff list
       if (onStaffAdded) {
         onStaffAdded();
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating staff member:', error);
+      
+      // Handle server-side validation errors
+      if (error?.response?.data?.errors && Array.isArray(error.response.data.errors)) {
+        const validationErrors: Record<string, string> = {};
+        
+        error.response.data.errors.forEach((err: any) => {
+          const fieldMapping: Record<string, string> = {
+            'first_name': 'firstName',
+            'last_name': 'lastName',
+            'email': 'email',
+            'phone': 'phone',
+            'password': 'password',
+            'role': 'role',
+            'department': 'department',
+            'salary': 'salary',
+          };
+          
+          const fieldName = fieldMapping[err.path] || err.path;
+          if (fieldName) {
+            validationErrors[fieldName] = err.msg || t("Invalid value");
+          }
+        });
+        
+        if (Object.keys(validationErrors).length > 0) {
+          setErrors(validationErrors);
+          return;
+        }
+      }
+      
+      // For non-validation errors, show toast
       toast({
         title: "Error",
         description: parseApiError(error),
@@ -357,8 +374,15 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
     }
   };
 
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen);
+    if (!newOpen) {
+      setErrors({});
+    }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         {trigger || (
           <Button>
@@ -401,7 +425,11 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
                     onChange={(e) => handleChange("firstName", e.target.value)}
                     placeholder="John"
                     required
+                    className={errors.firstName ? "border-red-500" : ""}
                   />
+                  {errors.firstName && (
+                    <p className="text-sm text-red-500">{errors.firstName}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="lastName">Last Name *</Label>
@@ -411,7 +439,11 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
                     onChange={(e) => handleChange("lastName", e.target.value)}
                     placeholder="Doe"
                     required
+                    className={errors.lastName ? "border-red-500" : ""}
                   />
+                  {errors.lastName && (
+                    <p className="text-sm text-red-500">{errors.lastName}</p>
+                  )}
                 </div>
               </div>
 
@@ -426,10 +458,13 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
                       value={formData.email}
                       onChange={(e) => handleChange("email", e.target.value)}
                       placeholder="john.doe@clinic.com"
-                      className="pl-10"
+                      className={cn("pl-10", errors.email && "border-red-500")}
                       required
                     />
                   </div>
+                  {errors.email && (
+                    <p className="text-sm text-red-500">{errors.email}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="phone">Phone Number *</Label>
@@ -440,10 +475,13 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
                       value={formData.phone}
                       onChange={(e) => handleChange("phone", e.target.value)}
                       placeholder="+1 (555) 123-4567"
-                      className="pl-10"
+                      className={cn("pl-10", errors.phone && "border-red-500")}
                       required
                     />
                   </div>
+                  {errors.phone && (
+                    <p className="text-sm text-red-500">{errors.phone}</p>
+                  )}
                 </div>
               </div>
 
@@ -469,18 +507,22 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
                     placeholder="Enter a strong password"
                     required
                     minLength={8}
-                    className={
-                      formData.password.length > 0 &&
+                    className={cn(
+                      errors.password && "border-red-500",
+                      !errors.password && formData.password.length > 0 &&
                       formData.password.length < 8
                         ? "border-red-300 focus:border-red-500"
-                        : formData.password.length >= 8 &&
+                        : !errors.password && formData.password.length >= 8 &&
                             /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/.test(
                               formData.password,
                             )
                           ? "border-green-300 focus:border-green-500"
                           : ""
-                    }
+                    )}
                   />
+                  {errors.password && (
+                    <p className="text-sm text-red-500">{errors.password}</p>
+                  )}
                   <div className="text-xs space-y-1">
                     <p className="text-gray-500">Password must contain:</p>
                     <ul className="ml-2 space-y-1">
@@ -544,15 +586,19 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
                     placeholder="Confirm password"
                     required
                     minLength={8}
-                    className={
-                      formData.confirmPassword.length > 0
+                    className={cn(
+                      errors.confirmPassword && "border-red-500",
+                      !errors.confirmPassword && formData.confirmPassword.length > 0
                         ? formData.password === formData.confirmPassword
                           ? "border-green-300 focus:border-green-500"
                           : "border-red-300 focus:border-red-500"
                         : ""
-                    }
+                    )}
                   />
-                  {formData.confirmPassword.length > 0 && (
+                  {errors.confirmPassword && (
+                    <p className="text-sm text-red-500">{errors.confirmPassword}</p>
+                  )}
+                  {!errors.confirmPassword && formData.confirmPassword.length > 0 && (
                     <p
                       className={`text-xs ${
                         formData.password === formData.confirmPassword
@@ -600,7 +646,7 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
                     value={formData.role}
                     onValueChange={(value) => handleChange("role", value)}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className={errors.role ? "border-red-500" : ""}>
                       <SelectValue placeholder="Select role" />
                     </SelectTrigger>
                     <SelectContent>
@@ -611,6 +657,9 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
                       ))}
                     </SelectContent>
                   </Select>
+                  {errors.role && (
+                    <p className="text-sm text-red-500">{errors.role}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="department">Department *</Label>
@@ -618,7 +667,7 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
                     value={formData.department}
                     onValueChange={(value) => handleChange("department", value)}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className={errors.department ? "border-red-500" : ""}>
                       <SelectValue placeholder="Select department" />
                     </SelectTrigger>
                     <SelectContent>
@@ -634,6 +683,9 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
                       ))}
                     </SelectContent>
                   </Select>
+                  {errors.department && (
+                    <p className="text-sm text-red-500">{errors.department}</p>
+                  )}
                 </div>
               </div>
 
@@ -650,10 +702,13 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
                       value={formData.salary}
                       onChange={(e) => handleChange("salary", e.target.value)}
                       placeholder="50000"
-                      className="pl-10"
+                      className={cn("pl-10", errors.salary && "border-red-500")}
                       required
                     />
                   </div>
+                  {errors.salary && (
+                    <p className="text-sm text-red-500">{errors.salary}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="joiningDate">Joining Date</Label>
@@ -687,9 +742,12 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
                       value={formData.salesPercentage}
                       onChange={(e) => handleChange("salesPercentage", e.target.value)}
                       placeholder="10.0"
-                      className="pl-10"
+                      className={cn("pl-10", errors.salesPercentage && "border-red-500")}
                     />
                   </div>
+                  {errors.salesPercentage && (
+                    <p className="text-sm text-red-500">{errors.salesPercentage}</p>
+                  )}
                   <p className="text-sm text-muted-foreground">
                     Percentage of revenue generated from appointments that will be added as sales incentive
                   </p>

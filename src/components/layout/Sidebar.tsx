@@ -82,7 +82,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const { user } = useAuth();
   const { hasPermission } = useClinic();
   const { theme } = useTheme();
-  const [isTestModulesOpen, setIsTestModulesOpen] = useState(false);
   const [isRTL, setIsRTL] = useState(false);
   // State to manage collapsed/expanded state for each section
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
@@ -176,6 +175,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           icon: Home,
           // Dashboard should be accessible to all authenticated users
         },
+        {
+          name: t("Appointments"),
+          href: "/dashboard/appointments",
+          icon: Calendar,
+          permission: "appointments.view",
+        },
       ],
       collapsible: false, // Overview section should always be visible
     },
@@ -229,12 +234,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       icon: Users2,
       items: [
         {
-          name: t("Appointments"),
-          href: "/dashboard/appointments",
-          icon: Calendar,
-          permission: "appointments.view",
-        },
-        {
           name: t("Patients"),
           href: "/dashboard/patients",
           icon: Users,
@@ -262,10 +261,40 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       icon: FlaskConical,
       items: [
         {
+          name: t("Tests"),
+          href: "/dashboard/tests",
+          icon: TestTube2,
+          permission: "tests.view",
+        },
+        {
           name: t("Test Reports"),
           href: "/dashboard/test-reports",
           icon: FileText,
           permission: "test_reports.view",
+        },
+        {
+          name: t("Methodology"),
+          href: "/dashboard/test-modules/methodology",
+          icon: Settings,
+          permission: "tests.view",
+        },
+        {
+          name: t("Turnaround Time"),
+          href: "/dashboard/test-modules/turnaround-time",
+          icon: Clock,
+          permission: "tests.view",
+        },
+        {
+          name: t("Sample Type"),
+          href: "/dashboard/test-modules/sample-type",
+          icon: Droplets,
+          permission: "tests.view",
+        },
+        {
+          name: t("Category"),
+          href: "/dashboard/test-modules/category",
+          icon: Folder,
+          permission: "tests.view",
         },
       ],
       collapsible: true,
@@ -331,6 +360,20 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           href: "/dashboard/lab-vendors",
           icon: Building,
           permission: "lab_vendors.view",
+        },
+      ],
+      collapsible: true,
+      defaultCollapsed: false,
+    },
+    {
+      title: t("Warehouse"),
+      icon: Package,
+      items: [
+        {
+          name: t("Inventory"),
+          href: "/dashboard/inventory",
+          icon: Package,
+          permission: "inventory.view",
         },
       ],
       collapsible: true,
@@ -583,211 +626,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                     <div className="space-y-1">
                       {accessibleItems.map((item) => {
                     const isActive = isActiveLink(item.href);
-
-                    // Special handling for Test Reports with dropdown
-                    if (
-                      item.href === "/dashboard/test-reports"
-                    ) {
-                      return (
-                        <div key={item.name}>
-                          <button
-                            onClick={() =>
-                              setIsTestModulesOpen(!isTestModulesOpen)
-                            }
-                            className={cn(
-                              "flex items-center w-full px-3 py-2 text-sm font-medium rounded-lg transition-colors",
-                              isRTL ? "flex-row-reverse" : "",
-                              isActive ||
-                                location.pathname.includes("/test-modules/")
-                                ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                                : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                            )}
-                          >
-                            <item.icon className={cn(
-                              "h-5 w-5 flex-shrink-0",
-                              isRTL ? "ml-3" : "mr-3"
-                            )} />
-                            <span className={cn(
-                              "flex-1",
-                              isRTL ? "text-right" : "text-left"
-                            )}>{item.name}</span>
-                            {isTestModulesOpen ? (
-                              <ChevronDown className={cn(
-                                "h-4 w-4",
-                                isRTL ? "mr-2" : "ml-2"
-                              )} />
-                            ) : (
-                              isRTL ? (
-                                <ChevronLeft className={cn(
-                                  "h-4 w-4",
-                                  "mr-2"
-                                )} />
-                              ) : (
-                                <ChevronRight className={cn(
-                                  "h-4 w-4",
-                                  "ml-2"
-                                )} />
-                              )
-                            )}
-                          </button>
-
-                          {/* Test Reports submenu */}
-                          {isTestModulesOpen && (
-                            <div 
-                              className={cn(
-                                "mt-1 space-y-1 overflow-visible",
-                                isRTL ? "mr-6" : "ml-6"
-                              )}
-                              dir={isRTL ? 'rtl' : 'ltr'}
-                              style={{ display: 'block', visibility: 'visible' }}
-                            >
-                              {(user?.role === 'super_admin' || user?.role === 'admin' || hasPermission("tests.view")) && (
-                                <Link
-                                  to="/dashboard/tests"
-                                  onClick={onClose}
-                                  className={cn(
-                                    "flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors",
-                                    isRTL ? "flex-row-reverse" : "",
-                                    location.pathname === "/dashboard/tests"
-                                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                                      : "text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                                  )}
-                                >
-                                  <TestTube2 className={cn(
-                                    "h-5 w-5 flex-shrink-0",
-                                    isRTL ? "ml-3" : "mr-3"
-                                  )} />
-                                  <span className={cn(
-                                    "flex-1",
-                                    isRTL ? "text-right" : "text-left"
-                                  )}>{t("Tests")}</span>
-                                </Link>
-                              )}
-
-                              {(user?.role === 'super_admin' || user?.role === 'admin' || hasPermission("test_reports.view")) && (
-                                <Link
-                                  to="/dashboard/test-reports"
-                                  onClick={onClose}
-                                  className={cn(
-                                    "flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors",
-                                    isRTL ? "flex-row-reverse" : "",
-                                    location.pathname ===
-                                      "/dashboard/test-reports"
-                                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                                      : "text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                                  )}
-                                >
-                                  <FileText className={cn(
-                                    "h-5 w-5 flex-shrink-0",
-                                    isRTL ? "ml-3" : "mr-3"
-                                  )} />
-                                  <span className={cn(
-                                    "flex-1",
-                                    isRTL ? "text-right" : "text-left"
-                                  )}>{t("Test Reports")}</span>
-                                </Link>
-                              )}
-
-                              {(user?.role === 'super_admin' || user?.role === 'admin' || hasPermission("tests.view")) && (
-                                <Link
-                                  to="/dashboard/test-modules/methodology"
-                                  onClick={onClose}
-                                  className={cn(
-                                    "flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors",
-                                    isRTL ? "flex-row-reverse" : "",
-                                    location.pathname ===
-                                      "/dashboard/test-modules/methodology"
-                                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                                      : "text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                                  )}
-                                >
-                                  <Settings className={cn(
-                                    "h-5 w-5 flex-shrink-0",
-                                    isRTL ? "ml-3" : "mr-3"
-                                  )} />
-                                  <span className={cn(
-                                    "flex-1",
-                                    isRTL ? "text-right" : "text-left"
-                                  )}>{t("Methodology")}</span>
-                                </Link>
-                              )}
-
-                              {(user?.role === 'super_admin' || user?.role === 'admin' || hasPermission("tests.view")) && (
-                                <Link
-                                  to="/dashboard/test-modules/turnaround-time"
-                                  onClick={onClose}
-                                  className={cn(
-                                    "flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors",
-                                    isRTL ? "flex-row-reverse" : "",
-                                    location.pathname ===
-                                      "/dashboard/test-modules/turnaround-time"
-                                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                                      : "text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                                  )}
-                                >
-                                  <Clock className={cn(
-                                    "h-5 w-5 flex-shrink-0",
-                                    isRTL ? "ml-3" : "mr-3"
-                                  )} />
-                                  <span className={cn(
-                                    "flex-1",
-                                    isRTL ? "text-right" : "text-left"
-                                  )}>{t("Turnaround Time")}</span>
-                                </Link>
-                              )}
-
-                              {(user?.role === 'super_admin' || user?.role === 'admin' || hasPermission("tests.view")) && (
-                                <Link
-                                  to="/dashboard/test-modules/sample-type"
-                                  onClick={onClose}
-                                  className={cn(
-                                    "flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors",
-                                    isRTL ? "flex-row-reverse" : "",
-                                    location.pathname ===
-                                      "/dashboard/test-modules/sample-type"
-                                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                                      : "text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                                  )}
-                                >
-                                  <Droplets className={cn(
-                                    "h-5 w-5 flex-shrink-0",
-                                    isRTL ? "ml-3" : "mr-3"
-                                  )} />
-                                  <span className={cn(
-                                    "flex-1",
-                                    isRTL ? "text-right" : "text-left"
-                                  )}>{t("Sample Type")}</span>
-                                </Link>
-                              )}
-
-                              {(user?.role === 'super_admin' || user?.role === 'admin' || hasPermission("tests.view")) && (
-                                <Link
-                                  to="/dashboard/test-modules/category"
-                                  onClick={onClose}
-                                  className={cn(
-                                    "flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors",
-                                    isRTL ? "flex-row-reverse" : "",
-                                    location.pathname ===
-                                      "/dashboard/test-modules/category"
-                                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                                      : "text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                                  )}
-                                >
-                                  <Folder className={cn(
-                                    "h-5 w-5 flex-shrink-0",
-                                    isRTL ? "ml-3" : "mr-3"
-                                  )} />
-                                  <span className={cn(
-                                    "flex-1",
-                                    isRTL ? "text-right" : "text-left"
-                                  )}>{t("Category")}</span>
-                                </Link>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    }
 
                     // Regular navigation items
                     return (

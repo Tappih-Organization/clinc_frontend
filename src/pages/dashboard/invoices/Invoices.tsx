@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { useIsRTL } from "@/hooks/useIsRTL";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -699,14 +700,14 @@ const Invoices = () => {
                                 </DropdownMenuItem>
                               )}
                               <DropdownMenuItem onClick={() => handleEditInvoice(invoice._id)}>
-                                <Edit className="mr-2 h-4 w-4" />
+                                <Edit className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
                                 {t('Edit Invoice')}
                               </DropdownMenuItem>
                               <DropdownMenuItem 
                                 className="text-red-600"
                                 onClick={() => handleDeleteInvoice(invoice._id)}
                               >
-                                <Trash2 className="mr-2 h-4 w-4" />
+                                <Trash2 className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
                                 {t('Delete Invoice')}
                               </DropdownMenuItem>
                             </DropdownMenuContent>
@@ -858,14 +859,14 @@ const Invoices = () => {
                             </DropdownMenuItem>
                           )}
                           <DropdownMenuItem onClick={() => handleEditInvoice(invoice._id)}>
-                            <Edit className="mr-2 h-4 w-4" />
+                            <Edit className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
                             {t('Edit Invoice')}
                           </DropdownMenuItem>
                           <DropdownMenuItem 
                             className="text-red-600"
                             onClick={() => handleDeleteInvoice(invoice._id)}
                           >
-                            <Trash2 className="mr-2 h-4 w-4" />
+                            <Trash2 className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
                             {t('Delete Invoice')}
                           </DropdownMenuItem>
                         </DropdownMenuContent>

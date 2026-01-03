@@ -64,8 +64,10 @@ export const usePatients = (params?: {
   return useQuery({
     queryKey: [...queryKeys.patients(clinicId), params],
     queryFn: () => apiService.getPatients(params),
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 0, // Always consider data stale to ensure refetch after invalidation
     enabled: !!clinicId,
+    refetchOnMount: 'always', // Always refetch when component mounts
+    refetchOnWindowFocus: false, // Don't refetch on window focus to avoid unnecessary requests
   });
 };
 
@@ -82,17 +84,23 @@ export const usePatient = (id: string) => {
 
 export const useCreatePatient = () => {
   const queryClient = useQueryClient();
-  const { currentClinic } = useClinic();
-  const clinicId = currentClinic?._id || null;
   
   return useMutation({
     mutationFn: (patientData: Omit<Patient, '_id' | 'created_at' | 'updated_at'>) => 
       apiService.createPatient(patientData),
     onSuccess: () => {
+      // Invalidate all patient queries (with any clinicId and params)
       queryClient.invalidateQueries({ 
-        queryKey: queryKeys.patients(clinicId),
+        queryKey: ['patients'],
         exact: false 
       });
+      // Invalidate patient stats
+      queryClient.invalidateQueries({ 
+        queryKey: ['patient-stats'],
+        exact: false 
+      });
+      // Dispatch custom event to notify components
+      window.dispatchEvent(new CustomEvent('patientCreated'));
     },
   });
 };
@@ -110,11 +118,19 @@ export const useUpdatePatient = () => {
       return apiService.updatePatient(id, data);
     },
     onSuccess: (_, { id }) => {
+      // Invalidate all patient queries (with any clinicId and params)
       queryClient.invalidateQueries({ 
-        queryKey: queryKeys.patients(null),
+        queryKey: ['patients'],
         exact: false 
       });
       queryClient.invalidateQueries({ queryKey: queryKeys.patient(null, id) });
+      // Invalidate patient stats
+      queryClient.invalidateQueries({ 
+        queryKey: ['patient-stats'],
+        exact: false 
+      });
+      // Dispatch custom event to notify components
+      window.dispatchEvent(new CustomEvent('patientUpdated'));
     },
   });
 };
@@ -125,10 +141,18 @@ export const useDeletePatient = () => {
   return useMutation({
     mutationFn: (id: string) => apiService.deletePatient(id),
     onSuccess: () => {
+      // Invalidate all patient queries (with any clinicId and params)
       queryClient.invalidateQueries({ 
-        queryKey: queryKeys.patients(null),
+        queryKey: ['patients'],
         exact: false 
       });
+      // Invalidate patient stats
+      queryClient.invalidateQueries({ 
+        queryKey: ['patient-stats'],
+        exact: false 
+      });
+      // Dispatch custom event to notify components
+      window.dispatchEvent(new CustomEvent('patientDeleted'));
     },
   });
 };
@@ -196,7 +220,13 @@ export const useCreateAppointment = () => {
     mutationFn: (appointmentData: Omit<Appointment, '_id' | 'created_at' | 'updated_at'>) => 
       apiService.createAppointment(appointmentData),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.appointments(null) });
+      // Invalidate all appointment queries (with any clinicId and params)
+      queryClient.invalidateQueries({ 
+        queryKey: ['appointments'],
+        exact: false 
+      });
+      // Dispatch custom event to notify calendar component
+      window.dispatchEvent(new CustomEvent('appointmentCreated'));
     },
   });
 };
@@ -208,8 +238,14 @@ export const useUpdateAppointment = () => {
     mutationFn: ({ id, data }: { id: string; data: Partial<Appointment> }) => 
       apiService.updateAppointment(id, data),
     onSuccess: (_, { id }) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.appointments(null) });
+      // Invalidate all appointment queries (with any clinicId and params)
+      queryClient.invalidateQueries({ 
+        queryKey: ['appointments'],
+        exact: false 
+      });
       queryClient.invalidateQueries({ queryKey: queryKeys.appointment(null, id) });
+      // Dispatch custom event to notify calendar component
+      window.dispatchEvent(new CustomEvent('appointmentUpdated'));
     },
   });
 };
@@ -220,7 +256,13 @@ export const useDeleteAppointment = () => {
   return useMutation({
     mutationFn: (id: string) => apiService.deleteAppointment(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.appointments(null) });
+      // Invalidate all appointment queries (with any clinicId and params)
+      queryClient.invalidateQueries({ 
+        queryKey: ['appointments'],
+        exact: false 
+      });
+      // Dispatch custom event to notify calendar component
+      window.dispatchEvent(new CustomEvent('appointmentDeleted'));
     },
   });
 };

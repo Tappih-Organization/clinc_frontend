@@ -31,6 +31,7 @@ import { toast } from "@/hooks/use-toast";
 import { transformUserToStaff } from "@/hooks/useStaff";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiService } from "@/services/api";
+import { cn } from "@/lib/utils";
 
 interface EditStaffModalProps {
   open: boolean;
@@ -48,6 +49,7 @@ const EditStaffModal: React.FC<EditStaffModalProps> = ({
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState({
     first_name: "",
     last_name: "",
@@ -82,56 +84,55 @@ const EditStaffModal: React.FC<EditStaffModalProps> = ({
         password: "",
         sales_percentage: String(staff.salesPercentage || 0),
       });
+      setErrors({});
     }
   }, [staff]);
 
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
   };
 
-  const validateForm = () => {
-    const required = ["first_name", "last_name", "email", "role"];
-    const missing = required.filter((field) => !formData[field as keyof typeof formData]);
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
 
-    if (missing.length > 0) {
-      toast({
-        title: "Validation Error",
-        description: `Please fill in all required fields: ${missing.join(", ")}`,
-        variant: "destructive",
-      });
-      return false;
+    if (!formData.first_name.trim()) {
+      newErrors.first_name = "First name is required";
     }
 
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      toast({
-        title: "Validation Error",
-        description: "Please enter a valid email address",
-        variant: "destructive",
-      });
-      return false;
+    if (!formData.last_name.trim()) {
+      newErrors.last_name = "Last name is required";
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        newErrors.email = "Please enter a valid email address";
+      }
+    }
+
+    if (!formData.role) {
+      newErrors.role = "Role is required";
     }
 
     // Password validation (only if provided and user is admin)
     if (formData.password && isAdmin) {
       if (formData.password.length < 6) {
-        toast({
-          title: "Validation Error",
-          description: "Password must be at least 6 characters long",
-          variant: "destructive",
-        });
-        return false;
-      }
-
-      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/;
-      if (!passwordRegex.test(formData.password)) {
-        toast({
-          title: "Validation Error",
-          description: "Password must contain at least one uppercase letter, one lowercase letter, and one number",
-          variant: "destructive",
-        });
-        return false;
+        newErrors.password = "Password must be at least 6 characters long";
+      } else {
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/;
+        if (!passwordRegex.test(formData.password)) {
+          newErrors.password = "Password must contain at least one uppercase letter, one lowercase letter, and one number";
+        }
       }
     }
 
@@ -139,16 +140,12 @@ const EditStaffModal: React.FC<EditStaffModalProps> = ({
     if (formData.role === 'doctor') {
       const salesPercentage = parseFloat(formData.sales_percentage);
       if (isNaN(salesPercentage) || salesPercentage < 0 || salesPercentage > 100) {
-        toast({
-          title: "Validation Error",
-          description: "Sales percentage must be between 0 and 100",
-          variant: "destructive",
-        });
-        return false;
+        newErrors.sales_percentage = "Sales percentage must be between 0 and 100";
       }
     }
 
-    return true;
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -261,10 +258,13 @@ const EditStaffModal: React.FC<EditStaffModalProps> = ({
                       value={formData.email}
                       onChange={(e) => handleChange("email", e.target.value)}
                       placeholder="john.doe@clinic.com"
-                      className="pl-10"
+                      className={cn("pl-10", errors.email && "border-red-500")}
                       required
                     />
                   </div>
+                  {errors.email && (
+                    <p className="text-sm text-red-500">{errors.email}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="phone">Phone Number</Label>
@@ -295,7 +295,7 @@ const EditStaffModal: React.FC<EditStaffModalProps> = ({
               <div className="space-y-2">
                 <Label htmlFor="role">Role *</Label>
                 <Select value={formData.role} onValueChange={(value) => handleChange("role", value)}>
-                  <SelectTrigger>
+                  <SelectTrigger className={errors.role ? "border-red-500" : ""}>
                     <SelectValue placeholder="Select a role" />
                   </SelectTrigger>
                   <SelectContent>
@@ -306,6 +306,9 @@ const EditStaffModal: React.FC<EditStaffModalProps> = ({
                     ))}
                   </SelectContent>
                 </Select>
+                {errors.role && (
+                  <p className="text-sm text-red-500">{errors.role}</p>
+                )}
               </div>
               
               {/* Sales Percentage for Doctors */}

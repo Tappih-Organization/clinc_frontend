@@ -74,7 +74,7 @@ import { useIsRTL } from "@/hooks/useIsRTL";
 import { cn } from "@/lib/utils";
 
 const Prescriptions = () => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { currentClinic } = useClinic();
   const isRTL = useIsRTL();
   const [searchTerm, setSearchTerm] = useState("");

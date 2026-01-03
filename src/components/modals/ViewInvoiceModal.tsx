@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { useIsRTL } from "@/hooks/useIsRTL";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -35,6 +38,8 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
   isOpen, 
   onClose 
 }) => {
+  const { t, i18n } = useTranslation();
+  const isRTL = useIsRTL();
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -54,8 +59,8 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
     } catch (error) {
       console.error('Error loading invoice:', error);
       toast({
-        title: "Error",
-        description: "Failed to load invoice details.",
+        title: t("Error"),
+        description: t("Failed to load invoice details."),
         variant: "destructive",
       });
       onClose();
@@ -95,7 +100,8 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
+    const locale = i18n.language || 'en';
+    return new Date(dateString).toLocaleDateString(locale, {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -125,37 +131,39 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center text-xl">
-            <Receipt className="h-5 w-5 mr-2 text-blue-600" />
-            Invoice Details
+          <DialogTitle className={cn("flex items-center text-xl", isRTL && "flex-row-reverse")}>
+            <Receipt className={cn("h-5 w-5 text-blue-600", isRTL ? "ml-2" : "mr-2")} />
+            {t("Invoice Details")}
           </DialogTitle>
-          <DialogDescription>
-            View complete invoice information and payment details
+          <DialogDescription className={cn(isRTL && "text-right")}>
+            {t("View complete invoice information and payment details")}
           </DialogDescription>
         </DialogHeader>
 
         {loading ? (
-          <div className="flex items-center justify-center h-64">
+          <div className={cn("flex items-center justify-center h-64", isRTL && "flex-row-reverse")}>
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <span className="ml-2 text-gray-600">Loading invoice...</span>
+            <span className={cn("text-gray-600", isRTL ? "mr-2" : "ml-2")}>{t("Loading invoice...")}</span>
           </div>
         ) : invoice ? (
           <div className="space-y-6">
             {/* Invoice Header */}
             <Card>
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="text-lg">Invoice #{invoice.invoice_number}</CardTitle>
-                    <p className="text-sm text-gray-600">
-                      Created on {formatDate(invoice.created_at)}
+                <div className={cn("flex items-center justify-between", isRTL && "flex-row-reverse")}>
+                  <div className={cn(isRTL && "text-right")}>
+                    <CardTitle className="text-lg">{t("Invoice #")} {invoice.invoice_number}</CardTitle>
+                    <p className={cn("text-sm text-gray-600", isRTL && "text-right")}>
+                      {t("Created on")} {formatDate(invoice.created_at)}
                     </p>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    {getStatusIcon(invoice.status)}
+                  <div className={cn("flex items-center", isRTL ? "flex-row-reverse space-x-reverse space-x-2" : "space-x-2")}>
                     <Badge className={`${getStatusColor(invoice.status)}`}>
                       {invoice.status.toUpperCase()}
                     </Badge>
+                    <span className={cn(isRTL ? "ml-2" : "mr-2")}>
+                      {getStatusIcon(invoice.status)}
+                    </span>
                   </div>
                 </div>
               </CardHeader>
@@ -164,27 +172,27 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
             {/* Patient Information */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg flex items-center">
-                  <User className="h-4 w-4 mr-2" />
-                  Patient Information
+                <CardTitle className={cn("text-lg flex items-center", isRTL && "flex-row-reverse")}>
+                  <User className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
+                  {t("Patient Information")}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Patient Name</p>
-                    <p className="text-lg font-semibold">{getPatientDisplay(invoice.patient_id)}</p>
+                  <div className={cn(isRTL && "text-right")}>
+                    <p className={cn("text-sm font-medium text-gray-600", isRTL && "text-right")}>{t("Patient Name")}</p>
+                    <p className={cn("text-lg font-semibold", isRTL && "text-right")}>{getPatientDisplay(invoice.patient_id)}</p>
                   </div>
                   {getPatientContact(invoice.patient_id).phone && (
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Phone</p>
-                      <p className="text-lg">{getPatientContact(invoice.patient_id).phone}</p>
+                    <div className={cn(isRTL && "text-right")}>
+                      <p className={cn("text-sm font-medium text-gray-600", isRTL && "text-right")}>{t("Phone")}</p>
+                      <p className={cn("text-lg", isRTL && "text-right")}>{getPatientContact(invoice.patient_id).phone}</p>
                     </div>
                   )}
                   {getPatientContact(invoice.patient_id).email && (
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Email</p>
-                      <p className="text-lg">{getPatientContact(invoice.patient_id).email}</p>
+                    <div className={cn(isRTL && "text-right")}>
+                      <p className={cn("text-sm font-medium text-gray-600", isRTL && "text-right")}>{t("Email")}</p>
+                      <p className={cn("text-lg", isRTL && "text-right")}>{getPatientContact(invoice.patient_id).email}</p>
                     </div>
                   )}
                 </div>
@@ -194,27 +202,27 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
             {/* Invoice Dates */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg flex items-center">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  Important Dates
+                <CardTitle className={cn("text-lg flex items-center", isRTL && "flex-row-reverse")}>
+                  <Calendar className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
+                  {t("Important Dates")}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Issue Date</p>
-                    <p className="text-lg">{formatDate(invoice.issue_date)}</p>
+                  <div className={cn(isRTL && "text-right")}>
+                    <p className={cn("text-sm font-medium text-gray-600", isRTL && "text-right")}>{t("Issue Date")}</p>
+                    <p className={cn("text-lg", isRTL && "text-right")}>{formatDate(invoice.issue_date)}</p>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Due Date</p>
-                    <p className={`text-lg ${invoice.status === "overdue" ? "text-red-600 font-semibold" : ""}`}>
+                  <div className={cn(isRTL && "text-right")}>
+                    <p className={cn("text-sm font-medium text-gray-600", isRTL && "text-right")}>{t("Due Date")}</p>
+                    <p className={cn(`text-lg ${invoice.status === "overdue" ? "text-red-600 font-semibold" : ""}`, isRTL && "text-right")}>
                       {formatDate(invoice.due_date)}
                     </p>
                   </div>
                   {invoice.paid_at && (
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Payment Date</p>
-                      <p className="text-lg text-green-600">{formatDate(invoice.paid_at)}</p>
+                    <div className={cn(isRTL && "text-right")}>
+                      <p className={cn("text-sm font-medium text-gray-600", isRTL && "text-right")}>{t("Payment Date")}</p>
+                      <p className={cn("text-lg text-green-600", isRTL && "text-right")}>{formatDate(invoice.paid_at)}</p>
                     </div>
                   )}
                 </div>
@@ -224,9 +232,9 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
             {/* Services */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg flex items-center">
-                  <FileText className="h-4 w-4 mr-2" />
-                  Services & Items
+                <CardTitle className={cn("text-lg flex items-center", isRTL && "flex-row-reverse")}>
+                  <FileText className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
+                  {t("Services & Items")}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -234,26 +242,26 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
                   {invoice.services.map((service, index) => (
                     <div key={index} className="border rounded-lg p-4">
                       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div className="md:col-span-2">
-                          <p className="font-medium">{service.description}</p>
-                          <Badge variant="outline" className="mt-1">
+                        <div className={cn("md:col-span-2", isRTL && "text-right")}>
+                          <p className={cn("font-medium", isRTL && "text-right")}>{service.description}</p>
+                          <Badge variant="outline" className={cn("mt-1", isRTL && "mr-0")}>
                             {service.type}
                           </Badge>
                         </div>
-                        <div className="text-center">
-                          <p className="text-sm text-gray-600">Quantity</p>
-                          <p className="font-semibold">{service.quantity}</p>
+                        <div className={cn("text-center", isRTL && "text-right")}>
+                          <p className={cn("text-sm text-gray-600", isRTL && "text-right")}>{t("Quantity")}</p>
+                          <p className={cn("font-semibold", isRTL && "text-right")}>{service.quantity}</p>
                         </div>
-                        <div className="text-center">
-                          <p className="text-sm text-gray-600">Unit Price</p>
-                          <p className="font-semibold">
+                        <div className={cn("text-center", isRTL && "text-right")}>
+                          <p className={cn("text-sm text-gray-600", isRTL && "text-right")}>{t("Unit Price")}</p>
+                          <p className={cn("font-semibold", isRTL && "text-right")}>
                             <CurrencyDisplay amount={service.unit_price} />
                           </p>
                         </div>
                       </div>
-                      <div className="mt-2 text-right">
-                        <p className="text-lg font-bold">
-                          Total: <CurrencyDisplay amount={service.total} />
+                      <div className={cn("mt-2", isRTL ? "text-left" : "text-right")}>
+                        <p className={cn("text-lg font-bold", isRTL && "text-right")}>
+                          {t("Total")}: <CurrencyDisplay amount={service.total} />
                         </p>
                       </div>
                     </div>
@@ -265,38 +273,38 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
             {/* Payment Summary */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg flex items-center">
-                  <DollarSign className="h-4 w-4 mr-2" />
-                  Payment Summary
+                <CardTitle className={cn("text-lg flex items-center", isRTL && "flex-row-reverse")}>
+                  <DollarSign className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
+                  {t("Payment Summary")}
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="bg-gray-50 p-4 rounded-lg space-y-2">
-                  <div className="flex justify-between">
-                    <span>Subtotal:</span>
+                <div className={cn("bg-gray-50 p-4 rounded-lg space-y-2", isRTL && "text-right")}>
+                  <div className={cn("flex justify-between", isRTL && "flex-row-reverse")}>
+                    <span>{t("Subtotal")}:</span>
                     <span><CurrencyDisplay amount={invoice.subtotal} /></span>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Tax:</span>
+                  <div className={cn("flex justify-between", isRTL && "flex-row-reverse")}>
+                    <span>{t("Tax")}:</span>
                     <span><CurrencyDisplay amount={invoice.tax_amount} /></span>
                   </div>
                   {invoice.discount && invoice.discount > 0 && (
-                    <div className="flex justify-between">
-                      <span>Discount:</span>
+                    <div className={cn("flex justify-between", isRTL && "flex-row-reverse")}>
+                      <span>{t("Discount")}:</span>
                       <span className="text-green-600">-<CurrencyDisplay amount={invoice.discount} /></span>
                     </div>
                   )}
                   <hr className="my-2" />
-                  <div className="flex justify-between font-bold text-xl">
-                    <span>Total Amount:</span>
+                  <div className={cn("flex justify-between font-bold text-xl", isRTL && "flex-row-reverse")}>
+                    <span>{t("Total Amount")}:</span>
                     <span className="text-green-600">
                       <CurrencyDisplay amount={invoice.total_amount} variant="large" />
                     </span>
                   </div>
                   {invoice.payment_method && (
-                    <div className="mt-4 pt-2 border-t">
-                      <p className="text-sm text-gray-600">Payment Method:</p>
-                      <p className="font-medium capitalize">{invoice.payment_method.replace('_', ' ')}</p>
+                    <div className={cn("mt-4 pt-2 border-t", isRTL && "text-right")}>
+                      <p className={cn("text-sm text-gray-600", isRTL && "text-right")}>{t("Payment Method")}:</p>
+                      <p className={cn("font-medium capitalize", isRTL && "text-right")}>{invoice.payment_method.replace('_', ' ')}</p>
                     </div>
                   )}
                 </div>
@@ -307,28 +315,28 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
             {invoice.notes && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Notes</CardTitle>
+                  <CardTitle className={cn("text-lg", isRTL && "text-right")}>{t("Notes")}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-700 whitespace-pre-wrap">{invoice.notes}</p>
+                  <p className={cn("text-gray-700 whitespace-pre-wrap", isRTL && "text-right")}>{invoice.notes}</p>
                 </CardContent>
               </Card>
             )}
           </div>
         ) : (
           <div className="flex items-center justify-center h-64">
-            <div className="text-center">
+            <div className={cn("text-center", isRTL && "text-right")}>
               <AlertCircle className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-              <p className="text-lg font-medium text-gray-900">Invoice not found</p>
-              <p className="text-gray-500">The requested invoice could not be loaded.</p>
+              <p className={cn("text-lg font-medium text-gray-900", isRTL && "text-right")}>{t("Invoice not found")}</p>
+              <p className={cn("text-gray-500", isRTL && "text-right")}>{t("The requested invoice could not be loaded.")}</p>
             </div>
           </div>
         )}
 
         {/* Footer */}
-        <div className="flex justify-end space-x-4 pt-4 border-t">
+        <div className={cn("flex pt-4 border-t", isRTL ? "justify-start space-x-reverse space-x-4" : "justify-end space-x-4")}>
           <Button variant="outline" onClick={onClose}>
-            Close
+            {t("Close")}
           </Button>
         </div>
       </DialogContent>

@@ -44,6 +44,7 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({ onServiceCreated }) =
   const [open, setOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("basic");
   const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Form state
   const [serviceData, setServiceData] = useState({
@@ -96,6 +97,14 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({ onServiceCreated }) =
       ...prev,
       [field]: value,
     }));
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
   };
 
   const generateServiceCode = () => {
@@ -124,58 +133,58 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({ onServiceCreated }) =
       followUpRequired: false,
       isActive: true,
     });
+    setErrors({});
     setActiveTab("basic");
   };
 
-  const validateForm = () => {
-    const required = [
-      "name",
-      "category",
-      "department",
-      "description",
-      "duration",
-      "price",
-      "maxBookingsPerDay",
-    ];
-    for (const field of required) {
-      if (!serviceData[field as keyof typeof serviceData]) {
-        toast({
-          title: "Validation Error",
-          description: `${field.charAt(0).toUpperCase() + field.slice(1)} is required.`,
-          variant: "destructive",
-        });
-        return false;
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    if (!serviceData.name.trim()) {
+      newErrors.name = "Service name is required";
+    }
+
+    if (!serviceData.category) {
+      newErrors.category = "Category is required";
+    }
+
+    if (!serviceData.department) {
+      newErrors.department = "Department is required";
+    }
+
+    if (!serviceData.description.trim()) {
+      newErrors.description = "Description is required";
+    }
+
+    if (!serviceData.duration.trim()) {
+      newErrors.duration = "Duration is required";
+    } else {
+      const duration = parseInt(serviceData.duration);
+      if (isNaN(duration) || duration <= 0) {
+        newErrors.duration = "Duration must be greater than 0";
       }
     }
 
-    if (parseFloat(serviceData.price) <= 0) {
-      toast({
-        title: "Validation Error",
-        description: "Price must be greater than 0.",
-        variant: "destructive",
-      });
-      return false;
+    if (!serviceData.price.trim()) {
+      newErrors.price = "Price is required";
+    } else {
+      const price = parseFloat(serviceData.price);
+      if (isNaN(price) || price <= 0) {
+        newErrors.price = "Price must be greater than 0";
+      }
     }
 
-    if (parseInt(serviceData.duration) <= 0) {
-      toast({
-        title: "Validation Error",
-        description: "Duration must be greater than 0.",
-        variant: "destructive",
-      });
-      return false;
+    if (!serviceData.maxBookingsPerDay.trim()) {
+      newErrors.maxBookingsPerDay = "Max bookings per day is required";
+    } else {
+      const maxBookings = parseInt(serviceData.maxBookingsPerDay);
+      if (isNaN(maxBookings) || maxBookings <= 0) {
+        newErrors.maxBookingsPerDay = "Max bookings per day must be greater than 0";
+      }
     }
 
-    if (parseInt(serviceData.maxBookingsPerDay) <= 0) {
-      toast({
-        title: "Validation Error",
-        description: "Max bookings per day must be greater than 0.",
-        variant: "destructive",
-      });
-      return false;
-    }
-
-    return true;
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSave = async () => {
@@ -207,6 +216,7 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({ onServiceCreated }) =
         description: `${createdService.name} has been created successfully.`,
       });
 
+      setErrors({});
       setOpen(false);
       resetForm();
       
@@ -214,11 +224,29 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({ onServiceCreated }) =
       if (onServiceCreated) {
         onServiceCreated();
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating service:", error);
+      
+      // Handle server-side validation errors
+      if (error?.response?.data?.errors && Array.isArray(error.response.data.errors)) {
+        const validationErrors: Record<string, string> = {};
+        
+        error.response.data.errors.forEach((err: any) => {
+          const fieldName = err.path || err.param;
+          if (fieldName) {
+            validationErrors[fieldName] = err.msg || "Invalid value";
+          }
+        });
+        
+        if (Object.keys(validationErrors).length > 0) {
+          setErrors(validationErrors);
+          return;
+        }
+      }
+      
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to create service. Please try again.",
+        description: error?.response?.data?.message || (error instanceof Error ? error.message : "Failed to create service. Please try again."),
         variant: "destructive",
       });
     } finally {
@@ -244,8 +272,15 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({ onServiceCreated }) =
     }).format(num);
   };
 
+  const handleOpenChange = (open: boolean) => {
+    setOpen(open);
+    if (!open) {
+      setErrors({});
+    }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button onClick={() => setOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />
@@ -277,7 +312,11 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({ onServiceCreated }) =
                   value={serviceData.name}
                   onChange={(e) => handleInputChange("name", e.target.value)}
                   placeholder="Enter service name"
+                  className={errors.name ? "border-red-500" : ""}
                 />
+                {errors.name && (
+                  <p className="text-sm text-red-500">{errors.name}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="category">Category *</Label>
@@ -287,7 +326,7 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({ onServiceCreated }) =
                     handleInputChange("category", value)
                   }
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className={errors.category ? "border-red-500" : ""}>
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
@@ -298,6 +337,9 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({ onServiceCreated }) =
                     ))}
                   </SelectContent>
                 </Select>
+                {errors.category && (
+                  <p className="text-sm text-red-500">{errors.category}</p>
+                )}
               </div>
             </div>
 
@@ -309,7 +351,7 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({ onServiceCreated }) =
                   handleInputChange("department", value)
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className={errors.department ? "border-red-500" : ""}>
                   <SelectValue placeholder="Select department" />
                 </SelectTrigger>
                 <SelectContent>
@@ -320,6 +362,9 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({ onServiceCreated }) =
                   ))}
                 </SelectContent>
               </Select>
+              {errors.department && (
+                <p className="text-sm text-red-500">{errors.department}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -332,7 +377,11 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({ onServiceCreated }) =
                 }
                 placeholder="Enter service description"
                 rows={3}
+                className={errors.description ? "border-red-500" : ""}
               />
+              {errors.description && (
+                <p className="text-sm text-red-500">{errors.description}</p>
+              )}
             </div>
 
             <div className="flex items-center space-x-2">
@@ -361,10 +410,13 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({ onServiceCreated }) =
                       handleInputChange("duration", e.target.value)
                     }
                     placeholder="Enter duration in minutes"
-                    className="pl-10"
+                    className={cn("pl-10", errors.duration && "border-red-500")}
                   />
                 </div>
-                {serviceData.duration && (
+                {errors.duration && (
+                  <p className="text-sm text-red-500">{errors.duration}</p>
+                )}
+                {serviceData.duration && !errors.duration && (
                   <p className="text-sm text-gray-500">
                     Duration: {formatDuration(serviceData.duration)}
                   </p>
@@ -381,9 +433,12 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({ onServiceCreated }) =
                     value={serviceData.price}
                     onChange={(e) => handleInputChange("price", e.target.value)}
                     placeholder="Enter price"
-                    className="pl-10"
+                    className={cn("pl-10", errors.price && "border-red-500")}
                   />
                 </div>
+                {errors.price && (
+                  <p className="text-sm text-red-500">{errors.price}</p>
+                )}
               </div>
             </div>
 
@@ -414,13 +469,18 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({ onServiceCreated }) =
                     handleInputChange("maxBookingsPerDay", e.target.value)
                   }
                   placeholder="Enter maximum bookings per day"
-                  className="pl-10"
+                  className={cn("pl-10", errors.maxBookingsPerDay && "border-red-500")}
                 />
               </div>
-              <p className="text-sm text-gray-500">
-                Maximum number of appointments that can be scheduled for this
-                service per day
-              </p>
+              {errors.maxBookingsPerDay && (
+                <p className="text-sm text-red-500">{errors.maxBookingsPerDay}</p>
+              )}
+              {!errors.maxBookingsPerDay && (
+                <p className="text-sm text-gray-500">
+                  Maximum number of appointments that can be scheduled for this
+                  service per day
+                </p>
+              )}
             </div>
 
             <div className="flex items-center space-x-2">

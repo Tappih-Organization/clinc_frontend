@@ -49,8 +49,9 @@ import appointmentApi, { CalendarEvent } from "@/services/api/appointmentApi";
 import userApi, { Doctor } from "@/services/api/userApi";
 
 const Calendar = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isRTL = useIsRTL();
+  const currentLocale = i18n.language || 'en';
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<"month" | "week" | "day">("month");
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -68,6 +69,71 @@ const Calendar = () => {
   
   // Cache to prevent duplicate API calls
   const [lastFilterKey, setLastFilterKey] = useState<string>("");
+
+  // Helper function to get date range based on view mode
+  const getDateRange = (date: Date, mode: "month" | "week" | "day") => {
+    const startDate = new Date(date);
+    const endDate = new Date(date);
+    
+    switch (mode) {
+      case "month":
+        startDate.setDate(1);
+        startDate.setHours(0, 0, 0, 0);
+        endDate.setMonth(date.getMonth() + 1);
+        endDate.setDate(0);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case "week":
+        const day = date.getDay();
+        startDate.setDate(date.getDate() - day);
+        startDate.setHours(0, 0, 0, 0);
+        endDate.setDate(startDate.getDate() + 6);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case "day":
+        startDate.setHours(0, 0, 0, 0);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+    }
+
+    return { startDate, endDate };
+  };
+
+  // Function to reload appointments
+  const reloadAppointments = async () => {
+    if (!currentClinic || doctors.length === 0) return;
+
+    try {
+      const { startDate, endDate } = getDateRange(currentDate, viewMode);
+      
+      const filters: any = {
+        start_date: startDate.toISOString(),
+        end_date: endDate.toISOString(),
+        limit: 100,
+      };
+      
+      if (selectedDoctor !== "all") {
+        const doctor = doctors.find(d => d.name === selectedDoctor);
+        if (doctor) {
+          filters.doctor_id = doctor.id;
+        }
+      }
+      
+      if (selectedStatus !== "all") {
+        filters.status = selectedStatus;
+      }
+      
+      const appointmentsData = await appointmentApi.getAppointments(filters);
+      setEvents(appointmentsData);
+      setLastFilterKey(JSON.stringify({
+        ...filters,
+        viewMode,
+        currentDate: currentDate.toISOString().split('T')[0]
+      }));
+    } catch (err) {
+      console.error("Error reloading appointments:", err);
+    }
+  };
 
   // Load initial data when clinic is available
   useEffect(() => {
@@ -111,36 +177,26 @@ const Calendar = () => {
     };
 
     loadData();
-  }, [currentClinic]);
+  }, [currentClinic, t]);
 
-  // Helper function to get date range based on view mode
-  const getDateRange = (date: Date, mode: "month" | "week" | "day") => {
-    const startDate = new Date(date);
-    const endDate = new Date(date);
+  // Listen for appointment changes and reload calendar
+  useEffect(() => {
+    if (!currentClinic || doctors.length === 0) return;
 
-    switch (mode) {
-      case "day":
-        startDate.setHours(0, 0, 0, 0);
-        endDate.setHours(23, 59, 59, 999);
-        break;
-      case "week":
-        const dayOfWeek = startDate.getDay();
-        startDate.setDate(startDate.getDate() - dayOfWeek);
-        startDate.setHours(0, 0, 0, 0);
-        endDate.setDate(startDate.getDate() + 6);
-        endDate.setHours(23, 59, 59, 999);
-        break;
-      case "month":
-      default:
-        startDate.setDate(1);
-        startDate.setHours(0, 0, 0, 0);
-        endDate.setMonth(endDate.getMonth() + 1, 0);
-        endDate.setHours(23, 59, 59, 999);
-        break;
-    }
+    const handleAppointmentChange = () => {
+      reloadAppointments();
+    };
 
-    return { startDate, endDate };
-  };
+    window.addEventListener('appointmentCreated', handleAppointmentChange);
+    window.addEventListener('appointmentUpdated', handleAppointmentChange);
+    window.addEventListener('appointmentDeleted', handleAppointmentChange);
+
+    return () => {
+      window.removeEventListener('appointmentCreated', handleAppointmentChange);
+      window.removeEventListener('appointmentUpdated', handleAppointmentChange);
+      window.removeEventListener('appointmentDeleted', handleAppointmentChange);
+    };
+  }, [currentClinic, currentDate, viewMode, selectedDoctor, selectedStatus, doctors]);
 
   // Reload appointments when filters or date/view mode change
   useEffect(() => {
@@ -384,7 +440,7 @@ const Calendar = () => {
   };
 
   const formatTime = (date: Date) => {
-    return date.toLocaleTimeString("en-US", {
+    return date.toLocaleTimeString(currentLocale, {
       hour: "numeric",
       minute: "2-digit",
       hour12: true,
@@ -392,7 +448,7 @@ const Calendar = () => {
   };
 
   const formatDate = (date: Date) => {
-    return date.toLocaleDateString("en-US", {
+    return date.toLocaleDateString(currentLocale, {
       month: "short",
       day: "numeric",
       year: "numeric",
@@ -402,7 +458,7 @@ const Calendar = () => {
   const formatHeaderDate = (date: Date, mode: "month" | "week" | "day") => {
     switch (mode) {
       case "day":
-        return date.toLocaleDateString("en-US", {
+        return date.toLocaleDateString(currentLocale, {
           weekday: "long",
           month: "long",
           day: "numeric",
@@ -411,18 +467,18 @@ const Calendar = () => {
       case "week":
         const { startDate, endDate } = getDateRange(date, mode);
         if (startDate.getMonth() === endDate.getMonth()) {
-          return `${startDate.toLocaleDateString("en-US", {
+          return `${startDate.toLocaleDateString(currentLocale, {
             month: "long",
             day: "numeric",
-          })} - ${endDate.toLocaleDateString("en-US", {
+          })} - ${endDate.toLocaleDateString(currentLocale, {
             day: "numeric",
             year: "numeric",
           })}`;
         } else {
-          return `${startDate.toLocaleDateString("en-US", {
+          return `${startDate.toLocaleDateString(currentLocale, {
             month: "short",
             day: "numeric",
-          })} - ${endDate.toLocaleDateString("en-US", {
+          })} - ${endDate.toLocaleDateString(currentLocale, {
             month: "short",
             day: "numeric",
             year: "numeric",
@@ -430,7 +486,7 @@ const Calendar = () => {
         }
       case "month":
       default:
-        return date.toLocaleDateString("en-US", {
+        return date.toLocaleDateString(currentLocale, {
           month: "long",
           year: "numeric",
         });

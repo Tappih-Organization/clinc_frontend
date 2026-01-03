@@ -32,6 +32,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { useCurrencyFormat } from "@/hooks/useCurrencyFormat";
 import { apiService } from "@/services/api";
+import { cn } from "@/lib/utils";
 import type { InventoryItem } from "@/types";
 
 interface AddItemModalProps {
@@ -44,6 +45,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ trigger, onSuccess }) => {
   const { formatCurrency } = useCurrencyFormat();
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState({
     name: "",
     category: "",
@@ -83,76 +85,67 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ trigger, onSuccess }) => {
 
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
   };
 
-  const validateForm = () => {
-    const required = [
-      "name",
-      "category",
-      "manufacturer",
-      "quantity",
-      "unitPrice",
-    ];
-    const missing = required.filter(
-      (field) => !formData[field as keyof typeof formData],
-    );
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
 
-    if (missing.length > 0) {
-      toast({
-        title: "Validation Error",
-        description: `Please fill in all required fields: ${missing.join(", ")}`,
-        variant: "destructive",
-      });
-      return false;
+    if (!formData.name.trim()) {
+      newErrors.name = t("Item name is required");
     }
 
-    const quantity = parseInt(formData.quantity);
-    const unitPrice = parseFloat(formData.unitPrice);
-    const lowStockAlert = formData.lowStockAlert
-      ? parseInt(formData.lowStockAlert)
-      : 0;
-
-    if (quantity <= 0) {
-      toast({
-        title: "Validation Error",
-        description: "Quantity must be greater than 0",
-        variant: "destructive",
-      });
-      return false;
+    if (!formData.category) {
+      newErrors.category = t("Category is required");
     }
 
-    if (unitPrice <= 0) {
-      toast({
-        title: "Validation Error",
-        description: "Unit price must be greater than 0",
-        variant: "destructive",
-      });
-      return false;
+    if (!formData.manufacturer.trim()) {
+      newErrors.manufacturer = t("Manufacturer is required");
     }
 
-    if (lowStockAlert < 0) {
-      toast({
-        title: "Validation Error",
-        description: "Low stock alert cannot be negative",
-        variant: "destructive",
-      });
-      return false;
+    if (!formData.quantity.trim()) {
+      newErrors.quantity = t("Quantity is required");
+    } else {
+      const quantity = parseInt(formData.quantity);
+      if (isNaN(quantity) || quantity <= 0) {
+        newErrors.quantity = t("Quantity must be greater than 0");
+      }
+    }
+
+    if (!formData.unitPrice.trim()) {
+      newErrors.unitPrice = t("Unit price is required");
+    } else {
+      const unitPrice = parseFloat(formData.unitPrice);
+      if (isNaN(unitPrice) || unitPrice <= 0) {
+        newErrors.unitPrice = t("Unit price must be greater than 0");
+      }
+    }
+
+    if (formData.lowStockAlert) {
+      const lowStockAlert = parseInt(formData.lowStockAlert);
+      if (!isNaN(lowStockAlert) && lowStockAlert < 0) {
+        newErrors.lowStockAlert = t("Low stock alert cannot be negative");
+      }
     }
 
     if (formData.expiryDate) {
       const expiryDate = new Date(formData.expiryDate);
       const today = new Date();
+      today.setHours(0, 0, 0, 0);
       if (expiryDate <= today) {
-        toast({
-          title: "Validation Error",
-          description: "Expiry date must be in the future",
-          variant: "destructive",
-        });
-        return false;
+        newErrors.expiryDate = t("Expiry date must be in the future");
       }
     }
 
-    return true;
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -283,7 +276,11 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ trigger, onSuccess }) => {
                     onChange={(e) => handleChange("name", e.target.value)}
                     placeholder="e.g., Paracetamol 500mg"
                     required
+                    className={errors.name ? "border-red-500" : ""}
                   />
+                  {errors.name && (
+                    <p className="text-sm text-red-500">{errors.name}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="category">Category *</Label>
@@ -291,7 +288,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ trigger, onSuccess }) => {
                     value={formData.category}
                     onValueChange={(value) => handleChange("category", value)}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className={errors.category ? "border-red-500" : ""}>
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
                     <SelectContent>
@@ -302,6 +299,9 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ trigger, onSuccess }) => {
                       ))}
                     </SelectContent>
                   </Select>
+                  {errors.category && (
+                    <p className="text-sm text-red-500">{errors.category}</p>
+                  )}
                 </div>
               </div>
 
@@ -338,7 +338,11 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ trigger, onSuccess }) => {
                     }
                     placeholder="e.g., PharmaCorp"
                     required
+                    className={errors.manufacturer ? "border-red-500" : ""}
                   />
+                  {errors.manufacturer && (
+                    <p className="text-sm text-red-500">{errors.manufacturer}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="supplier">Supplier</Label>
@@ -405,7 +409,11 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ trigger, onSuccess }) => {
                     onChange={(e) => handleChange("quantity", e.target.value)}
                     placeholder="100"
                     required
+                    className={errors.quantity ? "border-red-500" : ""}
                   />
+                  {errors.quantity && (
+                    <p className="text-sm text-red-500">{errors.quantity}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="unitPrice">{t("Unit Price")} ($) *</Label>
@@ -418,7 +426,11 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ trigger, onSuccess }) => {
                     onChange={(e) => handleChange("unitPrice", e.target.value)}
                     placeholder="0.25"
                     required
+                    className={errors.unitPrice ? "border-red-500" : ""}
                   />
+                  {errors.unitPrice && (
+                    <p className="text-sm text-red-500">{errors.unitPrice}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="lowStockAlert">Low Stock Alert</Label>
@@ -431,7 +443,11 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ trigger, onSuccess }) => {
                       handleChange("lowStockAlert", e.target.value)
                     }
                     placeholder="20"
+                    className={errors.lowStockAlert ? "border-red-500" : ""}
                   />
+                  {errors.lowStockAlert && (
+                    <p className="text-sm text-red-500">{errors.lowStockAlert}</p>
+                  )}
                 </div>
               </div>
 
@@ -469,7 +485,11 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ trigger, onSuccess }) => {
                   value={formData.expiryDate}
                   onChange={(e) => handleChange("expiryDate", e.target.value)}
                   min={new Date().toISOString().split("T")[0]}
+                  className={errors.expiryDate ? "border-red-500" : ""}
                 />
+                {errors.expiryDate && (
+                  <p className="text-sm text-red-500">{errors.expiryDate}</p>
+                )}
               </div>
 
               {formData.expiryDate && (

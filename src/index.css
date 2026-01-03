@@ -554,6 +554,21 @@
     margin-left: auto;
   }
 
+  /* RTL support for date inputs */
+  [dir="rtl"] input[type="date"],
+  body.rtl input[type="date"],
+  input[type="date"][dir="rtl"] {
+    direction: rtl !important;
+    text-align: right !important;
+  }
+
+  [dir="rtl"] input[type="date"]::-webkit-calendar-picker-indicator,
+  body.rtl input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="date"][dir="rtl"]::-webkit-calendar-picker-indicator {
+    left: 0.5rem !important;
+    right: auto !important;
+  }
+
   /* Root container for preventing overflow */
   #root {
     overflow-x: hidden;

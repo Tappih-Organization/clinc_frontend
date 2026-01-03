@@ -60,6 +60,7 @@ import { useCurrency } from "@/contexts/CurrencyContext";
 import { useClinic } from "@/contexts/ClinicContext";
 import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
 import { apiService, type InventoryItem } from "@/services/api";
+import Loading from "@/components/ui/Loading";
 
 const Inventory = () => {
   const { t } = useTranslation();
@@ -438,12 +439,10 @@ const Inventory = () => {
   if (isLoading && medicines.length === 0) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center justify-center h-64">
-          <div className="flex items-center space-x-2">
-            <RefreshCw className="h-6 w-6 animate-spin" />
-            <span>{t('Loading inventory...')}</span>
-          </div>
-        </div>
+        <Loading 
+          text={t('Loading inventory...')} 
+          size="lg"
+        />
       </div>
     );
   }

@@ -22,6 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Edit, TestTube2, Loader2, Save } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { apiService } from "@/services/api";
+import { cn } from "@/lib/utils";
 import { Test, TestCategory, SampleType, TestMethodology, TurnaroundTime, CreateTestRequest } from "@/types";
 
 interface EditTestModalProps {
@@ -34,6 +35,7 @@ interface EditTestModalProps {
 const EditTestModal: React.FC<EditTestModalProps> = ({ open, onOpenChange, testId, onTestUpdated }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [originalTest, setOriginalTest] = useState<Test | null>(null);
   const [categories, setCategories] = useState<TestCategory[]>([]);
   const [sampleTypes, setSampleTypes] = useState<SampleType[]>([]);
@@ -150,31 +152,43 @@ const EditTestModal: React.FC<EditTestModalProps> = ({ open, onOpenChange, testI
 
   const handleChange = (field: keyof CreateTestRequest, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
   };
 
-  const validateForm = () => {
-    const required = ["name", "code", "category", "description", "turnaroundTime"];
-    const missing = required.filter((field) => !formData[field as keyof CreateTestRequest]);
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
 
-    if (missing.length > 0) {
-      toast({
-        title: "Validation Error",
-        description: `Please fill in all required fields: ${missing.join(", ")}`,
-        variant: "destructive",
-      });
-      return false;
+    if (!formData.name?.trim()) {
+      newErrors.name = "Test name is required";
     }
 
-    if (formData.code.length < 2) {
-      toast({
-        title: "Validation Error",
-        description: "Test code must be at least 2 characters long",
-        variant: "destructive",
-      });
-      return false;
+    if (!formData.code?.trim()) {
+      newErrors.code = "Test code is required";
+    } else if (formData.code.length < 2) {
+      newErrors.code = "Test code must be at least 2 characters long";
     }
 
-    return true;
+    if (!formData.category) {
+      newErrors.category = "Category is required";
+    }
+
+    if (!formData.description?.trim()) {
+      newErrors.description = "Description is required";
+    }
+
+    if (!formData.turnaroundTime) {
+      newErrors.turnaroundTime = "Turnaround time is required";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -194,10 +208,29 @@ const EditTestModal: React.FC<EditTestModalProps> = ({ open, onOpenChange, testI
         description: `Test "${formData.name}" has been updated successfully.`,
       });
 
+      setErrors({});
       onTestUpdated();
       onOpenChange(false);
     } catch (error: any) {
       console.error('Error updating test:', error);
+      
+      // Handle server-side validation errors
+      if (error?.response?.data?.errors && Array.isArray(error.response.data.errors)) {
+        const validationErrors: Record<string, string> = {};
+        
+        error.response.data.errors.forEach((err: any) => {
+          const fieldName = err.path || err.param;
+          if (fieldName) {
+            validationErrors[fieldName] = err.msg || "Invalid value";
+          }
+        });
+        
+        if (Object.keys(validationErrors).length > 0) {
+          setErrors(validationErrors);
+          return;
+        }
+      }
+      
       toast({
         title: "Error",
         description: error.response?.data?.message || "Failed to update test. Please try again.",
@@ -252,7 +285,9 @@ const EditTestModal: React.FC<EditTestModalProps> = ({ open, onOpenChange, testI
         normalRange: originalTest.normalRange || "",
         units: originalTest.units || "",
       });
+      setErrors({});
     }
+    setErrors({});
     onOpenChange(false);
   };
 
@@ -311,7 +346,11 @@ const EditTestModal: React.FC<EditTestModalProps> = ({ open, onOpenChange, testI
                       onChange={(e) => handleChange("name", e.target.value)}
                       placeholder="e.g., Complete Blood Count"
                       required
+                      className={errors.name ? "border-red-500" : ""}
                     />
+                    {errors.name && (
+                      <p className="text-sm text-red-500">{errors.name}</p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="code">Test Code *</Label>
@@ -321,7 +360,11 @@ const EditTestModal: React.FC<EditTestModalProps> = ({ open, onOpenChange, testI
                       onChange={(e) => handleChange("code", e.target.value.toUpperCase())}
                       placeholder="e.g., CBC"
                       required
+                      className={errors.code ? "border-red-500" : ""}
                     />
+                    {errors.code && (
+                      <p className="text-sm text-red-500">{errors.code}</p>
+                    )}
                   </div>
                 </div>
 
@@ -332,7 +375,7 @@ const EditTestModal: React.FC<EditTestModalProps> = ({ open, onOpenChange, testI
                       value={formData.category}
                       onValueChange={(value) => handleChange("category", value)}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className={errors.category ? "border-red-500" : ""}>
                         <SelectValue placeholder="Select test category" />
                       </SelectTrigger>
                       <SelectContent>
@@ -343,6 +386,9 @@ const EditTestModal: React.FC<EditTestModalProps> = ({ open, onOpenChange, testI
                         ))}
                       </SelectContent>
                     </Select>
+                    {errors.category && (
+                      <p className="text-sm text-red-500">{errors.category}</p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -351,7 +397,7 @@ const EditTestModal: React.FC<EditTestModalProps> = ({ open, onOpenChange, testI
                       value={formData.turnaroundTime}
                       onValueChange={(value) => handleChange("turnaroundTime", value)}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className={errors.turnaroundTime ? "border-red-500" : ""}>
                         <SelectValue placeholder="Select turnaround time" />
                       </SelectTrigger>
                       <SelectContent>
@@ -362,6 +408,9 @@ const EditTestModal: React.FC<EditTestModalProps> = ({ open, onOpenChange, testI
                         ))}
                       </SelectContent>
                     </Select>
+                    {errors.turnaroundTime && (
+                      <p className="text-sm text-red-500">{errors.turnaroundTime}</p>
+                    )}
                   </div>
                 </div>
 
@@ -374,7 +423,11 @@ const EditTestModal: React.FC<EditTestModalProps> = ({ open, onOpenChange, testI
                     placeholder="Detailed description of what this test measures..."
                     rows={3}
                     required
+                    className={errors.description ? "border-red-500" : ""}
                   />
+                  {errors.description && (
+                    <p className="text-sm text-red-500">{errors.description}</p>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

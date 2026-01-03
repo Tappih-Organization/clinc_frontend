@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { useIsRTL } from "@/hooks/useIsRTL";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -55,6 +58,8 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
   onClose,
   onSuccess 
 }) => {
+  const { t } = useTranslation();
+  const isRTL = useIsRTL();
   const [isLoading, setIsLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
   const [invoice, setInvoice] = useState<Invoice | null>(null);
@@ -116,7 +121,7 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
     } catch (error) {
       console.error('Error loading invoice:', error);
       toast({
-        title: "Error",
+        title: t("Error"),
         description: parseApiError(error),
         variant: "destructive",
       });
@@ -232,8 +237,8 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
       await apiService.updateInvoice(invoiceId, updatedInvoiceData);
 
       toast({
-        title: "Invoice updated successfully",
-        description: `Invoice ${invoice?.invoice_number} has been updated.`,
+        title: t("Invoice updated successfully"),
+        description: t("Invoice {{number}} has been updated.", { number: invoice?.invoice_number }),
       });
 
       if (onSuccess) {
@@ -243,7 +248,7 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
     } catch (error) {
       console.error('Error updating invoice:', error);
       toast({
-        title: "Error",
+        title: t("Error"),
         description: parseApiError(error),
         variant: "destructive",
       });
@@ -258,40 +263,40 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center text-xl">
-            <Receipt className="h-5 w-5 mr-2 text-blue-600" />
-            Edit Invoice {invoice?.invoice_number}
+          <DialogTitle className={cn("flex items-center text-xl", isRTL && "flex-row-reverse")}>
+            <Receipt className={cn("h-5 w-5 text-blue-600", isRTL ? "ml-2" : "mr-2")} />
+            {t("Edit Invoice")} {invoice?.invoice_number}
           </DialogTitle>
           <DialogDescription>
-            Update invoice details, services, and payment information.
+            {t("Update invoice details, services, and payment information.")}
           </DialogDescription>
         </DialogHeader>
 
         {loadingData ? (
-          <div className="flex items-center justify-center h-64">
+          <div className={cn("flex items-center justify-center h-64", isRTL && "flex-row-reverse")}>
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <span className="ml-2 text-gray-600">Loading invoice...</span>
+            <span className={cn("text-gray-600", isRTL ? "mr-2" : "ml-2")}>{t("Loading invoice...")}</span>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Patient and Invoice Info */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg flex items-center">
-                  <User className="h-4 w-4 mr-2" />
-                  Invoice Information
+                <CardTitle className={cn("text-lg flex items-center", isRTL && "flex-row-reverse")}>
+                  <User className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
+                  {t("Invoice Information")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="patientId">Select Patient *</Label>
+                    <Label htmlFor="patientId">{t("Select Patient")} *</Label>
                     <Select
                       value={formData.patientId}
                       onValueChange={(value) => handleChange("patientId", value)}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Choose a patient" />
+                        <SelectValue placeholder={t("Choose a patient")} />
                       </SelectTrigger>
                       <SelectContent>
                         {patients.map((patient) => (
@@ -311,7 +316,7 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="dueDate">Due Date *</Label>
+                    <Label htmlFor="dueDate">{t("Due Date")} *</Label>
                     <Input
                       id="dueDate"
                       type="date"
@@ -323,7 +328,7 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="status">Status</Label>
+                    <Label htmlFor="status">{t("Status")}</Label>
                     <Select
                       value={formData.status}
                       onValueChange={(value) => handleChange("status", value)}
@@ -332,10 +337,10 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="pending">Pending</SelectItem>
-                        <SelectItem value="paid">Paid</SelectItem>
-                        <SelectItem value="overdue">Overdue</SelectItem>
-                        <SelectItem value="cancelled">Cancelled</SelectItem>
+                        <SelectItem value="pending">{t("Pending")}</SelectItem>
+                        <SelectItem value="paid">{t("Paid")}</SelectItem>
+                        <SelectItem value="overdue">{t("Overdue")}</SelectItem>
+                        <SelectItem value="cancelled">{t("Cancelled")}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -346,27 +351,28 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
             {/* Invoice Items */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg flex items-center justify-between">
-                  <div className="flex items-center">
-                    <DollarSign className="h-4 w-4 mr-2" />
-                    Invoice Items
+                <CardTitle className={cn("text-lg flex items-center justify-between", isRTL && "flex-row-reverse")}>
+                  <div className={cn("flex items-center", isRTL && "flex-row-reverse")}>
+                    <DollarSign className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
+                    {t("Invoice Items")}
                   </div>
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
                     onClick={addItem}
+                    className={cn(isRTL && "flex-row-reverse")}
                   >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Item
+                    <Plus className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
+                    {t("Add Item")}
                   </Button>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {items.map((item, index) => (
                   <div key={item.id} className="p-4 border rounded-lg space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h4 className="font-medium">Item {index + 1}</h4>
+                    <div className={cn("flex items-center justify-between", isRTL && "flex-row-reverse")}>
+                      <h4 className="font-medium">{t("Item")} {index + 1}</h4>
                       {items.length > 1 && (
                         <Button
                           type="button"
@@ -381,13 +387,13 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
 
                     <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                       <div className="md:col-span-2 space-y-2">
-                        <Label>Description *</Label>
+                        <Label>{t("Description")} *</Label>
                         <Input
                           value={item.description}
                           onChange={(e) =>
                             updateItem(item.id, "description", e.target.value)
                           }
-                          placeholder="Service or item description"
+                          placeholder={t("Service or item description")}
                           required
                         />
                         <Select
@@ -396,7 +402,7 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
                           }
                         >
                           <SelectTrigger>
-                            <SelectValue placeholder="Or select from list" />
+                            <SelectValue placeholder={t("Or select from list")} />
                           </SelectTrigger>
                           <SelectContent>
                             {predefinedServices.map((service) => (
@@ -414,7 +420,7 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
                       </div>
 
                       <div className="space-y-2">
-                        <Label>Type</Label>
+                        <Label>{t("Type")}</Label>
                         <Select
                           value={item.type}
                           onValueChange={(value) =>
@@ -425,15 +431,15 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="service">Service</SelectItem>
-                            <SelectItem value="medicine">Medicine</SelectItem>
-                            <SelectItem value="test">Test</SelectItem>
+                            <SelectItem value="service">{t("Service")}</SelectItem>
+                            <SelectItem value="medicine">{t("Medicine")}</SelectItem>
+                            <SelectItem value="test">{t("Test")}</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
 
                       <div className="space-y-2">
-                        <Label>Quantity</Label>
+                        <Label>{t("Quantity")}</Label>
                         <Input
                           type="number"
                           min="1"
@@ -449,7 +455,7 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
                       </div>
 
                       <div className="space-y-2">
-                        <Label>Unit Price ($)</Label>
+                        <Label>{t("Unit Price")} ($)</Label>
                         <Input
                           type="number"
                           step="0.01"
@@ -466,9 +472,9 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
                       </div>
                     </div>
 
-                    <div className="text-right">
+                    <div className={cn("text-right", isRTL && "text-left")}>
                       <span className="text-lg font-semibold">
-                        Total: <CurrencyDisplay amount={item.total} />
+                        {t("Total")}: <CurrencyDisplay amount={item.total} />
                       </span>
                     </div>
                   </div>
@@ -479,12 +485,12 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
             {/* Invoice Summary */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Invoice Summary</CardTitle>
+                <CardTitle className="text-lg">{t("Invoice Summary")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="discount">Discount ($)</Label>
+                    <Label htmlFor="discount">{t("Discount")} ($)</Label>
                     <Input
                       id="discount"
                       type="number"
@@ -498,7 +504,7 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="tax">Tax (%)</Label>
+                    <Label htmlFor="tax">{t("Tax")} (%)</Label>
                     <Input
                       id="tax"
                       type="number"
@@ -513,7 +519,7 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Total Amount</Label>
+                    <Label>{t("Total Amount")}</Label>
                     <div className="text-2xl font-bold text-green-600">
                       <CurrencyDisplay amount={calculateTotal()} variant="large" />
                     </div>
@@ -521,32 +527,32 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
                 </div>
 
                 <div className="bg-gray-50 p-4 rounded-lg space-y-2">
-                  <div className="flex justify-between">
-                    <span>Subtotal:</span>
+                  <div className={cn("flex justify-between", isRTL && "flex-row-reverse")}>
+                    <span>{t("Subtotal")}:</span>
                     <span><CurrencyDisplay amount={calculateSubtotal()} /></span>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Tax ({formData.tax}%):</span>
+                  <div className={cn("flex justify-between", isRTL && "flex-row-reverse")}>
+                    <span>{t("Tax")} ({formData.tax}%):</span>
                     <span><CurrencyDisplay amount={calculateTax()} /></span>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Discount:</span>
+                  <div className={cn("flex justify-between", isRTL && "flex-row-reverse")}>
+                    <span>{t("Discount")}:</span>
                     <span>-<CurrencyDisplay amount={formData.discount} /></span>
                   </div>
                   <hr />
-                  <div className="flex justify-between font-bold text-lg">
-                    <span>Total:</span>
+                  <div className={cn("flex justify-between font-bold text-lg", isRTL && "flex-row-reverse")}>
+                    <span>{t("Total")}:</span>
                     <span><CurrencyDisplay amount={calculateTotal()} /></span>
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="notes">Notes</Label>
+                  <Label htmlFor="notes">{t("Notes")}</Label>
                   <Textarea
                     id="notes"
                     value={formData.notes}
                     onChange={(e) => handleChange("notes", e.target.value)}
-                    placeholder="Additional notes or payment terms..."
+                    placeholder={t("Additional notes or payment terms...")}
                     rows={3}
                   />
                 </div>
@@ -554,25 +560,25 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
             </Card>
 
             {/* Action Buttons */}
-            <div className="flex justify-end space-x-4 pt-4 border-t">
+            <div className={cn("flex justify-end pt-4 border-t", isRTL ? "flex-row-reverse space-x-reverse space-x-4" : "space-x-4")}>
               <Button
                 type="button"
                 variant="outline"
                 onClick={onClose}
                 disabled={isLoading}
               >
-                Cancel
+                {t("Cancel")}
               </Button>
-              <Button type="submit" disabled={isLoading}>
+              <Button type="submit" disabled={isLoading} className={cn(isRTL && "flex-row-reverse")}>
                 {isLoading ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Updating Invoice...
+                    <div className={cn("animate-spin rounded-full h-4 w-4 border-b-2 border-white", isRTL ? "ml-2" : "mr-2")}></div>
+                    {t("Updating Invoice...")}
                   </>
                 ) : (
                   <>
-                    <Save className="h-4 w-4 mr-2" />
-                    Update Invoice
+                    <Save className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
+                    {t("Update Invoice")}
                   </>
                 )}
               </Button>
