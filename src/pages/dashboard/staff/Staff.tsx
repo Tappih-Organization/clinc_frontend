@@ -60,6 +60,7 @@ import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
 import { useStaff, StaffFilters, transformUserToStaff } from "@/hooks/useStaff";
 import { apiService, type Payroll } from "@/services/api";
 import { toast } from "@/hooks/use-toast";
+import Loading from "@/components/ui/Loading";
 
 const Staff = () => {
   const { t } = useTranslation();
@@ -155,6 +156,7 @@ const Staff = () => {
       department: selectedDepartment !== "all" ? selectedDepartment : undefined,
     };
     fetchStaff(filters);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTerm, selectedRole, selectedDepartment]);
 
   // Effect to fetch payroll data on component mount
@@ -517,17 +519,19 @@ const Staff = () => {
                         <div className="flex items-center space-x-3">
                           <Avatar>
                             <AvatarFallback>
-                              {member.firstName.charAt(0)}
-                              {member.lastName.charAt(0)}
+                              {member.firstName?.charAt(0) || ''}
+                              {member.lastName?.charAt(0) || ''}
                             </AvatarFallback>
                           </Avatar>
                           <div>
                             <div className="font-medium">
                               {member.firstName} {member.lastName}
                             </div>
-                            <div className="text-sm text-gray-500">
-                              {member.qualifications[0]}
-                            </div>
+                            {member.qualifications && member.qualifications.length > 0 && (
+                              <div className="text-sm text-gray-500">
+                                {member.qualifications[0]}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </TableCell>
@@ -631,17 +635,19 @@ const Staff = () => {
                     <div className="flex items-center space-x-3">
                       <Avatar className="h-10 w-10">
                         <AvatarFallback>
-                          {member.firstName.charAt(0)}
-                          {member.lastName.charAt(0)}
+                          {member.firstName?.charAt(0) || ''}
+                          {member.lastName?.charAt(0) || ''}
                         </AvatarFallback>
                       </Avatar>
                       <div>
                         <div className="font-semibold text-lg">
                           {member.firstName} {member.lastName}
                         </div>
-                        <div className="text-sm text-gray-500">
-                          {member.qualifications[0]}
-                        </div>
+                        {member.qualifications && member.qualifications.length > 0 && (
+                          <div className="text-sm text-gray-500">
+                            {member.qualifications[0]}
+                          </div>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">

@@ -12,6 +12,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import RequirePermission from "@/components/RequirePermission";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import ErrorBoundary from "@/components/ui/ErrorBoundary";
+import PageErrorBoundary from "@/components/PageErrorBoundary";
 import TenantSelector from "@/components/tenant/TenantSelector";
 import Loading from "@/components/ui/Loading";
 
@@ -187,7 +188,9 @@ const App = () => {
               path="/select-clinic"
               element={
                 <ProtectedRoute requireClinic={false}>
-                  <ClinicSelection />
+                  <PageErrorBoundary>
+                    <ClinicSelection />
+                  </PageErrorBoundary>
                 </ProtectedRoute>
               }
             />
@@ -202,14 +205,22 @@ const App = () => {
               }
             >
               {/* Dashboard - accessible to all authenticated users */}
-              <Route index element={<Dashboard />} />
+              <Route index element={
+                <PageErrorBoundary>
+                  <Dashboard />
+                </PageErrorBoundary>
+              } />
 
               {/* Dental AI X-ray Analysis - requires xray_analysis.view permission */}
               <Route
                 path="xray-analysis"
                 element={
                   <RequirePermission permissions="xray_analysis.view">
-                    <XrayAnalysis />
+                    <PageErrorBoundary>
+                      <Suspense fallback={<Loading size="default" />}>
+                        <XrayAnalysis />
+                      </Suspense>
+                    </PageErrorBoundary>
                   </RequirePermission>
                 }
               />
@@ -219,9 +230,11 @@ const App = () => {
                 path="ai-test-analysis"
                 element={
                   <RequirePermission permissions="test_reports.view">
-                    <Suspense fallback={<Loading size="default" />}>
-                      <AITestAnalysis />
-                    </Suspense>
+                    <PageErrorBoundary>
+                      <Suspense fallback={<Loading size="default" />}>
+                        <AITestAnalysis />
+                      </Suspense>
+                    </PageErrorBoundary>
                   </RequirePermission>
                 }
               />
@@ -231,9 +244,11 @@ const App = () => {
                 path="ai-test-comparison"
                 element={
                   <RequirePermission permissions="test_reports.view">
-                    <Suspense fallback={<Loading size="default" />}>
-                      <AITestComparison />
-                    </Suspense>
+                    <PageErrorBoundary>
+                      <Suspense fallback={<Loading size="default" />}>
+                        <AITestComparison />
+                      </Suspense>
+                    </PageErrorBoundary>
                   </RequirePermission>
                 }
               />
@@ -243,9 +258,11 @@ const App = () => {
                 path="settings"
                 element={
                   <RequirePermission permissions="settings.view">
-                    <Suspense fallback={<Loading size="default" />}>
-                      <Settings />
-                    </Suspense>
+                    <PageErrorBoundary>
+                      <Suspense fallback={<Loading size="default" />}>
+                        <Settings />
+                      </Suspense>
+                    </PageErrorBoundary>
                   </RequirePermission>
                 }
               />
@@ -260,9 +277,11 @@ const App = () => {
                 path="patients"
                 element={
                   <RequirePermission permissions="patients.view">
-                    <Suspense fallback={<Loading size="default" />}>
-                      <Patients />
-                    </Suspense>
+                    <PageErrorBoundary>
+                      <Suspense fallback={<Loading size="default" />}>
+                        <Patients />
+                      </Suspense>
+                    </PageErrorBoundary>
                   </RequirePermission>
                 }
               />
@@ -272,9 +291,11 @@ const App = () => {
                 path="appointments"
                 element={
                   <RequirePermission permissions="appointments.view">
-                    <Suspense fallback={<Loading size="default" />}>
-                      <Appointments />
-                    </Suspense>
+                    <PageErrorBoundary>
+                      <Suspense fallback={<Loading size="default" />}>
+                        <Appointments />
+                      </Suspense>
+                    </PageErrorBoundary>
                   </RequirePermission>
                 }
               />
@@ -284,9 +305,11 @@ const App = () => {
                 path="leads"
                 element={
                   <RequirePermission permissions="leads.view">
-                    <Suspense fallback={<Loading size="default" />}>
-                      <Leads />
-                    </Suspense>
+                    <PageErrorBoundary>
+                      <Suspense fallback={<Loading size="default" />}>
+                        <Leads />
+                      </Suspense>
+                    </PageErrorBoundary>
                   </RequirePermission>
                 }
               />
@@ -296,9 +319,11 @@ const App = () => {
                 path="billing"
                 element={
                   <RequirePermission permissions={["invoices.view", "payments.view"]} operator="OR">
-                    <Suspense fallback={<Loading size="default" />}>
-                      <Billing />
-                    </Suspense>
+                    <PageErrorBoundary>
+                      <Suspense fallback={<Loading size="default" />}>
+                        <Billing />
+                      </Suspense>
+                    </PageErrorBoundary>
                   </RequirePermission>
                 }
               />
@@ -308,9 +333,11 @@ const App = () => {
                 path="invoices"
                 element={
                   <RequirePermission permissions="invoices.view">
-                    <Suspense fallback={<Loading size="default" />}>
-                      <Invoices />
-                    </Suspense>
+                    <PageErrorBoundary>
+                      <Suspense fallback={<Loading size="default" />}>
+                        <Invoices />
+                      </Suspense>
+                    </PageErrorBoundary>
                   </RequirePermission>
                 }
               />
@@ -319,9 +346,11 @@ const App = () => {
                 path="payments"
                 element={
                   <RequirePermission permissions="payments.view">
-                    <Suspense fallback={<Loading size="default" />}>
-                      <Payments />
-                    </Suspense>
+                    <PageErrorBoundary>
+                      <Suspense fallback={<Loading size="default" />}>
+                        <Payments />
+                      </Suspense>
+                    </PageErrorBoundary>
                   </RequirePermission>
                 }
               />
@@ -330,9 +359,11 @@ const App = () => {
                 path="payroll"
                 element={
                   <RequirePermission permissions="payroll.view">
-                    <Suspense fallback={<Loading size="default" />}>
-                      <Payroll />
-                    </Suspense>
+                    <PageErrorBoundary>
+                      <Suspense fallback={<Loading size="default" />}>
+                        <Payroll />
+                      </Suspense>
+                    </PageErrorBoundary>
                   </RequirePermission>
                 }
               />
@@ -341,9 +372,11 @@ const App = () => {
                 path="expenses"
                 element={
                   <RequirePermission permissions="expenses.view">
-                    <Suspense fallback={<Loading size="default" />}>
-                      <Expenses />
-                    </Suspense>
+                    <PageErrorBoundary>
+                      <Suspense fallback={<Loading size="default" />}>
+                        <Expenses />
+                      </Suspense>
+                    </PageErrorBoundary>
                   </RequirePermission>
                 }
               />
@@ -352,9 +385,11 @@ const App = () => {
                 path="performance"
                 element={
                   <RequirePermission permissions="analytics.reports">
-                    <Suspense fallback={<Loading size="default" />}>
-                      <Performance />
-                    </Suspense>
+                    <PageErrorBoundary>
+                      <Suspense fallback={<Loading size="default" />}>
+                        <Performance />
+                      </Suspense>
+                    </PageErrorBoundary>
                   </RequirePermission>
                 }
               />
@@ -364,9 +399,11 @@ const App = () => {
                 path="services"
                 element={
                   <RequirePermission permissions="services.view">
-                    <Suspense fallback={<Loading size="default" />}>
-                      <Services />
-                    </Suspense>
+                    <PageErrorBoundary>
+                      <Suspense fallback={<Loading size="default" />}>
+                        <Services />
+                      </Suspense>
+                    </PageErrorBoundary>
                   </RequirePermission>
                 }
               />
@@ -376,9 +413,11 @@ const App = () => {
                 path="departments"
                 element={
                   <RequirePermission permissions="departments.view">
-                    <Suspense fallback={<Loading size="default" />}>
-                      <Departments />
-                    </Suspense>
+                    <PageErrorBoundary>
+                      <Suspense fallback={<Loading size="default" />}>
+                        <Departments />
+                      </Suspense>
+                    </PageErrorBoundary>
                   </RequirePermission>
                 }
               />
@@ -388,9 +427,11 @@ const App = () => {
                 path="clinics"
                 element={
                   <RequirePermission permissions="clinics.view">
-                    <Suspense fallback={<Loading size="default" />}>
-                      <Clinics />
-                    </Suspense>
+                    <PageErrorBoundary>
+                      <Suspense fallback={<Loading size="default" />}>
+                        <Clinics />
+                      </Suspense>
+                    </PageErrorBoundary>
                   </RequirePermission>
                 }
               />
@@ -400,9 +441,11 @@ const App = () => {
                 path="permissions"
                 element={
                   <RequirePermission permissions="permissions.view">
-                    <Suspense fallback={<Loading size="default" />}>
-                      <Permissions />
-                    </Suspense>
+                    <PageErrorBoundary>
+                      <Suspense fallback={<Loading size="default" />}>
+                        <Permissions />
+                      </Suspense>
+                    </PageErrorBoundary>
                   </RequirePermission>
                 }
               />
@@ -412,9 +455,11 @@ const App = () => {
                 path="inventory"
                 element={
                   <RequirePermission permissions="inventory.view">
-                    <Suspense fallback={<Loading size="default" />}>
-                      <Inventory />
-                    </Suspense>
+                    <PageErrorBoundary>
+                      <Suspense fallback={<Loading size="default" />}>
+                        <Inventory />
+                      </Suspense>
+                    </PageErrorBoundary>
                   </RequirePermission>
                 }
               />
@@ -424,9 +469,11 @@ const App = () => {
                 path="staff"
                 element={
                   <RequirePermission permissions="users.view">
-                    <Suspense fallback={<Loading size="default" />}>
-                      <Staff />
-                    </Suspense>
+                    <PageErrorBoundary>
+                      <Suspense fallback={<Loading size="default" />}>
+                        <Staff />
+                      </Suspense>
+                    </PageErrorBoundary>
                   </RequirePermission>
                 }
               />
@@ -436,9 +483,11 @@ const App = () => {
                 path="prescriptions"
                 element={
                   <RequirePermission permissions="prescriptions.view">
-                    <Suspense fallback={<Loading size="default" />}>
-                      <Prescriptions />
-                    </Suspense>
+                    <PageErrorBoundary>
+                      <Suspense fallback={<Loading size="default" />}>
+                        <Prescriptions />
+                      </Suspense>
+                    </PageErrorBoundary>
                   </RequirePermission>
                 }
               />
@@ -448,9 +497,11 @@ const App = () => {
                 path="odontograms"
                 element={
                   <RequirePermission permissions="odontogram.view">
-                    <Suspense fallback={<Loading size="default" />}>
-                      <Odontograms />
-                    </Suspense>
+                    <PageErrorBoundary>
+                      <Suspense fallback={<Loading size="default" />}>
+                        <Odontograms />
+                      </Suspense>
+                    </PageErrorBoundary>
                   </RequirePermission>
                 }
               />
@@ -460,9 +511,11 @@ const App = () => {
                 path="tests"
                 element={
                   <RequirePermission permissions="tests.view">
-                    <Suspense fallback={<Loading size="default" />}>
-                      <Tests />
-                    </Suspense>
+                    <PageErrorBoundary>
+                      <Suspense fallback={<Loading size="default" />}>
+                        <Tests />
+                      </Suspense>
+                    </PageErrorBoundary>
                   </RequirePermission>
                 }
               />
@@ -472,9 +525,11 @@ const App = () => {
                 path="test-reports"
                 element={
                   <RequirePermission permissions="test_reports.view">
-                    <Suspense fallback={<Loading size="default" />}>
-                      <TestReports />
-                    </Suspense>
+                    <PageErrorBoundary>
+                      <Suspense fallback={<Loading size="default" />}>
+                        <TestReports />
+                      </Suspense>
+                    </PageErrorBoundary>
                   </RequirePermission>
                 }
               />
@@ -484,9 +539,11 @@ const App = () => {
                 path="lab-vendors"
                 element={
                   <RequirePermission permissions="lab_vendors.view">
-                    <Suspense fallback={<Loading size="default" />}>
-                      <LabVendors />
-                    </Suspense>
+                    <PageErrorBoundary>
+                      <Suspense fallback={<Loading size="default" />}>
+                        <LabVendors />
+                      </Suspense>
+                    </PageErrorBoundary>
                   </RequirePermission>
                 }
               />
@@ -496,7 +553,11 @@ const App = () => {
                 path="test-modules/methodology"
                 element={
                   <RequirePermission permissions="tests.view">
-                    <Methodology />
+                    <PageErrorBoundary>
+                      <Suspense fallback={<Loading size="default" />}>
+                        <Methodology />
+                      </Suspense>
+                    </PageErrorBoundary>
                   </RequirePermission>
                 }
               />
@@ -504,7 +565,11 @@ const App = () => {
                 path="test-modules/turnaround-time"
                 element={
                   <RequirePermission permissions="tests.view">
-                    <TurnaroundTime />
+                    <PageErrorBoundary>
+                      <Suspense fallback={<Loading size="default" />}>
+                        <TurnaroundTime />
+                      </Suspense>
+                    </PageErrorBoundary>
                   </RequirePermission>
                 }
               />
@@ -512,7 +577,11 @@ const App = () => {
                 path="test-modules/sample-type"
                 element={
                   <RequirePermission permissions="tests.view">
-                    <SampleType />
+                    <PageErrorBoundary>
+                      <Suspense fallback={<Loading size="default" />}>
+                        <SampleType />
+                      </Suspense>
+                    </PageErrorBoundary>
                   </RequirePermission>
                 }
               />
@@ -520,7 +589,11 @@ const App = () => {
                 path="test-modules/category"
                 element={
                   <RequirePermission permissions="tests.view">
-                    <Category />
+                    <PageErrorBoundary>
+                      <Suspense fallback={<Loading size="default" />}>
+                        <Category />
+                      </Suspense>
+                    </PageErrorBoundary>
                   </RequirePermission>
                 }
               />
@@ -530,7 +603,11 @@ const App = () => {
                 path="calendar"
                 element={
                   <RequirePermission permissions="appointments.view">
-                    <Calendar />
+                    <PageErrorBoundary>
+                      <Suspense fallback={<Loading size="default" />}>
+                        <Calendar />
+                      </Suspense>
+                    </PageErrorBoundary>
                   </RequirePermission>
                 }
               />
@@ -540,7 +617,11 @@ const App = () => {
                 path="reports"
                 element={
                   <RequirePermission permissions={["analytics.dashboard", "analytics.reports"]} operator="OR">
-                    <Analytics />
+                    <PageErrorBoundary>
+                      <Suspense fallback={<Loading size="default" />}>
+                        <Analytics />
+                      </Suspense>
+                    </PageErrorBoundary>
                   </RequirePermission>
                 }
               />
@@ -552,7 +633,13 @@ const App = () => {
               {/* Profile - accessible to all authenticated users */}
               <Route
                 path="profile"
-                element={<Profile />}
+                element={
+                  <PageErrorBoundary>
+                    <Suspense fallback={<Loading size="default" />}>
+                      <Profile />
+                    </Suspense>
+                  </PageErrorBoundary>
+                }
               />
             </Route>
 

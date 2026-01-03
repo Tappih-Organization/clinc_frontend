@@ -304,6 +304,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         tokenPreview: response.token ? `${response.token.substring(0, 20)}...` : 'none'
       });
       
+      // Clear any existing clinic selection data to force clinic selection page
+      // This ensures users always see the clinic selection page after login
+      console.log('🔐 AuthContext - Clearing clinic data to force clinic selection');
+      clinicCookies.clearClinicData();
+      
       // Store the initial authentication token (without clinic context)
       // This token allows access to user/clinics endpoint
       if (response.token) {

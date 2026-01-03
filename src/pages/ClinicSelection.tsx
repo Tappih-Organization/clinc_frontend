@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Building2, MapPin, Phone, Mail, Users, Clock, ChevronRight, Lock, Plus, RefreshCw } from 'lucide-react';
+import { Building2, MapPin, Phone, Mail, Users, Clock, ChevronRight, Lock, Plus, RefreshCw, Loader2, Sparkles, ArrowRight } from 'lucide-react';
 import Loading from '@/components/ui/Loading';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useClinic, useClinicSelection } from '@/contexts/ClinicContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -14,6 +16,8 @@ import PublicHeader from '@/components/layout/PublicHeader';
 import apiService from '@/services/api';
 import AddClinicModal from '@/components/modals/AddClinicModal';
 import { clinicCookies } from '@/utils/cookies';
+import { useIsRTL } from '@/hooks/useIsRTL';
+import { cn } from '@/lib/utils';
 
 
 // Clinic interface for forms (based on backend model)
@@ -64,6 +68,7 @@ const ClinicSelection: React.FC = () => {
   const [isSelecting, setIsSelecting] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const isRTL = useIsRTL();
 
   // Debug modal state in console
   console.log('🎭 ClinicSelection render - Modal state:', { isAddModalOpen, userClinicsLoading, hasClinics });
@@ -159,46 +164,14 @@ const ClinicSelection: React.FC = () => {
   };
 
 
-  useEffect(() => {
-    // Only redirect to dashboard if user has clinics AND already has a clinic selected
-    // Never redirect if user has no clinics - keep them on clinic selection page
-    if (!requiresSelection && hasClinics && userClinics.length > 0) {
-      console.log('📍 ClinicSelection - User has clinic selected, checking for redirect path');
-      // Check if there's a stored redirect path
-      const redirectPath = sessionStorage.getItem('redirectAfterClinicSelection');
-      if (redirectPath) {
-        sessionStorage.removeItem('redirectAfterClinicSelection');
-        console.log('📍 ClinicSelection - Redirecting to stored path:', redirectPath);
-        navigate(redirectPath, { replace: true });
-      } else {
-        console.log('📍 ClinicSelection - No stored path, redirecting to dashboard');
-        navigate('/dashboard', { replace: true });
-      }
-    }
-  }, [requiresSelection, hasClinics, userClinics.length, navigate]);
+  // REMOVED: Auto-redirect to dashboard
+  // Users must always manually select a clinic, even if they have one selected
+  // This ensures they see the clinic selection page every time they log in
+  // The redirect will only happen after they manually click to select a clinic
 
-  // Auto-open modal for users when no clinics are available
-  useEffect(() => {
-    console.log('🔍 Auto-open effect triggered:', {
-      userClinicsLoading,
-      hasClinics,
-      isAddModalOpen,
-      userClinicsLength: userClinics.length
-    });
-    
-    if (!userClinicsLoading && !hasClinics && !isAddModalOpen) {
-      console.log('🏥 Auto-opening Add Clinic modal for user with no clinics');
-      setIsAddModalOpen(true);
-    }
-  }, [userClinicsLoading, hasClinics, isAddModalOpen, userClinics.length]);
-
-  // Force auto-open for users with absolutely no clinics (additional safety)
-  useEffect(() => {
-    if (!userClinicsLoading && userClinics.length === 0 && !isAddModalOpen) {
-      console.log('🚀 Force auto-opening modal for user with zero clinics');
-      setTimeout(() => setIsAddModalOpen(true), 500); // Small delay to ensure UI is ready
-    }
-  }, [userClinicsLoading, userClinics.length, isAddModalOpen]);
+  // REMOVED: Auto-open modal for users when no clinics are available
+  // Users must manually click the "Create New Clinic" button to open the form
+  // This provides better user experience and prevents unwanted modal popups
 
   const handleSelectClinic = async (clinicId: string, hasAccess: boolean) => {
     if (!hasAccess) {
@@ -210,10 +183,16 @@ const ClinicSelection: React.FC = () => {
       setIsSelecting(true);
       setSelectedClinicId(clinicId);
 
+      console.log('🎯 ClinicSelection - Starting clinic selection:', clinicId);
       const success = await selectClinic(clinicId);
       
       if (success) {
+        console.log('✅ ClinicSelection - Clinic selected successfully');
         toast.success(t('Clinic selected successfully'));
+        
+        // Small delay to ensure state is updated
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
         // Check if there's a stored redirect path
         const redirectPath = sessionStorage.getItem('redirectAfterClinicSelection');
         if (redirectPath) {
@@ -221,14 +200,25 @@ const ClinicSelection: React.FC = () => {
           console.log('📍 ClinicSelection - Redirecting to stored path:', redirectPath);
           navigate(redirectPath, { replace: true });
         } else {
+          console.log('📍 ClinicSelection - Redirecting to dashboard');
           navigate('/dashboard', { replace: true });
         }
       } else {
-        toast.error(t('Failed to select clinic'));
+        console.error('❌ ClinicSelection - selectClinic returned false');
+        toast.error(t('Failed to select clinic. Please try again.'));
       }
-    } catch (error) {
-      console.error('Error selecting clinic:', error);
-      toast.error(t('Failed to select clinic'));
+    } catch (error: any) {
+      console.error('❌ ClinicSelection - Error selecting clinic:', error);
+      
+      // Provide more specific error messages
+      let errorMessage = t('Failed to select clinic');
+      if (error?.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      
+      toast.error(errorMessage);
     } finally {
       setIsSelecting(false);
       setSelectedClinicId(null);
@@ -262,11 +252,68 @@ const ClinicSelection: React.FC = () => {
     return colors[role] || colors.staff;
   };
 
-  // Never show loading screen - always show the page immediately
-  // Data will be loaded in the background and updated when ready
-  // This provides a better user experience without loading screens on refresh
+  // Show loading state while clinics are being fetched
+  // This prevents showing "No Clinics Available" before data is loaded
+  if (userClinicsLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+        <PublicHeader showActions={false} />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+          {/* Header Skeleton */}
+          <div className="mb-10">
+            <div className="flex flex-col space-y-6 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between">
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <Skeleton className="h-10 w-10 rounded-lg" />
+                  <Skeleton className="h-10 w-64" />
+                </div>
+                <Skeleton className="h-5 w-96 ml-12" />
+              </div>
+              <div className="flex items-center gap-3">
+                <Skeleton className="h-10 w-24" />
+                <Skeleton className="h-10 w-32" />
+              </div>
+            </div>
+          </div>
 
-  if (!hasClinics) {
+          {/* Clinic Cards Skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+            {[1, 2, 3].map((i) => (
+              <Card key={i} className="border-2">
+                <CardHeader className="pb-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center space-x-4 flex-1">
+                      <Skeleton className="h-14 w-14 rounded-full" />
+                      <div className="flex-1 space-y-2">
+                        <Skeleton className="h-6 w-32" />
+                        <Skeleton className="h-4 w-20" />
+                      </div>
+                    </div>
+                    <Skeleton className="h-6 w-16 rounded-full" />
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-3/4" />
+                  <div className="space-y-2 pt-2 border-t">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-2/3" />
+                  </div>
+                  <div className="pt-4 border-t">
+                    <Skeleton className="h-11 w-full rounded-md" />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Only show "No Clinics Available" after loading is complete and there are truly no clinics
+  if (!hasClinics && !userClinicsLoading) {
     console.log('📋 No clinics page - Modal state:', { 
       isAddModalOpen, 
       userClinicsLoading, 
@@ -275,38 +322,59 @@ const ClinicSelection: React.FC = () => {
     });
     
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
         <PublicHeader showActions={false} />
-        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <CardTitle>No Clinics Available</CardTitle>
-            <CardDescription>
-              You don't have access to any clinics yet. You can create a new clinic to get started.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Button 
-              onClick={() => {
-                console.log('🎯 Create New Clinic button clicked (no clinics page)');
-                console.log('🎭 Setting modal to open:', !isAddModalOpen);
-                setIsAddModalOpen(true);
-              }}
-              className="w-full"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Create New Clinic
-            </Button>
-            <Button 
-              variant="outline" 
-              className="w-full"
-              onClick={() => navigate('/login')}
-            >
-              Back to Login
-            </Button>
-          </CardContent>
-        </Card>
+        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="w-full max-w-md"
+          >
+            <Card className="border-2 shadow-xl backdrop-blur-sm bg-card/95">
+              <CardHeader className="text-center space-y-4 pb-6">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                  className="mx-auto w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center"
+                >
+                  <Building2 className="h-10 w-10 text-primary" />
+                </motion.div>
+                <div>
+                  <CardTitle className="text-2xl font-bold mb-2">{t('No Clinics Available')}</CardTitle>
+                  <CardDescription className="text-base">
+                    {t("You don't have access to any clinics yet. Create a new clinic to get started with your practice.")}
+                  </CardDescription>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <Button 
+                    onClick={() => {
+                      console.log('🎯 Create New Clinic button clicked (no clinics page)');
+                      setIsAddModalOpen(true);
+                    }}
+                    className="w-full h-12 text-base font-semibold shadow-lg bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary"
+                    size="lg"
+                  >
+                    <Plus className={cn("h-5 w-5", isRTL ? "ml-2" : "mr-2")} />
+                    {t('Create New Clinic')}
+                  </Button>
+                </motion.div>
+                <Button 
+                  variant="outline" 
+                  className="w-full h-11"
+                  onClick={() => navigate('/login')}
+                >
+                  {t('Back to Login')}
+                </Button>
+              </CardContent>
+            </Card>
+          </motion.div>
         </div>
         
         {/* Modal should be here for no-clinics case */}
@@ -323,191 +391,243 @@ const ClinicSelection: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       <PublicHeader showActions={false} />
 
       {/* Content */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <div className="flex flex-col space-y-4 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="text-2xl font-bold text-foreground mb-2">Your Clinics</h2>
-              <p className="text-muted-foreground">
-                You have access to {userClinics.filter(uc => uc.hasRelationship).length} clinic{userClinics.filter(uc => uc.hasRelationship).length !== 1 ? 's' : ''}. 
-                Select one to continue.
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+        {/* Header Section */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mb-10"
+        >
+          <div className="flex flex-col space-y-6 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between">
+            <div className="space-y-2">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5">
+                  <Building2 className="h-6 w-6 text-primary" />
+                </div>
+                <h1 className="text-3xl sm:text-4xl font-bold text-foreground bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+                  {t('Select Your Clinic')}
+                </h1>
+              </div>
+              <p className="text-muted-foreground text-base sm:text-lg ml-12">
+                {t('You have access to')} <span className="font-semibold text-primary">{userClinics.filter(uc => uc.hasRelationship).length}</span> {t('clinic')}{userClinics.filter(uc => uc.hasRelationship).length !== 1 ? t('s') : ''}. 
+                {t(' Choose one to continue to your dashboard.')}
               </p>
             </div>
             
-            {/* User Actions - Available for all users */}
-            <div className="flex items-center space-x-3">
+            {/* User Actions */}
+            <div className="flex items-center gap-3 sm:ml-4">
               <Button
                 variant="outline"
                 onClick={handleRefresh}
                 disabled={isRefreshing || userClinicsLoading}
+                className="shadow-sm hover:shadow-md transition-shadow"
               >
-                <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-                Refresh
+                <RefreshCw className={cn("h-4 w-4", isRefreshing && "animate-spin", isRTL ? "ml-2" : "mr-2")} />
+                {t('Refresh')}
               </Button>
-              <Button
-                onClick={() => {
-                  console.log('🎯 Add Clinic button clicked');
-                  setIsAddModalOpen(true);
-                }}
-                disabled={userClinicsLoading}
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Clinic
-              </Button>
+                <Button
+                  onClick={() => {
+                    console.log('🎯 Add Clinic button clicked');
+                    setIsAddModalOpen(true);
+                  }}
+                  disabled={userClinicsLoading}
+                  className="shadow-lg bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary"
+                >
+                  <Plus className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
+                  {t('Add Clinic')}
+                </Button>
+              </motion.div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {userClinics.map((userClinic) => {
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          {userClinics.map((userClinic, index) => {
             const clinic = userClinic.clinic_id;
             const isCurrentlySelecting = selectedClinicId === clinic._id;
             const hasAccess = userClinic.hasRelationship === true;
 
             return (
-              <Card 
-                key={clinic._id} 
-                className={`transition-all duration-200 relative overflow-hidden ${
-                  hasAccess 
-                    ? 'hover:shadow-lg cursor-pointer group' 
-                    : 'opacity-50 cursor-not-allowed bg-muted/30'
-                }`}
-                onClick={() => !isSelecting && handleSelectClinic(clinic._id, hasAccess)}
+              <motion.div
+                key={clinic._id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: index * 0.1 }}
+                whileHover={hasAccess ? { y: -4 } : {}}
+                className="h-full"
               >
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center space-x-3">
-                      <Avatar className={`h-12 w-12 ${!hasAccess ? 'opacity-50' : ''}`}>
-                        <AvatarFallback className={`font-semibold ${
-                          hasAccess 
-                            ? 'bg-primary/10 text-primary' 
-                            : 'bg-muted text-muted-foreground'
-                        }`}>
-                          {getClinicInitials(clinic.name)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <CardTitle className={`text-lg transition-colors ${
-                            hasAccess 
-                              ? 'group-hover:text-primary' 
-                              : 'text-muted-foreground'
-                          }`}>
-                            {clinic.name}
-                          </CardTitle>
-                          {!hasAccess && <Lock className="h-4 w-4 text-muted-foreground" />}
-                        </div>
-                        <p className="text-sm text-muted-foreground font-mono">
-                          {clinic.code}
-                        </p>
-                      </div>
-                    </div>
-                    {hasAccess && userClinic.role && (
-                      <Badge className={getRoleBadgeColor(userClinic.role)}>
-                        {userClinic.role}
-                      </Badge>
-                    )}
-                    {!hasAccess && (
-                      <Badge variant="secondary" className="bg-muted text-muted-foreground">
-                        No Access
-                      </Badge>
-                    )}
-                  </div>
-                </CardHeader>
-
-                <CardContent className="space-y-4">
-                  {clinic.description && (
-                    <p className="text-sm text-muted-foreground line-clamp-2">
-                      {clinic.description}
-                    </p>
+                <Card 
+                  className={`h-full transition-all duration-300 relative overflow-hidden border-2 ${
+                    hasAccess 
+                      ? 'hover:shadow-2xl hover:border-primary/50 cursor-pointer group bg-card' 
+                      : 'opacity-60 cursor-not-allowed bg-muted/20 border-muted'
+                  } ${isCurrentlySelecting ? 'ring-2 ring-primary ring-offset-2' : ''}`}
+                  onClick={() => !isSelecting && handleSelectClinic(clinic._id, hasAccess)}
+                >
+                  {/* Gradient overlay on hover */}
+                  {hasAccess && (
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
                   )}
 
-                  <div className="space-y-2">
-                    <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                      <MapPin className="h-4 w-4" />
-                      <span>{formatAddress(clinic)}</span>
-                    </div>
-                    
-                    <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                      <Phone className="h-4 w-4" />
-                      <span>{clinic.contact.phone}</span>
-                    </div>
-
-                    <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                      <Mail className="h-4 w-4" />
-                      <span>{clinic.contact.email}</span>
-                    </div>
-
-                    {hasAccess && userClinic.joined_at && (
-                      <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                        <Clock className="h-4 w-4" />
-                        <span>Joined {new Date(userClinic.joined_at).toLocaleDateString()}</span>
+                  <CardHeader className="pb-4 relative z-10">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center space-x-4 flex-1 min-w-0">
+                        <motion.div
+                          whileHover={hasAccess ? { scale: 1.1, rotate: 5 } : {}}
+                          transition={{ type: "spring", stiffness: 300 }}
+                        >
+                          <Avatar className={`h-14 w-14 border-2 ${
+                            hasAccess 
+                              ? 'border-primary/20 group-hover:border-primary/40' 
+                              : 'border-muted'
+                          } transition-colors`}>
+                            <AvatarFallback className={`font-bold text-lg ${
+                              hasAccess 
+                                ? 'bg-gradient-to-br from-primary/20 to-primary/5 text-primary' 
+                                : 'bg-muted text-muted-foreground'
+                            }`}>
+                              {getClinicInitials(clinic.name)}
+                            </AvatarFallback>
+                          </Avatar>
+                        </motion.div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <CardTitle className={`text-xl font-bold transition-colors truncate ${
+                              hasAccess 
+                                ? 'group-hover:text-primary' 
+                                : 'text-muted-foreground'
+                            }`}>
+                              {clinic.name}
+                            </CardTitle>
+                            {!hasAccess && <Lock className="h-4 w-4 text-muted-foreground flex-shrink-0" />}
+                          </div>
+                          <p className="text-xs text-muted-foreground font-mono bg-muted/50 px-2 py-1 rounded inline-block">
+                            {clinic.code}
+                          </p>
+                        </div>
                       </div>
+                      <div className="flex-shrink-0">
+                        {hasAccess && userClinic.role && (
+                          <Badge className={`${getRoleBadgeColor(userClinic.role)} shadow-sm`}>
+                            {userClinic.role}
+                          </Badge>
+                        )}
+                        {!hasAccess && (
+                          <Badge variant="secondary" className="bg-muted/50 text-muted-foreground border">
+                            {t('No Access')}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  </CardHeader>
+
+                  <CardContent className="space-y-4 relative z-10">
+                    {clinic.description && (
+                      <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                        {clinic.description}
+                      </p>
                     )}
 
-                    {!hasAccess && (
-                      <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                        <Lock className="h-4 w-4" />
-                        <span>Contact administrator for access</span>
+                    <div className="space-y-2.5 pt-2 border-t border-border/50">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground group-hover:text-foreground/80 transition-colors">
+                        <MapPin className="h-4 w-4 text-primary/60 flex-shrink-0" />
+                        <span className="truncate">{formatAddress(clinic)}</span>
                       </div>
-                    )}
-                  </div>
+                      
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground group-hover:text-foreground/80 transition-colors">
+                        <Phone className="h-4 w-4 text-primary/60 flex-shrink-0" />
+                        <span className="truncate">{clinic.contact.phone}</span>
+                      </div>
 
-                  <div className="pt-4">
-                    <Button 
-                      className={`w-full transition-all ${
-                        hasAccess 
-                          ? 'group-hover:bg-primary group-hover:text-primary-foreground' 
-                          : ''
-                      }`}
-                      variant={
-                        !hasAccess 
-                          ? "secondary" 
-                          : isCurrentlySelecting 
-                            ? "default" 
-                            : "outline"
-                      }
-                      disabled={isSelecting || !hasAccess}
-                    >
-                      {isCurrentlySelecting ? (
-                        <>
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                          Selecting...
-                        </>
-                      ) : !hasAccess ? (
-                        <>
-                          <Lock className="h-4 w-4 mr-2" />
-                          No Access
-                        </>
-                      ) : (
-                        <>
-                          Access Clinic
-                          <ChevronRight className="h-4 w-4 ml-2" />
-                        </>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground group-hover:text-foreground/80 transition-colors">
+                        <Mail className="h-4 w-4 text-primary/60 flex-shrink-0" />
+                        <span className="truncate">{clinic.contact.email}</span>
+                      </div>
+
+                      {hasAccess && userClinic.joined_at && (
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground pt-1">
+                          <Clock className="h-3.5 w-3.5 text-primary/60" />
+                          <span>{t('Joined')} {new Date(userClinic.joined_at).toLocaleDateString()}</span>
+                        </div>
                       )}
-                    </Button>
-                  </div>
-                </CardContent>
 
-                {/* Hover overlay - only for accessible clinics */}
-                {hasAccess && (
-                  <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-                )}
-              </Card>
+                      {!hasAccess && (
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground pt-1">
+                          <Lock className="h-3.5 w-3.5" />
+                          <span>{t('Contact administrator for access')}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="pt-4 border-t border-border/50">
+                      <motion.div
+                        whileHover={hasAccess && !isSelecting ? { scale: 1.02 } : {}}
+                        whileTap={hasAccess && !isSelecting ? { scale: 0.98 } : {}}
+                      >
+                        <Button 
+                          className={`w-full h-11 font-semibold transition-all ${
+                            hasAccess 
+                              ? 'bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl' 
+                              : ''
+                          }`}
+                          variant={
+                            !hasAccess 
+                              ? "secondary" 
+                              : isCurrentlySelecting 
+                                ? "default" 
+                                : "default"
+                          }
+                          disabled={isSelecting || !hasAccess}
+                        >
+                          {isCurrentlySelecting ? (
+                            <>
+                              <Loader2 className={cn("h-4 w-4 animate-spin", isRTL ? "ml-2" : "mr-2")} />
+                              {t('Selecting...')}
+                            </>
+                          ) : !hasAccess ? (
+                            <>
+                              <Lock className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
+                              {t('No Access')}
+                            </>
+                          ) : (
+                            <>
+                              {t('Access Clinic')}
+                              <ArrowRight className={cn("h-4 w-4 group-hover:translate-x-1 transition-transform", isRTL ? "mr-2 group-hover:-translate-x-1" : "ml-2")} />
+                            </>
+                          )}
+                        </Button>
+                      </motion.div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
             );
           })}
         </div>
 
         {/* Footer */}
-        <div className="mt-12 text-center">
-          <p className="text-sm text-muted-foreground">
-            Need access to another clinic? Contact your administrator.
-          </p>
-        </div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          className="mt-16 text-center"
+        >
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted/50 border border-border/50">
+            <Sparkles className="h-4 w-4 text-primary/60" />
+            <p className="text-sm text-muted-foreground">
+              {t('Need access to another clinic? Contact your administrator.')}
+            </p>
+          </div>
+        </motion.div>
       </div>
 
       {/* Add Clinic Modal - Available for users with clinics */}

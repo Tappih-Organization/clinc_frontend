@@ -330,13 +330,9 @@ export const ClinicProvider: React.FC<ClinicProviderProps> = ({ children }) => {
         console.log('🏥 loadUserClinics - Current clinic loaded');
       }
       
-      // If user has clinics and no current clinic is selected, 
-      // we might want to auto-select if there's only one
-      if (clinicsData.length === 1 && !clinicCookies.getClinicId()) {
-        console.log('🏥 loadUserClinics - Auto-selecting single clinic');
-        const singleClinic = clinicsData[0];
-        await selectClinic(singleClinic.clinic_id._id);
-      }
+      // REMOVED: Auto-selection of clinic
+      // Users must always manually select a clinic from the selection page
+      // This ensures they see the clinic selection page every time they log in
 
     } catch (error) {
       console.error('🏥 loadUserClinics - Error:', error);
@@ -399,23 +395,70 @@ export const ClinicProvider: React.FC<ClinicProviderProps> = ({ children }) => {
         clinic_id: clinicId
       });
 
-      if (response.success) {
+      console.log('🏥 selectClinic - API response:', {
+        hasResponse: !!response,
+        responseType: typeof response,
+        responseKeys: response ? Object.keys(response) : [],
+        hasSuccess: response?.success,
+        hasData: !!response?.data,
+        hasToken: !!response?.data?.token,
+        hasClinic: !!response?.data?.clinic,
+        fullResponse: JSON.stringify(response, null, 2)
+      });
+
+      // Check if response has success property
+      // apiService.post returns response.data, so response is the full API response object
+      if (response && (response.success === true || response.success === undefined)) {
+        // The data is in response.data (since apiService.post already extracts response.data)
+        const responseData = response.data;
+        
+        console.log('🏥 selectClinic - Response data:', {
+          hasResponseData: !!responseData,
+          responseDataType: typeof responseData,
+          responseDataKeys: responseData ? Object.keys(responseData) : [],
+          hasToken: !!responseData?.token,
+          hasClinic: !!responseData?.clinic,
+          tokenType: typeof responseData?.token,
+          clinicType: typeof responseData?.clinic,
+          clinicIsObject: responseData?.clinic && typeof responseData.clinic === 'object'
+        });
+        
+        if (!responseData || !responseData.token) {
+          console.error('🏥 selectClinic - No token in response', {
+            responseData,
+            response,
+            responseKeys: response ? Object.keys(response) : []
+          });
+          setError('Invalid response from server. Please try again.');
+          return false;
+        }
+
+        if (!responseData.clinic) {
+          console.error('🏥 selectClinic - No clinic data in response', {
+            responseData,
+            response,
+            responseKeys: response ? Object.keys(response) : []
+          });
+          setError('Invalid clinic data received. Please try again.');
+          return false;
+        }
+
         console.log('🏥 selectClinic - Success, updating clinic data');
         // Update clinic data in cookies
-        clinicCookies.setClinicData(clinicId, response.data.token);
+        clinicCookies.setClinicData(clinicId, responseData.token);
 
         // Update state
-        setCurrentClinic(response.data.clinic);
+        setCurrentClinic(responseData.clinic);
 
         // Prefer backend-provided role and effective permissions
-        const backendRole: string | undefined = response.data.role;
-        const backendPermissions: string[] = response.data.permissions || [];
+        const backendRole: string | undefined = responseData.role;
+        const backendPermissions: string[] = responseData.permissions || [];
 
         // Build a fresh relation using backend data
         const relationFromBackend: UserClinicRelation = {
           _id: null,
           user_id: user?.id || '',
-          clinic_id: response.data.clinic,
+          clinic_id: responseData.clinic,
           role: (backendRole as any) || 'staff',
           permissions: backendPermissions,
           is_active: true,
@@ -427,9 +470,22 @@ export const ClinicProvider: React.FC<ClinicProviderProps> = ({ children }) => {
 
         setCurrentUserClinic(relationFromBackend);
 
+        // Cache the clinic data
+        localStorage.setItem('cached_current_clinic', JSON.stringify(responseData.clinic));
+
         return true;
       }
 
+      console.error('🏥 selectClinic - Response indicates failure:', {
+        response,
+        success: response?.success,
+        message: response?.message
+      });
+      if (response?.message) {
+        setError(response.message);
+      } else {
+        setError('Failed to select clinic. Please try again.');
+      }
       return false;
     } catch (error: any) {
       console.error('🏥 selectClinic - Error details:', error);
