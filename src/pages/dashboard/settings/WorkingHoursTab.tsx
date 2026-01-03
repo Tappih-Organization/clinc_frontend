@@ -28,6 +28,17 @@ const WorkingHoursTab: React.FC<WorkingHoursTabProps> = ({ data, onChange }) => 
   useEffect(() => {
     if (data) {
       setWorkingHours(data);
+    } else {
+      // Initialize with default values
+      const defaultHours: any = {};
+      DAYS.forEach((day) => {
+        defaultHours[day.key] = {
+          isOpen: day.key !== "saturday" && day.key !== "sunday",
+          start: "09:00",
+          end: "17:00",
+        };
+      });
+      setWorkingHours(defaultHours);
     }
   }, [data]);
 
@@ -165,4 +176,3 @@ const WorkingHoursTab: React.FC<WorkingHoursTabProps> = ({ data, onChange }) => 
 };
 
 export default WorkingHoursTab;
-

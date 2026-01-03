@@ -6,7 +6,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useClinic } from "@/contexts/ClinicContext";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import Logo from "@/assets/logomini.svg";
 import Logoar from "@/assets/logoar.svg";
 import DarkLogo from "@/assets/darklogo.svg";
@@ -44,6 +43,14 @@ import {
   Building2,
   Brain,
   Zap,
+  Sparkles,
+  Target,
+  FlaskConical,
+  Wallet,
+  BriefcaseMedical,
+  Users2,
+  FileBarChart,
+  BarChart2,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -64,6 +71,9 @@ interface NavigationItem {
 interface NavigationSection {
   title: string;
   items: NavigationItem[];
+  icon?: React.ComponentType<{ className?: string }>; // Icon for the section
+  collapsible?: boolean; // Whether this section can be collapsed
+  defaultCollapsed?: boolean; // Default collapsed state
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
@@ -74,6 +84,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const { theme } = useTheme();
   const [isTestModulesOpen, setIsTestModulesOpen] = useState(false);
   const [isRTL, setIsRTL] = useState(false);
+  // State to manage collapsed/expanded state for each section
+  const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
 
   // Check if current language is RTL (Arabic, Hebrew, etc.)
   useEffect(() => {
@@ -101,208 +113,20 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     };
   }, [i18n]);
 
-  // Permission-based navigation configuration
-  const navigationSections: NavigationSection[] = [
-    {
-      title: t("Overview"),
-      items: [
-        {
-          name: t("Dashboard"),
-          href: "/dashboard",
-          icon: Home,
-          // Dashboard should be accessible to all authenticated users
-        },
-        {
-          name: t("Dental AI X-ray Analysis"),
-          href: "/dashboard/xray-analysis",
-          icon: Brain,
-          badge: "AI",
-          permission: "xray_analysis.view",
-        },
-        {
-          name: t("AI Test Report Analysis"),
-          href: "/dashboard/ai-test-analysis",
-          icon: TestTube2,
-          badge: "AI",
-          permission: "test_reports.view",
-        },
-        {
-          name: t("Compare Test Reports using AI"),
-          href: "/dashboard/ai-test-comparison",
-          icon: BarChart3,
-          badge: "AI",
-          permission: "test_reports.view",
-        },
-        {
-          name: t("Settings"),
-          href: "/dashboard/settings",
-          icon: Settings,
-          permission: "settings.view",
-        },
-      ],
-    },
-    {
-      title: t("Patient Management"),
-      items: [
-        {
-          name: t("Patients"),
-          href: "/dashboard/patients",
-          icon: Users,
-          permission: "patients.view",
-        },
-        {
-          name: t("Appointments"),
-          href: "/dashboard/appointments",
-          icon: Calendar,
-          permission: "appointments.view",
-        },
-        {
-          name: t("Leads"),
-          href: "/dashboard/leads",
-          icon: UserPlus,
-          // Leads might not have a direct permission, could be part of patients management
-          permissions: ["patients.create", "leads.view"],
-          requiresAnyPermission: true,
-        },
-        {
-          name: t("Prescriptions"),
-          href: "/dashboard/prescriptions",
-          icon: Stethoscope,
-          permission: "prescriptions.view",
-        },
-        {
-          name: t("Odontogram"),
-          href: "/dashboard/odontograms",
-          icon: Zap,
-          badge: "Dental",
-          permission: "odontogram.view",
-        },
-        {
-          name: t("Test Reports"),
-          href: "/dashboard/test-reports",
-          icon: FileText,
-          permission: "test_reports.view",
-        },
-      ],
-    },
-    {
-      title: t("Financial Management"),
-      items: [
-        {
-          name: t("Billing"),
-          href: "/dashboard/billing",
-          icon: DollarSign,
-          permissions: ["invoices.view", "payments.view"],
-          requiresAnyPermission: true,
-        },
-        {
-          name: t("Invoices"),
-          href: "/dashboard/invoices",
-          icon: Receipt,
-          permission: "invoices.view",
-        },
-        {
-          name: t("Payments"),
-          href: "/dashboard/payments",
-          icon: CreditCard,
-          permission: "payments.view",
-        },
-        {
-          name: t("Payroll"),
-          href: "/dashboard/payroll",
-          icon: Briefcase,
-          permission: "payroll.view",
-        },
-        {
-          name: t("Expenses"),
-          href: "/dashboard/expenses",
-          icon: FileText,
-          permission: "expenses.view",
-        },
-        {
-          name: t("Performance"),
-          href: "/dashboard/performance",
-          icon: BarChart3,
-          permission: "analytics.reports",
-        },
-      ],
-    },
-    {
-      title: t("Operations"),
-      items: [
-        {
-          name: t("Services"),
-          href: "/dashboard/services",
-          icon: Activity,
-          permission: "services.view",
-        },
-        {
-          name: t("Departments"),
-          href: "/dashboard/departments",
-          icon: Building2,
-          permission: "departments.view",
-        },
-        {
-          name: t("Clinics"),
-          href: "/dashboard/clinics",
-          icon: Building2,
-          permission: "clinics.view",
-        },
-        {
-          name: t("Permissions"),
-          href: "/dashboard/permissions",
-          icon: Shield,
-          permission: "permissions.view",
-        },
-        {
-          name: t("Inventory"),
-          href: "/dashboard/inventory",
-          icon: Package,
-          permission: "inventory.view",
-        },
-        {
-          name: t("Staff"),
-          href: "/dashboard/staff",
-          icon: UserCheck,
-          permission: "users.view",
-        },
-        {
-          name: t("Lab Vendors"),
-          href: "/dashboard/lab-vendors",
-          icon: Building,
-          permission: "lab_vendors.view",
-        },
-      ],
-    },
-    {
-      title: t("Analytics & Reports"),
-      items: [
-        {
-          name: t("Calendar"),
-          href: "/dashboard/calendar",
-          icon: CalendarDays,
-          permission: "appointments.view",
-        },
-        {
-          name: t("Reports"),
-          href: "/dashboard/reports",
-          icon: BarChart3,
-          permissions: ["analytics.reports", "analytics.dashboard"],
-          requiresAnyPermission: true,
-        },
-      ],
-    },
-
-  ];
-
-  // Always use the main navigation sections - permissions will filter what's shown
-  const sectionsToShow = navigationSections;
-
-  const isActiveLink = (href: string) => {
-    if (href === "/dashboard") {
-      return location.pathname === "/dashboard";
+  // Check if section is collapsed
+  const isSectionCollapsed = (sectionTitle: string, defaultCollapsed?: boolean) => {
+    if (collapsedSections[sectionTitle] !== undefined) {
+      return collapsedSections[sectionTitle];
     }
-    return location.pathname.startsWith(href);
+    return defaultCollapsed ?? false;
+  };
+
+  // Toggle section collapse state
+  const toggleSection = (sectionTitle: string) => {
+    setCollapsedSections(prev => ({
+      ...prev,
+      [sectionTitle]: !prev[sectionTitle]
+    }));
   };
 
   const canAccessItem = (item: NavigationItem) => {
@@ -333,6 +157,278 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     // If no permissions are defined, allow access (fallback for legacy items)
     return true;
   };
+
+  const isActiveLink = (href: string) => {
+    if (href === "/dashboard") {
+      return location.pathname === "/dashboard";
+    }
+    return location.pathname.startsWith(href);
+  };
+
+  // Permission-based navigation configuration
+  const navigationSections: NavigationSection[] = [
+    {
+      title: "", // No title for Overview section
+      items: [
+        {
+          name: t("Dashboard"),
+          href: "/dashboard",
+          icon: Home,
+          // Dashboard should be accessible to all authenticated users
+        },
+      ],
+      collapsible: false, // Overview section should always be visible
+    },
+    {
+      title: t("AI"),
+      icon: Sparkles,
+      items: [
+        {
+          name: t("Dental AI X-ray Analysis"),
+          href: "/dashboard/xray-analysis",
+          icon: Brain,
+          badge: t("AI"),
+          permission: "xray_analysis.view",
+        },
+        {
+          name: t("AI Test Report Analysis"),
+          href: "/dashboard/ai-test-analysis",
+          icon: TestTube2,
+          badge: t("AI"),
+          permission: "test_reports.view",
+        },
+        {
+          name: t("Compare Test Reports using AI"),
+          href: "/dashboard/ai-test-comparison",
+          icon: BarChart3,
+          badge: t("AI"),
+          permission: "test_reports.view",
+        },
+      ],
+      collapsible: true,
+      defaultCollapsed: false,
+    },
+    {
+      title: t("CRM"),
+      icon: Target,
+      items: [
+        {
+          name: t("Leads"),
+          href: "/dashboard/leads",
+          icon: UserPlus,
+          // Leads might not have a direct permission, could be part of patients management
+          permissions: ["patients.create", "leads.view"],
+          requiresAnyPermission: true,
+        },
+      ],
+      collapsible: true,
+      defaultCollapsed: false,
+    },
+    {
+      title: t("Patient Management"),
+      icon: Users2,
+      items: [
+        {
+          name: t("Appointments"),
+          href: "/dashboard/appointments",
+          icon: Calendar,
+          permission: "appointments.view",
+        },
+        {
+          name: t("Patients"),
+          href: "/dashboard/patients",
+          icon: Users,
+          permission: "patients.view",
+        },
+        {
+          name: t("Prescriptions"),
+          href: "/dashboard/prescriptions",
+          icon: Stethoscope,
+          permission: "prescriptions.view",
+        },
+        {
+          name: t("Odontogram"),
+          href: "/dashboard/odontograms",
+          icon: Zap,
+          badge: t("Dental"),
+          permission: "odontogram.view",
+        },
+      ],
+      collapsible: true,
+      defaultCollapsed: false,
+    },
+    {
+      title: t("Lab Management"),
+      icon: FlaskConical,
+      items: [
+        {
+          name: t("Test Reports"),
+          href: "/dashboard/test-reports",
+          icon: FileText,
+          permission: "test_reports.view",
+        },
+      ],
+      collapsible: true,
+      defaultCollapsed: false,
+    },
+    {
+      title: t("Financial Management"),
+      icon: Wallet,
+      items: [
+        {
+          name: t("Billing"),
+          href: "/dashboard/billing",
+          icon: DollarSign,
+          permissions: ["invoices.view", "payments.view"],
+          requiresAnyPermission: true,
+        },
+        {
+          name: t("Invoices"),
+          href: "/dashboard/invoices",
+          icon: Receipt,
+          permission: "invoices.view",
+        },
+        {
+          name: t("Payments"),
+          href: "/dashboard/payments",
+          icon: CreditCard,
+          permission: "payments.view",
+        },
+        {
+          name: t("Expenses"),
+          href: "/dashboard/expenses",
+          icon: FileText,
+          permission: "expenses.view",
+        },
+        {
+          name: t("Financial Performance"),
+          href: "/dashboard/performance",
+          icon: BarChart3,
+          permission: "analytics.reports",
+        },
+      ],
+      collapsible: true,
+      defaultCollapsed: false,
+    },
+    {
+      title: t("Operations Management"),
+      icon: BriefcaseMedical,
+      items: [
+        {
+          name: t("Services"),
+          href: "/dashboard/services",
+          icon: Activity,
+          permission: "services.view",
+        },
+        {
+          name: t("Departments"),
+          href: "/dashboard/departments",
+          icon: Building2,
+          permission: "departments.view",
+        },
+        {
+          name: t("Lab Vendors"),
+          href: "/dashboard/lab-vendors",
+          icon: Building,
+          permission: "lab_vendors.view",
+        },
+      ],
+      collapsible: true,
+      defaultCollapsed: false,
+    },
+    {
+      title: t("Staff Management"),
+      icon: UserCheck,
+      items: [
+        {
+          name: t("Staff"),
+          href: "/dashboard/staff",
+          icon: UserCheck,
+          permission: "users.view",
+        },
+        {
+          name: t("Payroll"),
+          href: "/dashboard/payroll",
+          icon: Briefcase,
+          permission: "payroll.view",
+        },
+        {
+          name: t("Roles & Permissions"),
+          href: "/dashboard/permissions",
+          icon: Shield,
+          permission: "permissions.view",
+        },
+      ],
+      collapsible: true,
+      defaultCollapsed: false,
+    },
+    {
+      title: t("Analytics & Reports"),
+      icon: BarChart2,
+      items: [
+        {
+          name: t("Calendar Report"),
+          href: "/dashboard/calendar",
+          icon: CalendarDays,
+          permission: "appointments.view",
+        },
+        {
+          name: t("Advanced Reports"),
+          href: "/dashboard/reports",
+          icon: BarChart3,
+          permissions: ["analytics.reports", "analytics.dashboard"],
+          requiresAnyPermission: true,
+        },
+      ],
+      collapsible: true,
+      defaultCollapsed: false,
+    },
+    {
+      title: t("Settings"),
+      icon: Settings,
+      items: [
+        {
+          name: t("Clinics"),
+          href: "/dashboard/clinics",
+          icon: Building2,
+          permission: "clinics.view",
+        },
+        {
+          name: t("Settings"),
+          href: "/dashboard/settings",
+          icon: Settings,
+          permission: "settings.view",
+        },
+      ],
+      collapsible: true,
+      defaultCollapsed: false,
+    },
+
+  ];
+
+  // Always use the main navigation sections - permissions will filter what's shown
+  const sectionsToShow = navigationSections;
+
+  // Auto-expand section if it contains active route
+  useEffect(() => {
+    sectionsToShow.forEach(section => {
+      const hasActiveItem = section.items.some(item => {
+        if (!canAccessItem(item)) return false;
+        if (item.href === "/dashboard") {
+          return location.pathname === "/dashboard";
+        }
+        return location.pathname.startsWith(item.href);
+      });
+      
+      if (hasActiveItem && isSectionCollapsed(section.title, section.defaultCollapsed)) {
+        setCollapsedSections(prev => ({
+          ...prev,
+          [section.title]: false
+        }));
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname]);
 
   return (
     <>
@@ -385,7 +481,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         </div>
 
         <ScrollArea className="flex-1 px-3 py-4 h-[calc(100vh-80px)]">
-          <div className="space-y-6 pb-8">
+          <div className="space-y-2 pb-8">
             {/* User info */}
             <div className="px-3">
               <div className={cn(
@@ -407,41 +503,85 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                     isRTL ? "space-x-reverse space-x-2" : "space-x-2"
                   )}>
                     <Badge variant="secondary" className="text-xs capitalize">
-                      {user?.role}
+                      {user?.role ? t(user.role) : user?.role}
                     </Badge>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Role indicator for admins and super admins */}
-            {(user?.role === "super_admin" || user?.role === "admin") && (
-              <div className="px-3">
-                <div className={cn(
-                  "flex items-center p-2 bg-sidebar-accent rounded-lg",
-                  isRTL ? "space-x-reverse space-x-2 flex-row-reverse" : "space-x-2"
-                )}>
-                  <Shield className="h-4 w-4 text-sidebar-primary" />
-                  <span className="text-sm text-sidebar-foreground font-medium">
-                    {user?.role === "super_admin" ? t("Unrestricted Access") : t("Full Access")}
-                  </span>
-                </div>
-              </div>
-            )}
-
             {/* Navigation */}
-            {sectionsToShow.map((section, sectionIndex) => (
-              <div key={section.title}>
-                <div className="px-3 mb-2">
-                  <h3 className={cn(
-                    "text-xs font-semibold text-muted-foreground uppercase tracking-wider",
-                    isRTL ? "text-right" : "text-left"
-                  )}>
-                    {section.title}
-                  </h3>
-                </div>
-                <div className="space-y-1">
-                  {section.items.filter(canAccessItem).map((item) => {
+            {sectionsToShow.map((section, sectionIndex) => {
+              const sectionHasAccessibleItems = section.items.some(canAccessItem);
+              if (!sectionHasAccessibleItems) return null;
+
+              const isCollapsed = section.collapsible !== false && isSectionCollapsed(section.title, section.defaultCollapsed);
+              const accessibleItems = section.items.filter(canAccessItem);
+
+              return (
+                <div key={section.title} className="mb-1">
+                  {/* Section Header with Collapse Toggle - Styled like Tabs */}
+                  {section.title && section.collapsible !== false ? (
+                    <button
+                      onClick={() => toggleSection(section.title)}
+                      className={cn(
+                        "w-full h-10 inline-flex items-center justify-between rounded-md px-3 py-1.5 mb-1 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 group bg-sidebar-accent text-sidebar-accent-foreground hover:bg-sidebar-accent/80",
+                        isRTL ? "flex-row-reverse" : ""
+                      )}
+                    >
+                      <div className={cn(
+                        "flex items-center gap-2",
+                        isRTL ? "flex-row-reverse" : ""
+                      )}>
+                        {section.icon && (
+                          <section.icon className="h-4 w-4 flex-shrink-0" />
+                        )}
+                        <span className={cn(
+                          "whitespace-nowrap",
+                          isRTL ? "text-right" : "text-left"
+                        )}>
+                          {section.title}
+                        </span>
+                      </div>
+                      <div className={cn(
+                        "flex items-center transition-transform duration-200",
+                        isRTL ? "mr-auto" : "ml-auto",
+                        isCollapsed ? "" : "rotate-180"
+                      )}>
+                        <ChevronDown className={cn(
+                          "h-4 w-4 transition-colors",
+                          isRTL ? "mr-1" : "ml-1"
+                        )} />
+                      </div>
+                    </button>
+                  ) : section.title ? (
+                    <div className="w-full h-10 inline-flex items-center justify-center rounded-md bg-sidebar-accent px-3 py-1.5 mb-1 text-sm font-medium text-sidebar-accent-foreground">
+                      <div className={cn(
+                        "flex items-center gap-2",
+                        isRTL ? "flex-row-reverse" : ""
+                      )}>
+                        {section.icon && (
+                          <section.icon className="h-4 w-4 flex-shrink-0" />
+                        )}
+                        <span className={cn(
+                          "whitespace-nowrap",
+                          isRTL ? "text-right" : "text-left"
+                        )}>
+                          {section.title}
+                        </span>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {/* Section Items with Collapse Animation */}
+                  <div
+                    className={cn(
+                      "overflow-hidden transition-all duration-300 ease-in-out",
+                      isCollapsed ? "max-h-0 opacity-0" : "max-h-[1000px] opacity-100"
+                    )}
+                  >
+                    <div className="space-y-1">
+                      {accessibleItems.map((item) => {
                     const isActive = isActiveLink(item.href);
 
                     // Special handling for Test Reports with dropdown
@@ -682,14 +822,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                           </Badge>
                         )}
                       </Link>
-                    );
-                  })}
+                      );
+                    })}
+                    </div>
+                  </div>
                 </div>
-                {sectionIndex < sectionsToShow.length - 1 && (
-                  <Separator className="my-4" />
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
         </ScrollArea>
       </div>

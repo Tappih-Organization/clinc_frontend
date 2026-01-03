@@ -469,10 +469,7 @@ const Staff = () => {
           <CardContent>
             {/* Loading State */}
             {loading && (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-                <span className="ml-2 text-gray-600">{t('Loading staff...')}</span>
-              </div>
+              <Loading text={t('Loading staff...')} />
             )}
 
             {/* Error State */}

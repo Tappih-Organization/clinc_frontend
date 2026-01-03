@@ -20,8 +20,6 @@ import {
   Plus,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { CurrencySelector } from "@/components/ui/CurrencySelector";
-import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
 import ErrorBoundary from "@/components/ui/ErrorBoundary";
 import ClinicSwitcher from "@/components/ClinicSwitcher";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
@@ -75,11 +73,6 @@ const TopBar: React.FC<TopBarProps> = ({ onMenuClick }) => {
             <ThemeToggle className="h-9 w-9 sm:h-10 sm:w-10" />
             {/* Language Selector */}
             <LanguageSelector />
-            
-            {/* Currency Selector - Hidden on small screens */}
-            <div className="hidden md:block">
-              <CurrencySelector variant="compact" showLabel={false} />
-            </div>
 
             {/* User menu */}
             <DropdownMenu>
@@ -121,18 +114,6 @@ const TopBar: React.FC<TopBarProps> = ({ onMenuClick }) => {
                 <DropdownMenuSeparator />
                 
                 {/* Mobile-only utility items - Removed ClinicSwitcher since it's now always visible */}
-                
-                <div className="md:hidden">
-                  <DropdownMenuItem className="py-3">
-                    <ErrorBoundary>
-                      <div className="flex items-center space-x-2 w-full">
-                        <span className="text-sm">{t("Currency:")}</span>
-                        <CurrencySelector variant="compact" showLabel={false} />
-                      </div>
-                    </ErrorBoundary>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                </div>
 
                 <DropdownMenuItem onClick={handleProfileClick} className="py-3">
                   <User className="mr-2 h-4 w-4" />

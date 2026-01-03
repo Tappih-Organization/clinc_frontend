@@ -5,33 +5,41 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useSettings, useUpdateSettings } from "@/hooks/useSettings";
-import { Loader2, Save, Settings as SettingsIcon, Building, Clock, DollarSign, Bell, Shield } from "lucide-react";
+import { Save, Settings as SettingsIcon, Building, Clock } from "lucide-react";
+import Loading from "@/components/ui/Loading";
 import { toast } from "@/hooks/use-toast";
 
 // Import tabs
 import ClinicInfoTab from "./ClinicInfoTab";
 import WorkingHoursTab from "./WorkingHoursTab";
-import FinancialTab from "./FinancialTab";
-import NotificationsTab from "./NotificationsTab";
-import SecurityTab from "./SecurityTab";
+// import FinancialTab from "./FinancialTab";
+// import NotificationsTab from "./NotificationsTab";
+// import SecurityTab from "./SecurityTab";
 
 const Settings = () => {
   const { t } = useTranslation();
-  const { data: settings, isLoading, error } = useSettings();
+  const { data: settings, isLoading: settingsLoading, error } = useSettings();
   const updateSettings = useUpdateSettings();
   const [activeTab, setActiveTab] = useState("clinic");
   const [hasChanges, setHasChanges] = useState(false);
   const [formData, setFormData] = useState<any>(null);
 
-  // Update form data when settings are loaded
+  // Update form data when settings is loaded
   React.useEffect(() => {
-    if (settings && !formData) {
+    if (settings) {
       setFormData(settings);
     }
-  }, [settings, formData]);
+  }, [settings]);
 
   const handleSave = () => {
-    if (!formData) return;
+    if (!formData) {
+      toast({
+        title: t("Error"),
+        description: t("No data to save"),
+        variant: "destructive",
+      });
+      return;
+    }
 
     updateSettings.mutate(formData, {
       onSuccess: () => {
@@ -42,9 +50,18 @@ const Settings = () => {
         });
       },
       onError: (error: any) => {
+        console.error("Error updating settings:", error);
+        let errorMessage = t("Failed to update settings");
+        
+        if (error.response?.data?.message) {
+          errorMessage = error.response.data.message;
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+        
         toast({
           title: t("Error"),
-          description: error.response?.data?.message || t("Failed to update settings"),
+          description: errorMessage,
           variant: "destructive",
         });
       },
@@ -59,12 +76,10 @@ const Settings = () => {
     setHasChanges(true);
   };
 
+  const isLoading = settingsLoading;
+
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <Loading size="default" />;
   }
 
   if (error) {
@@ -109,7 +124,7 @@ const Settings = () => {
           >
             {updateSettings.isPending ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loading size="sm" showText={false} inline />
                 {t("Saving...")}
               </>
             ) : (
@@ -126,7 +141,7 @@ const Settings = () => {
       <Card>
         <CardContent className="p-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
+            <TabsList className="grid w-full grid-cols-2 lg:w-auto lg:inline-grid">
               <TabsTrigger value="clinic" className="flex items-center gap-2">
                 <Building className="h-4 w-4" />
                 <span className="hidden sm:inline">{t("Clinic Info")}</span>
@@ -135,7 +150,7 @@ const Settings = () => {
                 <Clock className="h-4 w-4" />
                 <span className="hidden sm:inline">{t("Working Hours")}</span>
               </TabsTrigger>
-              <TabsTrigger value="financial" className="flex items-center gap-2">
+              {/* <TabsTrigger value="financial" className="flex items-center gap-2">
                 <DollarSign className="h-4 w-4" />
                 <span className="hidden sm:inline">{t("Financial")}</span>
               </TabsTrigger>
@@ -146,7 +161,7 @@ const Settings = () => {
               <TabsTrigger value="security" className="flex items-center gap-2">
                 <Shield className="h-4 w-4" />
                 <span className="hidden sm:inline">{t("Security")}</span>
-              </TabsTrigger>
+              </TabsTrigger> */}
             </TabsList>
 
             <TabsContent value="clinic" className="space-y-4">
@@ -163,7 +178,7 @@ const Settings = () => {
               />
             </TabsContent>
 
-            <TabsContent value="financial" className="space-y-4">
+            {/* <TabsContent value="financial" className="space-y-4">
               <FinancialTab
                 data={formData?.financial}
                 onChange={(data) => handleTabChange(data, "financial")}
@@ -182,7 +197,7 @@ const Settings = () => {
                 data={formData?.security}
                 onChange={(data) => handleTabChange(data, "security")}
               />
-            </TabsContent>
+            </TabsContent> */}
           </Tabs>
         </CardContent>
       </Card>
@@ -198,7 +213,7 @@ const Settings = () => {
           >
             {updateSettings.isPending ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loading size="sm" showText={false} inline />
                 {t("Saving...")}
               </>
             ) : (
@@ -215,4 +230,3 @@ const Settings = () => {
 };
 
 export default Settings;
-

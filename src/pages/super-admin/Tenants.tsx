@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,6 +48,7 @@ import { tenantApiService, Tenant } from "@/services/api/tenantApi";
 import { toast } from "@/hooks/use-toast";
 
 const Tenants = () => {
+  const { t } = useTranslation();
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
@@ -89,8 +91,8 @@ const Tenants = () => {
     } catch (error) {
       console.error('Error loading tenants:', error);
       toast({
-        title: "Error",
-        description: "Failed to load tenants. Please try again.",
+        title: t("Error"),
+        description: t("Failed to load tenants. Please try again."),
         variant: "destructive",
       });
     } finally {
@@ -136,15 +138,15 @@ const Tenants = () => {
     try {
       await tenantApiService.deleteTenant(tenant.id);
       toast({
-        title: "Success",
-        description: `Tenant "${tenant.name}" has been deleted.`,
+        title: t("Success"),
+        description: t("Tenant \"{{name}}\" has been deleted.", { name: tenant.name }),
       });
       loadTenants(); // Reload the list
     } catch (error: any) {
       console.error('Error deleting tenant:', error);
       toast({
-        title: "Error",
-        description: error.message || "Failed to delete tenant. Please try again.",
+        title: t("Error"),
+        description: error.message || t("Failed to delete tenant. Please try again."),
         variant: "destructive",
       });
     }
@@ -156,15 +158,15 @@ const Tenants = () => {
         // Update existing tenant
         await tenantApiService.updateTenant(selectedTenant.id, tenantData);
         toast({
-          title: "Success",
-          description: `Tenant "${tenantData.name}" has been updated.`,
+          title: t("Success"),
+          description: t("Tenant \"{{name}}\" has been updated.", { name: tenantData.name }),
         });
       } else {
         // Create new tenant
         await tenantApiService.createTenant(tenantData);
         toast({
-          title: "Success",
-          description: `Tenant "${tenantData.name}" has been created.`,
+          title: t("Success"),
+          description: t("Tenant \"{{name}}\" has been created.", { name: tenantData.name }),
         });
       }
       
@@ -174,8 +176,8 @@ const Tenants = () => {
     } catch (error: any) {
       console.error('Error saving tenant:', error);
       toast({
-        title: "Error",
-        description: error.message || "Failed to save tenant. Please try again.",
+        title: t("Error"),
+        description: error.message || t("Failed to save tenant. Please try again."),
         variant: "destructive",
       });
       throw error; // Re-throw to handle in form

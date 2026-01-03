@@ -181,8 +181,9 @@ const Services = () => {
 
     try {
       setMasterDataLoading(true);
-      // Fetch all services without any filters to get master categories and departments
-      const response = await serviceApi.getServices({ limit: 1000 });
+      // Fetch services with reasonable limit to get master categories and departments
+      // Reduced from 1000 to 100 for better performance - categories/departments are usually limited
+      const response = await serviceApi.getServices({ limit: 100, page: 1 });
       const allServices = response.data;
       
       // Extract unique categories and departments
@@ -204,9 +205,16 @@ const Services = () => {
   // Initial load and reload when clinic changes
   useEffect(() => {
     if (currentClinic && !clinicLoading) {
-      fetchMasterData();
-      fetchStats();
+      // Load essential data first (services)
       fetchServices();
+      // Load secondary data in parallel (non-blocking)
+      Promise.all([
+        fetchMasterData(),
+        fetchStats()
+      ]).catch(err => {
+        console.warn('Error loading secondary data:', err);
+        // Don't block UI if secondary data fails
+      });
     }
   }, [currentClinic, clinicLoading, fetchMasterData, fetchStats, fetchServices]);
 
@@ -908,7 +916,7 @@ const Services = () => {
           },
           {
             key: "isActive",
-            label: "Status",
+            label: t("Status"),
             type: "boolean",
             render: (value: boolean) => (value ? t("Active") : t("Inactive")),
           },
@@ -950,7 +958,7 @@ const Services = () => {
             type: "number",
             required: true,
           },
-          { key: "price", label: "Price", type: "number", required: true },
+          { key: "price", label: t("Price"), type: "number", required: true },
           {
             key: "maxBookingsPerDay",
             label: t("Max Bookings/Day"),

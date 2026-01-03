@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from './AuthContext';
 import apiService from '../services/api';
 import { clinicCookies } from '@/utils/cookies';
@@ -109,9 +110,32 @@ interface ClinicProviderProps {
 }
 
 export const ClinicProvider: React.FC<ClinicProviderProps> = ({ children }) => {
-  const [currentClinic, setCurrentClinic] = useState<Clinic | null>(null);
-  const [userClinics, setUserClinics] = useState<UserClinicRelation[]>([]);
-  const [currentUserClinic, setCurrentUserClinic] = useState<UserClinicRelation | null>(null);
+  const { t } = useTranslation();
+  // Initialize from cache if available to avoid loading screen on refresh
+  const [currentClinic, setCurrentClinic] = useState<Clinic | null>(() => {
+    try {
+      const cached = localStorage.getItem('cached_current_clinic');
+      return cached ? JSON.parse(cached) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [userClinics, setUserClinics] = useState<UserClinicRelation[]>(() => {
+    try {
+      const cached = localStorage.getItem('cached_user_clinics');
+      return cached ? JSON.parse(cached) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [currentUserClinic, setCurrentUserClinic] = useState<UserClinicRelation | null>(() => {
+    try {
+      const cached = localStorage.getItem('cached_current_user_clinic');
+      return cached ? JSON.parse(cached) : null;
+    } catch {
+      return null;
+    }
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -145,11 +169,18 @@ export const ClinicProvider: React.FC<ClinicProviderProps> = ({ children }) => {
       
       console.log('🏥 loadCurrentClinic - Starting:', { selectedClinicId: !!selectedClinicId, clinicToken: !!clinicToken });
       
-      if (!selectedClinicId) {
-        console.log('🏥 loadCurrentClinic - No clinic ID in cookies');
+      if (!selectedClinicId || !clinicToken) {
+        console.log('🏥 loadCurrentClinic - No clinic ID or token in cookies');
         setCurrentClinic(null);
         setCurrentUserClinic(null);
+        setLoading(false);
         return;
+      }
+      
+      // Set loading to true immediately when we have cookies but clinic not loaded yet
+      // This prevents race condition where ProtectedRoute checks before clinic is loaded
+      if (!currentClinic && selectedClinicId && clinicToken) {
+        setLoading(true);
       }
 
       // Try to load clinic details from API
@@ -160,10 +191,14 @@ export const ClinicProvider: React.FC<ClinicProviderProps> = ({ children }) => {
         
         console.log('🏥 loadCurrentClinic - API call successful:', clinicData.clinic?.name);
         setCurrentClinic(clinicData.clinic);
-        setCurrentUserClinic({
+        const userClinicData = {
           ...clinicData,
           clinic_id: clinicData.clinic
-        });
+        };
+        setCurrentUserClinic(userClinicData);
+        // Cache the data for instant loading on refresh
+        localStorage.setItem('cached_current_clinic', JSON.stringify(clinicData.clinic));
+        localStorage.setItem('cached_current_user_clinic', JSON.stringify(userClinicData));
       } catch (apiError: any) {
         console.warn('🏥 loadCurrentClinic - API call failed:', apiError?.response?.status, apiError?.message);
         
@@ -173,6 +208,7 @@ export const ClinicProvider: React.FC<ClinicProviderProps> = ({ children }) => {
           clinicCookies.clearClinicData();
           setCurrentClinic(null);
           setCurrentUserClinic(null);
+          setLoading(false);
           return;
         }
         
@@ -184,9 +220,9 @@ export const ClinicProvider: React.FC<ClinicProviderProps> = ({ children }) => {
           // Create a minimal clinic object with all required properties
           const fallbackClinic: Clinic = {
             _id: selectedClinicId,
-            name: 'Selected Clinic', // Will be updated when API is available
+            name: t('Selected Clinic'), // Will be updated when API is available
             code: 'TEMP',
-            description: 'Clinic data temporarily unavailable',
+            description: t('Clinic data temporarily unavailable'),
             address: {
               street: '',
               city: '',
@@ -233,11 +269,13 @@ export const ClinicProvider: React.FC<ClinicProviderProps> = ({ children }) => {
           setCurrentClinic(fallbackClinic);
           setCurrentUserClinic(fallbackUserClinic);
           console.log('🏥 loadCurrentClinic - Fallback clinic set successfully');
+          setLoading(false); // Fallback clinic set
         } else {
           // No valid localStorage data
           console.log('🏥 loadCurrentClinic - No valid localStorage data available');
           setCurrentClinic(null);
           setCurrentUserClinic(null);
+          setLoading(false);
         }
       }
 
@@ -246,6 +284,7 @@ export const ClinicProvider: React.FC<ClinicProviderProps> = ({ children }) => {
       // Don't clear localStorage for general errors
       setCurrentClinic(null);
       setCurrentUserClinic(null);
+      setLoading(false);
     }
   };
 
@@ -254,22 +293,42 @@ export const ClinicProvider: React.FC<ClinicProviderProps> = ({ children }) => {
    */
   const loadUserClinics = async (): Promise<void> => {
     try {
-      setLoading(true);
+      // Only set loading if we don't have cached data
+      // This prevents showing loading screen on refresh when data is already cached
+      const hasCachedData = userClinics.length > 0 || localStorage.getItem('cached_user_clinics');
+      if (!hasCachedData) {
+        setLoading(true);
+      }
       clearError();
 
       console.log('🏥 loadUserClinics - Starting');
       
-      const response = await apiService.get('/user/clinics');
-      const clinicsData = response.data || [];
+      // Load user clinics and current clinic in parallel for better performance
+      const [clinicsResponse, currentClinicResult] = await Promise.allSettled([
+        apiService.get('/user/clinics'),
+        loadCurrentClinic()
+      ]);
       
-      console.log('🏥 loadUserClinics - Got clinics data:', clinicsData.length);
-      setUserClinics(clinicsData);
+      // Handle user clinics response
+      let clinicsData: UserClinicRelation[] = [];
+      if (clinicsResponse.status === 'fulfilled') {
+        clinicsData = clinicsResponse.value.data || [];
+        console.log('🏥 loadUserClinics - Got clinics data:', clinicsData.length);
+        setUserClinics(clinicsData);
+        // Cache the data
+        localStorage.setItem('cached_user_clinics', JSON.stringify(clinicsData));
+      } else {
+        console.error('🏥 loadUserClinics - Failed to load clinics:', clinicsResponse.reason);
+        handleError(clinicsResponse.reason, 'Failed to load clinics');
+        setUserClinics([]);
+      }
       
-      // After loading user clinics, load current clinic details
-      // Keep loading true until both operations complete
-      console.log('🏥 loadUserClinics - Loading current clinic...');
-      await loadCurrentClinic();
-      console.log('🏥 loadUserClinics - Current clinic loaded');
+      // Handle current clinic result (already handled in loadCurrentClinic, but log if failed)
+      if (currentClinicResult.status === 'rejected') {
+        console.warn('🏥 loadUserClinics - Current clinic load failed:', currentClinicResult.reason);
+      } else {
+        console.log('🏥 loadUserClinics - Current clinic loaded');
+      }
       
       // If user has clinics and no current clinic is selected, 
       // we might want to auto-select if there's only one

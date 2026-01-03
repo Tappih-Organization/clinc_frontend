@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,56 +13,56 @@ import RequirePermission from "@/components/RequirePermission";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import ErrorBoundary from "@/components/ui/ErrorBoundary";
 import TenantSelector from "@/components/tenant/TenantSelector";
-// Pages
-import Index from "./pages/Index";
-import Features from "./pages/Features";
-import MainLogin from "./pages/auth/Login";
+import Loading from "@/components/ui/Loading";
 
+// Essential pages - load immediately
+import MainLogin from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import ForgotPassword from "./pages/auth/ForgotPassword";
-import SuperAdminLogin from "./pages/super-admin/SuperAdminLogin";
-import SuperAdminLayout from "./components/layout/SuperAdminLayout";
-import SuperAdminDashboard from "./pages/super-admin/SuperAdminDashboard";
-import Tenants from "./pages/super-admin/Tenants";
-import Users from "./pages/super-admin/users/Users";
 import ClinicSelection from "./pages/ClinicSelection";
 import Dashboard from "./pages/dashboard/Dashboard";
-import XrayAnalysis from "./pages/dashboard/xray-analysis/XrayAnalysis";
-import AITestAnalysis from "./pages/dashboard/ai-test-analysis/AITestAnalysis";
-import AITestComparison from "./pages/dashboard/ai-test-comparison/AITestComparison";
-import Patients from "./pages/dashboard/patients/Patients";
-import Appointments from "./pages/dashboard/appointments/Appointments";
-import Billing from "./pages/dashboard/billing/Billing";
-import Leads from "./pages/dashboard/leads/Leads";
-import Services from "./pages/dashboard/services/Services";
-import Inventory from "./pages/dashboard/inventory/Inventory";
-import Staff from "./pages/dashboard/staff/Staff";
-import Invoices from "./pages/dashboard/invoices/Invoices";
-import Payments from "./pages/dashboard/payments/Payments";
-import Payroll from "./pages/dashboard/payroll/Payroll";
-import Expenses from "./pages/dashboard/expenses/Expenses";
-import Performance from "./pages/dashboard/performance/Performance";
-import Prescriptions from "./pages/dashboard/prescriptions/Prescriptions";
-import Odontograms from "./pages/dashboard/odontograms/Odontograms";
-import Analytics from "./pages/dashboard/analytics/Analytics";
-import TestReports from "./pages/dashboard/test-reports/TestReports";
-import Tests from "./pages/dashboard/tests/Tests";
-import LabVendors from "./pages/dashboard/lab-vendors/LabVendors";
-import Methodology from "./pages/dashboard/test-modules/methodology/Methodology";
-import TurnaroundTime from "./pages/dashboard/test-modules/turnaround-time/TurnaroundTime";
-import SampleType from "./pages/dashboard/test-modules/sample-type/SampleType";
-import Category from "./pages/dashboard/test-modules/category/Category";
-import Calendar from "./pages/dashboard/calendar/Calendar";
-import Settings from "./pages/dashboard/settings/Settings";
-import Profile from "./pages/dashboard/profile/Profile";
-import Departments from "./pages/dashboard/departments/Departments";
-import Clinics from "./pages/dashboard/clinics/Clinics";
-import Permissions from "./pages/dashboard/permissions/Permissions";
 import NotFound from "./pages/NotFound";
+import Features from "./pages/Features";
 
-// Payment Pages
-import PaymentSuccess from "./pages/payments/PaymentSuccess";
-import PaymentCancelled from "./pages/payments/PaymentCancelled";
+// Lazy load heavy components for better initial load performance
+const XrayAnalysis = lazy(() => import("./pages/dashboard/xray-analysis/XrayAnalysis"));
+const AITestAnalysis = lazy(() => import("./pages/dashboard/ai-test-analysis/AITestAnalysis"));
+const AITestComparison = lazy(() => import("./pages/dashboard/ai-test-comparison/AITestComparison"));
+const Patients = lazy(() => import("./pages/dashboard/patients/Patients"));
+const Appointments = lazy(() => import("./pages/dashboard/appointments/Appointments"));
+const Billing = lazy(() => import("./pages/dashboard/billing/Billing"));
+const Leads = lazy(() => import("./pages/dashboard/leads/Leads"));
+const Services = lazy(() => import("./pages/dashboard/services/Services"));
+const Inventory = lazy(() => import("./pages/dashboard/inventory/Inventory"));
+const Staff = lazy(() => import("./pages/dashboard/staff/Staff"));
+const Invoices = lazy(() => import("./pages/dashboard/invoices/Invoices"));
+const Payments = lazy(() => import("./pages/dashboard/payments/Payments"));
+const Payroll = lazy(() => import("./pages/dashboard/payroll/Payroll"));
+const Expenses = lazy(() => import("./pages/dashboard/expenses/Expenses"));
+const Performance = lazy(() => import("./pages/dashboard/performance/Performance"));
+const Prescriptions = lazy(() => import("./pages/dashboard/prescriptions/Prescriptions"));
+const Odontograms = lazy(() => import("./pages/dashboard/odontograms/Odontograms"));
+const Analytics = lazy(() => import("./pages/dashboard/analytics/Analytics"));
+const TestReports = lazy(() => import("./pages/dashboard/test-reports/TestReports"));
+const Tests = lazy(() => import("./pages/dashboard/tests/Tests"));
+const LabVendors = lazy(() => import("./pages/dashboard/lab-vendors/LabVendors"));
+const Methodology = lazy(() => import("./pages/dashboard/test-modules/methodology/Methodology"));
+const TurnaroundTime = lazy(() => import("./pages/dashboard/test-modules/turnaround-time/TurnaroundTime"));
+const SampleType = lazy(() => import("./pages/dashboard/test-modules/sample-type/SampleType"));
+const Category = lazy(() => import("./pages/dashboard/test-modules/category/Category"));
+const Calendar = lazy(() => import("./pages/dashboard/calendar/Calendar"));
+const Settings = lazy(() => import("./pages/dashboard/settings/Settings"));
+const Profile = lazy(() => import("./pages/dashboard/profile/Profile"));
+const Departments = lazy(() => import("./pages/dashboard/departments/Departments"));
+const Clinics = lazy(() => import("./pages/dashboard/clinics/Clinics"));
+const Permissions = lazy(() => import("./pages/dashboard/permissions/Permissions"));
+const SuperAdminLogin = lazy(() => import("./pages/super-admin/SuperAdminLogin"));
+const SuperAdminLayout = lazy(() => import("./components/layout/SuperAdminLayout"));
+const SuperAdminDashboard = lazy(() => import("./pages/super-admin/SuperAdminDashboard"));
+const Tenants = lazy(() => import("./pages/super-admin/Tenants"));
+const Users = lazy(() => import("./pages/super-admin/users/Users"));
+const PaymentSuccess = lazy(() => import("./pages/payments/PaymentSuccess"));
+const PaymentCancelled = lazy(() => import("./pages/payments/PaymentCancelled"));
 
 const queryClient = new QueryClient();
 
@@ -129,22 +129,58 @@ const App = () => {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             
             {/* Super Admin routes */}
-            <Route path="/admin" element={<SuperAdminLogin />} />
+            <Route path="/admin" element={
+              <Suspense fallback={<Loading fullScreen />}>
+                <SuperAdminLogin />
+              </Suspense>
+            } />
             
             {/* Super Admin Dashboard routes */}
-            <Route path="/admin/dashboard" element={<SuperAdminLayout />}>
-              <Route index element={<SuperAdminDashboard />} />
+            <Route path="/admin/dashboard" element={
+              <Suspense fallback={<Loading fullScreen />}>
+                <SuperAdminLayout />
+              </Suspense>
+            }>
+              <Route index element={
+                <Suspense fallback={<Loading size="default" />}>
+                  <SuperAdminDashboard />
+                </Suspense>
+              } />
             </Route>
-            <Route path="/admin/tenants" element={<SuperAdminLayout />}>
-              <Route index element={<Tenants />} />
+            <Route path="/admin/tenants" element={
+              <Suspense fallback={<Loading fullScreen />}>
+                <SuperAdminLayout />
+              </Suspense>
+            }>
+              <Route index element={
+                <Suspense fallback={<Loading size="default" />}>
+                  <Tenants />
+                </Suspense>
+              } />
             </Route>
-            <Route path="/admin/users" element={<SuperAdminLayout />}>
-              <Route index element={<Users />} />
+            <Route path="/admin/users" element={
+              <Suspense fallback={<Loading fullScreen />}>
+                <SuperAdminLayout />
+              </Suspense>
+            }>
+              <Route index element={
+                <Suspense fallback={<Loading size="default" />}>
+                  <Users />
+                </Suspense>
+              } />
             </Route>
             
             {/* Payment Result Pages - public routes for Stripe redirects */}
-            <Route path="/payments/success" element={<PaymentSuccess />} />
-            <Route path="/payments/cancelled" element={<PaymentCancelled />} />
+            <Route path="/payments/success" element={
+              <Suspense fallback={<Loading fullScreen />}>
+                <PaymentSuccess />
+              </Suspense>
+            } />
+            <Route path="/payments/cancelled" element={
+              <Suspense fallback={<Loading fullScreen />}>
+                <PaymentCancelled />
+              </Suspense>
+            } />
 
             {/* Clinic selection - requires auth but no clinic context */}
             <Route
@@ -183,7 +219,9 @@ const App = () => {
                 path="ai-test-analysis"
                 element={
                   <RequirePermission permissions="test_reports.view">
-                    <AITestAnalysis />
+                    <Suspense fallback={<Loading size="default" />}>
+                      <AITestAnalysis />
+                    </Suspense>
                   </RequirePermission>
                 }
               />
@@ -193,7 +231,9 @@ const App = () => {
                 path="ai-test-comparison"
                 element={
                   <RequirePermission permissions="test_reports.view">
-                    <AITestComparison />
+                    <Suspense fallback={<Loading size="default" />}>
+                      <AITestComparison />
+                    </Suspense>
                   </RequirePermission>
                 }
               />
@@ -203,7 +243,9 @@ const App = () => {
                 path="settings"
                 element={
                   <RequirePermission permissions="settings.view">
-                    <Settings />
+                    <Suspense fallback={<Loading size="default" />}>
+                      <Settings />
+                    </Suspense>
                   </RequirePermission>
                 }
               />
@@ -218,7 +260,9 @@ const App = () => {
                 path="patients"
                 element={
                   <RequirePermission permissions="patients.view">
-                    <Patients />
+                    <Suspense fallback={<Loading size="default" />}>
+                      <Patients />
+                    </Suspense>
                   </RequirePermission>
                 }
               />
@@ -228,7 +272,9 @@ const App = () => {
                 path="appointments"
                 element={
                   <RequirePermission permissions="appointments.view">
-                    <Appointments />
+                    <Suspense fallback={<Loading size="default" />}>
+                      <Appointments />
+                    </Suspense>
                   </RequirePermission>
                 }
               />
@@ -238,7 +284,9 @@ const App = () => {
                 path="leads"
                 element={
                   <RequirePermission permissions="leads.view">
-                    <Leads />
+                    <Suspense fallback={<Loading size="default" />}>
+                      <Leads />
+                    </Suspense>
                   </RequirePermission>
                 }
               />
@@ -248,7 +296,9 @@ const App = () => {
                 path="billing"
                 element={
                   <RequirePermission permissions={["invoices.view", "payments.view"]} operator="OR">
-                    <Billing />
+                    <Suspense fallback={<Loading size="default" />}>
+                      <Billing />
+                    </Suspense>
                   </RequirePermission>
                 }
               />
@@ -258,7 +308,9 @@ const App = () => {
                 path="invoices"
                 element={
                   <RequirePermission permissions="invoices.view">
-                    <Invoices />
+                    <Suspense fallback={<Loading size="default" />}>
+                      <Invoices />
+                    </Suspense>
                   </RequirePermission>
                 }
               />
@@ -267,7 +319,9 @@ const App = () => {
                 path="payments"
                 element={
                   <RequirePermission permissions="payments.view">
-                    <Payments />
+                    <Suspense fallback={<Loading size="default" />}>
+                      <Payments />
+                    </Suspense>
                   </RequirePermission>
                 }
               />
@@ -276,7 +330,9 @@ const App = () => {
                 path="payroll"
                 element={
                   <RequirePermission permissions="payroll.view">
-                    <Payroll />
+                    <Suspense fallback={<Loading size="default" />}>
+                      <Payroll />
+                    </Suspense>
                   </RequirePermission>
                 }
               />
@@ -285,7 +341,9 @@ const App = () => {
                 path="expenses"
                 element={
                   <RequirePermission permissions="expenses.view">
-                    <Expenses />
+                    <Suspense fallback={<Loading size="default" />}>
+                      <Expenses />
+                    </Suspense>
                   </RequirePermission>
                 }
               />
@@ -294,7 +352,9 @@ const App = () => {
                 path="performance"
                 element={
                   <RequirePermission permissions="analytics.reports">
-                    <Performance />
+                    <Suspense fallback={<Loading size="default" />}>
+                      <Performance />
+                    </Suspense>
                   </RequirePermission>
                 }
               />
@@ -304,7 +364,9 @@ const App = () => {
                 path="services"
                 element={
                   <RequirePermission permissions="services.view">
-                    <Services />
+                    <Suspense fallback={<Loading size="default" />}>
+                      <Services />
+                    </Suspense>
                   </RequirePermission>
                 }
               />
@@ -314,7 +376,9 @@ const App = () => {
                 path="departments"
                 element={
                   <RequirePermission permissions="departments.view">
-                    <Departments />
+                    <Suspense fallback={<Loading size="default" />}>
+                      <Departments />
+                    </Suspense>
                   </RequirePermission>
                 }
               />
@@ -324,7 +388,9 @@ const App = () => {
                 path="clinics"
                 element={
                   <RequirePermission permissions="clinics.view">
-                    <Clinics />
+                    <Suspense fallback={<Loading size="default" />}>
+                      <Clinics />
+                    </Suspense>
                   </RequirePermission>
                 }
               />
@@ -334,7 +400,9 @@ const App = () => {
                 path="permissions"
                 element={
                   <RequirePermission permissions="permissions.view">
-                    <Permissions />
+                    <Suspense fallback={<Loading size="default" />}>
+                      <Permissions />
+                    </Suspense>
                   </RequirePermission>
                 }
               />
@@ -344,7 +412,9 @@ const App = () => {
                 path="inventory"
                 element={
                   <RequirePermission permissions="inventory.view">
-                    <Inventory />
+                    <Suspense fallback={<Loading size="default" />}>
+                      <Inventory />
+                    </Suspense>
                   </RequirePermission>
                 }
               />
@@ -354,7 +424,9 @@ const App = () => {
                 path="staff"
                 element={
                   <RequirePermission permissions="users.view">
-                    <Staff />
+                    <Suspense fallback={<Loading size="default" />}>
+                      <Staff />
+                    </Suspense>
                   </RequirePermission>
                 }
               />
@@ -364,7 +436,9 @@ const App = () => {
                 path="prescriptions"
                 element={
                   <RequirePermission permissions="prescriptions.view">
-                    <Prescriptions />
+                    <Suspense fallback={<Loading size="default" />}>
+                      <Prescriptions />
+                    </Suspense>
                   </RequirePermission>
                 }
               />
@@ -374,7 +448,9 @@ const App = () => {
                 path="odontograms"
                 element={
                   <RequirePermission permissions="odontogram.view">
-                    <Odontograms />
+                    <Suspense fallback={<Loading size="default" />}>
+                      <Odontograms />
+                    </Suspense>
                   </RequirePermission>
                 }
               />
@@ -384,7 +460,9 @@ const App = () => {
                 path="tests"
                 element={
                   <RequirePermission permissions="tests.view">
-                    <Tests />
+                    <Suspense fallback={<Loading size="default" />}>
+                      <Tests />
+                    </Suspense>
                   </RequirePermission>
                 }
               />
@@ -394,7 +472,9 @@ const App = () => {
                 path="test-reports"
                 element={
                   <RequirePermission permissions="test_reports.view">
-                    <TestReports />
+                    <Suspense fallback={<Loading size="default" />}>
+                      <TestReports />
+                    </Suspense>
                   </RequirePermission>
                 }
               />
@@ -404,7 +484,9 @@ const App = () => {
                 path="lab-vendors"
                 element={
                   <RequirePermission permissions="lab_vendors.view">
-                    <LabVendors />
+                    <Suspense fallback={<Loading size="default" />}>
+                      <LabVendors />
+                    </Suspense>
                   </RequirePermission>
                 }
               />

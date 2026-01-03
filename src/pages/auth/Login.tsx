@@ -87,7 +87,14 @@ const MainLogin = () => {
           title: t("Login successful"),
           description: t("Welcome back to Tappih!"),
         });
-        navigate("/dashboard");
+        // Check if there's a stored redirect path
+        const redirectPath = sessionStorage.getItem('redirectAfterLogin');
+        if (redirectPath) {
+          sessionStorage.removeItem('redirectAfterLogin');
+          navigate(redirectPath, { replace: true });
+        } else {
+          navigate("/dashboard", { replace: true });
+        }
       } else {
         // When login returns false, it means invalid credentials
         setError(t("Invalid email or password. Please check your credentials and try again."));
@@ -123,7 +130,14 @@ const MainLogin = () => {
           title: t("Demo login successful"),
           description: t("Welcome to Tappih demo!"),
         });
-        navigate("/dashboard");
+        // Check if there's a stored redirect path
+        const redirectPath = sessionStorage.getItem('redirectAfterLogin');
+        if (redirectPath) {
+          sessionStorage.removeItem('redirectAfterLogin');
+          navigate(redirectPath, { replace: true });
+        } else {
+          navigate("/dashboard", { replace: true });
+        }
       } else {
         setError(t("Demo login failed. Invalid credentials for demo account."));
       }

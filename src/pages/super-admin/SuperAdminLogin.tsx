@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 import { superAdminApiService } from "@/services/api/superAdminApi";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 
 const SuperAdminLogin = () => {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -48,8 +50,8 @@ const SuperAdminLogin = () => {
       });
       
       toast({
-        title: "Super Admin Login Successful",
-        description: `Welcome back, ${response.super_admin.first_name}!`,
+        title: t("Super Admin Login Successful"),
+        description: t("Welcome back, {{name}}!", { name: response.super_admin.first_name }),
       });
       
       navigate("/admin/dashboard");
@@ -58,15 +60,15 @@ const SuperAdminLogin = () => {
       
       // Handle specific error cases
       if (err.message?.includes('locked')) {
-        setError("Account is temporarily locked due to multiple failed login attempts. Please try again later.");
+        setError(t("Account is temporarily locked due to multiple failed login attempts. Please try again later."));
       } else if (err.message?.includes('credentials') || err.message?.includes('Invalid')) {
-        setError("Invalid email or password. Please check your credentials and try again.");
+        setError(t("Invalid email or password. Please check your credentials and try again."));
       } else if (err.message?.includes('deactivated')) {
-        setError("Super Admin account is deactivated. Please contact support.");
+        setError(t("Super Admin account is deactivated. Please contact support."));
       } else if (err.message) {
         setError(err.message);
       } else {
-        setError("An error occurred during login. Please try again.");
+        setError(t("An error occurred during login. Please try again."));
       }
     } finally {
       setIsLoading(false);
@@ -77,7 +79,7 @@ const SuperAdminLogin = () => {
     e.preventDefault();
     
     if (!email.trim() || !password.trim()) {
-      setError("Please enter both email and password.");
+      setError(t("Please enter both email and password."));
       return;
     }
 
@@ -91,8 +93,8 @@ const SuperAdminLogin = () => {
       });
       
       toast({
-        title: "Super Admin Login Successful",
-        description: `Welcome back, ${response.super_admin.first_name}!`,
+        title: t("Super Admin Login Successful"),
+        description: t("Welcome back, {{name}}!", { name: response.super_admin.first_name }),
       });
       
       // Navigate to super admin dashboard (we'll create this later)

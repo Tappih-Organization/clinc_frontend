@@ -1,8 +1,9 @@
 import React from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useClinic, useClinicSelected } from "@/contexts/ClinicContext";
 import { clinicCookies } from "@/utils/cookies";
+import Loading from "@/components/ui/Loading";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -15,6 +16,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   requiredRole,
   requireClinic = true,
 }) => {
+  const location = useLocation();
   const { isAuthenticated, user, loading: authLoading } = useAuth();
   const { loading: clinicLoading, userClinics, hasRole, hasPermission } = useClinic();
   const isClinicSelected = useClinicSelected();
@@ -35,19 +37,17 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   // Critical: Wait for auth to complete before making any decisions
   if (authLoading || (requireClinic && clinicLoading)) {
     console.log('🛡️ ProtectedRoute - Showing loading screen', { authLoading, clinicLoading });
-    return (
-      <div className="w-full flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
+    return <Loading fullScreen />;
   }
 
   // Check authentication first
   if (!isAuthenticated) {
     console.log('🛡️ ProtectedRoute - Not authenticated, redirecting to login');
+    // Store the current location so we can redirect back after login
+    const currentPath = location.pathname + location.search;
+    if (currentPath !== '/login' && currentPath !== '/register' && currentPath !== '/forgot-password') {
+      sessionStorage.setItem('redirectAfterLogin', currentPath);
+    }
     return <Navigate to="/login" replace />;
   }
 
@@ -58,13 +58,27 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     // If user has no clinics, redirect to clinic selection page
     if (userClinics.length === 0 && !clinicLoading) {
       console.log('🛡️ ProtectedRoute - No clinics available, redirecting to /select-clinic');
+      // Store the current location so we can redirect back after clinic selection
+      const currentPath = location.pathname + location.search;
+      if (currentPath !== '/select-clinic') {
+        sessionStorage.setItem('redirectAfterClinicSelection', currentPath);
+      }
       return <Navigate to="/select-clinic" replace />;
     }
 
     // If clinic is required but not selected, redirect to clinic selection
     // Only redirect if we're sure clinic loading is complete and user has clinics
-    if (!isClinicSelected && !clinicLoading && userClinics.length > 0) {
+    // Also check cookies directly to avoid race condition on refresh
+    const hasClinicInCookies = !!clinicCookies.getClinicId() && !!clinicCookies.getClinicToken();
+    const shouldRedirect = !isClinicSelected && !clinicLoading && userClinics.length > 0 && !hasClinicInCookies;
+    
+    if (shouldRedirect) {
       console.log('🛡️ ProtectedRoute - Clinic not selected, redirecting to /select-clinic');
+      // Store the current location so we can redirect back after clinic selection
+      const currentPath = location.pathname + location.search;
+      if (currentPath !== '/select-clinic') {
+        sessionStorage.setItem('redirectAfterClinicSelection', currentPath);
+      }
       return <Navigate to="/select-clinic" replace />;
     }
 

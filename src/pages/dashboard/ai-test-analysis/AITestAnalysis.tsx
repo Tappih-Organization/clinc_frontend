@@ -20,6 +20,7 @@ import { getApiErrorMessage, cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsRTL } from "@/hooks/useIsRTL";
 import { apiService, type AITestAnalysis, type AITestAnalysisStats, type Patient } from "@/services/api";
+import Loading from "@/components/ui/Loading";
 import {
   Upload,
   Brain,
@@ -618,32 +619,16 @@ ${t("Generated on")}: ${new Date().toLocaleString()}
   // Show loading state
   if (isLoading) {
     return (
-      <div className="p-6 space-y-6">
-        <div className={cn("flex flex-col md:flex-row justify-between items-start md:items-center gap-4")}>
+      <div className="p-6">
+        <div className={cn("flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6")}>
           <div>
             <h1 className={cn("text-3xl font-bold text-foreground flex items-center gap-2")}>
               <Brain className="w-8 h-8 text-primary" />
               {t("AI Test Report Analysis")}
             </h1>
-            <p className={cn("text-muted-foreground mt-1")}>
-              {t("Loading...")}
-            </p>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[1, 2, 3, 4].map((i) => (
-            <Card key={i}>
-              <CardHeader className={cn("flex flex-row items-center justify-between space-y-0 pb-2", isRTL && "flex-row-reverse")}>
-                <div className="h-4 bg-gray-200 rounded animate-pulse w-24"></div>
-                <div className="h-4 w-4 bg-gray-200 rounded animate-pulse"></div>
-              </CardHeader>
-              <CardContent className={cn(isRTL && "text-right")}>
-                <div className="h-8 bg-gray-200 rounded animate-pulse w-16 mb-2"></div>
-                <div className="h-3 bg-gray-200 rounded animate-pulse w-32"></div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <Loading size="default" text={t("Loading...")} />
       </div>
     );
   }

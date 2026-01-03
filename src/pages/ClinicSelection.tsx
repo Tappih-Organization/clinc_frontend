@@ -1,16 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Loader2, Building2, MapPin, Phone, Mail, Users, Clock, ChevronRight, Lock, Plus, RefreshCw } from 'lucide-react';
+import { Building2, MapPin, Phone, Mail, Users, Clock, ChevronRight, Lock, Plus, RefreshCw } from 'lucide-react';
+import Loading from '@/components/ui/Loading';
 import { useClinic, useClinicSelection } from '@/contexts/ClinicContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import PublicHeader from '@/components/layout/PublicHeader';
 import apiService from '@/services/api';
 import AddClinicModal from '@/components/modals/AddClinicModal';
+import { clinicCookies } from '@/utils/cookies';
 
 
 // Clinic interface for forms (based on backend model)
@@ -52,6 +55,7 @@ interface Clinic {
 
 
 const ClinicSelection: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { selectClinic, refreshClinics } = useClinic();
@@ -74,10 +78,10 @@ const ClinicSelection: React.FC = () => {
       console.log('🔄 Manual refresh triggered...');
       await refreshClinics();
       console.log('✅ Manual refresh completed');
-      toast.success('Clinics refreshed successfully');
+      toast.success(t('Clinics refreshed successfully'));
     } catch (error) {
       console.error('Error refreshing clinics:', error);
-      toast.error('Failed to refresh clinics');
+      toast.error(t('Failed to refresh clinics'));
     } finally {
       setIsRefreshing(false);
     }
@@ -110,7 +114,7 @@ const ClinicSelection: React.FC = () => {
       console.log('✅ Clinic created successfully:', response);
       
       setIsAddModalOpen(false);
-      toast.success(`${clinicData.name} has been successfully added.`);
+      toast.success(`${clinicData.name} ${t('has been successfully added.')}`);
       
       // Refresh the clinic list to show the newly created clinic
       console.log('🔄 Refreshing clinic list...');
@@ -123,9 +127,16 @@ const ClinicSelection: React.FC = () => {
         try {
           const success = await selectClinic(response.data._id);
           if (success) {
-            console.log('✅ Auto-selection successful, navigating to dashboard');
-            toast.success('Clinic selected successfully');
-            navigate('/dashboard', { replace: true });
+            console.log('✅ Auto-selection successful, checking for redirect path');
+            toast.success(t('Clinic selected successfully'));
+            // Check if there's a stored redirect path
+            const redirectPath = sessionStorage.getItem('redirectAfterClinicSelection');
+            if (redirectPath) {
+              sessionStorage.removeItem('redirectAfterClinicSelection');
+              navigate(redirectPath, { replace: true });
+            } else {
+              navigate('/dashboard', { replace: true });
+            }
           }
         } catch (error) {
           console.error('❌ Auto-selection failed:', error);
@@ -152,8 +163,17 @@ const ClinicSelection: React.FC = () => {
     // Only redirect to dashboard if user has clinics AND already has a clinic selected
     // Never redirect if user has no clinics - keep them on clinic selection page
     if (!requiresSelection && hasClinics && userClinics.length > 0) {
-      console.log('📍 ClinicSelection - User has clinic selected, redirecting to dashboard');
-      navigate('/dashboard', { replace: true });
+      console.log('📍 ClinicSelection - User has clinic selected, checking for redirect path');
+      // Check if there's a stored redirect path
+      const redirectPath = sessionStorage.getItem('redirectAfterClinicSelection');
+      if (redirectPath) {
+        sessionStorage.removeItem('redirectAfterClinicSelection');
+        console.log('📍 ClinicSelection - Redirecting to stored path:', redirectPath);
+        navigate(redirectPath, { replace: true });
+      } else {
+        console.log('📍 ClinicSelection - No stored path, redirecting to dashboard');
+        navigate('/dashboard', { replace: true });
+      }
     }
   }, [requiresSelection, hasClinics, userClinics.length, navigate]);
 
@@ -182,7 +202,7 @@ const ClinicSelection: React.FC = () => {
 
   const handleSelectClinic = async (clinicId: string, hasAccess: boolean) => {
     if (!hasAccess) {
-      toast.error('You do not have access to this clinic. Contact your administrator.');
+      toast.error(t('You do not have access to this clinic. Contact your administrator.'));
       return;
     }
 
@@ -193,14 +213,22 @@ const ClinicSelection: React.FC = () => {
       const success = await selectClinic(clinicId);
       
       if (success) {
-        toast.success('Clinic selected successfully');
-        navigate('/dashboard', { replace: true });
+        toast.success(t('Clinic selected successfully'));
+        // Check if there's a stored redirect path
+        const redirectPath = sessionStorage.getItem('redirectAfterClinicSelection');
+        if (redirectPath) {
+          sessionStorage.removeItem('redirectAfterClinicSelection');
+          console.log('📍 ClinicSelection - Redirecting to stored path:', redirectPath);
+          navigate(redirectPath, { replace: true });
+        } else {
+          navigate('/dashboard', { replace: true });
+        }
       } else {
-        toast.error('Failed to select clinic');
+        toast.error(t('Failed to select clinic'));
       }
     } catch (error) {
       console.error('Error selecting clinic:', error);
-      toast.error('Failed to select clinic');
+      toast.error(t('Failed to select clinic'));
     } finally {
       setIsSelecting(false);
       setSelectedClinicId(null);
@@ -234,21 +262,9 @@ const ClinicSelection: React.FC = () => {
     return colors[role] || colors.staff;
   };
 
-  const loading = userClinicsLoading;
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <PublicHeader showActions={false} />
-        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
-        <div className="flex flex-col items-center space-y-4">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-muted-foreground">Loading clinics...</p>
-        </div>
-        </div>
-      </div>
-    );
-  }
+  // Never show loading screen - always show the page immediately
+  // Data will be loaded in the background and updated when ready
+  // This provides a better user experience without loading screens on refresh
 
   if (!hasClinics) {
     console.log('📋 No clinics page - Modal state:', { 
