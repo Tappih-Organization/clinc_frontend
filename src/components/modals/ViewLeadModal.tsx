@@ -2,6 +2,8 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useIsRTL } from "@/hooks/useIsRTL";
+import { cn } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -34,7 +36,7 @@ interface ViewLeadModalProps {
 
 const ViewLeadModal: React.FC<ViewLeadModalProps> = ({ lead, open, onOpenChange }) => {
   const { t } = useTranslation();
-  
+    const isRTL = useIsRTL();
   if (!lead) return null;
 
   const getStatusIcon = (status: string) => {
@@ -110,15 +112,16 @@ const ViewLeadModal: React.FC<ViewLeadModalProps> = ({ lead, open, onOpenChange 
     }
   };
 
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" dir={isRTL ? 'rtl' : 'ltr'}>
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2 mt-5" dir={isRTL ? 'ltr' : 'ltr'}>
             <Eye className="h-5 w-5" />
             {t("Lead Details")}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className={cn("text-sm ", isRTL && 'text-right')}>
             {t("View detailed information about this lead.")}
           </DialogDescription>
         </DialogHeader>
@@ -126,12 +129,12 @@ const ViewLeadModal: React.FC<ViewLeadModalProps> = ({ lead, open, onOpenChange 
         <div className="space-y-6">
           {/* Lead Header */}
           <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
-                    <User className="h-6 w-6 text-blue-600" />
-                  </div>
+            <CardContent className={cn("p-0")} dir={isRTL ? 'ltr' : 'ltr'}>
+              <div className="flex items-center justify-between p-4 border-b">
+                <div className="flex ">
+                 
+                    {/* <User className={cn("h-6 w-6 text-blue-600", isRTL && 'rtl')} />
+                 */}
                   <div>
                     <h2 className="text-xl font-semibold text-gray-900">
                       {lead.firstName} {lead.lastName}
@@ -139,7 +142,7 @@ const ViewLeadModal: React.FC<ViewLeadModalProps> = ({ lead, open, onOpenChange 
                     <p className="text-sm text-gray-500">{t("Lead #")}{lead._id || lead.id}</p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className={cn("flex items-center gap-2 ml-5")} dir={isRTL ? 'rtl' : 'ltr'}>
                   {getStatusIcon(lead.status)}
                   <Badge className={`text-xs ${getStatusColor(lead.status)}`}>
                     {lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}
@@ -152,18 +155,18 @@ const ViewLeadModal: React.FC<ViewLeadModalProps> = ({ lead, open, onOpenChange 
           {/* Contact Information */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg flex items-center">
+              <CardTitle className="text-lg flex items-center" dir={isRTL ? 'ltr' : 'ltr'}>
                 <Phone className="h-4 w-4 mr-2" />
                 {t("Contact Information")}
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <CardContent className={cn("space-y-4 ", isRTL && 'rtl' ,isRTL && 'ml-20')} dir={isRTL ? 'rtl' : 'ltr'}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4" dir={isRTL ? 'ltr' : 'ltr'}>
                 {lead.email && (
                   <div className="flex items-center space-x-3">
                     <Mail className="h-4 w-4 text-gray-400" />
                     <div>
-                      <p className="text-sm font-medium text-gray-500">{t("Email")}</p>
+                      <p className="text-sm font-medium text-gray-500" dir={isRTL ? 'rtl' : 'ltr'}>{t("Email")}</p>
                       <p className="text-gray-900">{lead.email}</p>
                     </div>
                   </div>
@@ -171,7 +174,7 @@ const ViewLeadModal: React.FC<ViewLeadModalProps> = ({ lead, open, onOpenChange 
                 <div className="flex items-center space-x-3">
                   <Phone className="h-4 w-4 text-gray-400" />
                   <div>
-                    <p className="text-sm font-medium text-gray-500">{t("Phone")}</p>
+                    <p className="text-sm font-medium text-gray-500" dir={isRTL ? 'rtl' : 'ltr'}>{t("Phone")}</p>
                     <p className="text-gray-900">{lead.phone}</p>
                   </div>
                 </div>
@@ -181,13 +184,13 @@ const ViewLeadModal: React.FC<ViewLeadModalProps> = ({ lead, open, onOpenChange 
 
           {/* Lead Details */}
           <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center">
+            <CardHeader >
+              <CardTitle className="text-lg flex items-center" dir={isRTL ? 'ltr' : 'ltr'}>
                 <Globe className="h-4 w-4 mr-2" />
                 {t("Lead Information")}
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4" dir={isRTL ? 'ltr' : 'ltr'}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex items-center space-x-3">
                   {getSourceIcon(lead.source)}
@@ -207,7 +210,7 @@ const ViewLeadModal: React.FC<ViewLeadModalProps> = ({ lead, open, onOpenChange 
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className={cn("grid grid-cols-1 md:grid-cols-2 gap-4" , isRTL && 'rtl' ,isRTL && 'pl-16')} dir={isRTL ? 'rtl' : 'ltr'}>
                 {lead.assignedTo && (
                   <div className="flex items-center space-x-3">
                     <User className="h-4 w-4 text-gray-400" />
@@ -227,8 +230,8 @@ const ViewLeadModal: React.FC<ViewLeadModalProps> = ({ lead, open, onOpenChange 
               </div>
 
               {(lead.updated_at || lead.updatedAt) && (lead.updated_at || lead.updatedAt) !== (lead.created_at || lead.createdAt) && (
-                <div className="flex items-center space-x-3">
-                  <Calendar className="h-4 w-4 text-gray-400" />
+                <div className={cn("flex items-center ",isRTL && 'rtl' ,isRTL && 'flex-row-reverse')} dir={isRTL ? 'rtl' : 'ltr'}>
+                 {!isRTL && <Calendar className={cn("h-4 w-4 text-gray-400",isRTL && 'ltr' ,isRTL && 'flex-row-reverse')} />}
                   <div>
                     <p className="text-sm font-medium text-gray-500">{t("Last Updated")}</p>
                     <p className="text-gray-900">{formatDate(lead.updated_at || lead.updatedAt)}</p>

@@ -2291,9 +2291,66 @@
   "Payment Summary": "ملخص الدفع",
   "Invoice not found": "الفاتورة غير موجودة",
   "The requested invoice could not be loaded.": "تعذر تحميل الفاتورة المطلوبة.",
-  "Failed to load invoice details.": "فشل تحميل تفاصيل الفاتورة."
+  "Failed to load invoice details.": "فشل تحميل تفاصيل الفاتورة.",
+    "patientDetails": "تفاصيل المريض",
+  "patientDescription": "جميع معلومات المريض والسجل الطبي",
 
+  "personalInformation": "البيانات الشخصية",
+  "contactInformation": "معلومات التواصل",
+  "emergencyContact": "جهة اتصال الطوارئ",
+  "medicalInformation": "المعلومات الطبية",
 
+  "fullName": "الاسم الكامل",
+  "dateOfBirth": "تاريخ الميلاد",
+  "age": "العمر",
+  "years": "سنة",
+  "gender": "النوع",
+  "bloodGroup": "فصيلة الدم",
+
+  "phone": "رقم الهاتف",
+  "email": "البريد الإلكتروني",
+  "address": "العنوان",
+  "name": "الاسم",
+  "relationship": "صلة القرابة",
+
+  "height": "الطول",
+  "weight": "الوزن",
+  "allergies": "الحساسية",
+  "medicalHistory": "التاريخ المرضي",
+
+  "patientStatistics": "إحصائيات المريض",
+  "totalVisits": "إجمالي الزيارات",
+  "lastVisit": "آخر زيارة",
+  "status": "الحالة",
+  "never": "لم يزر",
+  "active": "نشط",
+
+  "notSpecified": "غير محدد",
+  "noneRecorded": "لا يوجد",
+
+  "noPatientData": "لا توجد بيانات للمريض",
+  "noPatientDataDesc": "تعذر تحميل بيانات المريض",
+
+  "noDentalRecords": "لا توجد سجلات أسنان",
+  "noDentalRecordsDesc": "لا يوجد مخطط أسنان لهذا المريض",
+
+  "error": "خطأ",
+  "failedToLoadDentalChart": "فشل تحميل مخطط الأسنان",
+
+  "close": "إغلاق",
+  "updateinfo": "قم بتحديث البيانات بالأسفل",
+  "Delete Patient": "حذف المريض",
+   
+
+"firstName": "الاسم الأول",
+  "lastName": "اسم العائلة",
+  "email": "البريد الإلكتروني",
+  "phoneNumber": "رقم الهاتف",
+  "leadSource": "مصدر العميل",
+  "serviceInterest": "الخدمة المهتم بها",
+  "status": "الحالة",
+  "assignedTo": "مسند إلى",
+  "notes": "ملاحظات"
 
 
 

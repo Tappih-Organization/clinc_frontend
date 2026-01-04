@@ -8,6 +8,9 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "react-i18next";
+import { useIsRTL } from "@/hooks/useIsRTL";
+import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import { 
   X, 
@@ -42,6 +45,9 @@ const PatientDetailsModal: React.FC<PatientDetailsModalProps> = ({
   const [activeOdontogramId, setActiveOdontogramId] = useState<string | null>(null);
   const [loadingOdontogram, setLoadingOdontogram] = useState(false);
 
+
+    const { t } = useTranslation();
+    const isRTL = useIsRTL();
   const formatDate = (value: any) => {
     if (!value) return "Not specified";
     try {
@@ -103,42 +109,42 @@ const PatientDetailsModal: React.FC<PatientDetailsModalProps> = ({
 
   const patientSections = [
     {
-      title: "Personal Information",
+      title: t("personalInformation"),
       icon: <User className="h-5 w-5" />,
       fields: [
-        { label: "Full Name", value: `${patient?.firstName || ""} ${patient?.lastName || ""}`.trim() },
-        { label: "Date of Birth", value: formatDate(patient?.dateOfBirth) },
-        { label: "Age", value: patient?.dateOfBirth ? `${calculateAge(patient.dateOfBirth)} years` : "N/A" },
-        { label: "Gender", value: patient?.gender ? patient.gender.charAt(0).toUpperCase() + patient.gender.slice(1) : "Not specified" },
-        { label: "Blood Group", value: patient?.bloodGroup || "Not specified" },
+        { label: t("fullName"), value: `${patient?.firstName || ""} ${patient?.lastName || ""}`.trim() },
+        { label: t("dateOfBirth"), value: formatDate(patient?.dateOfBirth) },
+        { label: t("age"), value: patient?.dateOfBirth ? `${calculateAge(patient.dateOfBirth)} years` : "N/A" },
+        { label: t("gender"), value: patient?.gender ? patient.gender.charAt(0).toUpperCase() + patient.gender.slice(1) : "Not specified" },
+        { label: t("bloodGroup"), value: patient?.bloodGroup || "Not specified" },
       ]
     },
     {
-      title: "Contact Information",
+      title: t("contactInformation"),
       icon: <Phone className="h-5 w-5" />,
       fields: [
-        { label: "Phone", value: patient?.phone || "Not specified", type: "phone" },
-        { label: "Email", value: patient?.email || "Not specified", type: "email" },
-        { label: "Address", value: patient?.address || "Not specified" },
+        { label: t("phone"), value: patient?.phone || "Not specified", type: "phone" },
+        { label: t("email"), value: patient?.email || "Not specified", type: "email" },
+        { label: t("address"), value: patient?.address || "Not specified" },
       ]
     },
     {
-      title: "Emergency Contact",
+      title: t("emergencyContact"),
       icon: <Users className="h-5 w-5" />,
       fields: [
-        { label: "Name", value: patient?.emergencyContact?.name || "Not specified" },
-        { label: "Phone", value: patient?.emergencyContact?.phone || "Not specified", type: "phone" },
-        { label: "Relationship", value: patient?.emergencyContact?.relationship || "Not specified" },
+        { label: t("name"), value: patient?.emergencyContact?.name || "Not specified" },
+        { label: t("phone"), value: patient?.emergencyContact?.phone || "Not specified", type: "phone" },
+        { label: t("relationship"), value: patient?.emergencyContact?.relationship || "Not specified" },
       ]
     },
     {
-      title: "Medical Information",
+      title: t("medicalInformation"),
       icon: <Heart className="h-5 w-5" />,
       fields: [
-        { label: "Height", value: patient?.height ? `${patient.height} cm` : "Not specified" },
-        { label: "Weight", value: patient?.weight ? `${patient.weight} kg` : "Not specified" },
-        { label: "Allergies", value: patient?.allergies?.length ? patient.allergies.join(", ") : "None recorded" },
-        { label: "Medical History", value: patient?.medicalHistory?.length ? patient.medicalHistory.join(", ") : "None recorded" },
+        { label: t("height"), value: patient?.height ? `${patient.height} cm` : "Not specified" },
+        { label: t("weight"), value: patient?.weight ? `${patient.weight} kg` : "Not specified" },
+        { label: t("allergies"), value: patient?.allergies?.length ? patient.allergies.join(", ") : "None recorded" },
+        { label: t("medicalHistory"), value: patient?.medicalHistory?.length ? patient.medicalHistory.join(", ") : "None recorded" },
       ]
     }
   ];
@@ -169,14 +175,14 @@ const PatientDetailsModal: React.FC<PatientDetailsModalProps> = ({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
-          <DialogHeader className="border-b pb-4">
-            <DialogTitle className="flex items-center text-xl font-semibold">
-              <Eye className="h-5 w-5 mr-3 text-blue-600" />
-              Patient Details
+        <DialogContent className={cn("max-w-4xl max-h-[90vh] overflow-hidden ", isRTL && 'dir-rtl', isRTL && 'flex-row-reverse')}>
+          <DialogHeader className={cn("border-b pb-4")}>
+            <DialogTitle className={cn("flex items-center text-xl font-semibold", isRTL && 'flex-row-reverse')}>
+              <Eye className={cn("h-5 w-5 mr-3 text-blue-600 ")} />
+              {t("patientDetails")}
             </DialogTitle>
-            <DialogDescription className="text-sm text-gray-600 mt-1">
-              Complete patient information and medical records
+            <DialogDescription className={cn("text-sm text-gray-600 mt-1", isRTL && 'text-right')}>
+              {t("patientDescription")}
             </DialogDescription>
           </DialogHeader>
 
@@ -189,7 +195,7 @@ const PatientDetailsModal: React.FC<PatientDetailsModalProps> = ({
                   <div key={section.title}>
                     {/* Section Header */}
                     <div className="mb-4">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                      <h3 className={cn("text-lg font-semibold text-gray-900 mb-3 flex items-center", isRTL && 'flex-row-reverse' )}>
                         {section.icon}
                         <span className="ml-2">{section.title}</span>
                       </h3>
@@ -218,20 +224,20 @@ const PatientDetailsModal: React.FC<PatientDetailsModalProps> = ({
                 ))}
 
                 {/* Patient Stats */}
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                  <h3 className="text-lg font-semibold text-green-900 mb-3">
-                    Patient Statistics
+                <div className={cn("bg-green-50 border border-green-200 rounded-lg p-4", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
+                  <h3 className={cn("text-lg font-semibold text-green-900 mb-3", isRTL && 'text-right', isRTL && 'flex-row-reverse', isRTL && 'flex justify-end')}>
+                    {t("patientStatistics")}
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="text-center">
                       <div className="text-2xl font-bold text-green-700">{patient.totalVisits || 0}</div>
-                      <div className="text-sm text-green-600">Total Visits</div>
+                      <div className="text-sm text-green-600">{t("totalVisits")}</div>
                     </div>
                     <div className="text-center">
                       <div className="text-2xl font-bold text-green-700">
                         {patient.lastVisit ? formatDate(patient.lastVisit) : "Never"}
                       </div>
-                      <div className="text-sm text-green-600">Last Visit</div>
+                      <div className="text-sm text-green-600">{t("lastVisit")}</div>
                     </div>
                     <div className="text-center">
                       <div className="text-2xl font-bold text-green-700">
@@ -239,7 +245,7 @@ const PatientDetailsModal: React.FC<PatientDetailsModalProps> = ({
                           {patient.status || "Active"}
                         </Badge>
                       </div>
-                      <div className="text-sm text-green-600">Status</div>
+                      <div className="text-sm text-green-600">{t("status")}</div>
                     </div>
                   </div>
                 </div>
@@ -247,8 +253,8 @@ const PatientDetailsModal: React.FC<PatientDetailsModalProps> = ({
             ) : (
               <div className="text-center text-gray-500 py-12">
                 <div className="text-6xl mb-4 opacity-50">👤</div>
-                <p className="text-lg font-medium">No patient data available</p>
-                <p className="text-sm mt-1">Patient information could not be loaded.</p>
+                <p className="text-lg font-medium">{t("noPatientDataAvailable")}</p>
+                <p className="text-sm mt-1">{t("patientInformationCouldNotBeLoaded")}</p>
               </div>
             )}
           </div>
@@ -257,10 +263,10 @@ const PatientDetailsModal: React.FC<PatientDetailsModalProps> = ({
             <Button 
               variant="outline" 
               onClick={() => onOpenChange(false)}
-              className="min-w-[100px]"
+              className={cn("min-w-[100px]", isRTL && 'flex-row-reverse', isRTL && 'text-right')}
             >
-              <X className="h-4 w-4 mr-2" />
-              Close
+              <X className={cn("h-4 w-4 mr-2")} />
+              {t("close")}
             </Button>
           </div>
         </DialogContent>

@@ -496,7 +496,7 @@ const Leads = () => {
                         </TableCell>
                         <TableCell className={cn(isRTL ? "text-left" : "text-right")}>
                           <div className={cn("flex", isRTL ? "justify-start" : "justify-end")}>
-                            <DropdownMenu>
+                            <DropdownMenu dir={isRTL ? 'rtl' : 'ltr'}>
                               <DropdownMenuTrigger asChild>
                                 <Button variant="outline" size="sm" className={cn("h-8", isRTL && "flex-row-reverse")}>
                                   <MoreVertical className={cn("h-4 w-4", isRTL ? "ml-1" : "mr-1")} />

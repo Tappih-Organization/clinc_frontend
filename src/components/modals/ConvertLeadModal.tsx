@@ -3,6 +3,8 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useIsRTL } from "@/hooks/useIsRTL";
+import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
@@ -57,6 +59,7 @@ const ConvertLeadModal: React.FC<ConvertLeadModalProps> = ({
     },
   });
 
+  const isRTL = useIsRTL();
   const convertMutation = useConvertLeadToPatient();
 
   React.useEffect(() => {
@@ -118,11 +121,11 @@ const ConvertLeadModal: React.FC<ConvertLeadModalProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2 mt-5" dir={isRTL ? 'lTR' : 'ltr'}>
             <UserCheck className="h-5 w-5" />
             {t("Convert Lead to Patient")}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className={cn("mb-4", isRTL && 'text-right')}>
             {t("Complete the patient information to convert this lead.")}
           </DialogDescription>
         </DialogHeader>
@@ -131,7 +134,7 @@ const ConvertLeadModal: React.FC<ConvertLeadModalProps> = ({
           {/* Lead Information */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg flex items-center">
+              <CardTitle className="text-lg flex items-center" dir={isRTL ? 'lTR' : 'ltr'}>
                 <User className="h-4 w-4 mr-2" />
                 {t("Lead Information")}
               </CardTitle>
@@ -151,7 +154,7 @@ const ConvertLeadModal: React.FC<ConvertLeadModalProps> = ({
           {/* Basic Information */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg flex items-center">
+              <CardTitle className="text-lg flex items-center" dir={isRTL ? 'lTR' : 'ltr'}>
                 <Phone className="h-4 w-4 mr-2" />
                 {t("Basic Information")}
               </CardTitle>
@@ -251,7 +254,7 @@ const ConvertLeadModal: React.FC<ConvertLeadModalProps> = ({
           {/* Emergency Contact */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg flex items-center">
+              <CardTitle className="text-lg flex items-center" dir={isRTL ? 'lTR' : 'ltr'}>
                 <Phone className="h-4 w-4 mr-2" />
                 {t("Emergency Contact")}
               </CardTitle>
@@ -294,7 +297,7 @@ const ConvertLeadModal: React.FC<ConvertLeadModalProps> = ({
           {/* Insurance Information */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg flex items-center">
+              <CardTitle className="text-lg flex items-center" dir={isRTL ? 'lTR' : 'ltr'}>
                 <Mail className="h-4 w-4 mr-2" />
                 {t("Insurance Information (Optional)")}
               </CardTitle>
@@ -335,7 +338,7 @@ const ConvertLeadModal: React.FC<ConvertLeadModalProps> = ({
           </Card>
 
           {/* Action Buttons */}
-          <div className="flex justify-end space-x-3 pt-4">
+          <div className="flex justify-end space-x-3 pt-4" dir={isRTL ? 'lTR' : 'ltr'}>
             <Button
               type="button"
               variant="outline"

@@ -1650,11 +1650,11 @@ const Appointments = () => {
 
       {/* View Details Modal */}
       <Dialog open={viewDetailsModal.open} onOpenChange={(open) => setViewDetailsModal({ open, appointment: null })}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
+        <DialogContent className="max-w-2xl" dir={isRTL ? 'rtl' : 'ltr'}>
+          <DialogHeader className={cn(isRTL && 'text-right', isRTL && 'flex-row-reverse', isRTL && 'flex justify-end',isRTL && 'mt-5')} >
             <div className="flex items-center justify-between">
-              <div>
-                <DialogTitle>{t("Appointment Details")}</DialogTitle>
+              <div className={cn(isRTL && "dir-row-reverse" )}>
+                <DialogTitle className={cn(isRTL && 'text-right', isRTL && 'flex-row-reverse', isRTL && 'flex justify-end')} >{t("Appointment Details")}</DialogTitle>
                 <DialogDescription>
                   {t("View complete appointment information")}
                 </DialogDescription>
@@ -1723,10 +1723,10 @@ const Appointments = () => {
 
       {/* Edit Appointment Modal */}
       <Dialog open={editModal.open} onOpenChange={(open) => setEditModal({ open, appointment: null })}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
+        <DialogContent className=" max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader className={cn(isRTL && 'mt-5')}>
             <DialogTitle>{t("Edit Appointment")}</DialogTitle>
-            <DialogDescription>
+            <DialogDescription className={cn(isRTL && 'text-right', isRTL && 'flex-row-reverse', isRTL && 'flex justify-end',isRTL && 'mt-5')}>
               {t("Update appointment details for")} {editModal.appointment?.patient?.name}
             </DialogDescription>
           </DialogHeader>
@@ -1982,15 +1982,15 @@ const Appointments = () => {
 
       {/* Cancel Confirmation Modal */}
       <AlertDialog open={cancelModal.open} onOpenChange={(open) => setCancelModal({ open, appointment: null })}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t("Cancel Appointment")}</AlertDialogTitle>
-            <AlertDialogDescription>
+        <AlertDialogContent className={cn(isRTL && 'text-right', isRTL && 'flex-row-reverse', isRTL && 'flex justify-end',isRTL && 'mt-5')}>
+          <AlertDialogHeader className={cn(isRTL && 'text-right', isRTL && 'flex-row-reverse', isRTL && 'flex justify-end',isRTL && 'mt-5')}>
+        
+            <AlertDialogDescription className={cn(isRTL && 'text-right', isRTL && 'flex-row-reverse', isRTL && 'flex justify-end',isRTL && 'mt-5')}>
               {t("Are you sure you want to cancel this appointment with")} {cancelModal.appointment?.patient?.name}? 
               {t("This action cannot be undone.")}
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
+          <AlertDialogFooter >
             <AlertDialogCancel>{t("Keep Appointment")}</AlertDialogCancel>
             <AlertDialogAction 
               onClick={confirmCancelAppointment}

@@ -2153,7 +2153,89 @@
   "Payment Summary": "Payment Summary",
   "Invoice not found": "Invoice not found",
   "The requested invoice could not be loaded.": "The requested invoice could not be loaded.",
-  "Failed to load invoice details.": "Failed to load invoice details."
+  "Failed to load invoice details.": "Failed to load invoice details.",
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  "patientDetails": "Patient Details",
+  "patientDescription": "Complete patient information and medical records",
+
+  "personalInformation": "Personal Information",
+  "contactInformation": "Contact Information",
+  "emergencyContact": "Emergency Contact",
+  "medicalInformation": "Medical Information",
+
+  "fullName": "Full Name",
+  "dateOfBirth": "Date of Birth",
+  "age": "Age",
+  "years": "years",
+  "gender": "Gender",
+  "bloodGroup": "Blood Group",
+
+  "phone": "Phone",
+  "email": "Email",
+  "address": "Address",
+  "name": "Name",
+  "relationship": "Relationship",
+
+  "height": "Height",
+  "weight": "Weight",
+  "allergies": "Allergies",
+  "medicalHistory": "Medical History",
+
+  "patientStatistics": "Patient Statistics",
+  "totalVisits": "Total Visits",
+  "lastVisit": "Last Visit",
+  "status": "Status",
+  "never": "Never",
+  "active": "Active",
+
+  "notSpecified": "Not specified",
+  "noneRecorded": "None recorded",
+
+  "noPatientData": "No patient data available",
+  "noPatientDataDesc": "Patient information could not be loaded",
+
+  "noDentalRecords": "No Dental Records",
+  "noDentalRecordsDesc": "No dental chart found for this patient. Please create one first.",
+
+  "error": "Error",
+  "failedToLoadDentalChart": "Failed to load dental chart",
+
+  "close": "Close",
+  "updateinfo":"Update the information below",
+  
+"Delete Patient": "Delete Patient",
+  "areYouSureDeletePatient": "Are you sure you want to delete this patient? This action cannot be undone.",
+  "deleting": "Deleting...",
+  "delete": "Delete",
+   "firstName": "First Name",
+  "lastName": "Last Name",
+  "email": "Email",
+  "phoneNumber": "Phone Number",
+  "leadSource": "Lead Source",
+  "serviceInterest": "Service Interest",
+  "status": "Status",
+  "assignedTo": "Assigned To",
+  "notes": "Notes"
 
 
 

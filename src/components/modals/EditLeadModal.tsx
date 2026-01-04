@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useIsRTL } from "@/hooks/useIsRTL";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
@@ -118,16 +119,16 @@ const EditLeadModal: React.FC<EditLeadModalProps> = ({ lead, open, onOpenChange 
       });
     }
   };
-
+  const isRTL = useIsRTL();
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" dir={isRTL ? 'rtl' : 'ltr'}>
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2 mt-5" dir={isRTL ? 'ltr' : 'ltr'}>
             <Edit className="h-5 w-5" />
             {t("Edit Lead")}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className={isRTL ? 'text-right' : ''}>
             {t("Update lead information and track their progress.")}
           </DialogDescription>
         </DialogHeader>
@@ -136,7 +137,7 @@ const EditLeadModal: React.FC<EditLeadModalProps> = ({ lead, open, onOpenChange 
           {/* Basic Information */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg flex items-center">
+              <CardTitle className="text-lg flex items-center" dir={isRTL ? 'ltr' : 'ltr'}>
                 <Phone className="h-4 w-4 mr-2" />
                 {t("Contact Information")}
               </CardTitle>
@@ -144,7 +145,7 @@ const EditLeadModal: React.FC<EditLeadModalProps> = ({ lead, open, onOpenChange 
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName">First Name *</Label>
+                  <Label htmlFor="firstName">{t("First Name")} *</Label>
                   <Input
                     id="firstName"
                     value={formData.firstName}
@@ -155,7 +156,7 @@ const EditLeadModal: React.FC<EditLeadModalProps> = ({ lead, open, onOpenChange 
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="lastName">Last Name *</Label>
+                  <Label htmlFor="lastName">{t("Last Name")} *</Label>
                   <Input
                     id="lastName"
                     value={formData.lastName}
@@ -168,7 +169,7 @@ const EditLeadModal: React.FC<EditLeadModalProps> = ({ lead, open, onOpenChange 
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">{t("Email")}</Label>
                   <Input
                     id="email"
                     type="email"
@@ -179,7 +180,7 @@ const EditLeadModal: React.FC<EditLeadModalProps> = ({ lead, open, onOpenChange 
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number *</Label>
+                  <Label htmlFor="phone">{t("Phone Number")} *</Label>
                   <Input
                     id="phone"
                     value={formData.phone}
@@ -194,7 +195,7 @@ const EditLeadModal: React.FC<EditLeadModalProps> = ({ lead, open, onOpenChange 
 
           {/* Lead Details */}
           <Card>
-            <CardHeader>
+            <CardHeader dir={isRTL ? 'ltr' : 'ltr'}>
               <CardTitle className="text-lg flex items-center">
                 <Globe className="h-4 w-4 mr-2" />
                 {t("Lead Details")}
@@ -203,7 +204,7 @@ const EditLeadModal: React.FC<EditLeadModalProps> = ({ lead, open, onOpenChange 
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="source">Lead Source *</Label>
+                  <Label htmlFor="source">{t("leadSource")} *</Label>
                   <Select
                     value={formData.source}
                     onValueChange={(value) => handleChange("source", value)}
@@ -222,7 +223,7 @@ const EditLeadModal: React.FC<EditLeadModalProps> = ({ lead, open, onOpenChange 
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="serviceInterest">Service Interest *</Label>
+                  <Label htmlFor="serviceInterest">{t("Service Interest")} *</Label>
                   <Select
                     value={formData.serviceInterest}
                     onValueChange={(value) =>
@@ -245,7 +246,7 @@ const EditLeadModal: React.FC<EditLeadModalProps> = ({ lead, open, onOpenChange 
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="status">Status</Label>
+                  <Label htmlFor="status">{t("Status")}</Label>
                   <Select
                     value={formData.status}
                     onValueChange={(value) =>
@@ -266,7 +267,7 @@ const EditLeadModal: React.FC<EditLeadModalProps> = ({ lead, open, onOpenChange 
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="assignedTo">Assigned To</Label>
+                  <Label htmlFor="assignedTo">{t("Assigned To")}</Label>
                   <Input
                     id="assignedTo"
                     value={formData.assignedTo}
@@ -277,7 +278,7 @@ const EditLeadModal: React.FC<EditLeadModalProps> = ({ lead, open, onOpenChange 
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="notes">Notes</Label>
+                <Label htmlFor="notes">{t("Notes")}</Label>
                 <Textarea
                   id="notes"
                   value={formData.notes}
@@ -290,7 +291,7 @@ const EditLeadModal: React.FC<EditLeadModalProps> = ({ lead, open, onOpenChange 
           </Card>
 
           {/* Action Buttons */}
-          <div className="flex justify-end space-x-3 pt-4">
+          <div className="flex justify-end space-x-3 pt-4" dir={isRTL ? 'ltr' : 'ltr'}>
             <Button
               type="button"
               variant="outline"

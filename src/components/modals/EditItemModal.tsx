@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useIsRTL } from "@/hooks/useIsRTL";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -21,6 +22,8 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
 import { Edit, Save, X } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { C } from "vitest/dist/chunks/reporters.d.C-cu31ET.js";
 
 interface FormField {
   key: string;
@@ -51,7 +54,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
   const { t } = useTranslation();
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [isLoading, setIsLoading] = useState(false);
-
+  const isRTL = useIsRTL();
   useEffect(() => {
     if (open) {
       setFormData(data);
@@ -169,13 +172,15 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className={cn("max-w-2xl max-h-[80vh] overflow-y-auto", isRTL && 'dir-rtl', isRTL && 'flex-row-reverse')}>
         <DialogHeader>
-          <DialogTitle className="flex items-center text-xl">
-            <Edit className="h-5 w-5 mr-2 text-blue-600" />
+          <DialogTitle className={cn("flex items-center text-xl", isRTL && 'flex-row-reverse')}>
+            <Edit className={cn("h-5 w-5 mr-2 text-blue-600", isRTL && 'ml-2')} />
             {title}
           </DialogTitle>
-          <DialogDescription>Update the information below</DialogDescription>
+          <DialogDescription className={cn("text-sm", isRTL && 'text-right')}>
+            {t("updateinfo")}
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -189,21 +194,22 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
             </div>
           ))}
 
-          <div className="flex justify-end space-x-3 pt-4">
+          <div className={cn("flex justify-end space-x-3 pt-4", isRTL && 'flex-row-reverse' , isRTL && 'text-right')}>
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isLoading}
-            >
+            >              {t("close")}
               <X className="h-4 w-4 mr-2" />
-              {t("Cancel")}
+
+              
             </Button>
             <Button type="submit" disabled={isLoading}>
               {isLoading ? (
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
               ) : (
-                <Save className="h-4 w-4 mr-2" />
+                <Save className="h-4 w-4 mr-2 ml-3" />
               )}
               {t("Save Changes")}
             </Button>
