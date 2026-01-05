@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { apiService, type Invoice } from "@/services/api";
+import { formatDate } from "@/utils/dateUtils";
 
 interface ViewInvoiceModalProps {
   invoiceId: string | null;
@@ -99,14 +100,7 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const locale = i18n.language || 'en';
-    return new Date(dateString).toLocaleDateString(locale, {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
+  // formatDate is now imported from dateUtils
 
   const getPatientDisplay = (patient: string | { _id: string; first_name: string; last_name: string; phone?: string; email?: string }) => {
     if (typeof patient === 'string') {

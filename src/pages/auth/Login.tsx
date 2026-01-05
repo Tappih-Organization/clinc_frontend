@@ -330,25 +330,25 @@ const MainLogin = () => {
           {/* Feature Card */}
           <div className="relative mt-12">
             {/* Lightbulb Icon */}
-            <div className={cn("absolute -top-6 z-20", isRTL ? "-right-6" : "-left-6")}>
-              <div className="h-16 w-16 rounded-full bg-white shadow-xl flex items-center justify-center">
-                <Lightbulb className="h-8 w-8 text-yellow-500" />
+            <div className={cn("absolute -top-4 z-20", isRTL ? "-right-4" : "-left-4")}>
+              <div className="h-12 w-12 rounded-full bg-white shadow-xl flex items-center justify-center">
+                <Lightbulb className="h-6 w-6 text-yellow-500" />
               </div>
             </div>
 
             {/* Card */}
-            <Card className="bg-white shadow-2xl border-0 p-6 relative z-10">
+            <Card className="bg-white shadow-2xl border-0 p-4 relative z-10">
               <CardHeader className="pb-0">
-                <CardTitle className={cn("text-2xl font-bold text-foreground", isRTL && "font-arabic")} style={isRTL ? { fontFamily: "'IBM Plex Sans Arabic', sans-serif" } : {}}>
+                <CardTitle className={cn("text-xl font-bold text-foreground", isRTL && "font-arabic")} style={isRTL ? { fontFamily: "'IBM Plex Sans Arabic', sans-serif" } : {}}>
                   {t("Why tappih?")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-1">
-                <p className={cn("text-muted-foreground leading-relaxed mb-4", isRTL && "font-arabic")} style={isRTL ? { fontFamily: "'IBM Plex Sans Arabic', sans-serif" } : {}}>
+                <p className={cn("text-sm text-muted-foreground leading-relaxed mb-3", isRTL && "font-arabic")} style={isRTL ? { fontFamily: "'IBM Plex Sans Arabic', sans-serif" } : {}}>
                   {t("Tappih brings all your healthcare operations into one cloud-based platform, powered by intelligent technology for seamless management. Smarter control, full visibility, and scalability designed to grow with your healthcare business.")}
                 </p>
-                <div className={cn("flex items-center gap-2 text-sm text-muted-foreground", isRTL && "flex-row-reverse")}>
-                  <TrendingUp className="h-4 w-4 text-green-600" />
+                <div className={cn("flex items-center gap-2 text-xs text-muted-foreground", isRTL && "flex-row-reverse")}>
+                  <TrendingUp className="h-3 w-3 text-green-600" />
                   <span className={cn(isRTL && "font-arabic")} style={isRTL ? { fontFamily: "'IBM Plex Sans Arabic', sans-serif" } : {}}>{t("More than 220 clinics.")}</span>
                 </div>
               </CardContent>

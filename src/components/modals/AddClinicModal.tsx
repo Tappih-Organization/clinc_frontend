@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import apiService from "@/services/api";
 import {
   Dialog,
   DialogContent,
@@ -22,6 +23,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building2, MapPin, Phone, Mail, Globe, Settings } from "lucide-react";
+import { middleEastCountries, timezones, currencies } from "@/data/countries";
 
 interface AddClinicModalProps {
   isOpen: boolean;
@@ -36,8 +38,7 @@ interface ClinicFormData {
   address: {
     street: string;
     city: string;
-    state: string;
-    zipCode: string;
+    neighborhood: string;
     country: string;
   };
   contact: {
@@ -62,47 +63,9 @@ interface ClinicFormData {
   is_active: boolean;
 }
 
-const timezones = [
-  "America/New_York",
-  "America/Chicago",
-  "America/Denver", 
-  "America/Los_Angeles",
-  "America/Phoenix",
-  "Europe/London",
-  "Europe/Paris",
-  "Europe/Berlin",
-  "Asia/Tokyo",
-  "Asia/Shanghai",
-  "Asia/Dubai",
-  "Asia/Kolkata",
-  "Australia/Sydney",
-];
-
-const currencies = [
-  { value: "USD", label: "USD - US Dollar" },
-  { value: "EUR", label: "EUR - Euro" },
-  { value: "GBP", label: "GBP - British Pound" },
-  { value: "CAD", label: "CAD - Canadian Dollar" },
-  { value: "AUD", label: "AUD - Australian Dollar" },
-  { value: "JPY", label: "JPY - Japanese Yen" },
-  { value: "CNY", label: "CNY - Chinese Yuan" },
-  { value: "INR", label: "INR - Indian Rupee" },
-  { value: "AED", label: "AED - UAE Dirham" },
-  { value: "SAR", label: "SAR - Saudi Riyal" },
-  { value: "EGP", label: "EGP - Egyptian Pound" },
-];
-
 const languages = [
   { value: "en", label: "English" },
-  { value: "es", label: "Spanish" },
-  { value: "fr", label: "French" },
-  { value: "de", label: "German" },
-  { value: "it", label: "Italian" },
-  { value: "pt", label: "Portuguese" },
   { value: "ar", label: "Arabic" },
-  { value: "hi", label: "Hindi" },
-  { value: "zh", label: "Chinese" },
-  { value: "ja", label: "Japanese" },
 ];
 
 const defaultWorkingHours = {
@@ -121,18 +84,27 @@ const AddClinicModal: React.FC<AddClinicModalProps> = ({
   onSubmit,
 }) => {
   console.log('🎭 AddClinicModal rendered with props:', { isOpen });
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  
+  const [clinicsCount, setClinicsCount] = useState<number>(0);
+  const [loadingCount, setLoadingCount] = useState<boolean>(true);
+  
+  // Generate a unique clinic code based on clinics count
+  const generateClinicCode = (count: number) => {
+    const nextNumber = count + 1;
+    return `CL${nextNumber.toString().padStart(3, '0')}`; // CL001, CL002, etc.
+  };
+
   const [formData, setFormData] = useState<ClinicFormData>({
     name: "",
-    code: "",
+    code: "CL001", // Default value until count is fetched
     description: "",
     address: {
       street: "",
       city: "",
-      state: "",
-      zipCode: "",
-      country: "United States",
+      neighborhood: "",
+      country: "EG",
     },
     contact: {
       phone: "",
@@ -140,15 +112,56 @@ const AddClinicModal: React.FC<AddClinicModalProps> = ({
       website: undefined,
     },
     settings: {
-      timezone: "America/New_York",
-      currency: "USD",
+      timezone: "Africa/Cairo",
+      currency: "EGP",
       language: "en",
       working_hours: defaultWorkingHours,
     },
     is_active: true,
   });
 
+  const [selectedCountry, setSelectedCountry] = useState<string>("EG");
+
   const [errors, setErrors] = useState<any>({});
+
+  // Fetch clinics count when modal opens
+  useEffect(() => {
+    const fetchClinicsCount = async () => {
+      if (isOpen) {
+        try {
+          setLoadingCount(true);
+          const response = await apiService.getClinics({ tenantScoped: true });
+          
+          // Get unique clinics count
+          const uniqueClinics = new Set();
+          response.data.forEach((userClinic: any) => {
+            if (userClinic.clinic_id && userClinic.clinic_id._id) {
+              uniqueClinics.add(userClinic.clinic_id._id);
+            }
+          });
+          
+          const count = uniqueClinics.size;
+          setClinicsCount(count);
+          
+          // Update form with new code
+          setFormData(prev => ({
+            ...prev,
+            code: generateClinicCode(count)
+          }));
+          
+          console.log(`✅ Fetched clinics count: ${count}, Next code: ${generateClinicCode(count)}`);
+        } catch (error) {
+          console.error('❌ Error fetching clinics count:', error);
+          // Keep default CL001 on error
+          setClinicsCount(0);
+        } finally {
+          setLoadingCount(false);
+        }
+      }
+    };
+
+    fetchClinicsCount();
+  }, [isOpen]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -156,8 +169,23 @@ const AddClinicModal: React.FC<AddClinicModalProps> = ({
     const { name, value } = e.target;
     const keys = name.split(".");
     
-    // Auto-uppercase clinic code
-    const finalValue = name === 'code' ? value.toUpperCase() : value;
+    // Handle clinic code with CL prefix and numbers only
+    let finalValue = value;
+    if (name === 'code') {
+      const upperValue = value.toUpperCase();
+      
+      // If user tries to delete CL, reset to CL
+      if (upperValue === '' || upperValue === 'C') {
+        finalValue = 'CL';
+      } else if (!upperValue.startsWith('CL')) {
+        // If doesn't start with CL, add it
+        finalValue = 'CL' + upperValue.replace(/[^0-9]/g, ''); // Only numbers after CL
+      } else {
+        // Starts with CL, ensure only numbers after it
+        const afterCL = upperValue.substring(2);
+        finalValue = 'CL' + afterCL.replace(/[^0-9]/g, '');
+      }
+    }
 
     if (keys.length === 1) {
       setFormData({ ...formData, [name]: finalValue });
@@ -172,6 +200,16 @@ const AddClinicModal: React.FC<AddClinicModalProps> = ({
 
   const handleSelectChange = (name: string, value: string) => {
     const keys = name.split(".");
+    
+    // Handle country change - reset city
+    if (name === "address.country") {
+      setSelectedCountry(value);
+      setFormData({
+        ...formData,
+        address: { ...formData.address, country: value, city: "" },
+      });
+      return;
+    }
     
     if (keys.length === 1) {
       setFormData({ ...formData, [name]: value });
@@ -200,23 +238,38 @@ const AddClinicModal: React.FC<AddClinicModalProps> = ({
     });
   };
 
-  const validateForm = () => {
+  const validateForm = async () => {
     const newErrors: any = {};
 
     if (!formData.name.trim()) newErrors.name = t("Clinic name is required");
     if (!formData.code.trim()) {
       newErrors.code = t("Clinic code is required");
     } else {
-      // Clinic code validation - must contain only uppercase letters and numbers
-      const codeRegex = /^[A-Z0-9]+$/;
+      // Clinic code validation - must start with CL followed by digits
+      const codeRegex = /^CL\d{3,}$/;
       if (!codeRegex.test(formData.code)) {
-        newErrors.code = t("Clinic code must contain only uppercase letters and numbers");
+        newErrors.code = t("Clinic code must start with CL followed by numbers (e.g., CL001)");
+      } else if (formData.code.length < 5) {
+        newErrors.code = t("Clinic code must be at least 5 characters (e.g., CL001)");
+      } else {
+        // Check if code already exists
+        try {
+          const response = await apiService.getClinics({ tenantScoped: true });
+          const existingCodes = response.data
+            .filter((userClinic: any) => userClinic.clinic_id && userClinic.clinic_id.code)
+            .map((userClinic: any) => userClinic.clinic_id.code.toUpperCase());
+          
+          if (existingCodes.includes(formData.code.toUpperCase())) {
+            newErrors.code = t("This clinic code already exists. Please use a different code.");
+          }
+        } catch (error) {
+          console.error('Error checking clinic code:', error);
+        }
       }
     }
     if (!formData.address.street.trim()) newErrors["address.street"] = t("Street address is required");
     if (!formData.address.city.trim()) newErrors["address.city"] = t("City is required");
-    if (!formData.address.state.trim()) newErrors["address.state"] = t("State is required");
-    if (!formData.address.zipCode.trim()) newErrors["address.zipCode"] = t("Zip code is required");
+    if (!formData.address.country.trim()) newErrors["address.country"] = t("Country is required");
     if (!formData.contact.phone.trim()) newErrors["contact.phone"] = t("Phone number is required");
     if (!formData.contact.email.trim()) newErrors["contact.email"] = t("Email is required");
 
@@ -230,9 +283,10 @@ const AddClinicModal: React.FC<AddClinicModalProps> = ({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateForm()) {
+    const isValid = await validateForm();
+    if (isValid) {
       onSubmit(formData);
       handleClose();
     }
@@ -241,14 +295,13 @@ const AddClinicModal: React.FC<AddClinicModalProps> = ({
   const handleClose = () => {
     setFormData({
       name: "",
-      code: "",
+      code: generateClinicCode(clinicsCount),
       description: "",
       address: {
         street: "",
         city: "",
-        state: "",
-        zipCode: "",
-        country: "United States",
+        neighborhood: "",
+        country: "EG",
       },
       contact: {
         phone: "",
@@ -256,13 +309,14 @@ const AddClinicModal: React.FC<AddClinicModalProps> = ({
         website: undefined,
       },
       settings: {
-        timezone: "America/New_York",
-        currency: "USD",
+        timezone: "Africa/Cairo",
+        currency: "EGP",
         language: "en",
         working_hours: defaultWorkingHours,
       },
       is_active: true,
     });
+    setSelectedCountry("EG");
     setErrors({});
     onClose();
   };
@@ -318,13 +372,13 @@ const AddClinicModal: React.FC<AddClinicModalProps> = ({
                   <Input
                     id="code"
                     name="code"
-                    placeholder={t("Enter clinic code (e.g., CLN001)")}
+                    placeholder={t("Auto-generated (e.g., CL123456)")}
                     value={formData.code}
                     onChange={handleInputChange}
                     className={errors.code ? "border-red-500" : ""}
                     style={{ textTransform: 'uppercase' }}
                   />
-                  <p className="text-xs text-gray-500">{t("Only uppercase letters and numbers allowed (automatically converted)")}</p>
+                  <p className="text-xs text-gray-500">{t("Auto-generated code with CL prefix. You can edit it if needed.")}</p>
                   {errors.code && (
                     <p className="text-sm text-red-500">{errors.code}</p>
                   )}
@@ -380,59 +434,63 @@ const AddClinicModal: React.FC<AddClinicModalProps> = ({
                 )}
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="address.country">{t("Country")} *</Label>
+                  <Select
+                    value={formData.address.country}
+                    onValueChange={(value) => handleSelectChange("address.country", value)}
+                  >
+                    <SelectTrigger className={errors["address.country"] ? "border-red-500" : ""}>
+                      <SelectValue placeholder={t("Select country")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {middleEastCountries.map((country) => (
+                        <SelectItem key={country.code} value={country.code}>
+                          {i18n.language === "ar" ? country.nameAr : country.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors["address.country"] && (
+                    <p className="text-sm text-red-500">{errors["address.country"]}</p>
+                  )}
+                </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="address.city">{t("City")} *</Label>
-                  <Input
-                    id="address.city"
-                    name="address.city"
-                    placeholder={t("City")}
+                  <Select
                     value={formData.address.city}
-                    onChange={handleInputChange}
-                    className={errors["address.city"] ? "border-red-500" : ""}
-                  />
+                    onValueChange={(value) => handleSelectChange("address.city", value)}
+                    disabled={!selectedCountry}
+                  >
+                    <SelectTrigger className={errors["address.city"] ? "border-red-500" : ""}>
+                      <SelectValue placeholder={t("Select city")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {selectedCountry && middleEastCountries
+                        .find(c => c.code === selectedCountry)
+                        ?.cities.map((city, index) => (
+                          <SelectItem key={city} value={city}>
+                            {i18n.language === "ar" 
+                              ? middleEastCountries.find(c => c.code === selectedCountry)?.citiesAr[index] 
+                              : city}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
                   {errors["address.city"] && (
                     <p className="text-sm text-red-500">{errors["address.city"]}</p>
                   )}
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="address.state">{t("State")} *</Label>
+                  <Label htmlFor="address.neighborhood">{t("Neighborhood")}</Label>
                   <Input
-                    id="address.state"
-                    name="address.state"
-                    placeholder={t("State")}
-                    value={formData.address.state}
-                    onChange={handleInputChange}
-                    className={errors["address.state"] ? "border-red-500" : ""}
-                  />
-                  {errors["address.state"] && (
-                    <p className="text-sm text-red-500">{errors["address.state"]}</p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="address.zipCode">{t("Zip Code")} *</Label>
-                  <Input
-                    id="address.zipCode"
-                    name="address.zipCode"
-                    placeholder={t("Zip Code")}
-                    value={formData.address.zipCode}
-                    onChange={handleInputChange}
-                    className={errors["address.zipCode"] ? "border-red-500" : ""}
-                  />
-                  {errors["address.zipCode"] && (
-                    <p className="text-sm text-red-500">{errors["address.zipCode"]}</p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="address.country">{t("Country")}</Label>
-                  <Input
-                    id="address.country"
-                    name="address.country"
-                    placeholder={t("Country")}
-                    value={formData.address.country}
+                    id="address.neighborhood"
+                    name="address.neighborhood"
+                    placeholder={t("Enter neighborhood")}
+                    value={formData.address.neighborhood}
                     onChange={handleInputChange}
                   />
                 </div>
@@ -516,8 +574,8 @@ const AddClinicModal: React.FC<AddClinicModalProps> = ({
                     </SelectTrigger>
                     <SelectContent>
                       {timezones.map((timezone) => (
-                        <SelectItem key={timezone} value={timezone}>
-                          {timezone}
+                        <SelectItem key={timezone.value} value={timezone.value}>
+                          {i18n.language === "ar" ? timezone.labelAr : timezone.label}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -536,7 +594,7 @@ const AddClinicModal: React.FC<AddClinicModalProps> = ({
                     <SelectContent>
                       {currencies.map((currency) => (
                         <SelectItem key={currency.value} value={currency.value}>
-                          {currency.label}
+                          {i18n.language === "ar" ? currency.labelAr : currency.label}
                         </SelectItem>
                       ))}
                     </SelectContent>

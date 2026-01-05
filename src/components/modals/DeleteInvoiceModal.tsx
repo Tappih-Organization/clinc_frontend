@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { apiService, type Invoice } from "@/services/api";
+import { formatDate } from "@/utils/dateUtils";
 
 interface DeleteInvoiceModalProps {
   invoiceId: string | null;
@@ -98,13 +99,7 @@ const DeleteInvoiceModal: React.FC<DeleteInvoiceModalProps> = ({
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
+  // formatDate is now imported from dateUtils
 
   const getPatientDisplay = (patient: string | { _id: string; first_name: string; last_name: string; phone?: string; email?: string }) => {
     if (typeof patient === 'string') {
@@ -140,13 +135,13 @@ const DeleteInvoiceModal: React.FC<DeleteInvoiceModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className={cn("max-w-md", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
         <DialogHeader>
           <DialogTitle className={cn("flex items-center text-xl text-red-600", isRTL && "flex-row-reverse")}>
             <AlertTriangle className={cn("h-5 w-5", isRTL ? "ml-2" : "mr-2")} />
             {t("Delete Invoice")}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className={cn(isRTL && "text-right")}>
             {t("This action cannot be undone. Please review the invoice details before confirming.")}
           </DialogDescription>
         </DialogHeader>
@@ -159,44 +154,44 @@ const DeleteInvoiceModal: React.FC<DeleteInvoiceModalProps> = ({
         ) : invoice ? (
           <div className="space-y-4">
             {/* Warning message */}
-            <div className={`p-4 rounded-lg border ${
+            <div className={cn(`p-4 rounded-lg border ${
               isDangerous 
                 ? "bg-red-50 border-red-200" 
                 : canBeDeleted 
                   ? "bg-yellow-50 border-yellow-200" 
                   : "bg-gray-50 border-gray-200"
-            }`}>
+            }`, isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
               <div className={cn("flex items-start", isRTL ? "flex-row-reverse space-x-reverse space-x-3" : "space-x-3")}>
-                <AlertTriangle className={cn(`h-5 w-5 mt-0.5`, isRTL && "mt-0.5", {
+                <AlertTriangle className={cn(`h-5 w-5 mt-0.5 flex-shrink-0`, {
                   "text-red-600": isDangerous,
                   "text-yellow-600": canBeDeleted && !isDangerous,
                   "text-gray-600": !canBeDeleted && !isDangerous
                 })} />
-                <div className="text-sm">
+                <div className={cn("text-sm flex-1", isRTL && "text-right")}>
                   {isDangerous ? (
                     <>
-                      <p className="font-semibold text-red-800 mb-1">
+                      <p className={cn("font-semibold text-red-800 mb-1", isRTL && "text-right")}>
                         ⚠️ {t("High Risk Operation")}
                       </p>
-                      <p className="text-red-700">
+                      <p className={cn("text-red-700", isRTL && "text-right")}>
                         {t("This invoice has been paid and deleting it may cause accounting discrepancies. Consider cancelling instead of deleting.")}
                       </p>
                     </>
                   ) : canBeDeleted ? (
                     <>
-                      <p className="font-semibold text-yellow-800 mb-1">
+                      <p className={cn("font-semibold text-yellow-800 mb-1", isRTL && "text-right")}>
                         {t("Confirm Deletion")}
                       </p>
-                      <p className="text-yellow-700">
+                      <p className={cn("text-yellow-700", isRTL && "text-right")}>
                         {t("This will permanently remove the invoice and all associated records.")}
                       </p>
                     </>
                   ) : (
                     <>
-                      <p className="font-semibold text-gray-800 mb-1">
+                      <p className={cn("font-semibold text-gray-800 mb-1", isRTL && "text-right")}>
                         {t("Cannot Delete")}
                       </p>
-                      <p className="text-gray-700">
+                      <p className={cn("text-gray-700", isRTL && "text-right")}>
                         {t("This invoice cannot be deleted due to its current status.")}
                       </p>
                     </>
@@ -207,59 +202,59 @@ const DeleteInvoiceModal: React.FC<DeleteInvoiceModalProps> = ({
 
             {/* Invoice Details */}
             <Card>
-              <CardContent className="p-4 space-y-3">
+              <CardContent className={cn("p-4 space-y-3", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
                 <div className={cn("flex items-center justify-between", isRTL && "flex-row-reverse")}>
                   <div className={cn("flex items-center", isRTL ? "flex-row-reverse space-x-reverse space-x-2" : "space-x-2")}>
-                    <Receipt className={cn("h-4 w-4 text-blue-600", isRTL && "ml-0")} />
-                    <span className="font-semibold">#{invoice.invoice_number}</span>
+                    <Receipt className={cn("h-4 w-4 text-blue-600 flex-shrink-0", isRTL ? "ml-2" : "mr-0")} />
+                    <span className={cn("font-semibold", isRTL && "text-right")}>#{invoice.invoice_number}</span>
                   </div>
-                  <Badge className={`text-xs ${getStatusColor(invoice.status)}`}>
+                  <Badge className={cn(`text-xs ${getStatusColor(invoice.status)}`, isRTL && "mr-2")}>
                     {invoice.status.toUpperCase()}
                   </Badge>
                 </div>
 
-                <div className="space-y-2">
+                <div className={cn("space-y-2", isRTL && "text-right")}>
                   <div className={cn("flex items-center justify-between text-sm", isRTL && "flex-row-reverse")}>
                     <div className={cn("flex items-center", isRTL ? "flex-row-reverse space-x-reverse space-x-2" : "space-x-2")}>
-                      <User className={cn("h-3 w-3 text-gray-500", isRTL && "ml-0")} />
-                      <span className="text-gray-600">{t("Patient")}:</span>
+                      <User className={cn("h-3 w-3 text-gray-500 flex-shrink-0", isRTL ? "ml-2" : "mr-0")} />
+                      <span className={cn("text-gray-600", isRTL && "text-right")}>{t("Patient")}:</span>
                     </div>
-                    <span className="font-medium">{getPatientDisplay(invoice.patient_id)}</span>
+                    <span className={cn("font-medium", isRTL && "text-right")}>{getPatientDisplay(invoice.patient_id)}</span>
                   </div>
 
                   <div className={cn("flex items-center justify-between text-sm", isRTL && "flex-row-reverse")}>
                     <div className={cn("flex items-center", isRTL ? "flex-row-reverse space-x-reverse space-x-2" : "space-x-2")}>
-                      <DollarSign className={cn("h-3 w-3 text-gray-500", isRTL && "ml-0")} />
-                      <span className="text-gray-600">{t("Amount")}:</span>
+                      <DollarSign className={cn("h-3 w-3 text-gray-500 flex-shrink-0", isRTL ? "ml-2" : "mr-0")} />
+                      <span className={cn("text-gray-600", isRTL && "text-right")}>{t("Amount")}:</span>
                     </div>
-                    <span className="font-semibold text-green-600">
+                    <span className={cn("font-semibold text-green-600", isRTL && "text-right")}>
                       <CurrencyDisplay amount={invoice.total_amount} />
                     </span>
                   </div>
 
                   <div className={cn("flex items-center justify-between text-sm", isRTL && "flex-row-reverse")}>
                     <div className={cn("flex items-center", isRTL ? "flex-row-reverse space-x-reverse space-x-2" : "space-x-2")}>
-                      <Calendar className={cn("h-3 w-3 text-gray-500", isRTL && "ml-0")} />
-                      <span className="text-gray-600">{t("Created")}:</span>
+                      <Calendar className={cn("h-3 w-3 text-gray-500 flex-shrink-0", isRTL ? "ml-2" : "mr-0")} />
+                      <span className={cn("text-gray-600", isRTL && "text-right")}>{t("Created")}:</span>
                     </div>
-                    <span>{formatDate(invoice.created_at)}</span>
+                    <span className={cn(isRTL && "text-right")}>{formatDate(invoice.created_at)}</span>
                   </div>
 
                   <div className={cn("flex items-center justify-between text-sm", isRTL && "flex-row-reverse")}>
                     <div className={cn("flex items-center", isRTL ? "flex-row-reverse space-x-reverse space-x-2" : "space-x-2")}>
-                      <Calendar className={cn("h-3 w-3 text-gray-500", isRTL && "ml-0")} />
-                      <span className="text-gray-600">{t("Due Date")}:</span>
+                      <Calendar className={cn("h-3 w-3 text-gray-500 flex-shrink-0", isRTL ? "ml-2" : "mr-0")} />
+                      <span className={cn("text-gray-600", isRTL && "text-right")}>{t("Due Date")}:</span>
                     </div>
-                    <span>{formatDate(invoice.due_date)}</span>
+                    <span className={cn(isRTL && "text-right")}>{formatDate(invoice.due_date)}</span>
                   </div>
 
                   {invoice.paid_at && (
                     <div className={cn("flex items-center justify-between text-sm", isRTL && "flex-row-reverse")}>
                       <div className={cn("flex items-center", isRTL ? "flex-row-reverse space-x-reverse space-x-2" : "space-x-2")}>
-                        <Calendar className={cn("h-3 w-3 text-gray-500", isRTL && "ml-0")} />
-                        <span className="text-gray-600">{t("Paid")}:</span>
+                        <Calendar className={cn("h-3 w-3 text-gray-500 flex-shrink-0", isRTL ? "ml-2" : "mr-0")} />
+                        <span className={cn("text-gray-600", isRTL && "text-right")}>{t("Paid")}:</span>
                       </div>
-                      <span className="text-green-600 font-medium">
+                      <span className={cn("text-green-600 font-medium", isRTL && "text-right")}>
                         {formatDate(invoice.paid_at)}
                       </span>
                     </div>
@@ -267,21 +262,21 @@ const DeleteInvoiceModal: React.FC<DeleteInvoiceModalProps> = ({
                 </div>
 
                 {invoice.services && invoice.services.length > 0 && (
-                  <div className="pt-2 border-t">
-                    <p className="text-xs text-gray-500 mb-1">{t("Services")}:</p>
-                    <div className="text-sm space-y-1">
+                  <div className={cn("pt-2 border-t", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                    <p className={cn("text-xs text-gray-500 mb-1", isRTL && "text-right")}>{t("Services")}:</p>
+                    <div className={cn("text-sm space-y-1", isRTL && "text-right")}>
                       {invoice.services.slice(0, 3).map((service, index) => (
-                        <div key={index} className={cn("flex justify-between", isRTL && "flex-row-reverse")}>
-                          <span className="text-gray-700 truncate">
+                        <div key={index} className={cn("flex justify-between items-center", isRTL && "flex-row-reverse")}>
+                          <span className={cn("text-gray-700 truncate flex-1", isRTL && "text-right ml-2")}>
                             {service.description}
                           </span>
-                          <span className="text-gray-600">
+                          <span className={cn("text-gray-600 flex-shrink-0", isRTL && "mr-2")}>
                             <CurrencyDisplay amount={service.total} />
                           </span>
                         </div>
                       ))}
                       {invoice.services.length > 3 && (
-                        <p className="text-xs text-gray-500">
+                        <p className={cn("text-xs text-gray-500", isRTL && "text-right")}>
                           +{invoice.services.length - 3} {t("more items")}
                         </p>
                       )}
@@ -292,19 +287,20 @@ const DeleteInvoiceModal: React.FC<DeleteInvoiceModalProps> = ({
             </Card>
           </div>
         ) : (
-          <div className="flex items-center justify-center h-32">
-            <div className="text-center">
+          <div className={cn("flex items-center justify-center h-32", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+            <div className={cn("text-center", isRTL && "text-right")}>
               <AlertTriangle className="h-12 w-12 text-gray-300 mx-auto mb-2" />
-              <p className="text-gray-500">{t("Invoice not found")}</p>
+              <p className={cn("text-gray-500", isRTL && "text-right")}>{t("Invoice not found")}</p>
             </div>
           </div>
         )}
 
-        <DialogFooter className={cn(isRTL ? "flex-row-reverse space-x-reverse space-x-2" : "space-x-2")}>
+        <DialogFooter className={cn(isRTL ? "flex-row-reverse space-x-reverse space-x-2" : "space-x-2")} dir={isRTL ? "rtl" : "ltr"}>
           <Button
             variant="outline"
             onClick={onClose}
             disabled={deleting}
+            className={cn(isRTL && "flex-row-reverse")}
           >
             {t("Cancel")}
           </Button>
@@ -318,13 +314,13 @@ const DeleteInvoiceModal: React.FC<DeleteInvoiceModalProps> = ({
             >
               {deleting ? (
                 <>
-                  <div className={cn("animate-spin rounded-full h-4 w-4 border-b-2 border-white", isRTL ? "ml-2" : "mr-2")}></div>
-                  {t("Deleting...")}
+                  <div className={cn("animate-spin rounded-full h-4 w-4 border-b-2 border-white flex-shrink-0", isRTL ? "ml-2" : "mr-2")}></div>
+                  <span>{t("Deleting...")}</span>
                 </>
               ) : (
                 <>
-                  <Trash2 className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
-                  {t("Delete Invoice")}
+                  <Trash2 className={cn("h-4 w-4 flex-shrink-0", isRTL ? "ml-2" : "mr-2")} />
+                  <span>{t("Delete Invoice")}</span>
                 </>
               )}
             </Button>
@@ -339,13 +335,13 @@ const DeleteInvoiceModal: React.FC<DeleteInvoiceModalProps> = ({
             >
               {deleting ? (
                 <>
-                  <div className={cn("animate-spin rounded-full h-4 w-4 border-b-2 border-white", isRTL ? "ml-2" : "mr-2")}></div>
-                  {t("Force Deleting...")}
+                  <div className={cn("animate-spin rounded-full h-4 w-4 border-b-2 border-white flex-shrink-0", isRTL ? "ml-2" : "mr-2")}></div>
+                  <span>{t("Force Deleting...")}</span>
                 </>
               ) : (
                 <>
-                  <Trash2 className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
-                  {t("Force Delete")}
+                  <Trash2 className={cn("h-4 w-4 flex-shrink-0", isRTL ? "ml-2" : "mr-2")} />
+                  <span>{t("Force Delete")}</span>
                 </>
               )}
             </Button>

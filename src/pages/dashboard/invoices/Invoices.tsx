@@ -65,6 +65,7 @@ import { toast } from "@/hooks/use-toast";
 import { apiService, type Invoice } from "@/services/api";
 import { InvoicePDFGenerator, type ClinicInfo } from "@/utils/invoicePdfUtils";
 import { useClinic } from "@/contexts/ClinicContext";
+import { formatDateShort } from "@/utils/dateUtils";
 
 const Invoices = () => {
   const { t } = useTranslation();
@@ -276,12 +277,7 @@ const Invoices = () => {
   };
 
   const formatDate = (dateString: string) => {
-    if (!dateString) return "-";
-    return new Date(dateString).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
+    return formatDateShort(dateString);
   };
 
   const handleMarkAsPaid = async (invoiceId: string) => {
@@ -391,15 +387,15 @@ const Invoices = () => {
             size="sm" 
             onClick={handleRefresh}
             disabled={loading}
-            className="h-9"
+            className={cn("h-9", isRTL && "flex-row-reverse")}
           >
-            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={cn("h-4 w-4", isRTL ? "ml-3" : "mr-3", loading && 'animate-spin')} />
             <span className="hidden sm:inline">{t('Refresh')}</span>
           </Button>
           <CreateInvoiceModal 
             trigger={
-              <Button size="sm" className="h-9">
-                <Plus className="h-4 w-4 mr-2" />
+              <Button size="sm" className={cn("h-9", isRTL && "flex-row-reverse")}>
+                <Plus className={cn("h-4 w-4", isRTL ? "ml-3" : "mr-3")} />
                 <span className="hidden sm:inline">{t('Create Invoice')}</span>
                 <span className="sm:hidden">{t('Create')}</span>
               </Button>
@@ -669,25 +665,25 @@ const Invoices = () => {
                         <TableCell className="text-right">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="outline" size="sm" className="h-8">
-                                <MoreVertical className="h-4 w-4 mr-1" />
+                              <Button variant="outline" size="sm" className={cn("h-8", isRTL && "flex-row-reverse")}>
+                                <MoreVertical className={cn("h-4 w-4", isRTL ? "ml-1" : "mr-1")} />
                                 {t('Actions')}
                               </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
+                            <DropdownMenuContent align={isRTL ? "start" : "end"} className={isRTL ? "rtl" : ""}>
                               <DropdownMenuItem onClick={() => handleViewInvoice(invoice._id)}>
-                                <Eye className="mr-2 h-4 w-4" />
+                                <Eye className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
                                 {t('View Invoice')}
                               </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => handleDownloadInvoice(invoice._id)}>
-                                <Download className="mr-2 h-4 w-4" />
+                                <Download className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
                                 {t('Download PDF')}
                               </DropdownMenuItem>
                               {!["paid", "cancelled"].includes(invoice.status) && (
                                 <DropdownMenuItem
                                   onClick={() => handleRecordPayment(invoice)}
                                 >
-                                  <DollarSign className="mr-2 h-4 w-4" />
+                                  <DollarSign className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
                                   {t('Record Payment')}
                                 </DropdownMenuItem>
                               )}
@@ -695,7 +691,7 @@ const Invoices = () => {
                                 <DropdownMenuItem
                                   onClick={() => handleMarkAsPaid(invoice._id)}
                                 >
-                                  <CheckCircle className="mr-2 h-4 w-4" />
+                                  <CheckCircle className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
                                   {t('Mark as Paid')}
                                 </DropdownMenuItem>
                               )}
@@ -830,31 +826,31 @@ const Invoices = () => {
                       </div>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="outline" size="sm">
-                            <MoreVertical className="h-4 w-4 mr-1" />
+                          <Button variant="outline" size="sm" className={cn(isRTL && "flex-row-reverse")}>
+                            <MoreVertical className={cn("h-4 w-4", isRTL ? "ml-1" : "mr-1")} />
                             {t('Actions')}
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
+                        <DropdownMenuContent align={isRTL ? "start" : "end"} className={isRTL ? "rtl" : ""}>
                           <DropdownMenuItem onClick={() => handleViewInvoice(invoice._id)}>
-                            <Eye className="mr-2 h-4 w-4" />
+                            <Eye className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
                             {t('View Details')}
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleDownloadInvoice(invoice._id)}>
-                            <Download className="mr-2 h-4 w-4" />
+                            <Download className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
                             {t('Download PDF')}
                           </DropdownMenuItem>
                           {!["paid", "cancelled"].includes(invoice.status) && (
                             <DropdownMenuItem
                               onClick={() => handleRecordPayment(invoice)}
                             >
-                              <DollarSign className="mr-2 h-4 w-4" />
+                              <DollarSign className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
                               {t('Record Payment')}
                             </DropdownMenuItem>
                           )}
                           {invoice.status !== "paid" && (
                             <DropdownMenuItem onClick={() => handleMarkAsPaid(invoice._id)}>
-                              <CheckCircle className="mr-2 h-4 w-4" />
+                              <CheckCircle className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
                               {t('Mark as Paid')}
                             </DropdownMenuItem>
                           )}

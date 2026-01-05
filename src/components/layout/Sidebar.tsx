@@ -6,10 +6,12 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useClinic } from "@/contexts/ClinicContext";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import Logo from "@/assets/logomini.svg";
-import Logoar from "@/assets/logoar.svg";
-import DarkLogo from "@/assets/darklogo.svg";
-import DarkLogoAr from "@/assets/darklogoar.svg";
+// Light mode now has dark purple background, so we need light/white logos
+// Dark mode now has white background, so we need dark logos
+import LightModeLogo from "@/assets/darklogo.svg"; // White logo for light mode (dark purple bg)
+import LightModeLogoAr from "@/assets/darklogoar.svg"; // White logo AR for light mode
+import DarkModeLogo from "@/assets/logomini.svg"; // Dark logo for dark mode (white bg)
+import DarkModeLogoAr from "@/assets/logoar.svg"; // Dark logo AR for dark mode
 import { useTheme } from "@/contexts/ThemeContext";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -83,8 +85,27 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const { hasPermission } = useClinic();
   const { theme } = useTheme();
   const [isRTL, setIsRTL] = useState(false);
+  const activeItemRef = React.useRef<HTMLAnchorElement>(null);
+  
   // State to manage collapsed/expanded state for each section
-  const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
+  // Load from localStorage on mount
+  const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>(() => {
+    try {
+      const saved = localStorage.getItem('sidebarCollapsedSections');
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  // Save collapsed sections to localStorage whenever they change
+  useEffect(() => {
+    try {
+      localStorage.setItem('sidebarCollapsedSections', JSON.stringify(collapsedSections));
+    } catch {
+      // Ignore localStorage errors
+    }
+  }, [collapsedSections]);
 
   // Check if current language is RTL (Arabic, Hebrew, etc.)
   useEffect(() => {
@@ -473,6 +494,21 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);
 
+  // Scroll to active item after sections are expanded
+  useEffect(() => {
+    // Wait for section expansion animation to complete
+    const timer = setTimeout(() => {
+      if (activeItemRef.current) {
+        activeItemRef.current.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        });
+      }
+    }, 350); // Slightly longer than the collapse animation duration (300ms)
+
+    return () => clearTimeout(timer);
+  }, [location.pathname, collapsedSections]);
+
   return (
     <>
       <div
@@ -497,7 +533,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
            isRTL ? "ml-auto" : ""
          )}>
   <img
-    src={isRTL ? (theme === "dark" ? DarkLogoAr : Logoar) : (theme === "dark" ? DarkLogo : Logo)}
+    src={isRTL 
+      ? (theme === "dark" ? DarkModeLogoAr : LightModeLogoAr) 
+      : (theme === "dark" ? DarkModeLogo : LightModeLogo)
+    }
     alt="tappih Logo"
     className="h-10 w-auto"
   />
@@ -524,28 +563,28 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         </div>
 
         <ScrollArea className="flex-1 px-3 py-4 h-[calc(100vh-80px)]">
-          <div className="space-y-2 pb-8">
+          <div className="space-y-1 pb-8">
             {/* User info */}
-            <div className="px-3">
+            <div className="px-3 mb-4">
               <div className={cn(
-                "flex items-center p-3 bg-sidebar-accent rounded-lg",
+                "flex items-center p-3 bg-sidebar-accent rounded-lg border border-sidebar-border/50",
                 isRTL ? "space-x-reverse space-x-3 flex-row-reverse" : "space-x-3"
               )}>
-                <div className="w-8 h-8 bg-sidebar-primary rounded-full flex items-center justify-center">
-                  <span className="text-sm font-semibold text-sidebar-primary-foreground">
+                <div className="w-10 h-10 bg-sidebar-primary rounded-full flex items-center justify-center shadow-sm">
+                  <span className="text-sm font-bold text-sidebar-primary-foreground">
                     {user?.firstName?.charAt(0)}
                     {user?.lastName?.charAt(0)}
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-sidebar-foreground truncate">
+                  <div className="text-sm font-semibold text-sidebar-foreground truncate">
                     {user?.firstName} {user?.lastName}
                   </div>
                   <div className={cn(
-                    "flex items-center",
+                    "flex items-center mt-1",
                     isRTL ? "space-x-reverse space-x-2" : "space-x-2"
                   )}>
-                    <Badge variant="secondary" className="text-xs capitalize">
+                    <Badge variant="secondary" className="text-xs capitalize bg-sidebar-primary/10 text-sidebar-foreground border-sidebar-primary/20">
                       {user?.role ? t(user.role) : user?.role}
                     </Badge>
                   </div>
@@ -562,13 +601,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               const accessibleItems = section.items.filter(canAccessItem);
 
               return (
-                <div key={section.title} className="mb-1">
-                  {/* Section Header with Collapse Toggle - Styled like Tabs */}
+                <div key={section.title} className="mb-2">
+                  {/* Section Header with Collapse Toggle */}
                   {section.title && section.collapsible !== false ? (
                     <button
                       onClick={() => toggleSection(section.title)}
                       className={cn(
-                        "w-full h-10 inline-flex items-center justify-between rounded-md px-3 py-1.5 mb-1 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 group bg-sidebar-accent text-sidebar-accent-foreground hover:bg-sidebar-accent/80",
+                        "w-full flex items-center justify-between rounded-lg px-3 py-2.5 mb-1 text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring group hover:bg-sidebar-accent/50",
+                        "text-sidebar-foreground",
                         isRTL ? "flex-row-reverse" : ""
                       )}
                     >
@@ -577,7 +617,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                         isRTL ? "flex-row-reverse" : ""
                       )}>
                         {section.icon && (
-                          <section.icon className="h-4 w-4 flex-shrink-0" />
+                          <section.icon className="h-4 w-4 flex-shrink-0 opacity-80" />
                         )}
                         <span className={cn(
                           "whitespace-nowrap",
@@ -586,25 +626,19 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                           {section.title}
                         </span>
                       </div>
-                      <div className={cn(
-                        "flex items-center transition-transform duration-200",
-                        isRTL ? "mr-auto" : "ml-auto",
-                        isCollapsed ? "" : "rotate-180"
-                      )}>
-                        <ChevronDown className={cn(
-                          "h-4 w-4 transition-colors",
-                          isRTL ? "mr-1" : "ml-1"
-                        )} />
-                      </div>
+                      <ChevronDown className={cn(
+                        "h-4 w-4 transition-transform duration-200 opacity-70",
+                        isCollapsed ? (isRTL ? "rotate-90" : "-rotate-90") : ""
+                      )} />
                     </button>
                   ) : section.title ? (
-                    <div className="w-full h-10 inline-flex items-center justify-center rounded-md bg-sidebar-accent px-3 py-1.5 mb-1 text-sm font-medium text-sidebar-accent-foreground">
+                    <div className="w-full flex items-center justify-center rounded-lg px-3 py-2.5 mb-1 text-sm font-semibold text-sidebar-foreground">
                       <div className={cn(
                         "flex items-center gap-2",
                         isRTL ? "flex-row-reverse" : ""
                       )}>
                         {section.icon && (
-                          <section.icon className="h-4 w-4 flex-shrink-0" />
+                          <section.icon className="h-4 w-4 flex-shrink-0 opacity-80" />
                         )}
                         <span className={cn(
                           "whitespace-nowrap",
@@ -623,7 +657,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                       isCollapsed ? "max-h-0 opacity-0" : "max-h-[1000px] opacity-100"
                     )}
                   >
-                    <div className="space-y-1">
+                    <div className="space-y-0.5 px-1">
                       {accessibleItems.map((item) => {
                     const isActive = isActiveLink(item.href);
 
@@ -633,19 +667,25 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                         key={item.name}
                         to={item.href}
                         onClick={onClose}
+                        ref={isActive ? activeItemRef : null}
                         className={cn(
-                          "flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors",
+                          "flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative",
                           isRTL ? "flex-row-reverse" : "",
                           isActive
-                            ? isRTL
-                              ? "bg-sidebar-accent text-sidebar-accent-foreground border-l-2 border-sidebar-primary"
-                              : "bg-sidebar-accent text-sidebar-accent-foreground border-r-2 border-sidebar-primary"
-                            : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                            ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm"
+                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground",
                         )}
                       >
+                        {isActive && (
+                          <div className={cn(
+                            "absolute top-0 bottom-0 w-1 bg-sidebar-primary rounded-full",
+                            isRTL ? "right-0" : "left-0"
+                          )} />
+                        )}
                         <item.icon className={cn(
-                          "h-5 w-5 flex-shrink-0",
-                          isRTL ? "ml-3" : "mr-3"
+                          "h-4 w-4 flex-shrink-0",
+                          isRTL ? "ml-3" : "mr-3",
+                          isActive ? "opacity-100" : "opacity-70"
                         )} />
                         <span className={cn(
                           "flex-1",
@@ -653,7 +693,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                         )}>{item.name}</span>
                         {item.badge && (
                           <Badge variant="secondary" className={cn(
-                            "text-xs",
+                            "text-xs bg-sidebar-primary/10 text-sidebar-foreground border-sidebar-primary/20",
                             isRTL ? "mr-2" : "ml-2"
                           )}>
                             {item.badge}

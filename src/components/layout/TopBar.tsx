@@ -18,6 +18,7 @@ import {
   User,
   X,
   Plus,
+  RefreshCw,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import ErrorBoundary from "@/components/ui/ErrorBoundary";
@@ -41,6 +42,10 @@ const TopBar: React.FC<TopBarProps> = ({ onMenuClick }) => {
 
   const handleProfileClick = () => {
     navigate("/dashboard/profile");
+  };
+
+  const handleRefresh = () => {
+    window.location.reload();
   };
 
   return (
@@ -69,6 +74,17 @@ const TopBar: React.FC<TopBarProps> = ({ onMenuClick }) => {
 
           {/* Right side - Actions and User Menu */}
           <div className="flex items-center space-x-1 xs:space-x-2 sm:space-x-3">
+            {/* Refresh Button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleRefresh}
+              className="h-9 w-9 sm:h-10 sm:w-10 p-0 touch-manipulation"
+              title={t("Refresh")}
+            >
+              <RefreshCw className="h-4 w-4 sm:h-5 sm:w-5" />
+            </Button>
+            
             {/* Theme Toggle */}
             <ThemeToggle className="h-9 w-9 sm:h-10 sm:w-10" />
             {/* Language Selector */}

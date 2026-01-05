@@ -99,6 +99,9 @@ export default {
       fontSize: {
         '2xs': ['0.625rem', { lineHeight: '0.75rem' }],
       },
+      borderWidth: {
+        '3': '3px',
+      },
       keyframes: {
         "accordion-down": {
           from: {

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -20,6 +21,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building2, MapPin, Phone, Mail, Globe, Settings } from "lucide-react";
+import { middleEastCountries, timezones, currencies } from "@/data/countries";
 
 interface EditClinicModalProps {
   isOpen: boolean;
@@ -36,8 +38,7 @@ interface Clinic {
   address: {
     street: string;
     city: string;
-    state: string;
-    zipCode: string;
+    neighborhood?: string;
     country: string;
   };
   contact: {
@@ -71,8 +72,7 @@ interface ClinicFormData {
   address: {
     street: string;
     city: string;
-    state: string;
-    zipCode: string;
+    neighborhood: string;
     country: string;
   };
   contact: {
@@ -97,47 +97,9 @@ interface ClinicFormData {
   is_active: boolean;
 }
 
-const timezones = [
-  "America/New_York",
-  "America/Chicago",
-  "America/Denver", 
-  "America/Los_Angeles",
-  "America/Phoenix",
-  "Europe/London",
-  "Europe/Paris",
-  "Europe/Berlin",
-  "Asia/Tokyo",
-  "Asia/Shanghai",
-  "Asia/Dubai",
-  "Asia/Kolkata",
-  "Australia/Sydney",
-];
-
-const currencies = [
-  { value: "USD", label: "USD - US Dollar" },
-  { value: "EUR", label: "EUR - Euro" },
-  { value: "GBP", label: "GBP - British Pound" },
-  { value: "CAD", label: "CAD - Canadian Dollar" },
-  { value: "AUD", label: "AUD - Australian Dollar" },
-  { value: "JPY", label: "JPY - Japanese Yen" },
-  { value: "CNY", label: "CNY - Chinese Yuan" },
-  { value: "INR", label: "INR - Indian Rupee" },
-  { value: "AED", label: "AED - UAE Dirham" },
-  { value: "SAR", label: "SAR - Saudi Riyal" },
-  { value: "EGP", label: "EGP - Egyptian Pound" },
-];
-
 const languages = [
   { value: "en", label: "English" },
-  { value: "es", label: "Spanish" },
-  { value: "fr", label: "French" },
-  { value: "de", label: "German" },
-  { value: "it", label: "Italian" },
-  { value: "pt", label: "Portuguese" },
   { value: "ar", label: "Arabic" },
-  { value: "hi", label: "Hindi" },
-  { value: "zh", label: "Chinese" },
-  { value: "ja", label: "Japanese" },
 ];
 
 const EditClinicModal: React.FC<EditClinicModalProps> = ({
@@ -146,6 +108,7 @@ const EditClinicModal: React.FC<EditClinicModalProps> = ({
   onSubmit,
   clinic,
 }) => {
+  const { t, i18n } = useTranslation();
   const [formData, setFormData] = useState<ClinicFormData>({
     name: "",
     code: "",
@@ -153,18 +116,17 @@ const EditClinicModal: React.FC<EditClinicModalProps> = ({
     address: {
       street: "",
       city: "",
-      state: "",
-      zipCode: "",
-      country: "United States",
+      neighborhood: "",
+      country: "EG",
     },
-          contact: {
-        phone: "",
-        email: "",
-        website: undefined,
-      },
+    contact: {
+      phone: "",
+      email: "",
+      website: undefined,
+    },
     settings: {
-      timezone: "America/New_York",
-      currency: "USD",
+      timezone: "Africa/Cairo",
+      currency: "EGP",
       language: "en",
       working_hours: {
         monday: { start: "09:00", end: "17:00", isWorking: true },
@@ -179,6 +141,7 @@ const EditClinicModal: React.FC<EditClinicModalProps> = ({
     is_active: true,
   });
 
+  const [selectedCountry, setSelectedCountry] = useState<string>("EG");
   const [errors, setErrors] = useState<any>({});
 
   // Populate form with clinic data when modal opens
@@ -188,7 +151,12 @@ const EditClinicModal: React.FC<EditClinicModalProps> = ({
         name: clinic.name,
         code: clinic.code,
         description: clinic.description || "",
-        address: clinic.address,
+        address: {
+          street: clinic.address.street,
+          city: clinic.address.city,
+          neighborhood: clinic.address.neighborhood || "",
+          country: clinic.address.country || "EG",
+        },
         contact: {
           ...clinic.contact,
           website: clinic.contact.website || undefined,
@@ -196,6 +164,7 @@ const EditClinicModal: React.FC<EditClinicModalProps> = ({
         settings: clinic.settings,
         is_active: clinic.is_active,
       });
+      setSelectedCountry(clinic.address.country || "EG");
     }
   }, [isOpen, clinic]);
 
@@ -220,6 +189,16 @@ const EditClinicModal: React.FC<EditClinicModalProps> = ({
 
   const handleSelectChange = (name: string, value: string) => {
     const keys = name.split(".");
+    
+    // Handle country change - reset city
+    if (name === "address.country") {
+      setSelectedCountry(value);
+      setFormData({
+        ...formData,
+        address: { ...formData.address, country: value, city: "" },
+      });
+      return;
+    }
     
     if (keys.length === 1) {
       setFormData({ ...formData, [name]: value });
@@ -262,8 +241,7 @@ const EditClinicModal: React.FC<EditClinicModalProps> = ({
     }
     if (!formData.address.street.trim()) newErrors["address.street"] = "Street address is required";
     if (!formData.address.city.trim()) newErrors["address.city"] = "City is required";
-    if (!formData.address.state.trim()) newErrors["address.state"] = "State is required";
-    if (!formData.address.zipCode.trim()) newErrors["address.zipCode"] = "Zip code is required";
+    if (!formData.address.country.trim()) newErrors["address.country"] = "Country is required";
     if (!formData.contact.phone.trim()) newErrors["contact.phone"] = "Phone number is required";
     if (!formData.contact.email.trim()) newErrors["contact.email"] = "Email is required";
 
@@ -393,59 +371,63 @@ const EditClinicModal: React.FC<EditClinicModalProps> = ({
                 )}
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="address.country">Country *</Label>
+                  <Select
+                    value={formData.address.country}
+                    onValueChange={(value) => handleSelectChange("address.country", value)}
+                  >
+                    <SelectTrigger className={errors["address.country"] ? "border-red-500" : ""}>
+                      <SelectValue placeholder="Select country" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {middleEastCountries.map((country) => (
+                        <SelectItem key={country.code} value={country.code}>
+                          {i18n.language === "ar" ? country.nameAr : country.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors["address.country"] && (
+                    <p className="text-sm text-red-500">{errors["address.country"]}</p>
+                  )}
+                </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="address.city">City *</Label>
-                  <Input
-                    id="address.city"
-                    name="address.city"
-                    placeholder="City"
+                  <Select
                     value={formData.address.city}
-                    onChange={handleInputChange}
-                    className={errors["address.city"] ? "border-red-500" : ""}
-                  />
+                    onValueChange={(value) => handleSelectChange("address.city", value)}
+                    disabled={!selectedCountry}
+                  >
+                    <SelectTrigger className={errors["address.city"] ? "border-red-500" : ""}>
+                      <SelectValue placeholder="Select city" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {selectedCountry && middleEastCountries
+                        .find(c => c.code === selectedCountry)
+                        ?.cities.map((city, index) => (
+                          <SelectItem key={city} value={city}>
+                            {i18n.language === "ar" 
+                              ? middleEastCountries.find(c => c.code === selectedCountry)?.citiesAr[index] 
+                              : city}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
                   {errors["address.city"] && (
                     <p className="text-sm text-red-500">{errors["address.city"]}</p>
                   )}
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="address.state">State *</Label>
+                  <Label htmlFor="address.neighborhood">Neighborhood</Label>
                   <Input
-                    id="address.state"
-                    name="address.state"
-                    placeholder="State"
-                    value={formData.address.state}
-                    onChange={handleInputChange}
-                    className={errors["address.state"] ? "border-red-500" : ""}
-                  />
-                  {errors["address.state"] && (
-                    <p className="text-sm text-red-500">{errors["address.state"]}</p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="address.zipCode">Zip Code *</Label>
-                  <Input
-                    id="address.zipCode"
-                    name="address.zipCode"
-                    placeholder="Zip Code"
-                    value={formData.address.zipCode}
-                    onChange={handleInputChange}
-                    className={errors["address.zipCode"] ? "border-red-500" : ""}
-                  />
-                  {errors["address.zipCode"] && (
-                    <p className="text-sm text-red-500">{errors["address.zipCode"]}</p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="address.country">Country</Label>
-                  <Input
-                    id="address.country"
-                    name="address.country"
-                    placeholder="Country"
-                    value={formData.address.country}
+                    id="address.neighborhood"
+                    name="address.neighborhood"
+                    placeholder="Enter neighborhood"
+                    value={formData.address.neighborhood}
                     onChange={handleInputChange}
                   />
                 </div>
@@ -529,8 +511,8 @@ const EditClinicModal: React.FC<EditClinicModalProps> = ({
                     </SelectTrigger>
                     <SelectContent>
                       {timezones.map((timezone) => (
-                        <SelectItem key={timezone} value={timezone}>
-                          {timezone}
+                        <SelectItem key={timezone.value} value={timezone.value}>
+                          {i18n.language === "ar" ? timezone.labelAr : timezone.label}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -549,7 +531,7 @@ const EditClinicModal: React.FC<EditClinicModalProps> = ({
                     <SelectContent>
                       {currencies.map((currency) => (
                         <SelectItem key={currency.value} value={currency.value}>
-                          {currency.label}
+                          {i18n.language === "ar" ? currency.labelAr : currency.label}
                         </SelectItem>
                       ))}
                     </SelectContent>

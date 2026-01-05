@@ -264,10 +264,10 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className={cn("flex items-center text-xl", isRTL && "flex-row-reverse")}>
-            <Receipt className={cn("h-5 w-5 text-blue-600", isRTL ? "ml-2" : "mr-2")} />
+            <Receipt className={cn("h-5 w-5 text-blue-600", isRTL ? "ml-3" : "mr-3")} />
             {t("Edit Invoice")} {invoice?.invoice_number}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className={cn(isRTL && "text-right font-arabic")} style={isRTL ? { fontFamily: "'IBM Plex Sans Arabic', sans-serif" } : {}}>
             {t("Update invoice details, services, and payment information.")}
           </DialogDescription>
         </DialogHeader>
@@ -283,7 +283,7 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
             <Card>
               <CardHeader>
                 <CardTitle className={cn("text-lg flex items-center", isRTL && "flex-row-reverse")}>
-                  <User className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
+                  <User className={cn("h-4 w-4", isRTL ? "ml-3" : "mr-3")} />
                   {t("Invoice Information")}
                 </CardTitle>
               </CardHeader>
@@ -351,11 +351,7 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
             {/* Invoice Items */}
             <Card>
               <CardHeader>
-                <CardTitle className={cn("text-lg flex items-center justify-between", isRTL && "flex-row-reverse")}>
-                  <div className={cn("flex items-center", isRTL && "flex-row-reverse")}>
-                    <DollarSign className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
-                    {t("Invoice Items")}
-                  </div>
+                <CardTitle className={cn("text-lg flex items-center gap-3", isRTL && "flex-row-reverse")}>
                   <Button
                     type="button"
                     variant="outline"
@@ -366,6 +362,10 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
                     <Plus className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
                     {t("Add Item")}
                   </Button>
+                  <div className={cn("flex items-center", isRTL && "flex-row-reverse")}>
+                    <DollarSign className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
+                    {t("Invoice Items")}
+                  </div>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -484,13 +484,13 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
 
             {/* Invoice Summary */}
             <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">{t("Invoice Summary")}</CardTitle>
-              </CardHeader>
+            <CardHeader>
+              <CardTitle className={cn("text-lg", isRTL && "text-right font-arabic")} style={isRTL ? { fontFamily: "'IBM Plex Sans Arabic', sans-serif" } : {}}>{t("Invoice Summary")}</CardTitle>
+            </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="discount">{t("Discount")} ($)</Label>
+                    <Label htmlFor="discount" className={cn(isRTL && "text-right font-arabic")} style={isRTL ? { fontFamily: "'IBM Plex Sans Arabic', sans-serif" } : {}}>{t("Discount")} ($)</Label>
                     <Input
                       id="discount"
                       type="number"
@@ -500,11 +500,13 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
                       onChange={(e) =>
                         handleChange("discount", parseFloat(e.target.value) || 0)
                       }
+                      className={cn(isRTL && "text-right")}
+                      dir={isRTL ? "ltr" : "ltr"}
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="tax">{t("Tax")} (%)</Label>
+                    <Label htmlFor="tax" className={cn(isRTL && "text-right font-arabic")} style={isRTL ? { fontFamily: "'IBM Plex Sans Arabic', sans-serif" } : {}}>{t("Tax")} (%)</Label>
                     <Input
                       id="tax"
                       type="number"
@@ -515,12 +517,14 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
                       onChange={(e) =>
                         handleChange("tax", parseFloat(e.target.value) || 0)
                       }
+                      className={cn(isRTL && "text-right")}
+                      dir={isRTL ? "ltr" : "ltr"}
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label>{t("Total Amount")}</Label>
-                    <div className="text-2xl font-bold text-green-600">
+                    <Label className={cn(isRTL && "text-right font-arabic")} style={isRTL ? { fontFamily: "'IBM Plex Sans Arabic', sans-serif" } : {}}>{t("Total Amount")}</Label>
+                    <div className={cn("text-2xl font-bold text-green-600", isRTL && "text-right")}>
                       <CurrencyDisplay amount={calculateTotal()} variant="large" />
                     </div>
                   </div>
@@ -528,32 +532,34 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
 
                 <div className="bg-gray-50 p-4 rounded-lg space-y-2">
                   <div className={cn("flex justify-between", isRTL && "flex-row-reverse")}>
-                    <span>{t("Subtotal")}:</span>
+                    <span className={cn(isRTL && "font-arabic")} style={isRTL ? { fontFamily: "'IBM Plex Sans Arabic', sans-serif" } : {}}>{t("Subtotal")}:</span>
                     <span><CurrencyDisplay amount={calculateSubtotal()} /></span>
                   </div>
                   <div className={cn("flex justify-between", isRTL && "flex-row-reverse")}>
-                    <span>{t("Tax")} ({formData.tax}%):</span>
+                    <span className={cn(isRTL && "font-arabic")} style={isRTL ? { fontFamily: "'IBM Plex Sans Arabic', sans-serif" } : {}}>{t("Tax")} ({formData.tax}%):</span>
                     <span><CurrencyDisplay amount={calculateTax()} /></span>
                   </div>
                   <div className={cn("flex justify-between", isRTL && "flex-row-reverse")}>
-                    <span>{t("Discount")}:</span>
+                    <span className={cn(isRTL && "font-arabic")} style={isRTL ? { fontFamily: "'IBM Plex Sans Arabic', sans-serif" } : {}}>{t("Discount")}:</span>
                     <span>-<CurrencyDisplay amount={formData.discount} /></span>
                   </div>
                   <hr />
                   <div className={cn("flex justify-between font-bold text-lg", isRTL && "flex-row-reverse")}>
-                    <span>{t("Total")}:</span>
+                    <span className={cn(isRTL && "font-arabic")} style={isRTL ? { fontFamily: "'IBM Plex Sans Arabic', sans-serif" } : {}}>{t("Total")}:</span>
                     <span><CurrencyDisplay amount={calculateTotal()} /></span>
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="notes">{t("Notes")}</Label>
+                  <Label htmlFor="notes" className={cn(isRTL && "text-right font-arabic")} style={isRTL ? { fontFamily: "'IBM Plex Sans Arabic', sans-serif" } : {}}>{t("Notes")}</Label>
                   <Textarea
                     id="notes"
                     value={formData.notes}
                     onChange={(e) => handleChange("notes", e.target.value)}
                     placeholder={t("Additional notes or payment terms...")}
                     rows={3}
+                    className={cn(isRTL && "text-right font-arabic")}
+                    style={isRTL ? { fontFamily: "'IBM Plex Sans Arabic', sans-serif" } : {}}
                   />
                 </div>
               </CardContent>
@@ -572,12 +578,12 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
               <Button type="submit" disabled={isLoading} className={cn(isRTL && "flex-row-reverse")}>
                 {isLoading ? (
                   <>
-                    <div className={cn("animate-spin rounded-full h-4 w-4 border-b-2 border-white", isRTL ? "ml-2" : "mr-2")}></div>
+                    <div className={cn("animate-spin rounded-full h-4 w-4 border-b-2 border-white", isRTL ? "ml-3" : "mr-3")}></div>
                     {t("Updating Invoice...")}
                   </>
                 ) : (
                   <>
-                    <Save className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
+                    <Save className={cn("h-4 w-4", isRTL ? "ml-3" : "mr-3")} />
                     {t("Update Invoice")}
                   </>
                 )}

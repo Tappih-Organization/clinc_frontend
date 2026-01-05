@@ -88,6 +88,7 @@ import { serviceApi } from "@/services/api/serviceApi";
 import type { Service } from "@/types";
 import NewAppointmentModal from "@/components/modals/NewAppointmentModal";
 import { AppointmentSlipPDFGenerator, convertToAppointmentSlipData, type ClinicInfo } from "@/utils/appointmentSlipPdf";
+import { formatTime as formatTimeUtil, formatDateShortWithWeekday } from "@/utils/dateUtils";
 
 const Appointments = () => {
   const { t } = useTranslation();
@@ -329,19 +330,11 @@ const Appointments = () => {
   };
 
   const formatTime = (date: Date) => {
-    return date.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
+    return formatTimeUtil(date);
   };
 
   const formatDate = (date: Date) => {
-    return date.toLocaleDateString("en-US", {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-    });
+    return formatDateShortWithWeekday(date);
   };
 
   // Calendar helper functions

@@ -10,22 +10,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const languages: Array<{ code: string; label: string }> = [
-  { code: "en-us", label: "English " },
-  // { code: "es", label: "Español" },
-  // { code: "ha", label: "Hausa" },
-  // { code: "hi", label: "हिन्दी" },
-  // { code: "vi", label: "Tiếng Việt" },
-  // { code: "ar-om", label: "العربية (عُمان)" },
-  // { code: "pt-br", label: "Português (Brasil)" },
-  // { code: "pl", label: "Polski" },
-  { code: "ar-eg", label: "العربية " }
-  // { code: "fr", label: "Français" },
-  // { code: "en-nz", label: "English (NZ)" },
-  // { code: "en-za", label: "English (ZA)" }
+  { code: "en", label: "English" },
+  { code: "ar", label: "العربية" }
 ];
 
 export function LanguageSelector() {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
 
   const current =
     languages.find((l) => l.code.toLowerCase() === (i18n.language || "en").toLowerCase())?.label ||
@@ -46,7 +36,7 @@ export function LanguageSelector() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuLabel>Language</DropdownMenuLabel>
+        <DropdownMenuLabel>{t("Language")}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {languages.map((lng) => (
           <DropdownMenuItem key={lng.code} onClick={() => changeLanguage(lng.code)}>

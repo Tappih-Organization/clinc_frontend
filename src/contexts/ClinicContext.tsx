@@ -11,9 +11,11 @@ import { clinicCookies } from '@/utils/cookies';
 export interface Address {
   street: string;
   city: string;
-  state: string;
-  zipCode: string;
+  neighborhood?: string;
   country: string;
+  // Legacy fields (keeping for backward compatibility)
+  state?: string;
+  zipCode?: string;
 }
 
 export interface Contact {

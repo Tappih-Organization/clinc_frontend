@@ -47,11 +47,12 @@ import { toast } from "@/hooks/use-toast";
 import { useClinic } from "@/contexts/ClinicContext";
 import appointmentApi, { CalendarEvent } from "@/services/api/appointmentApi";
 import userApi, { Doctor } from "@/services/api/userApi";
+import { getLocale, formatDateShort, formatDateWithWeekday, formatTime as formatTimeUtil } from "@/utils/dateUtils";
 
 const Calendar = () => {
   const { t, i18n } = useTranslation();
   const isRTL = useIsRTL();
-  const currentLocale = i18n.language || 'en';
+  const currentLocale = getLocale();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<"month" | "week" | "day">("month");
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -440,19 +441,11 @@ const Calendar = () => {
   };
 
   const formatTime = (date: Date) => {
-    return date.toLocaleTimeString(currentLocale, {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    });
+    return formatTimeUtil(date);
   };
 
   const formatDate = (date: Date) => {
-    return date.toLocaleDateString(currentLocale, {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
+    return formatDateShort(date);
   };
 
   const formatHeaderDate = (date: Date, mode: "month" | "week" | "day") => {

@@ -391,11 +391,7 @@ const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({ trigger, onSucc
           {/* Invoice Items */}
           <Card>
             <CardHeader>
-              <CardTitle className={cn("text-lg flex items-center justify-between", isRTL && "flex-row-reverse")}>
-                <div className={cn("flex items-center", isRTL && "flex-row-reverse")}>
-                  <DollarSign className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
-                  {t("Invoice Items")}
-                </div>
+              <CardTitle className={cn("text-lg flex items-center gap-3", isRTL && "flex-row-reverse")}>
                 <Button
                   type="button"
                   variant="outline"
@@ -406,6 +402,10 @@ const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({ trigger, onSucc
                   <Plus className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
                   {t("Add Item")}
                 </Button>
+                <div className={cn("flex items-center", isRTL && "flex-row-reverse")}>
+                  <DollarSign className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
+                  {t("Invoice Items")}
+                </div>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
