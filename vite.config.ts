@@ -6,13 +6,13 @@ import path from "path";
 export default defineConfig(({ mode }) => ({
   server: {
     host: true, // Allows access from outside the container
-    port: mode === 'development' ? 3000 : 8080,
+    port: mode === 'development' ? 5173 : 8080,
     watch: {
       usePolling: true, // Enable polling for better file watching
       interval: 1000, // Check for changes every second
     },
     hmr: {
-      clientPort: mode === 'development' ? 3000 : undefined, // HMR port
+      clientPort: mode === 'development' ? 5173 : undefined, // HMR port
     },
     proxy: {
       '/api': {
