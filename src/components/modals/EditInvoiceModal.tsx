@@ -95,7 +95,7 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
       setInvoice(invoiceData);
       setPatients(patientsResponse?.data?.patients || []);
 
-      // Populate form with invoice data
+     
       setFormData({
         patientId: typeof invoiceData.patient_id === 'string' 
           ? invoiceData.patient_id 
