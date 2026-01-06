@@ -86,6 +86,7 @@ const Staff = () => {
     loading,
     error,
     fetchStaff,
+    createStaff,
     updateStaff,
     updateStaffSchedule,
     activateStaff,
@@ -279,10 +280,26 @@ const Staff = () => {
   // Update handlers for modals
   const handleStaffUpdate = async (id: string, data: any) => {
     try {
-      await updateStaff(id, data);
-      handleRefresh();
+      const updatedStaff = await updateStaff(id, data);
+      // The hook already updates the staff list, so we don't need to refresh
+      // But we can return the updated staff for the modal if needed
+      return updatedStaff;
     } catch (error) {
       // Error handling is done in the hook
+      throw error;
+    }
+  };
+
+  const handleStaffAdded = (newStaff?: ReturnType<typeof transformUserToStaff>) => {
+    // The useStaff hook manages the staff list internally
+    // We just need to refetch to get the updated list with the new staff member
+    if (newStaff) {
+      // Refetch staff list to include the new member
+      fetchStaff();
+      fetchPayrollData(); // Also refresh payroll data
+    } else {
+      // Fallback to full refresh if staff data not provided
+      handleRefresh();
     }
   };
 
@@ -312,7 +329,7 @@ const Staff = () => {
             <RefreshCw className={`h-4 w-4 mr-2 ${(loading || loadingPayroll) ? 'animate-spin' : ''}`} />
             {t('Refresh')}
           </Button>
-          <AddStaffModal onStaffAdded={handleRefresh} />
+          <AddStaffModal onStaffAdded={handleStaffAdded} />
         </div>
       </div>
 

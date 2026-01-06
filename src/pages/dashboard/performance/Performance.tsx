@@ -680,14 +680,14 @@ const Performance = () => {
                     </div>
 
                     {/* Summary Stats */}
-                    {doctorPayouts && (
+                    {doctorPayouts && doctorPayouts.totals && (
                       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
                         <Card>
                           <CardContent className="p-4">
                             <div className="flex items-center justify-between">
                               <div>
                                 <p className="text-sm font-medium text-muted-foreground">{t('Total Doctors')}</p>
-                                <p className="text-2xl font-bold">{doctorPayouts.totals.total_doctors}</p>
+                                <p className="text-2xl font-bold">{doctorPayouts.totals.total_doctors || 0}</p>
                               </div>
                               <Users className="h-8 w-8 text-primary" />
                             </div>
@@ -700,7 +700,7 @@ const Performance = () => {
                               <div>
                                 <p className="text-sm font-medium text-muted-foreground">Total Revenue</p>
                                 <p className="text-2xl font-bold text-green-600">
-                                  {formatAmount(doctorPayouts.totals.total_revenue)}
+                                  {formatAmount(doctorPayouts.totals.total_revenue || 0)}
                                 </p>
                               </div>
                               <DollarSign className="h-8 w-8 text-green-600" />
@@ -714,7 +714,7 @@ const Performance = () => {
                               <div>
                                 <p className="text-sm font-medium text-muted-foreground">{t('Sales Incentives')}</p>
                                 <p className="text-2xl font-bold text-blue-600">
-                                  {formatAmount(doctorPayouts.totals.total_sales_incentive)}
+                                  {formatAmount(doctorPayouts.totals.total_sales_incentive || 0)}
                                 </p>
                               </div>
                               <TrendingUp className="h-8 w-8 text-blue-600" />
@@ -728,7 +728,7 @@ const Performance = () => {
                               <div>
                                 <p className="text-sm font-medium text-muted-foreground">{t('Total Payouts')}</p>
                                 <p className="text-2xl font-bold text-purple-600">
-                                  {formatAmount(doctorPayouts.totals.total_payout)}
+                                  {formatAmount(doctorPayouts.totals.total_payout || 0)}
                                 </p>
                               </div>
                               <CreditCard className="h-8 w-8 text-purple-600" />
@@ -757,7 +757,7 @@ const Performance = () => {
                             </TableRow>
                           </TableHeader>
                           <TableBody>
-                            {doctorPayouts.doctors.map((doctor) => (
+                            {doctorPayouts.doctors && doctorPayouts.doctors.length > 0 ? doctorPayouts.doctors.map((doctor) => (
                               <TableRow key={doctor.doctor_id}>
                                 <TableCell>
                                   <div>
@@ -797,7 +797,14 @@ const Performance = () => {
                                   </div>
                                 </TableCell>
                               </TableRow>
-                            ))}
+                            )) : (
+                              <TableRow>
+                                <TableCell colSpan={6} className="text-center py-8">
+                                  <Users className="mx-auto h-12 w-12 text-muted-foreground mb-2" />
+                                  <p className="text-sm text-muted-foreground">{t('No doctors found')}</p>
+                                </TableCell>
+                              </TableRow>
+                            )}
                           </TableBody>
                         </Table>
                       </div>

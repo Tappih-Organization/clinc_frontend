@@ -451,7 +451,30 @@ const Services = () => {
           </Button>
           {currentClinic ? (
             <AddServiceModal 
-              onServiceCreated={fetchServices}
+              onServiceCreated={(newService) => {
+                // Add the new service directly to the list without refreshing
+                if (newService) {
+                  setServices((prevServices) => {
+                    // Check if service already exists (avoid duplicates)
+                    const exists = prevServices.some(s => s.id === newService.id);
+                    if (exists) {
+                      return prevServices;
+                    }
+                    // Add new service at the beginning of the list
+                    return [newService, ...prevServices];
+                  });
+                  // Update pagination total
+                  setPagination((prev) => ({
+                    ...prev,
+                    total: prev.total + 1,
+                  }));
+                  // Refresh stats
+                  fetchStats();
+                } else {
+                  // Fallback to full refresh if service data not provided
+                  fetchServices();
+                }
+              }}
             />
           ) : (
             <Button disabled size="sm">
@@ -980,13 +1003,24 @@ const Services = () => {
         ]}
         onSave={async (data) => {
           try {
-            await serviceApi.updateService(editModal.item!.id, data);
+            const updatedService = await serviceApi.updateService(editModal.item!.id, data);
             toast({
               title: t("Service Updated"),
               description: `${data.name} ${t('has been updated successfully.')}`,
             });
             setEditModal({ open: false, item: null });
-            fetchServices(); // Refresh the list
+            
+            // Update the service directly in the list without refreshing
+            setServices((prevServices) => 
+              prevServices.map((service) => 
+                service.id === editModal.item!.id 
+                  ? { ...service, ...updatedService, ...data }
+                  : service
+              )
+            );
+            
+            // Refresh stats
+            fetchStats();
           } catch (error) {
             toast({
               title: t("Error"),

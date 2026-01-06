@@ -37,7 +37,7 @@ interface EditStaffModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   staff: ReturnType<typeof transformUserToStaff> | null;
-  onUpdate: (id: string, data: any) => Promise<void>;
+  onUpdate: (id: string, data: any) => Promise<ReturnType<typeof transformUserToStaff>>;
 }
 
 const EditStaffModal: React.FC<EditStaffModalProps> = ({
@@ -170,7 +170,7 @@ const EditStaffModal: React.FC<EditStaffModalProps> = ({
         })
       };
 
-      await onUpdate(staff.id, updateData);
+      const updatedStaff = await onUpdate(staff.id, updateData);
 
       // Update password separately if provided and user is admin
       if (formData.password && isAdmin) {

@@ -29,12 +29,12 @@ import { CalendarIcon, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { expenseApi, type CreateExpenseRequest } from "@/services/api/expenseApi";
+import { expenseApi, type CreateExpenseRequest, type Expense } from "@/services/api/expenseApi";
 
 interface AddExpenseModalProps {
   open: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (expense?: Expense) => void;
 }
 
 const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
@@ -85,10 +85,14 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
 
     try {
       setLoading(true);
-      await expenseApi.createExpense(formData);
+      const response = await expenseApi.createExpense(formData);
+      const newExpense = response.data.data;
       toast.success(t("Expense created successfully"));
-      onSuccess();
       handleClose();
+      // Call onSuccess with the created expense
+      if (onSuccess) {
+        onSuccess(newExpense);
+      }
     } catch (error: any) {
       toast.error(error.response?.data?.message || t("Failed to create expense"));
     } finally {

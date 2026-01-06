@@ -71,6 +71,7 @@ const Leads = () => {
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [convertModalOpen, setConvertModalOpen] = useState(false);
+  const [updatingStatusId, setUpdatingStatusId] = useState<string | null>(null);
 
   // API queries and mutations
   const { 
@@ -163,18 +164,27 @@ const Leads = () => {
   };
 
   const handleStatusUpdate = async (leadId: string, newStatus: Lead['status']) => {
+    // Prevent multiple status updates for the same lead
+    if (updatingStatusId === leadId) {
+      return;
+    }
+
+    setUpdatingStatusId(leadId);
     try {
       await updateStatusMutation.mutateAsync({ id: leadId, status: newStatus });
       toast({
         title: t("Status updated"),
         description: t("Lead status has been updated successfully."),
       });
+      // The query will automatically refetch due to invalidateQueries in the mutation
     } catch (error) {
       toast({
         title: t("Error"),
         description: t("Failed to update lead status."),
         variant: "destructive",
       });
+    } finally {
+      setUpdatingStatusId(null);
     }
   };
 
@@ -209,6 +219,10 @@ const Leads = () => {
   };
 
   const handleConvertLead = (lead: Lead) => {
+    // Prevent opening convert modal if status is being updated
+    if (updatingStatusId === (lead._id || lead.id) || updateStatusMutation.isPending) {
+      return;
+    }
     setSelectedLead(lead);
     setConvertModalOpen(true);
   };
@@ -515,13 +529,17 @@ const Leads = () => {
                                 {lead.status === "new" && (
                                   <DropdownMenuItem 
                                     onClick={() => handleStatusUpdate(lead._id || lead.id, "contacted")}
+                                    disabled={updatingStatusId === (lead._id || lead.id) || updateStatusMutation.isPending}
                                   >
                                     <Phone className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
-                                    {t("Mark as Contacted")}
+                                    {updatingStatusId === (lead._id || lead.id) ? t("Updating...") : t("Mark as Contacted")}
                                   </DropdownMenuItem>
                                 )}
                                 {lead.status !== "converted" && (
-                                  <DropdownMenuItem onClick={() => handleConvertLead(lead)}>
+                                  <DropdownMenuItem 
+                                    onClick={() => handleConvertLead(lead)}
+                                    disabled={updatingStatusId === (lead._id || lead.id) || updateStatusMutation.isPending}
+                                  >
                                     <UserCheck className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
                                     {t("Convert to Patient")}
                                   </DropdownMenuItem>
@@ -530,9 +548,10 @@ const Leads = () => {
                                   <DropdownMenuItem 
                                     className="text-red-600"
                                     onClick={() => handleStatusUpdate(lead._id || lead.id, "lost")}
+                                    disabled={updatingStatusId === (lead._id || lead.id) || updateStatusMutation.isPending}
                                   >
                                     <UserX className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
-                                    {t("Mark as Lost")}
+                                    {updatingStatusId === (lead._id || lead.id) ? t("Updating...") : t("Mark as Lost")}
                                   </DropdownMenuItem>
                                 )}
                                 <DropdownMenuItem 
@@ -683,13 +702,17 @@ const Leads = () => {
                             {lead.status === "new" && (
                               <DropdownMenuItem 
                                 onClick={() => handleStatusUpdate(lead._id || lead.id, "contacted")}
+                                disabled={updatingStatusId === (lead._id || lead.id) || updateStatusMutation.isPending}
                               >
                                 <Phone className="mr-2 h-4 w-4" />
-                                {t("Mark as Contacted")}
+                                {updatingStatusId === (lead._id || lead.id) ? t("Updating...") : t("Mark as Contacted")}
                               </DropdownMenuItem>
                             )}
                             {lead.status !== "converted" && (
-                              <DropdownMenuItem onClick={() => handleConvertLead(lead)}>
+                              <DropdownMenuItem 
+                                onClick={() => handleConvertLead(lead)}
+                                disabled={updatingStatusId === (lead._id || lead.id) || updateStatusMutation.isPending}
+                              >
                                 <UserCheck className="mr-2 h-4 w-4" />
                                 {t("Convert to Patient")}
                               </DropdownMenuItem>
@@ -698,9 +721,10 @@ const Leads = () => {
                               <DropdownMenuItem 
                                 className="text-red-600"
                                 onClick={() => handleStatusUpdate(lead._id || lead.id, "lost")}
+                                disabled={updatingStatusId === (lead._id || lead.id) || updateStatusMutation.isPending}
                               >
                                 <UserX className="mr-2 h-4 w-4" />
-                                {t("Mark as Lost")}
+                                {updatingStatusId === (lead._id || lead.id) ? t("Updating...") : t("Mark as Lost")}
                               </DropdownMenuItem>
                             )}
                             <DropdownMenuItem 

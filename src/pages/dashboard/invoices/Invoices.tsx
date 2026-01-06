@@ -344,9 +344,22 @@ const Invoices = () => {
     setViewInvoiceModal({ isOpen: false, invoiceId: null });
   };
 
-  const closeEditModal = () => {
+  const closeEditModal = (updatedInvoice?: Invoice) => {
     setEditInvoiceModal({ isOpen: false, invoiceId: null });
-    loadInvoices(); // Reload invoices after edit
+    
+    // Update the invoice directly in the list without refreshing
+    if (updatedInvoice) {
+      setInvoices((prevInvoices) =>
+        prevInvoices.map((inv) =>
+          inv._id === updatedInvoice._id ? updatedInvoice : inv
+        )
+      );
+      // Refresh stats
+      loadInvoiceStats();
+    } else {
+      // Fallback to full refresh if invoice data not provided
+      loadInvoices();
+    }
   };
 
   const closeDeleteModal = () => {
@@ -354,10 +367,43 @@ const Invoices = () => {
     loadInvoices(); // Reload invoices after delete
   };
 
-  const closeRecordPaymentModal = () => {
+  const closeRecordPaymentModal = (updatedInvoice?: Invoice) => {
     setRecordPaymentModal({ isOpen: false, invoice: null });
-    loadInvoices(); // Reload invoices after payment recorded
-    loadInvoiceStats(); // Reload stats to reflect payment changes
+    
+    // Update the invoice directly in the list without refreshing
+    if (updatedInvoice) {
+      setInvoices((prevInvoices) =>
+        prevInvoices.map((inv) =>
+          inv._id === updatedInvoice._id ? updatedInvoice : inv
+        )
+      );
+      // Refresh stats to reflect payment changes
+      loadInvoiceStats();
+    } else {
+      // Fallback to full refresh if invoice data not provided
+      loadInvoices();
+      loadInvoiceStats();
+    }
+  };
+
+  const handleInvoiceCreated = (newInvoice?: Invoice) => {
+    // Add the new invoice directly to the list without refreshing
+    if (newInvoice) {
+      setInvoices((prevInvoices) => {
+        // Check if invoice already exists (avoid duplicates)
+        const exists = prevInvoices.some(inv => inv._id === newInvoice._id);
+        if (exists) {
+          return prevInvoices;
+        }
+        // Add new invoice at the beginning of the list
+        return [newInvoice, ...prevInvoices];
+      });
+      // Refresh stats
+      loadInvoiceStats();
+    } else {
+      // Fallback to full refresh if invoice data not provided
+      loadInvoices();
+    }
   };
 
   // Calculate stats - use API stats when available, fallback to local calculations
@@ -393,6 +439,7 @@ const Invoices = () => {
             <span className="hidden sm:inline">{t('Refresh')}</span>
           </Button>
           <CreateInvoiceModal 
+            onSuccess={handleInvoiceCreated}
             trigger={
               <Button size="sm" className={cn("h-9", isRTL && "flex-row-reverse")}>
                 <Plus className={cn("h-4 w-4", isRTL ? "ml-3" : "mr-3")} />
@@ -555,6 +602,7 @@ const Invoices = () => {
                   : t('No invoices found. Create your first invoice to get started.')}
               </p>
               <CreateInvoiceModal 
+                onSuccess={handleInvoiceCreated}
                 trigger={
                   <Button>
                     <Plus className="h-4 w-4 mr-2" />
@@ -927,7 +975,7 @@ const Invoices = () => {
       <RecordPaymentModal
         invoice={recordPaymentModal.invoice}
         isOpen={recordPaymentModal.isOpen}
-        onClose={closeRecordPaymentModal}
+        onClose={() => setRecordPaymentModal({ isOpen: false, invoice: null })}
         onSuccess={closeRecordPaymentModal}
       />
     </div>

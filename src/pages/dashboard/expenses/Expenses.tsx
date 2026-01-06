@@ -186,15 +186,45 @@ const Expenses = () => {
     }
   };
 
-  const handleExpenseCreated = () => {
-    loadExpenses();
-    loadStats();
+  const handleExpenseCreated = (newExpense?: Expense) => {
+    // Add the new expense directly to the list without refreshing
+    if (newExpense) {
+      setExpenses((prevExpenses) => {
+        // Check if expense already exists (avoid duplicates)
+        const exists = prevExpenses.some(exp => exp._id === newExpense._id);
+        if (exists) {
+          return prevExpenses;
+        }
+        // Add new expense at the beginning of the list
+        return [newExpense, ...prevExpenses];
+      });
+      // Update pagination total
+      setTotalItems((prev) => prev + 1);
+      // Refresh stats
+      loadStats();
+    } else {
+      // Fallback to full refresh if expense data not provided
+      loadExpenses();
+      loadStats();
+    }
     setAddModalOpen(false);
   };
 
-  const handleExpenseUpdated = () => {
-    loadExpenses();
-    loadStats();
+  const handleExpenseUpdated = (updatedExpense?: Expense) => {
+    // Update the expense directly in the list without refreshing
+    if (updatedExpense) {
+      setExpenses((prevExpenses) =>
+        prevExpenses.map((exp) =>
+          exp._id === updatedExpense._id ? updatedExpense : exp
+        )
+      );
+      // Refresh stats to reflect changes
+      loadStats();
+    } else {
+      // Fallback to full refresh if expense data not provided
+      loadExpenses();
+      loadStats();
+    }
     setEditModal({ open: false, expense: null });
   };
 
