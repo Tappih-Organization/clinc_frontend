@@ -237,7 +237,16 @@ const Clinics = () => {
         updatedAt: responseData.updated_at || responseData.created_at,
       };
       
-      setClinics([...clinics, newClinic]);
+      // Add new clinic at the beginning of the list without refreshing
+      setClinics((prevClinics) => {
+        // Check if clinic already exists (avoid duplicates)
+        const exists = prevClinics.some(clinic => clinic.id === newClinic.id);
+        if (exists) {
+          return prevClinics;
+        }
+        // Add new clinic at the beginning of the list
+        return [newClinic, ...prevClinics];
+      });
       setIsAddModalOpen(false);
       
       toast({
@@ -306,8 +315,9 @@ const Clinics = () => {
         updatedAt: responseData.updated_at || responseData.created_at,
       };
 
-      setClinics(
-        clinics.map((clinic) =>
+      // Update the clinic directly in the list without refreshing
+      setClinics((prevClinics) =>
+        prevClinics.map((clinic) =>
           clinic.id === selectedClinic.id ? updatedClinic : clinic,
         ),
       );
@@ -382,8 +392,9 @@ const Clinics = () => {
         updatedAt: responseData.updated_at || responseData.created_at,
       };
 
-      setClinics(
-        clinics.map((c) =>
+      // Update the clinic status directly in the list without refreshing
+      setClinics((prevClinics) =>
+        prevClinics.map((c) =>
           c.id === id ? updatedClinic : c,
         ),
       );

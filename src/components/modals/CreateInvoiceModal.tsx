@@ -40,7 +40,7 @@ import type { Patient, Appointment, Invoice } from "@/services/api";
 
 interface CreateInvoiceModalProps {
   trigger?: React.ReactNode;
-  onSuccess?: () => void;
+  onSuccess?: (invoice?: Invoice) => void;
 }
 
 interface InvoiceItem {
@@ -250,9 +250,9 @@ const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({ trigger, onSucc
 
       setOpen(false);
       
-      // Call onSuccess callback if provided
+      // Call onSuccess callback with the created invoice
       if (onSuccess) {
-        onSuccess();
+        onSuccess(newInvoice);
       }
     } catch (error) {
       console.error('Error creating invoice:', error);

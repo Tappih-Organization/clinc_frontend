@@ -34,9 +34,10 @@ import {
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { serviceApi, CreateServiceRequest } from "@/services/api/serviceApi";
+import { Service } from "@/types";
 
 interface AddServiceModalProps {
-  onServiceCreated?: () => void;
+  onServiceCreated?: (service?: Service) => void;
 }
 
 const AddServiceModal: React.FC<AddServiceModalProps> = ({ onServiceCreated }) => {
@@ -220,9 +221,9 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({ onServiceCreated }) =
       setOpen(false);
       resetForm();
       
-      // Notify parent component to refresh data
+      // Notify parent component with the created service data
       if (onServiceCreated) {
-        onServiceCreated();
+        onServiceCreated(createdService);
       }
     } catch (error: any) {
       console.error("Error creating service:", error);

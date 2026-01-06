@@ -34,7 +34,7 @@ interface EditExpenseModalProps {
   open: boolean;
   expense: Expense | null;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (expense?: Expense) => void;
 }
 
 const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
@@ -93,9 +93,13 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
 
     try {
       setLoading(true);
-      await expenseApi.updateExpense(expense._id, formData);
+      const response = await expenseApi.updateExpense(expense._id, formData);
+      const updatedExpense = response.data.data;
       toast.success("Expense updated successfully");
-      onSuccess();
+      // Call onSuccess with the updated expense
+      if (onSuccess) {
+        onSuccess(updatedExpense);
+      }
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to update expense");
     } finally {

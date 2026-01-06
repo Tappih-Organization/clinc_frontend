@@ -37,7 +37,7 @@ interface RecordPaymentModalProps {
   invoice: Invoice | null;
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess?: (invoice?: Invoice) => void;
 }
 
 const RecordPaymentModal = ({ invoice, isOpen, onClose, onSuccess }: RecordPaymentModalProps) => {
@@ -121,13 +121,21 @@ const RecordPaymentModal = ({ invoice, isOpen, onClose, onSuccess }: RecordPayme
         transaction_id: formData.transaction_id || undefined,
       });
 
+      // Fetch the updated invoice to get the latest data
+      const updatedInvoice = await apiService.getInvoice(invoice._id);
+
       toast({
         title: t("Payment Recorded"),
         description: t("Payment has been successfully recorded"),
       });
 
-      onSuccess();
-      onClose();
+      // Call onSuccess with updated invoice before closing
+      if (onSuccess) {
+        onSuccess(updatedInvoice);
+      } else {
+        // If no onSuccess callback, just close
+        onClose();
+      }
     } catch (error: any) {
       console.error("Error recording payment:", error);
       toast({

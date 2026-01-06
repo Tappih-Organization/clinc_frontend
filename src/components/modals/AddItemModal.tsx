@@ -31,13 +31,12 @@ import {
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useCurrencyFormat } from "@/hooks/useCurrencyFormat";
-import { apiService } from "@/services/api";
+import { apiService, type InventoryItem } from "@/services/api";
 import { cn } from "@/lib/utils";
-import type { InventoryItem } from "@/types";
 
 interface AddItemModalProps {
   trigger?: React.ReactNode;
-  onSuccess?: () => void;
+  onSuccess?: (item?: InventoryItem) => void;
 }
 
 const AddItemModal: React.FC<AddItemModalProps> = ({ trigger, onSuccess }) => {
@@ -198,7 +197,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ trigger, onSuccess }) => {
       
       // Call onSuccess callback if provided
       if (onSuccess) {
-        onSuccess();
+        onSuccess(newItem);
       }
     } catch (error) {
       console.error('Error creating inventory item:', error);

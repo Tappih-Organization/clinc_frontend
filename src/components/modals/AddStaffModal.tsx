@@ -42,11 +42,12 @@ import { getDepartmentOptions } from "@/utils/departments";
 import { apiService } from "@/services/api";
 import { useClinic } from "@/contexts/ClinicContext";
 import type { User as StaffUser } from "@/services/api";
+import { transformUserToStaff } from "@/hooks/useStaff";
 import { cn } from "@/lib/utils";
 
 interface AddStaffModalProps {
   trigger?: React.ReactNode;
-  onStaffAdded?: () => void;
+  onStaffAdded?: (staff?: ReturnType<typeof transformUserToStaff>) => void;
 }
 
 const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) => {
@@ -275,7 +276,8 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
 
       // Create staff member via API
       const response = await apiService.register(staffData);
-      const newStaff = response.user;
+      const newUser = response.user;
+      const transformedStaff = transformUserToStaff(newUser);
 
       const formattedSalary = new Intl.NumberFormat("en-US", {
         style: "currency",
@@ -284,7 +286,7 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
 
       toast({
         title: "Staff member added successfully",
-        description: `${newStaff.first_name} ${newStaff.last_name} has been added as ${newStaff.role} with salary ${formattedSalary}.`,
+        description: `${newUser.first_name} ${newUser.last_name} has been added as ${newUser.role} with salary ${formattedSalary}.`,
       });
 
       // Reset form
@@ -328,9 +330,9 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
       setErrors({});
       setOpen(false);
       
-      // Call the callback to refresh the staff list
+      // Call the callback with the transformed staff member
       if (onStaffAdded) {
-        onStaffAdded();
+        onStaffAdded(transformedStaff);
       }
     } catch (error: any) {
       console.error('Error creating staff member:', error);

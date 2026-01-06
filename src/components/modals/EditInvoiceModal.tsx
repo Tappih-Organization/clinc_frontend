@@ -40,7 +40,7 @@ interface EditInvoiceModalProps {
   invoiceId: string | null;
   isOpen: boolean;
   onClose: () => void;
-  onSuccess?: () => void;
+  onSuccess?: (invoice?: Invoice) => void;
 }
 
 interface InvoiceItem {
@@ -95,7 +95,7 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
       setInvoice(invoiceData);
       setPatients(patientsResponse?.data?.patients || []);
 
-      // Populate form with invoice data
+     
       setFormData({
         patientId: typeof invoiceData.patient_id === 'string' 
           ? invoiceData.patient_id 
@@ -234,7 +234,7 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
       };
 
       // Update invoice via API
-      await apiService.updateInvoice(invoiceId, updatedInvoiceData);
+      const updatedInvoice = await apiService.updateInvoice(invoiceId, updatedInvoiceData);
 
       toast({
         title: t("Invoice updated successfully"),
@@ -242,7 +242,7 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
       });
 
       if (onSuccess) {
-        onSuccess();
+        onSuccess(updatedInvoice);
       }
       onClose();
     } catch (error) {

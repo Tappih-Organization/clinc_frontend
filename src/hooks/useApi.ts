@@ -538,7 +538,8 @@ export const useUpdateLeadStatus = () => {
     mutationFn: ({ id, status }: { id: string; status: Lead['status'] }) => 
       apiService.updateLeadStatus(id, status),
     onSuccess: (_, { id }) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.leads(null) });
+      // Invalidate all leads queries (with any clinicId and params)
+      queryClient.invalidateQueries({ queryKey: ['leads'] });
       queryClient.invalidateQueries({ queryKey: queryKeys.lead(null, id) });
     },
   });
@@ -552,8 +553,9 @@ export const useConvertLeadToPatient = () => {
       patientData: Omit<Patient, '_id' | 'created_at' | 'updated_at'> 
     }) => apiService.convertLeadToPatient(id, patientData),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.leads(null) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.patients(null) });
+      // Invalidate all leads and patients queries (with any clinicId and params)
+      queryClient.invalidateQueries({ queryKey: ['leads'] });
+      queryClient.invalidateQueries({ queryKey: ['patients'] });
     },
   });
 };

@@ -16,9 +16,9 @@ export default defineConfig(({ mode }) => ({
     },
     proxy: {
       '/api': {
-        target: 'https://api.tappih.com',
+        target: 'http://localhost:3000',
         changeOrigin: true,
-        secure: true,
+        secure: false,
       },
     },
   },

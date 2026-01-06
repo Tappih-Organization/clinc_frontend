@@ -271,6 +271,32 @@ const Inventory = () => {
     setDeleteModal({ open: true, item });
   };
 
+  const handleItemAdded = (newItem?: InventoryItem) => {
+    // Add the new item directly to the list without refreshing
+    if (newItem) {
+      const transformedItem = transformInventoryItem(newItem);
+      setMedicines((prevMedicines) => {
+        // Check if item already exists (avoid duplicates)
+        const exists = prevMedicines.some(med => med.id === transformedItem.id);
+        if (exists) {
+          return prevMedicines;
+        }
+        // Add new item at the beginning of the list
+        return [transformedItem, ...prevMedicines];
+      });
+      // Update pagination total
+      setPagination((prev) => ({
+        ...prev,
+        total: prev.total + 1,
+      }));
+      // Refresh stats
+      apiService.getInventoryStats().then(setStats).catch(console.error);
+    } else {
+      // Fallback to full refresh if item data not provided
+      fetchInventory(true);
+    }
+  };
+
   const handleSaveEdit = async (updatedData: Record<string, any>) => {
     try {
       if (!editModal.item) return;
@@ -289,7 +315,17 @@ const Inventory = () => {
         description: updatedData.description,
       };
 
-      await apiService.updateInventoryItem(editModal.item.id, updateData);
+      const updatedItem = await apiService.updateInventoryItem(editModal.item.id, updateData);
+      
+      // Transform the updated item to Medicine format
+      const transformedItem = transformInventoryItem(updatedItem);
+      
+      // Update the item directly in the list without refreshing
+      setMedicines((prevMedicines) =>
+        prevMedicines.map((med) =>
+          med.id === editModal.item!.id ? transformedItem : med
+        )
+      );
       
       toast({
         title: t("Item updated"),
@@ -297,7 +333,10 @@ const Inventory = () => {
       });
 
       setEditModal({ open: false, item: null });
-      fetchInventory(true);
+      
+      // Refresh stats to reflect changes
+      const statsResponse = await apiService.getInventoryStats();
+      setStats(statsResponse);
     } catch (error: any) {
       toast({
         title: t("Error"),
@@ -469,7 +508,7 @@ const Inventory = () => {
             <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
             {t('Refresh')}
           </Button>
-          <AddItemModal onSuccess={() => fetchInventory(true)} />
+          <AddItemModal onSuccess={handleItemAdded} />
         </div>
       </div>
 
@@ -901,7 +940,7 @@ const Inventory = () => {
                 <p className="text-gray-500 mb-4">
                   {t('Get started by adding your first inventory item.')}
                 </p>
-                <AddItemModal onSuccess={() => fetchInventory(true)} />
+                <AddItemModal onSuccess={handleItemAdded} />
               </div>
             )}
           </CardContent>
