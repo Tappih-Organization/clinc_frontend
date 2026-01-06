@@ -146,18 +146,11 @@ const PublicHeader: React.FC<PublicHeaderProps> = ({
             <ThemeToggle />
             
             {showActions && variant === "default" && (
-              <>
-                <Link to="/login">
-                  <Button variant="outline" size="sm">
-                    Login
-                  </Button>
-                </Link>
-                <Link to="/register">
-                  <Button size="sm">
-                    Sign Up
-                  </Button>
-                </Link>
-              </>
+              <Link to="/login">
+                <Button variant="outline" size="sm">
+                  Login
+                </Button>
+              </Link>
             )}
             
             {showActions && variant === "auth" && (

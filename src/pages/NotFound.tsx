@@ -2,12 +2,47 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Heart, Home, ArrowLeft } from "lucide-react";
+import { Home, ArrowLeft } from "lucide-react";
 import PublicHeader from "@/components/layout/PublicHeader";
 import { useTranslation } from "react-i18next";
+// Light mode now has dark purple background, so we need light/white logos
+// Dark mode now has white background, so we need dark logos
+import LightModeLogo from "@/assets/_clinc tappih الايقونه وايت.svg"; // Tappih white logo for light mode (dark purple bg)
+import LightModeLogoAr from "@/assets/_clinc tappih الايقونه وايت.svg"; // Tappih white logo AR for light mode
+import DarkModeLogo from "@/assets/_clinc tappih - الايقونه في حاله الدارك.svg"; // Tappih dark logo for dark mode (white bg)
+import DarkModeLogoAr from "@/assets/_clinc tappih - الايقونه في حاله الدارك.svg"; // Tappih dark logo AR for dark mode
+import { useTheme } from "@/contexts/ThemeContext";
 
 const NotFound = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const { theme } = useTheme();
+  const [isRTL, setIsRTL] = React.useState(false);
+
+  // Check if current language is RTL (Arabic, Hebrew, etc.)
+  React.useEffect(() => {
+    const checkDirection = () => {
+      const dir = document.documentElement.getAttribute("dir") || "ltr";
+      setIsRTL(dir === "rtl");
+    };
+
+    // Check on mount
+    checkDirection();
+
+    // Listen for language changes
+    i18n.on("languageChanged", checkDirection);
+
+    // Listen for direction changes in document
+    const observer = new MutationObserver(checkDirection);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["dir"],
+    });
+
+    return () => {
+      i18n.off("languageChanged", checkDirection);
+      observer.disconnect();
+    };
+  }, [i18n]);
   return (
     <div className="w-full bg-background min-h-screen">
       <PublicHeader />
@@ -20,9 +55,15 @@ const NotFound = () => {
       >
         {/* Logo */}
         <div className="mb-8">
-          <Link to="/" className="inline-flex items-center space-x-2">
-            <Heart className="h-12 w-12 text-primary" />
-            <span className="text-3xl font-bold text-foreground">{t("ClinicPro")}</span>
+          <Link to="/" className="inline-flex items-center">
+            <img
+              src={isRTL
+                ? (theme === "dark" ? DarkModeLogoAr : LightModeLogoAr)
+                : (theme === "dark" ? DarkModeLogo : LightModeLogo)
+              }
+              alt="tappih Logo"
+              className="h-16 w-auto"
+            />
           </Link>
         </div>
 
