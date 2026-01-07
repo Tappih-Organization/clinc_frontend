@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { apiService } from "@/services/api";
 import {
   Dialog,
   DialogContent,
@@ -31,13 +32,13 @@ import {
 } from "lucide-react";
 
 interface Department {
-  code: string;
+  code?: string;
   name: string;
-  description: string;
-  head: string;
-  location: string;
-  phone: string;
-  email: string;
+  description?: string;
+  head?: string; // User ID
+  location?: string;
+  phone?: string;
+  email?: string;
   staffCount: number;
   budget: number;
   status: "active" | "inactive";
@@ -110,35 +111,13 @@ const EditDepartmentModal: React.FC<EditDepartmentModalProps> = ({
   const validateForm = () => {
     const newErrors: Partial<Department> = {};
 
-    if (!formData.code.trim()) {
-      newErrors.code = "Department code is required";
-    } else if (formData.code.length < 2) {
-      newErrors.code = "Code must be at least 2 characters";
-    }
-
+    // Only name is required
     if (!formData.name.trim()) {
       newErrors.name = "Department name is required";
     }
 
-    if (!formData.description.trim()) {
-      newErrors.description = "Description is required";
-    }
-
-    if (!formData.head.trim()) {
-      newErrors.head = "Department head is required";
-    }
-
-    if (!formData.location.trim()) {
-      newErrors.location = "Location is required";
-    }
-
-    if (!formData.phone.trim()) {
-      newErrors.phone = "Phone number is required";
-    }
-
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+    // Optional fields validation - only validate format if provided
+    if (formData.email && formData.email.trim() && !/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = "Please enter a valid email address";
     }
 

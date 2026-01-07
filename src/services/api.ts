@@ -254,6 +254,11 @@ const getApiBaseUrl = (): string => {
     return import.meta.env.VITE_API_BASE_URL;
   }
 
+  // For localhost development, use local backend
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    return 'http://localhost:3000/api';
+  }
+
   // For production or HTTPS contexts (including iframes), ensure we use HTTPS
   if (window.location.protocol === 'https:' || window.location.hostname !== 'localhost') {
     return 'https://clinicpro-api.dev3.tech/api';
@@ -693,11 +698,11 @@ export interface Department {
   _id: string;
   code: string;
   name: string;
-  description: string;
-  head: string;
-  location: string;
-  phone: string;
-  email: string;
+  description?: string;
+  head?: string | { _id: string; first_name: string; last_name: string; email: string; role: string }; // Can be string ID or populated object
+  location?: string;
+  phone?: string;
+  email?: string;
   staffCount: number;
   budget: number;
   status: 'active' | 'inactive';
@@ -742,13 +747,13 @@ export interface DepartmentStats {
 }
 
 export interface CreateDepartmentRequest {
-  code: string;
+  code?: string; // Optional - will be auto-generated if not provided
   name: string;
-  description: string;
-  head: string;
-  location: string;
-  phone: string;
-  email: string;
+  description?: string;
+  head?: string; // User ID (ObjectId)
+  location?: string;
+  phone?: string;
+  email?: string;
   staffCount: number;
   budget: number;
   status?: 'active' | 'inactive';
