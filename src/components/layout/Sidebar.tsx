@@ -501,13 +501,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       if (activeItemRef.current) {
         activeItemRef.current.scrollIntoView({
           behavior: 'smooth',
-          block: 'center',
+          block: 'nearest',
         });
       }
     }, 350); // Slightly longer than the collapse animation duration (300ms)
 
     return () => clearTimeout(timer);
-  }, [location.pathname, collapsedSections]);
+  }, [location.pathname]);
 
   return (
     <>
