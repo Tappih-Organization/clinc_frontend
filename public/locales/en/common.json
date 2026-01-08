@@ -2267,7 +2267,31 @@
   "serviceInterest": "Service Interest",
   "status": "Status",
   "assignedTo": "Assigned To",
-  "notes": "Notes"
+  "notes": "Notes",
+   "addNew": "Add New Clinic",
+      "createDescription": "Create a new clinic location with its contact information and settings.",
+      "name": "Clinic Name",
+      "namePlaceholder": "Enter clinic name",
+      "code": "Clinic Code",
+      "description": "Clinic Description",
+      "descriptionPlaceholder": "Enter clinic description (optional)",
+      "streetAddress": "Street Address",
+      "streetAddressPlaceholder": "Enter street address",
+      "country": "Country",
+      "city": "City",
+      "website": "Website",
+      "websiteOptional": "Website (Optional)",
+      "settings": "Clinic Settings",
+       "monday": "Monday",
+        "tuesday": "Tuesday",
+        "wednesday": "Wednesday",
+        "thursday": "Thursday",
+        "friday": "Friday",
+        "saturday": "Saturday",
+        "sunday": "Sunday",
+        "addressInformation": "Address Information",
+          "clincsettings": "Clinic Settings",
+           "closed": "Closed"
 
 
 
