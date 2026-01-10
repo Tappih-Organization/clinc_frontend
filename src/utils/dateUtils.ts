@@ -2,30 +2,77 @@
 import i18n from "@/i18n";
 
 /**
- * Get the locale based on current language
+ * Get the current language (for month name translation only)
  */
-export const getLocale = (): string => {
-  const currentLanguage = i18n.language || "en";
-  // Map language codes to locale codes
-  const localeMap: Record<string, string> = {
-    ar: "ar-SA",
-    "ar-SA": "ar-SA",
-    "ar-EG": "ar-EG",
-    "ar-OM": "ar-OM",
-    en: "en-US",
-    "en-US": "en-US",
-    "en-ZA": "en-ZA",
-    "en-NZ": "en-NZ",
-    hi: "hi-IN",
-    fr: "fr-FR",
-    es: "es-ES",
-    ha: "ha-NG",
-  };
-  return localeMap[currentLanguage] || "en-US";
+export const getCurrentLanguage = (): string => {
+  return i18n.language || "en";
 };
 
 /**
- * Format date based on current language
+ * Get locale string for date formatting (e.g., "en-US", "ar-SA")
+ */
+export const getLocale = (): string => {
+  const lang = getCurrentLanguage();
+  if (lang.startsWith("ar")) {
+    return "ar-SA";
+  }
+  return "en-US";
+};
+
+/**
+ * Translate month names to Arabic if needed
+ * Always use English numbers, only translate month names
+ */
+export const translateMonthNames = (dateString: string): string => {
+  const currentLanguage = getCurrentLanguage();
+  
+  // Only translate if language is Arabic
+  if (currentLanguage !== "ar" && !currentLanguage.startsWith("ar-")) {
+    return dateString;
+  }
+
+  // Month name mappings (full and abbreviated)
+  const monthMap: Record<string, string> = {
+    "January": "يناير",
+    "February": "فبراير",
+    "March": "مارس",
+    "April": "أبريل",
+    "May": "مايو",
+    "June": "يونيو",
+    "July": "يوليو",
+    "August": "أغسطس",
+    "September": "سبتمبر",
+    "October": "أكتوبر",
+    "November": "نوفمبر",
+    "December": "ديسمبر",
+    "Jan": "يناير",
+    "Feb": "فبراير",
+    "Mar": "مارس",
+    "Apr": "أبريل",
+    "May": "مايو",
+    "Jun": "يونيو",
+    "Jul": "يوليو",
+    "Aug": "أغسطس",
+    "Sep": "سبتمبر",
+    "Oct": "أكتوبر",
+    "Nov": "نوفمبر",
+    "Dec": "ديسمبر",
+  };
+
+  // Replace month names with Arabic translations
+  let translatedString = dateString;
+  Object.keys(monthMap).forEach((englishMonth) => {
+    const arabicMonth = monthMap[englishMonth];
+    // Use regex with word boundaries to match whole words only
+    const regex = new RegExp(`\\b${englishMonth}\\b`, "gi");
+    translatedString = translatedString.replace(regex, arabicMonth);
+  });
+
+  return translatedString;
+};
+
+/**
+ * Format date - Always use English numbers, translate month names only in Arabic
  */
 export const formatDate = (
   dateString: string | Date | null | undefined,
@@ -40,14 +87,17 @@ export const formatDate = (
       return "-";
     }
     
-    const locale = getLocale();
+    // Always use "en-US" locale to get English numbers
     const defaultOptions: Intl.DateTimeFormatOptions = {
       year: "numeric",
       month: "long",
       day: "numeric",
     };
     
-    return date.toLocaleDateString(locale, { ...defaultOptions, ...options });
+    const formattedDate = date.toLocaleDateString("en-US", { ...defaultOptions, ...options });
+    
+    // Translate month names only (numbers stay in English)
+    return translateMonthNames(formattedDate);
   } catch (error) {
     console.error("Error formatting date:", error);
     return "-";
@@ -55,7 +105,7 @@ export const formatDate = (
 };
 
 /**
- * Format date with short month name
+ * Format date with short month name - Always use English numbers, translate month names only in Arabic
  */
 export const formatDateShort = (
   dateString: string | Date | null | undefined
@@ -68,7 +118,7 @@ export const formatDateShort = (
 };
 
 /**
- * Format date with weekday
+ * Format date with weekday - Always use English numbers, translate month names only in Arabic
  */
 export const formatDateWithWeekday = (
   dateString: string | Date | null | undefined
@@ -82,7 +132,7 @@ export const formatDateWithWeekday = (
 };
 
 /**
- * Format date short with weekday
+ * Format date short with weekday - Always use English numbers, translate month names only in Arabic
  */
 export const formatDateShortWithWeekday = (
   dateString: string | Date | null | undefined
@@ -95,7 +145,7 @@ export const formatDateShortWithWeekday = (
 };
 
 /**
- * Format time based on current language
+ * Format time - Always use English numbers (no translation needed for time)
  */
 export const formatTime = (
   dateString: string | Date | null | undefined,
@@ -110,14 +160,14 @@ export const formatTime = (
       return "-";
     }
     
-    const locale = getLocale();
+    // Always use "en-US" locale to get English numbers
     const defaultOptions: Intl.DateTimeFormatOptions = {
       hour: "2-digit",
       minute: "2-digit",
       hour12: true,
     };
     
-    return date.toLocaleTimeString(locale, { ...defaultOptions, ...options });
+    return date.toLocaleTimeString("en-US", { ...defaultOptions, ...options });
   } catch (error) {
     console.error("Error formatting time:", error);
     return "-";
@@ -125,7 +175,7 @@ export const formatTime = (
 };
 
 /**
- * Format date and time together
+ * Format date and time together - Always use English numbers, translate month names only in Arabic
  */
 export const formatDateTime = (
   dateString: string | Date | null | undefined
@@ -139,8 +189,8 @@ export const formatDateTime = (
       return "-";
     }
     
-    const locale = getLocale();
-    return date.toLocaleString(locale, {
+    // Always use "en-US" locale to get English numbers
+    const formattedDateTime = date.toLocaleString("en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -148,8 +198,35 @@ export const formatDateTime = (
       minute: "2-digit",
       hour12: true,
     });
+    
+    // Translate month names only (numbers stay in English)
+    return translateMonthNames(formattedDateTime);
   } catch (error) {
     console.error("Error formatting date time:", error);
+    return "-";
+  }
+};
+
+/**
+ * Format month and year for calendar headers - Always use English numbers, translate month names only in Arabic
+ */
+export const formatMonthYear = (
+  date: Date,
+  options?: Intl.DateTimeFormatOptions
+): string => {
+  try {
+    const defaultOptions: Intl.DateTimeFormatOptions = {
+      month: "long",
+      year: "numeric",
+    };
+    
+    // Always use "en-US" locale to get English numbers
+    const formatted = date.toLocaleDateString("en-US", { ...defaultOptions, ...options });
+    
+    // Translate month names only (numbers stay in English)
+    return translateMonthNames(formatted);
+  } catch (error) {
+    console.error("Error formatting month year:", error);
     return "-";
   }
 };

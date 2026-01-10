@@ -25,7 +25,6 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
   TableBody,
@@ -82,9 +81,9 @@ import {
   Edit,
   ChevronLeft,
   ChevronRight,
-  CalendarDays,
-  Table as TableIcon,
   Download,
+  Settings,
+  RotateCw,
 } from "lucide-react";
 import { Appointment as ApiAppointment, Patient as ApiPatient, User as ApiUser } from "@/services/api";
 import { apiService } from "@/services/api";
@@ -94,7 +93,7 @@ import NewAppointmentModal from "@/components/modals/NewAppointmentModal";
 import { AppointmentSlipPDFGenerator, convertToAppointmentSlipData, type ClinicInfo } from "@/utils/appointmentSlipPdf";
 import { formatTime as formatTimeUtil, formatDateShortWithWeekday } from "@/utils/dateUtils";
 
-const Appointments = () => {
+const AppointmentsTable = () => {
   const { t } = useTranslation();
   const isRTL = useIsRTL();
   const { currentClinic } = useClinic();
@@ -102,11 +101,6 @@ const Appointments = () => {
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [selectedDate, setSelectedDate] = useState("all");
   const [selectedDatefilter, setSelectedDatefilter] = useState<string | null>(null);
-  // View state
-  const [currentView, setCurrentView] = useState<"table" | "calendar">("calendar");
-  
-  // Calendar state
-  const [currentCalendarDate, setCurrentCalendarDate] = useState(new Date());
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -128,6 +122,28 @@ const Appointments = () => {
     appointment: any | null;
   }>({ open: false, appointment: null });
 
+  const [changeStatusModal, setChangeStatusModal] = useState<{
+    open: boolean;
+    appointment: any | null;
+  }>({ open: false, appointment: null });
+
+  const [rescheduleModal, setRescheduleModal] = useState<{
+    open: boolean;
+    appointment: any | null;
+  }>({ open: false, appointment: null });
+
+  // Change status form state
+  const [statusFormData, setStatusFormData] = useState({
+    status: "",
+  });
+
+  // Reschedule form state
+  const [rescheduleFormData, setRescheduleFormData] = useState({
+    date: "",
+    time: "",
+    duration: "",
+  });
+
   // Edit form state
   const [editFormData, setEditFormData] = useState({
     patientId: "",
@@ -146,22 +162,16 @@ const Appointments = () => {
   setSearchTerm("");
   setSelectedStatus("all");
   setSelectedDate("all");
-  setSelectedDatefilter('');              
+  setSelectedDatefilter(null);              
   setCurrentPage(1);
 };
 
 useEffect(() => {
-  if (selectedDate !== "all") {
+  // Only clear selectedDatefilter if not custom-date
+  if (selectedDate !== "all" && selectedDate !== "custom-date") {
     setSelectedDatefilter(null);
   }
-}, [selectedDate]); 
-
-
-useEffect(() => {
-  if (selectedDatefilter) {
-      setSelectedDate("all");
-  }
-}, [selectedDatefilter]);
+}, [selectedDate]);
 
 
   // State for API data in edit modal
@@ -175,23 +185,21 @@ useEffect(() => {
 
   // Build API parameters with date filtering
   const getDateRangeParams = () => {
+    // Handle custom date selection
+    if (selectedDate === "custom-date" && selectedDatefilter) {
+      const selected = new Date(selectedDatefilter);
+      selected.setHours(0, 0, 0, 0);
 
+      const end = new Date(selected);
+      end.setHours(23, 59, 59, 999);
 
-if (selectedDatefilter) {
-    const selected = new Date(selectedDatefilter);
-    selected.setHours(0, 0, 0, 0);
+      return {
+        start_date: selected.toISOString(),
+        end_date: end.toISOString(),
+      };
+    }
 
-    const end = new Date(selected);
-    end.setHours(23, 59, 59, 999);
-
-    return {
-      start_date: selected.toISOString(),
-      end_date: end.toISOString(),
-    };
-  }
-
-
-    if (selectedDate === "all") return {};
+    if (selectedDate === "all" || selectedDate === "custom-date") return {};
     
     const today = new Date();
     today.setHours(0, 0, 0, 0); // Start of today
@@ -358,18 +366,20 @@ if (selectedDatefilter) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "completed":
-        return "bg-green-100 text-green-800";
+        return "bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300";
       case "scheduled":
       case "confirmed":
         return "bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300";
       case "cancelled":
-        return "bg-red-100 text-red-800";
+        return "bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-300";
       case "no-show":
-        return "bg-orange-100 text-orange-800";
+        return "bg-orange-100 dark:bg-orange-900/20 text-orange-800 dark:text-orange-300";
       case "in-progress":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-300";
+      case "not-completed":
+        return "bg-purple-100 dark:bg-purple-900/20 text-purple-800 dark:text-purple-300";
       default:
-        return "bg-muted text-muted-foreground";
+        return "bg-purple-100 dark:bg-purple-900/20 text-purple-800 dark:text-purple-300";
     }
   };
 
@@ -379,63 +389,6 @@ if (selectedDatefilter) {
 
   const formatDate = (date: Date) => {
     return formatDateShortWithWeekday(date);
-  };
-
-  // Calendar helper functions
-  const getCalendarDays = (date: Date) => {
-    const year = date.getFullYear();
-    const month = date.getMonth();
-    
-    // First day of the month
-    const firstDay = new Date(year, month, 1);
-    // Last day of the month
-    const lastDay = new Date(year, month + 1, 0);
-    
-    // Start from Sunday of the week containing the first day
-    const startDate = new Date(firstDay);
-    startDate.setDate(firstDay.getDate() - firstDay.getDay());
-    
-    // End on Saturday of the week containing the last day
-    const endDate = new Date(lastDay);
-    endDate.setDate(lastDay.getDate() + (6 - lastDay.getDay()));
-    
-    const days = [];
-    const currentDate = new Date(startDate);
-    
-    while (currentDate <= endDate) {
-      days.push(new Date(currentDate));
-      currentDate.setDate(currentDate.getDate() + 1);
-    }
-    
-    return days;
-  };
-
-  const getAppointmentsForDate = (date: Date) => {
-    return allFilteredAppointments.filter(appointment => {
-      const appointmentDate = new Date(appointment.date);
-      return appointmentDate.toDateString() === date.toDateString();
-    });
-  };
-
-  const isToday = (date: Date) => {
-    return date.toDateString() === new Date().toDateString();
-  };
-
-  const isCurrentMonth = (date: Date) => {
-    return date.getMonth() === currentCalendarDate.getMonth() && 
-           date.getFullYear() === currentCalendarDate.getFullYear();
-  };
-
-  const navigateCalendar = (direction: 'prev' | 'next') => {
-    setCurrentCalendarDate(prev => {
-      const newDate = new Date(prev);
-      if (direction === 'prev') {
-        newDate.setMonth(prev.getMonth() - 1);
-      } else {
-        newDate.setMonth(prev.getMonth() + 1);
-      }
-      return newDate;
-    });
   };
 
   // Fetch all appointments for stats (without pagination)
@@ -470,53 +423,55 @@ if (selectedDatefilter) {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       
-
-       if (!isNaN(Date.parse(selectedDate))) {
-    const selected = new Date(selectedDate);
-    selected.setHours(0, 0, 0, 0);
-
-    const endOfSelected = new Date(selected);
-    endOfSelected.setHours(23, 59, 59, 999);
-
-    matchesDate =
-      appointmentDate >= selected &&
-      appointmentDate <= endOfSelected;
-  }else{
-
-      switch (selectedDate) {
-        case "today":
-          const endOfToday = new Date(today);
-          endOfToday.setHours(23, 59, 59, 999);
-          matchesDate = appointmentDate >= today && appointmentDate <= endOfToday;
-          break;
-        case "tomorrow":
-          const tomorrow = new Date(today);
-          tomorrow.setDate(today.getDate() + 1);
-          const endOfTomorrow = new Date(tomorrow);
-          endOfTomorrow.setHours(23, 59, 59, 999);
-          matchesDate = appointmentDate >= tomorrow && appointmentDate <= endOfTomorrow;
-          break;
-        case "this-week":
-          const startOfWeek = new Date(today);
-          startOfWeek.setDate(today.getDate() - today.getDay());
-          startOfWeek.setHours(0, 0, 0, 0);
-          const endOfWeek = new Date(startOfWeek);
-          endOfWeek.setDate(startOfWeek.getDate() + 6);
-          endOfWeek.setHours(23, 59, 59, 999);
-          matchesDate = appointmentDate >= startOfWeek && appointmentDate <= endOfWeek;
-          break;
-        case "next-week":
-          const nextWeekStart = new Date(today);
-          nextWeekStart.setDate(today.getDate() + (7 - today.getDay()));
-          nextWeekStart.setHours(0, 0, 0, 0);
-          const nextWeekEnd = new Date(nextWeekStart);
-          nextWeekEnd.setDate(nextWeekStart.getDate() + 6);
-          nextWeekEnd.setHours(23, 59, 59, 999);
-          matchesDate = appointmentDate >= nextWeekStart && appointmentDate <= nextWeekEnd;
-          break;
-        default:
-          matchesDate = true;
-      }}
+      // Handle custom date selection
+      if (selectedDate === "custom-date" && selectedDatefilter) {
+        const selected = new Date(selectedDatefilter);
+        selected.setHours(0, 0, 0, 0);
+        const endOfSelected = new Date(selected);
+        endOfSelected.setHours(23, 59, 59, 999);
+        matchesDate = appointmentDate >= selected && appointmentDate <= endOfSelected;
+      } else if (!isNaN(Date.parse(selectedDate))) {
+        const selected = new Date(selectedDate);
+        selected.setHours(0, 0, 0, 0);
+        const endOfSelected = new Date(selected);
+        endOfSelected.setHours(23, 59, 59, 999);
+        matchesDate = appointmentDate >= selected && appointmentDate <= endOfSelected;
+      } else {
+        switch (selectedDate) {
+          case "today":
+            const endOfToday = new Date(today);
+            endOfToday.setHours(23, 59, 59, 999);
+            matchesDate = appointmentDate >= today && appointmentDate <= endOfToday;
+            break;
+          case "tomorrow":
+            const tomorrow = new Date(today);
+            tomorrow.setDate(today.getDate() + 1);
+            const endOfTomorrow = new Date(tomorrow);
+            endOfTomorrow.setHours(23, 59, 59, 999);
+            matchesDate = appointmentDate >= tomorrow && appointmentDate <= endOfTomorrow;
+            break;
+          case "this-week":
+            const startOfWeek = new Date(today);
+            startOfWeek.setDate(today.getDate() - today.getDay());
+            startOfWeek.setHours(0, 0, 0, 0);
+            const endOfWeek = new Date(startOfWeek);
+            endOfWeek.setDate(startOfWeek.getDate() + 6);
+            endOfWeek.setHours(23, 59, 59, 999);
+            matchesDate = appointmentDate >= startOfWeek && appointmentDate <= endOfWeek;
+            break;
+          case "next-week":
+            const nextWeekStart = new Date(today);
+            nextWeekStart.setDate(today.getDate() + (7 - today.getDay()));
+            nextWeekStart.setHours(0, 0, 0, 0);
+            const nextWeekEnd = new Date(nextWeekStart);
+            nextWeekEnd.setDate(nextWeekStart.getDate() + 6);
+            nextWeekEnd.setHours(23, 59, 59, 999);
+            matchesDate = appointmentDate >= nextWeekStart && appointmentDate <= nextWeekEnd;
+            break;
+          default:
+            matchesDate = true;
+        }
+      }
     }
 
     return matchesSearch && matchesStatus && matchesDate;
@@ -617,13 +572,21 @@ if (selectedDatefilter) {
     loadEditModalData();
   };
 
-  const handleReschedule = (appointment: any) => {
-    // For now, just show edit modal with focus on date/time
-    setEditModal({ open: true, appointment });
-    toast({
-      title: t("Reschedule"),
-      description: t("Update the date and time to reschedule this appointment."),
+  const handleChangeStatus = (appointment: any) => {
+    setStatusFormData({
+      status: appointment.status || "",
     });
+    setChangeStatusModal({ open: true, appointment });
+  };
+
+  const handleReschedule = (appointment: any) => {
+    const appointmentDate = new Date(appointment.date);
+    setRescheduleFormData({
+      date: appointmentDate.toISOString().split('T')[0], // YYYY-MM-DD format
+      time: appointmentDate.toTimeString().slice(0, 5), // HH:MM format
+      duration: appointment.duration ? appointment.duration.toString() : "30",
+    });
+    setRescheduleModal({ open: true, appointment });
   };
 
   const handleMarkComplete = async (appointment: any) => {
@@ -840,6 +803,114 @@ if (selectedDatefilter) {
     }
   };
 
+  const handleSaveStatusChange = async () => {
+    if (!changeStatusModal.appointment) return;
+
+    if (!statusFormData.status) {
+      toast({
+        title: t("Validation Error"),
+        description: t("Please select a status."),
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const validStatuses: Array<'scheduled' | 'confirmed' | 'in-progress' | 'completed' | 'cancelled' | 'no-show'> = 
+        ['scheduled', 'confirmed', 'in-progress', 'completed', 'cancelled', 'no-show'];
+      
+      if (!validStatuses.includes(statusFormData.status as any)) {
+        toast({
+          title: t("Validation Error"),
+          description: t("Invalid status selected."),
+          variant: "destructive",
+        });
+        return;
+      }
+
+      await updateAppointmentMutation.mutateAsync({
+        id: changeStatusModal.appointment.id,
+        data: { status: statusFormData.status as 'scheduled' | 'confirmed' | 'in-progress' | 'completed' | 'cancelled' | 'no-show' }
+      });
+
+      setChangeStatusModal({ open: false, appointment: null });
+      toast({
+        title: t("Success"),
+        description: t("Status updated successfully."),
+      });
+    } catch (error) {
+      console.error('Status update error:', error);
+      toast({
+        title: t("Error"),
+        description: t("Failed to update status."),
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSaveReschedule = async () => {
+    if (!rescheduleModal.appointment) return;
+
+    if (!rescheduleFormData.date || !rescheduleFormData.time) {
+      toast({
+        title: t("Validation Error"),
+        description: t("Please provide both date and time for the appointment."),
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const duration = parseInt(rescheduleFormData.duration);
+    if (isNaN(duration) || duration < 15 || duration > 240) {
+      toast({
+        title: t("Validation Error"),
+        description: t("Duration must be between 15 and 240 minutes."),
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // Create a proper Date object ensuring local timezone interpretation
+      const [year, month, day] = rescheduleFormData.date.split('-').map(Number);
+      const [hours, minutes] = rescheduleFormData.time.split(':').map(Number);
+      
+      // Create date in local timezone
+      const appointmentDateTime = new Date(year, month - 1, day, hours, minutes);
+      
+      // Validate the date is not invalid
+      if (isNaN(appointmentDateTime.getTime())) {
+        toast({
+          title: t("Validation Error"),
+          description: t("Please provide a valid date and time."),
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      await updateAppointmentMutation.mutateAsync({
+        id: rescheduleModal.appointment.id,
+        data: {
+          appointment_date: appointmentDateTime.toISOString(),
+          duration: duration,
+        }
+      });
+
+      setRescheduleModal({ open: false, appointment: null });
+      toast({
+        title: t("Success"),
+        description: t("Appointment rescheduled successfully."),
+      });
+    } catch (error) {
+      console.error('Reschedule appointment error:', error);
+      toast({
+        title: t("Error"),
+        description: t("Failed to reschedule appointment."),
+        variant: "destructive",
+      });
+    }
+  };
+
   // Loading state
   if (appointmentsLoading) {
     return (
@@ -924,10 +995,10 @@ if (selectedDatefilter) {
       <div className="flex flex-col space-y-3 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex-1 min-w-0">
           <h1 className="text-xl xs:text-2xl sm:text-3xl font-bold text-foreground">
-            {t("Appointments")}
+            {t("Appointments Table")}
           </h1>
           <p className="text-xs xs:text-sm sm:text-base text-muted-foreground mt-1">
-            {t("Manage patient appointments and schedules")}
+            {t("Manage patient appointments in table view")}
           </p>
         </div>
         <div className="flex-shrink-0 w-full sm:w-auto">
@@ -1057,7 +1128,14 @@ if (selectedDatefilter) {
                 </SelectContent>
               </Select>
 
-              <Select value={selectedDate} onValueChange={setSelectedDate}>
+              <Select value={selectedDate} onValueChange={(value) => {
+                setSelectedDate(value);
+                // If switching to custom-date and no date is selected, set today as default
+                if (value === "custom-date" && !selectedDatefilter) {
+                  const today = new Date();
+                  setSelectedDatefilter(today.toISOString().split("T")[0]);
+                }
+              }}>
                 <SelectTrigger className="w-full xs:w-48">
                   <SelectValue placeholder={t("Date Range")} />
                 </SelectTrigger>
@@ -1066,21 +1144,23 @@ if (selectedDatefilter) {
                   <SelectItem value="tomorrow">{t("Tomorrow")}</SelectItem>
                   <SelectItem value="this-week">{t("This Week")}</SelectItem>
                   <SelectItem value="next-week">{t("Next Week")}</SelectItem>
+                  <SelectItem value="custom-date">{t("Custom Date")}</SelectItem>
                   <SelectItem value="all">{t("All Dates")}</SelectItem>
                 </SelectContent>
               </Select>
 
-
- 
-                      <Input
-                        id="date"
-                        type="date"
-                        value={selectedDatefilter}
-                        onChange={(e) => setSelectedDatefilter(e.target.value)} 
-                        required
-                        className={cn("w-40 h-9 sm:h-10", isRTL && "pr-3")}
-                        dir={isRTL ? 'rtl' : 'ltr'}
-                      />
+              {/* Show date picker only when custom-date is selected */}
+              {selectedDate === "custom-date" && (
+                <Input
+                  id="date"
+                  type="date"
+                  value={selectedDatefilter || ""}
+                  onChange={(e) => setSelectedDatefilter(e.target.value)} 
+                  required
+                  className={cn("w-40 h-9 sm:h-10", isRTL && "pr-3")}
+                  dir={isRTL ? 'rtl' : 'ltr'}
+                />
+              )}
 
 
 
@@ -1089,7 +1169,7 @@ if (selectedDatefilter) {
         </CardContent>
       </Card>
 
-      {/* View Selector and Content */}
+      {/* Appointments Table */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -1097,40 +1177,16 @@ if (selectedDatefilter) {
       >
         <Card>
           <CardHeader className="pb-3">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-              <div>
-                <CardTitle className="text-base xs:text-lg sm:text-xl">{t("Appointment Schedule")}</CardTitle>
-                <CardDescription className="text-xs xs:text-sm">
-                  {t("Manage and track all patient appointments")}
-                </CardDescription>
-              </div>
-              <div className="flex items-center space-x-1 bg-muted rounded-lg p-1">
-                <Button
-                  variant={currentView === "table" ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => setCurrentView("table")}
-                  className={cn("h-8 px-3 flex items-center gap-2", isRTL && "flex-row-reverse")}
-                >
-                  <TableIcon className="h-4 w-4" />
-                  {t("Table")}
-                </Button>
-                <Button
-                  variant={currentView === "calendar" ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => setCurrentView("calendar")}
-                  className={cn("h-8 px-3 flex items-center gap-2", isRTL && "flex-row-reverse")}
-                >
-                  <CalendarDays className="h-4 w-4" />
-                  {t("Calendar")}
-                </Button>
-              </div>
+            <div>
+              <CardTitle className="text-base xs:text-lg sm:text-xl">{t("Appointments List")}</CardTitle>
+              <CardDescription className="text-xs xs:text-sm">
+                {t("View and manage all patient appointments")}
+              </CardDescription>
             </div>
           </CardHeader>
           <CardContent className="px-3 xs:px-4 sm:px-6">
-            {currentView === "table" ? (
-              <>
-                {/* Desktop Table View */}
-                <div className="hidden lg:block">
+            {/* Desktop Table View */}
+            <div className="hidden lg:block">
               <Table dir={isRTL ? 'rtl' : 'ltr'}>
                 <TableHeader>
                   <TableRow>
@@ -1275,6 +1331,14 @@ if (selectedDatefilter) {
                                   {t("Mark Complete")}
                                 </DropdownMenuItem>
                               )}
+                              <DropdownMenuItem onClick={() => handleChangeStatus(appointment)} className={cn(isRTL && "flex-row-reverse")}>
+                                <Settings className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
+                                {t("Change Status")}
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleReschedule(appointment)} className={cn(isRTL && "flex-row-reverse")}>
+                                <RotateCw className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
+                                {t("Reschedule")}
+                              </DropdownMenuItem>
                               <DropdownMenuItem 
                                 onClick={() => handleCancelAppointment(appointment)}
                                 className={cn("text-red-600", isRTL && "flex-row-reverse")}
@@ -1416,6 +1480,14 @@ if (selectedDatefilter) {
                                 {t("Mark Complete")}
                               </DropdownMenuItem>
                             )}
+                            <DropdownMenuItem onClick={() => handleChangeStatus(appointment)} className={cn(isRTL && "flex-row-reverse")}>
+                              <Settings className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
+                              {t("Change Status")}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleReschedule(appointment)} className={cn(isRTL && "flex-row-reverse")}>
+                              <RotateCw className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
+                              {t("Reschedule")}
+                            </DropdownMenuItem>
                             <DropdownMenuItem 
                               onClick={() => handleCancelAppointment(appointment)}
                               className={cn("text-red-600", isRTL && "flex-row-reverse")}
@@ -1502,214 +1574,6 @@ if (selectedDatefilter) {
                 </Button>
               </div>
             </div>
-                </>
-              ) : (
-                /* Calendar View */
-                <div className="space-y-4">
-                  {/* Calendar Header */}
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold">
-                      {currentCalendarDate.toLocaleDateString("en-US", {
-                        month: "long",
-                        year: "numeric",
-                      })}
-                    </h3>
-                    <div className={cn("flex items-center", isRTL ? "space-x-reverse space-x-2" : "space-x-2")}>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => navigateCalendar('prev')}
-                        className={cn(isRTL && "flex-row-reverse")}
-                      >
-                        <ChevronLeft className={cn("h-4 w-4", isRTL && "scale-x-[-1]")} />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setCurrentCalendarDate(new Date())}
-                      >
-                        {t("Today")}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => navigateCalendar('next')}
-                        className={cn(isRTL && "flex-row-reverse")}
-                      >
-                        <ChevronRight className={cn("h-4 w-4", isRTL && "scale-x-[-1]")} />
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Desktop Calendar Grid */}
-                  <div className="hidden md:grid grid-cols-7 gap-1">
-                    {/* Day headers */}
-                    {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-                      <div
-                        key={day}
-                        className="p-2 text-center text-sm font-medium text-muted-foreground border-b border-border"
-                      >
-                        {day}
-                      </div>
-                    ))}
-
-                    {/* Calendar days */}
-                    {getCalendarDays(currentCalendarDate).map((date, index) => {
-                      const dayAppointments = getAppointmentsForDate(date);
-                      const isCurrentMonthDay = isCurrentMonth(date);
-                      const isTodayDate = isToday(date);
-
-                      return (
-                        <div
-                          key={index}
-                          className={`
-                            min-h-[120px] p-2 border border-border 
-                            ${!isCurrentMonthDay ? "bg-muted/50 text-muted-foreground" : "bg-background"}
-                            ${isTodayDate ? "bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-700" : ""}
-                            hover:bg-muted/50 transition-colors
-                          `}
-                        >
-                          <div className="flex items-center justify-between mb-1">
-                            <span
-                              className={`
-                                text-sm font-medium
-                                ${isTodayDate ? "text-blue-600 dark:text-blue-400 font-bold" : ""}
-                              `}
-                            >
-                              {date.getDate()}
-                            </span>
-                            {dayAppointments.length > 0 && (
-                              <Badge
-                                variant="secondary"
-                                className="text-xs h-5 px-1"
-                              >
-                                {dayAppointments.length}
-                              </Badge>
-                            )}
-                          </div>
-
-                          {/* Appointments for the day */}
-                          <div className="space-y-1">
-                            {dayAppointments.slice(0, 3).map((appointment) => (
-                              <div
-                                key={appointment.id}
-                                className={`
-                                  text-xs p-1 rounded cursor-pointer
-                                  ${getStatusColor(appointment.status)}
-                                  hover:opacity-80 transition-opacity
-                                `}
-                                onClick={() => handleViewDetails(appointment)}
-                                title={`${appointment.patient?.name} - ${formatTime(appointment.date)}`}
-                              >
-                                <div className="truncate font-medium">
-                                  {appointment.patient?.name}
-                                </div>
-                                <div className="truncate text-xs opacity-80">
-                                  {formatTime(appointment.date)}
-                                </div>
-                              </div>
-                            ))}
-                            {dayAppointments.length > 3 && (
-                              <div className="text-xs text-muted-foreground text-center">
-                                +{dayAppointments.length - 3} more
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  {/* Mobile Calendar View */}
-                  <div className="md:hidden space-y-2">
-                    {getCalendarDays(currentCalendarDate)
-                      .filter((date) => isCurrentMonth(date))
-                      .map((date) => {
-                        const dayAppointments = getAppointmentsForDate(date);
-                        const isTodayDate = isToday(date);
-
-                        return (
-                          <Card
-                            key={date.toDateString()}
-                            className={`p-3 ${isTodayDate ? "border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-900/20" : ""}`}
-                          >
-                            <div className="flex items-center justify-between mb-2">
-                              <h4 className={`font-medium ${isTodayDate ? "text-blue-600 dark:text-blue-400" : ""}`}>
-                                {date.toLocaleDateString("en-US", {
-                                  weekday: "short",
-                                  month: "short",
-                                  day: "numeric",
-                                })}
-                                {isTodayDate && (
-                                  <Badge variant="secondary" className="ml-2 text-xs">
-                                    {t("Today")}
-                                  </Badge>
-                                )}
-                              </h4>
-                              {dayAppointments.length > 0 && (
-                                <Badge variant="outline" className="text-xs">
-                                  {dayAppointments.length} {t(dayAppointments.length === 1 ? "appointment" : "appointments")}
-                                </Badge>
-                              )}
-                            </div>
-
-                            {dayAppointments.length === 0 ? (
-                              <p className="text-sm text-muted-foreground">{t("No appointments")}</p>
-                            ) : (
-                              <div className="space-y-2">
-                                {dayAppointments.map((appointment) => (
-                                  <div
-                                    key={appointment.id}
-                                    className={`
-                                      p-2 rounded-lg cursor-pointer border
-                                      ${getStatusColor(appointment.status)}
-                                      hover:opacity-80 transition-opacity
-                                    `}
-                                    onClick={() => handleViewDetails(appointment)}
-                                  >
-                                    <div className="flex items-center justify-between">
-                                      <div className="flex-1 min-w-0">
-                                        <p className="font-medium text-sm truncate">
-                                          {appointment.patient?.name}
-                                        </p>
-                                        <p className="text-xs opacity-80">
-                                          {formatTime(appointment.date)} • {appointment.type}
-                                        </p>
-                                      </div>
-                                      <div className="ml-2 flex items-center">
-                                        {getStatusIcon(appointment.status)}
-                                      </div>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </Card>
-                        );
-                      })}
-                  </div>
-
-                  {/* Calendar Legend */}
-                  <div className="flex flex-wrap gap-4 text-xs text-muted-foreground pt-4 border-t border-border">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-3 h-3 bg-green-100 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded"></div>
-                      <span>{t("Completed")}</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-3 h-3 bg-blue-100 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded"></div>
-                      <span>{t("Scheduled")}</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-3 h-3 bg-red-100 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded"></div>
-                      <span>{t("Cancelled")}</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-3 h-3 bg-orange-100 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded"></div>
-                      <span>{t("No Show")}</span>
-                    </div>
-                  </div>
-                </div>
-              )}
           </CardContent>
         </Card>
       </motion.div>
@@ -1717,23 +1581,23 @@ if (selectedDatefilter) {
       {/* View Details Modal */}
       <Dialog open={viewDetailsModal.open} onOpenChange={(open) => setViewDetailsModal({ open, appointment: null })}>
         <DialogContent className="max-w-2xl" dir={isRTL ? 'rtl' : 'ltr'}>
-          <DialogHeader className={cn(isRTL && 'text-right', isRTL && 'flex-row-reverse', isRTL && 'flex justify-end',isRTL && 'mt-5')} >
-            <div className="flex items-center justify-between">
-              <div className={cn(isRTL && "dir-row-reverse" )}>
-                <DialogTitle className={cn(isRTL && 'text-right', isRTL && 'flex-row-reverse', isRTL && 'flex justify-end')} >{t("Appointment Details")}</DialogTitle>
-                <DialogDescription>
-                  {t("View complete appointment information")}
-                </DialogDescription>
-              </div>
+          <DialogHeader className={cn(isRTL && 'text-right', isRTL && 'mt-5')}>
+            <div className={cn("flex items-start gap-4", isRTL && "flex-row-reverse")}>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => handleDownloadSlip(viewDetailsModal.appointment)}
-                className={cn("ml-4 flex items-center gap-2", isRTL && "flex-row-reverse mr-4 ml-0")}
+                className={cn("flex items-center gap-2 flex-shrink-0", isRTL && "flex-row-reverse")}
               >
                 <Download className="h-4 w-4" />
                 {t("Download Slip")}
               </Button>
+              <div className="flex-1">
+                <DialogTitle className={cn(isRTL && 'text-right')}>{t("Appointment Details")}</DialogTitle>
+                <DialogDescription className={cn(isRTL && 'text-right')}>
+                  {t("View complete appointment information")}
+                </DialogDescription>
+              </div>
             </div>
           </DialogHeader>
           {viewDetailsModal.appointment && (
@@ -2067,8 +1931,118 @@ if (selectedDatefilter) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Change Status Modal */}
+      <Dialog open={changeStatusModal.open} onOpenChange={(open) => setChangeStatusModal({ open, appointment: null })}>
+        <DialogContent className="max-w-md" dir={isRTL ? 'rtl' : 'ltr'}>
+          <DialogHeader className={cn(isRTL && 'text-right', isRTL && 'mt-5')}>
+            <DialogTitle>{t("Change Status")}</DialogTitle>
+            <DialogDescription className={cn(isRTL && 'text-right')}>
+              {t("Change appointment status")} {changeStatusModal.appointment?.patient?.name && `- ${changeStatusModal.appointment.patient.name}`}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="status-select">{t("Select new status")}</Label>
+              <Select
+                value={statusFormData.status}
+                onValueChange={(value) => setStatusFormData(prev => ({ ...prev, status: value }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={t("Select new status")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="scheduled">{t("Scheduled")}</SelectItem>
+                  <SelectItem value="confirmed">{t("Confirmed")}</SelectItem>
+                  <SelectItem value="in-progress">{t("In Progress")}</SelectItem>
+                  <SelectItem value="completed">{t("Completed")}</SelectItem>
+                  <SelectItem value="cancelled">{t("Cancelled")}</SelectItem>
+                  <SelectItem value="no-show">{t("No Show")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setChangeStatusModal({ open: false, appointment: null })}
+            >
+              {t("Cancel")}
+            </Button>
+            <Button 
+              onClick={handleSaveStatusChange}
+              disabled={updateAppointmentMutation.isPending}
+            >
+              {updateAppointmentMutation.isPending ? t("Saving...") : t("Save Changes")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Reschedule Modal */}
+      <Dialog open={rescheduleModal.open} onOpenChange={(open) => setRescheduleModal({ open, appointment: null })}>
+        <DialogContent className="max-w-md" dir={isRTL ? 'rtl' : 'ltr'}>
+          <DialogHeader className={cn(isRTL && 'text-right', isRTL && 'mt-5')}>
+            <DialogTitle>{t("Reschedule Appointment")}</DialogTitle>
+            <DialogDescription className={cn(isRTL && 'text-right')}>
+              {t("Update appointment schedule")} {rescheduleModal.appointment?.patient?.name && `- ${rescheduleModal.appointment.patient.name}`}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="reschedule-date">{t("Date")}</Label>
+                <Input
+                  id="reschedule-date"
+                  type="date"
+                  value={rescheduleFormData.date}
+                  onChange={(e) => setRescheduleFormData(prev => ({ ...prev, date: e.target.value }))}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="reschedule-time">{t("Time")}</Label>
+                <Input
+                  id="reschedule-time"
+                  type="time"
+                  value={rescheduleFormData.time}
+                  onChange={(e) => setRescheduleFormData(prev => ({ ...prev, time: e.target.value }))}
+                  required
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="reschedule-duration">{t("Duration (minutes)")}</Label>
+              <Input
+                id="reschedule-duration"
+                type="number"
+                min="15"
+                max="240"
+                step="15"
+                value={rescheduleFormData.duration}
+                onChange={(e) => setRescheduleFormData(prev => ({ ...prev, duration: e.target.value }))}
+                required
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setRescheduleModal({ open: false, appointment: null })}
+            >
+              {t("Cancel")}
+            </Button>
+            <Button 
+              onClick={handleSaveReschedule}
+              disabled={updateAppointmentMutation.isPending}
+            >
+              {updateAppointmentMutation.isPending ? t("Saving...") : t("Save Changes")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
 
-export default Appointments;
+export default AppointmentsTable;

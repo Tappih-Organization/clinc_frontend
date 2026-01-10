@@ -173,7 +173,7 @@ const Patients = () => {
       setEditModal({ open: false, item: null });
       toast({
         title: t("Patient updated"),
-        description: `${updatedData.firstName} ${updatedData.lastName} ${t("has been updated successfully.")}`,
+        description: `${updatedData.firstName}${updatedData.lastName ? ` ${updatedData.lastName}` : ''} ${t("has been updated successfully.")}`,
       });
       
       // React Query will automatically refetch the patients list after invalidation
@@ -237,15 +237,22 @@ const Patients = () => {
 
   // Convert API patients to local Patient type
   const convertApiPatientToLocal = (apiPatient: ApiPatient): Patient => {
+    // Helper function to safely create Date objects
+    const safeDate = (dateValue: any): Date | undefined => {
+      if (!dateValue) return undefined;
+      const date = new Date(dateValue);
+      return isNaN(date.getTime()) ? undefined : date;
+    };
+
     const patient: Patient = {
       id: apiPatient._id || '',
       firstName: apiPatient.first_name,
-      lastName: apiPatient.last_name,
-      email: apiPatient.email,
+      ...(apiPatient.last_name && { lastName: apiPatient.last_name }),
+      ...(apiPatient.email && { email: apiPatient.email }),
       phone: apiPatient.phone,
-      address: apiPatient.address,
-      dateOfBirth: new Date(apiPatient.date_of_birth),
-      gender: apiPatient.gender,
+      ...(apiPatient.address && { address: apiPatient.address }),
+      dateOfBirth: safeDate(apiPatient.date_of_birth), // undefined if not provided or invalid
+      gender: apiPatient.gender || 'male', // Default to male if not provided
       emergencyContact: {
         name: apiPatient.emergency_contact?.name || '',
         phone: apiPatient.emergency_contact?.phone || '',
@@ -256,31 +263,59 @@ const Patients = () => {
       medicalHistory: [], // Array as per Patient interface
       height: undefined, // Number or undefined as per Patient interface
       weight: undefined, // Number or undefined as per Patient interface
-      createdAt: new Date(apiPatient.created_at || Date.now()),
-      updatedAt: new Date(apiPatient.updated_at || Date.now()),
+      createdAt: safeDate(apiPatient.created_at) || new Date(),
+      updatedAt: safeDate(apiPatient.updated_at) || new Date(),
       // Additional fields for UI
-      avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${apiPatient.first_name} ${apiPatient.last_name}`,
-      lastVisit: apiPatient.last_visit ? new Date(apiPatient.last_visit) : undefined,
+      avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${apiPatient.first_name} ${apiPatient.last_name || ''}`,
+      lastVisit: safeDate(apiPatient.last_visit),
       totalVisits: 0, // This would come from appointments count
       status: 'active',
     };
     return patient;
   };
 
-  const calculateAge = (dateOfBirth: Date) => {
-    const today = new Date();
-    const birthDate = new Date(dateOfBirth);
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
-
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
+  const calculateAge = (dateOfBirth: Date | string | undefined | null): number | null => {
+    // Check if dateOfBirth is valid
+    if (!dateOfBirth) {
+      return null;
     }
 
-    return age;
+    try {
+      const birthDate = typeof dateOfBirth === 'string' ? new Date(dateOfBirth) : dateOfBirth;
+      
+      // Check if date is valid
+      if (!birthDate || isNaN(birthDate.getTime())) {
+        return null;
+      }
+
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+
+      // Check if age is valid (not NaN and not negative)
+      if (isNaN(age) || age < 0) {
+        return null;
+      }
+
+      return age;
+    } catch (error) {
+      return null;
+    }
   };
 
-  const getInitials = (firstName: string, lastName: string) => {
+  const formatAge = (dateOfBirth: Date | string | undefined | null): string => {
+    const age = calculateAge(dateOfBirth);
+    if (age === null) {
+      return t('notSpecified');
+    }
+    return `${age} ${t('years')}`;
+  };
+
+  const getInitials = (firstName: string, lastName?: string) => {
     return `${firstName?.charAt(0) || ''}${lastName?.charAt(0) || ''}`.toUpperCase();
   };
 
@@ -292,7 +327,7 @@ const Patients = () => {
   // Filter patients based on search and gender
   const filteredPatients = patients.filter(patient => {
     const matchesSearch = !searchTerm || 
-      `${patient.firstName} ${patient.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      `${patient.firstName} ${patient.lastName || ''}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
       patient.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       patient.phone?.includes(searchTerm);
     
@@ -315,10 +350,10 @@ const Patients = () => {
           </Avatar>
           <div className={cn(isRTL && "text-right flex-1")}>
             <div className={cn("font-medium text-sm xs:text-base", isRTL && "text-right")}>
-              {patient.firstName} {patient.lastName}
+              {patient.firstName}{patient.lastName ? ` ${patient.lastName}` : ''}
             </div>
             <div className={cn("text-xs xs:text-sm text-muted-foreground", isRTL && "text-right")}>
-              {patient.gender} • {calculateAge(patient.dateOfBirth)} {t('years')}
+              {patient.gender} • {formatAge(patient.dateOfBirth)}
             </div>
           </div>
         </div>
@@ -346,7 +381,7 @@ const Patients = () => {
       label: t('Age'),
       className: cn(isRTL && "text-right"),
       render: (patient: Patient) => (
-        <span className={cn("text-sm font-medium", isRTL && "text-right")}>{calculateAge(patient.dateOfBirth)} {t("years")}</span>
+        <span className={cn("text-sm font-medium", isRTL && "text-right")}>{formatAge(patient.dateOfBirth)}</span>
       ),
     },
     {
@@ -383,10 +418,10 @@ const Patients = () => {
         </Avatar>
         <div>
           <div className="font-medium text-sm xs:text-base">
-            {patient.firstName} {patient.lastName}
+            {patient.firstName}{patient.lastName ? ` ${patient.lastName}` : ''}
           </div>
           <div className="text-xs xs:text-sm text-muted-foreground">
-            {patient.gender} • {calculateAge(patient.dateOfBirth)} {t('years')}
+            {patient.gender} • {formatAge(patient.dateOfBirth)}
           </div>
         </div>
       </div>
@@ -519,7 +554,7 @@ const Patients = () => {
 
       toast({
         title: t("Patient added"),
-        description: `${data.firstName} ${data.lastName} ${t("has been added successfully.")}`,
+        description: `${data.firstName}${data.lastName ? ` ${data.lastName}` : ''} ${t("has been added successfully.")}`,
       });
       
       // Refetch patients list

@@ -19,12 +19,12 @@ export interface User {
 export interface Patient {
   id: string;
   firstName: string;
-  lastName: string;
+  lastName?: string;
   email?: string;
   phone: string;
-  dateOfBirth: Date;
-  gender: "male" | "female" | "other";
-  address: string;
+  dateOfBirth?: Date;
+  gender: "male" | "female";
+  address?: string;
   emergencyContact: {
     name: string;
     phone: string;

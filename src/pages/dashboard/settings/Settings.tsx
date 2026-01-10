@@ -5,13 +5,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useSettings, useUpdateSettings } from "@/hooks/useSettings";
-import { Save, Settings as SettingsIcon, Building, Clock } from "lucide-react";
+import { Save, Settings as SettingsIcon, Building, Clock, Calendar, Users } from "lucide-react";
 import Loading from "@/components/ui/Loading";
 import { toast } from "@/hooks/use-toast";
 
 // Import tabs
 import ClinicInfoTab from "./ClinicInfoTab";
 import WorkingHoursTab from "./WorkingHoursTab";
+import AppointmentSettingsTab from "./AppointmentSettingsTab";
+import CRMSettingsTab from "./CRMSettingsTab";
 // import FinancialTab from "./FinancialTab";
 // import NotificationsTab from "./NotificationsTab";
 // import SecurityTab from "./SecurityTab";
@@ -141,7 +143,7 @@ const Settings = () => {
       <Card>
         <CardContent className="p-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2 lg:w-auto lg:inline-grid">
+            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 lg:w-auto lg:inline-grid">
               <TabsTrigger value="clinic" className="flex items-center gap-2">
                 <Building className="h-4 w-4" />
                 <span className="hidden sm:inline">{t("Clinic Info")}</span>
@@ -149,6 +151,14 @@ const Settings = () => {
               <TabsTrigger value="hours" className="flex items-center gap-2">
                 <Clock className="h-4 w-4" />
                 <span className="hidden sm:inline">{t("Working Hours")}</span>
+              </TabsTrigger>
+              <TabsTrigger value="appointments" className="flex items-center gap-2">
+                <Calendar className="h-4 w-4" />
+                <span className="hidden sm:inline">{t("Appointment Settings")}</span>
+              </TabsTrigger>
+              <TabsTrigger value="crm" className="flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                <span className="hidden sm:inline">{t("CRM Settings")}</span>
               </TabsTrigger>
               {/* <TabsTrigger value="financial" className="flex items-center gap-2">
                 <DollarSign className="h-4 w-4" />
@@ -175,6 +185,20 @@ const Settings = () => {
               <WorkingHoursTab
                 data={formData?.workingHours}
                 onChange={(data) => handleTabChange(data, "workingHours")}
+              />
+            </TabsContent>
+
+            <TabsContent value="appointments" className="space-y-4">
+              <AppointmentSettingsTab
+                data={formData?.appointmentSettings}
+                onChange={(data) => handleTabChange(data, "appointmentSettings")}
+              />
+            </TabsContent>
+
+            <TabsContent value="crm" className="space-y-4">
+              <CRMSettingsTab
+                data={formData?.crmSettings}
+                onChange={(data) => handleTabChange(data, "crmSettings")}
               />
             </TabsContent>
 

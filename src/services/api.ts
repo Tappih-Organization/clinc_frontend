@@ -453,12 +453,12 @@ export interface LoginResponse {
 export interface Patient {
   _id: string;
   first_name: string;
-  last_name: string;
-  date_of_birth: string;
-  gender: 'male' | 'female' | 'other';
+  last_name?: string;
+  date_of_birth?: string;
+  gender: 'male' | 'female';
   phone: string;
-  email: string;
-  address: string;
+  email?: string;
+  address?: string;
   last_visit?: string;
   emergency_contact?: {
     name: string;

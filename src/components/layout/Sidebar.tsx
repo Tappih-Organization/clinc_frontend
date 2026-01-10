@@ -28,6 +28,7 @@ import {
   CalendarDays,
   BarChart3,
   Settings,
+  Table as TableIcon,
   X,
   Shield,
   CreditCard,
@@ -53,6 +54,7 @@ import {
   Users2,
   FileBarChart,
   BarChart2,
+  Plus,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -196,14 +198,34 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           icon: Home,
           // Dashboard should be accessible to all authenticated users
         },
+      ],
+      collapsible: false, // Overview section should always be visible
+    },
+    {
+      title: t("Appointments"), // الحجوزات
+      icon: Calendar,
+      items: [
         {
-          name: t("Appointments"),
-          href: "/dashboard/appointments",
+          name: t("Appointments Calendar"), // التقويم
+          href: "/dashboard/appointments-calendar",
           icon: Calendar,
           permission: "appointments.view",
         },
+        {
+          name: t("Appointments Table"), // جدول الحجوزات
+          href: "/dashboard/appointments-table",
+          icon: TableIcon,
+          permission: "appointments.view",
+        },
+        {
+          name: t("Add Appointment"), // إضافة حجز
+          href: "/dashboard/add-appointment",
+          icon: Plus,
+          permission: "appointments.view",
+        },
       ],
-      collapsible: false, // Overview section should always be visible
+      collapsible: true,
+      defaultCollapsed: false,
     },
     {
       title: t("AI"),
@@ -663,43 +685,50 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
                     // Regular navigation items
                     return (
-                      <Link
+                      <div
                         key={item.name}
-                        to={item.href}
-                        onClick={onClose}
-                        ref={isActive ? activeItemRef : null}
                         className={cn(
-                          "flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative",
-                          isRTL ? "flex-row-reverse" : "",
-                          isActive
-                            ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm"
-                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground",
+                          "flex items-center gap-2 group/item",
+                          isRTL ? "flex-row-reverse" : ""
                         )}
                       >
-                        {isActive && (
-                          <div className={cn(
-                            "absolute top-0 bottom-0 w-1 bg-sidebar-primary rounded-full",
-                            isRTL ? "right-0" : "left-0"
+                        <Link
+                          to={item.href}
+                          onClick={onClose}
+                          ref={isActive ? activeItemRef : null}
+                          className={cn(
+                            "flex-1 flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative",
+                            isRTL ? "flex-row-reverse" : "",
+                            isActive
+                              ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm"
+                              : "text-sidebar-foreground/80 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground",
+                          )}
+                        >
+                          {isActive && (
+                            <div className={cn(
+                              "absolute top-0 bottom-0 w-1 bg-sidebar-primary rounded-full",
+                              isRTL ? "right-0" : "left-0"
+                            )} />
+                          )}
+                          <item.icon className={cn(
+                            "h-4 w-4 flex-shrink-0",
+                            isRTL ? "ml-3" : "mr-3",
+                            isActive ? "opacity-100" : "opacity-70"
                           )} />
-                        )}
-                        <item.icon className={cn(
-                          "h-4 w-4 flex-shrink-0",
-                          isRTL ? "ml-3" : "mr-3",
-                          isActive ? "opacity-100" : "opacity-70"
-                        )} />
-                        <span className={cn(
-                          "flex-1",
-                          isRTL ? "text-right" : "text-left"
-                        )}>{item.name}</span>
-                        {item.badge && (
-                          <Badge variant="secondary" className={cn(
-                            "text-xs bg-sidebar-primary/10 text-sidebar-foreground border-sidebar-primary/20",
-                            isRTL ? "mr-2" : "ml-2"
-                          )}>
-                            {item.badge}
-                          </Badge>
-                        )}
-                      </Link>
+                          <span className={cn(
+                            "flex-1",
+                            isRTL ? "text-right" : "text-left"
+                          )}>{item.name}</span>
+                          {item.badge && (
+                            <Badge variant="secondary" className={cn(
+                              "text-xs bg-sidebar-primary/10 text-sidebar-foreground border-sidebar-primary/20",
+                              isRTL ? "mr-2" : "ml-2"
+                            )}>
+                              {item.badge}
+                            </Badge>
+                          )}
+                        </Link>
+                      </div>
                       );
                     })}
                     </div>

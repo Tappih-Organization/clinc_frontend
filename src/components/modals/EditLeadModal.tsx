@@ -25,6 +25,7 @@ import { toast } from "@/hooks/use-toast";
 import { parseApiError } from "@/utils/errorHandler";
 import { Lead } from "@/types";
 import { useUpdateLead } from "@/hooks/useApi";
+import { cn } from "@/lib/utils";
 
 interface EditLeadModalProps {
   lead: Lead;
@@ -34,6 +35,8 @@ interface EditLeadModalProps {
 
 const EditLeadModal: React.FC<EditLeadModalProps> = ({ lead, open, onOpenChange }) => {
   const { t } = useTranslation();
+  const isRTL = useIsRTL();
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -47,6 +50,29 @@ const EditLeadModal: React.FC<EditLeadModalProps> = ({ lead, open, onOpenChange 
   });
 
   const updateLeadMutation = useUpdateLead();
+
+  // Validation helper functions
+  const validateName = (name: string): boolean => {
+    const nameRegex = /^[a-zA-Z\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF\s'-]+$/;
+    return nameRegex.test(name) && name.trim().length >= 2;
+  };
+
+  const validatePhone = (phone: string): { isValid: boolean; error?: string } => {
+    const cleanedPhone = phone.replace(/[\s\-\(\)\+]/g, '');
+    if (cleanedPhone.length < 8 || cleanedPhone.length > 15) {
+      return { isValid: false, error: t("Phone number must be between 8 and 15 digits") };
+    }
+    if (!/^\d+$/.test(cleanedPhone)) {
+      return { isValid: false, error: t("Phone number can only contain digits") };
+    }
+    return { isValid: true };
+  };
+
+  const validateEmail = (email: string): boolean => {
+    if (!email.trim()) return true; // Email is optional
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
   useEffect(() => {
     if (lead) {
@@ -94,10 +120,75 @@ const EditLeadModal: React.FC<EditLeadModalProps> = ({ lead, open, onOpenChange 
 
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    // First Name validation (required)
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = t("First name is required");
+    } else if (!validateName(formData.firstName)) {
+      if (formData.firstName.trim().length < 2) {
+        newErrors.firstName = t("First name must be at least 2 characters");
+      } else {
+        newErrors.firstName = t("First name can only contain letters, spaces, hyphens, and apostrophes");
+      }
+    }
+
+    // Last Name validation (optional)
+    if (formData.lastName.trim() && !validateName(formData.lastName)) {
+      if (formData.lastName.trim().length < 2) {
+        newErrors.lastName = t("Last name must be at least 2 characters");
+      } else {
+        newErrors.lastName = t("Last name can only contain letters, spaces, hyphens, and apostrophes");
+      }
+    }
+
+    // Phone Number validation (required)
+    if (!formData.phone.trim()) {
+      newErrors.phone = t("Phone number is required");
+    } else {
+      const phoneValidation = validatePhone(formData.phone);
+      if (!phoneValidation.isValid) {
+        newErrors.phone = phoneValidation.error || t("Please enter a valid phone number");
+      }
+    }
+
+    // Email validation (optional but must be valid if provided)
+    if (formData.email.trim() && !validateEmail(formData.email)) {
+      newErrors.email = t("Please enter a valid email address");
+    }
+
+    // Lead Source validation (required)
+    if (!formData.source) {
+      newErrors.source = t("Lead source is required");
+    }
+
+    // Service Interest validation (required)
+    if (!formData.serviceInterest.trim()) {
+      newErrors.serviceInterest = t("Service interest is required");
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate form before submission
+    if (!validateForm()) {
+      return;
+    }
 
     try {
       await updateLeadMutation.mutateAsync({
@@ -107,9 +198,10 @@ const EditLeadModal: React.FC<EditLeadModalProps> = ({ lead, open, onOpenChange 
 
       toast({
         title: t("Lead updated successfully"),
-        description: `${formData.firstName} ${formData.lastName} ${t("has been updated.")}`
+        description: `${formData.firstName}${formData.lastName ? ` ${formData.lastName}` : ''} ${t("has been updated.")}`
       });
 
+      setErrors({});
       onOpenChange(false);
     } catch (error) {
       toast({
@@ -119,7 +211,6 @@ const EditLeadModal: React.FC<EditLeadModalProps> = ({ lead, open, onOpenChange 
       });
     }
   };
-  const isRTL = useIsRTL();
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" dir={isRTL ? 'rtl' : 'ltr'}>
@@ -144,50 +235,67 @@ const EditLeadModal: React.FC<EditLeadModalProps> = ({ lead, open, onOpenChange 
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="firstName">{t("First Name")} *</Label>
+                <div className={cn("space-y-2", isRTL && "text-right")}>
+                  <Label htmlFor="firstName" className={cn(isRTL && "text-right")}>{t("First Name")} *</Label>
                   <Input
                     id="firstName"
                     value={formData.firstName}
                     onChange={(e) => handleChange("firstName", e.target.value)}
-                    placeholder="Enter first name"
-                    required
+                    placeholder={t("Enter first name")}
+                    className={cn(errors.firstName && "border-red-500", isRTL && "text-right")}
+                    dir={isRTL ? 'rtl' : 'ltr'}
                   />
+                  {errors.firstName && (
+                    <p className={cn("text-sm text-red-500", isRTL && "text-right")}>{errors.firstName}</p>
+                  )}
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="lastName">{t("Last Name")} *</Label>
+                <div className={cn("space-y-2", isRTL && "text-right")}>
+                  <Label htmlFor="lastName" className={cn(isRTL && "text-right")}>{t("Last Name")}</Label>
                   <Input
                     id="lastName"
                     value={formData.lastName}
                     onChange={(e) => handleChange("lastName", e.target.value)}
-                    placeholder="Enter last name"
-                    required
+                    placeholder={t("Enter last name")}
+                    className={cn(errors.lastName && "border-red-500", isRTL && "text-right")}
+                    dir={isRTL ? 'rtl' : 'ltr'}
                   />
+                  {errors.lastName && (
+                    <p className={cn("text-sm text-red-500", isRTL && "text-right")}>{errors.lastName}</p>
+                  )}
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">{t("Email")}</Label>
+                <div className={cn("space-y-2", isRTL && "text-right")}>
+                  <Label htmlFor="email" className={cn(isRTL && "text-right")}>{t("Email")}</Label>
                   <Input
                     id="email"
                     type="email"
                     value={formData.email}
                     onChange={(e) => handleChange("email", e.target.value)}
-                    placeholder="Enter email address"
+                    placeholder={t("Enter email address")}
+                    className={cn(errors.email && "border-red-500", isRTL && "text-right")}
+                    dir={isRTL ? 'rtl' : 'ltr'}
                   />
+                  {errors.email && (
+                    <p className={cn("text-sm text-red-500", isRTL && "text-right")}>{errors.email}</p>
+                  )}
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="phone">{t("Phone Number")} *</Label>
+                <div className={cn("space-y-2", isRTL && "text-right")}>
+                  <Label htmlFor="phone" className={cn(isRTL && "text-right")}>{t("Phone Number")} *</Label>
                   <Input
                     id="phone"
                     value={formData.phone}
                     onChange={(e) => handleChange("phone", e.target.value)}
-                    placeholder="Enter phone number"
-                    required
+                    placeholder={t("Enter phone number")}
+                    className={cn(errors.phone && "border-red-500", isRTL && "text-right")}
+                    dir={isRTL ? 'rtl' : 'ltr'}
                   />
+                  {errors.phone && (
+                    <p className={cn("text-sm text-red-500", isRTL && "text-right")}>{errors.phone}</p>
+                  )}
                 </div>
               </div>
             </CardContent>
@@ -203,44 +311,50 @@ const EditLeadModal: React.FC<EditLeadModalProps> = ({ lead, open, onOpenChange 
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="source">{t("leadSource")} *</Label>
+                <div className={cn("space-y-2", isRTL && "text-right")}>
+                  <Label htmlFor="source" className={cn(isRTL && "text-right")}>{t("leadSource")} *</Label>
                   <Select
                     value={formData.source}
                     onValueChange={(value) => handleChange("source", value)}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className={cn(errors.source && "border-red-500", isRTL && "text-right")} dir={isRTL ? 'rtl' : 'ltr'}>
                       <SelectValue placeholder={t("How did they find us?")} />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent dir={isRTL ? 'rtl' : 'ltr'} className={cn(isRTL && "text-right")}>
                       {leadSources.map((source) => (
-                        <SelectItem key={source.value} value={source.value}>
+                        <SelectItem key={source.value} value={source.value} className={cn(isRTL && "text-right")}>
                           {source.label}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
+                  {errors.source && (
+                    <p className={cn("text-sm text-red-500", isRTL && "text-right")}>{errors.source}</p>
+                  )}
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="serviceInterest">{t("Service Interest")} *</Label>
+                <div className={cn("space-y-2", isRTL && "text-right")}>
+                  <Label htmlFor="serviceInterest" className={cn(isRTL && "text-right")}>{t("Service Interest")} *</Label>
                   <Select
                     value={formData.serviceInterest}
                     onValueChange={(value) =>
                       handleChange("serviceInterest", value)
                     }
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className={cn(errors.serviceInterest && "border-red-500", isRTL && "text-right")} dir={isRTL ? 'rtl' : 'ltr'}>
                       <SelectValue placeholder={t("What service are they interested in?")} />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent dir={isRTL ? 'rtl' : 'ltr'} className={cn(isRTL && "text-right")}>
                       {services.map((service) => (
-                        <SelectItem key={service} value={service}>
+                        <SelectItem key={service} value={service} className={cn(isRTL && "text-right")}>
                           {service}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
+                  {errors.serviceInterest && (
+                    <p className={cn("text-sm text-red-500", isRTL && "text-right")}>{errors.serviceInterest}</p>
+                  )}
                 </div>
               </div>
 
