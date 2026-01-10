@@ -2,6 +2,10 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
+import {
+
+  RefreshCw,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useIsRTL } from "@/hooks/useIsRTL";
 import { cn } from "@/lib/utils";
@@ -97,7 +101,7 @@ const Appointments = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [selectedDate, setSelectedDate] = useState("all");
-  
+  const [selectedDatefilter, setSelectedDatefilter] = useState<string | null>(null);
   // View state
   const [currentView, setCurrentView] = useState<"table" | "calendar">("calendar");
   
@@ -137,6 +141,29 @@ const Appointments = () => {
     notes: "",
   });
 
+//to reset filters 
+  const handleResetFilters = () => {
+  setSearchTerm("");
+  setSelectedStatus("all");
+  setSelectedDate("all");
+  setSelectedDatefilter('');              
+  setCurrentPage(1);
+};
+
+useEffect(() => {
+  if (selectedDate !== "all") {
+    setSelectedDatefilter(null);
+  }
+}, [selectedDate]); 
+
+
+useEffect(() => {
+  if (selectedDatefilter) {
+      setSelectedDate("all");
+  }
+}, [selectedDatefilter]);
+
+
   // State for API data in edit modal
   const [editModalData, setEditModalData] = useState({
     patients: [] as ApiPatient[],
@@ -148,11 +175,28 @@ const Appointments = () => {
 
   // Build API parameters with date filtering
   const getDateRangeParams = () => {
+
+
+if (selectedDatefilter) {
+    const selected = new Date(selectedDatefilter);
+    selected.setHours(0, 0, 0, 0);
+
+    const end = new Date(selected);
+    end.setHours(23, 59, 59, 999);
+
+    return {
+      start_date: selected.toISOString(),
+      end_date: end.toISOString(),
+    };
+  }
+
+
     if (selectedDate === "all") return {};
     
     const today = new Date();
     today.setHours(0, 0, 0, 0); // Start of today
     
+
     switch (selectedDate) {
       case "today":
         const endOfToday = new Date(today);
@@ -396,7 +440,8 @@ const Appointments = () => {
 
   // Fetch all appointments for stats (without pagination)
   const { data: allAppointmentsData } = useAppointments({ 
-    limit: 1000, // Large limit to get all appointments for stats
+    limit: 1000,
+      ...getDateRangeParams(), // Large limit to get all appointments for stats
     ...(selectedStatus !== "all" && { status: selectedStatus })
   });
   
@@ -425,6 +470,19 @@ const Appointments = () => {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       
+
+       if (!isNaN(Date.parse(selectedDate))) {
+    const selected = new Date(selectedDate);
+    selected.setHours(0, 0, 0, 0);
+
+    const endOfSelected = new Date(selected);
+    endOfSelected.setHours(23, 59, 59, 999);
+
+    matchesDate =
+      appointmentDate >= selected &&
+      appointmentDate <= endOfSelected;
+  }else{
+
       switch (selectedDate) {
         case "today":
           const endOfToday = new Date(today);
@@ -458,7 +516,7 @@ const Appointments = () => {
           break;
         default:
           matchesDate = true;
-      }
+      }}
     }
 
     return matchesSearch && matchesStatus && matchesDate;
@@ -1011,6 +1069,21 @@ const Appointments = () => {
                   <SelectItem value="all">{t("All Dates")}</SelectItem>
                 </SelectContent>
               </Select>
+
+
+ 
+                      <Input
+                        id="date"
+                        type="date"
+                        value={selectedDatefilter}
+                        onChange={(e) => setSelectedDatefilter(e.target.value)} 
+                        required
+                        className={cn("w-40 h-9 sm:h-10", isRTL && "pr-3")}
+                        dir={isRTL ? 'rtl' : 'ltr'}
+                      />
+
+
+
             </div>
           </div>
         </CardContent>
