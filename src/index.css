@@ -1378,3 +1378,19 @@ body[dir="rtl"],
 body[lang^="ar"] {
   font-family: 'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif !important;
 }
+
+/* RTL Support for Switch Component */
+[dir="rtl"] button[role="switch"][data-state="checked"] > span,
+[dir="rtl"] [role="switch"][data-state="checked"] > span {
+  transform: translateX(-20px) !important;
+}
+
+[dir="rtl"] button[role="switch"][data-state="unchecked"] > span,
+[dir="rtl"] [role="switch"][data-state="unchecked"] > span {
+  transform: translateX(0) !important;
+}
+
+/* Specific selector for Radix Switch thumb in RTL */
+[dir="rtl"] [data-state="checked"] span[class*="translate"] {
+  transform: translateX(-20px) !important;
+}

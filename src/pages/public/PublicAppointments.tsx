@@ -8,6 +8,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useIsRTL } from "@/hooks/useIsRTL";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { formatTime as formatTimeUtil, formatDate as formatDateUtil, formatDateShort } from "@/utils/dateUtils";
+import { formatTime as formatTimeUtil, formatDate as formatDateUtil, formatDateShort } from "@/utils/dateUtils";
 import {
   Calendar,
   Clock,
@@ -167,15 +169,11 @@ const PublicAppointments: React.FC = () => {
   };
 
   const formatTime = (date: string) => {
-    return new Date(date).toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
+    return formatTimeUtil(date);
   };
 
   const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString("en-US", {
+    return formatDateUtil(date, {
       weekday: "long",
       year: "numeric",
       month: "long",
@@ -184,11 +182,7 @@ const PublicAppointments: React.FC = () => {
   };
 
   const formatShortDate = (date: string) => {
-    return new Date(date).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
+    return formatDateShort(date);
   };
 
   const calculateAge = (dateOfBirth: string) => {

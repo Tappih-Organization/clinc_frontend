@@ -43,7 +43,7 @@ const ConvertLeadModal: React.FC<ConvertLeadModalProps> = ({
     first_name: "",
     last_name: "",
     date_of_birth: "",
-    gender: "male" as "male" | "female" | "other",
+    gender: "male" as "male" | "female",
     phone: "",
     email: "",
     address: "",
@@ -208,7 +208,6 @@ const ConvertLeadModal: React.FC<ConvertLeadModalProps> = ({
                     <SelectContent>
                       <SelectItem value="male">{t("Male")}</SelectItem>
                       <SelectItem value="female">{t("Female")}</SelectItem>
-                      <SelectItem value="other">{t("Other")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

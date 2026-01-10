@@ -27,7 +27,7 @@
   "Dental AI X-ray Analysis": "تحليل أشعة الأسنان بالذكاء الاصطناعي",
   "Patients": "المرضى",
   "Total Patients": "إجمالي المرضى",
-  "Appointments": "المواعيد",
+  "Appointments": "الحجوزات",
   "Leads": "العملاء المحتملون",
   "Prescriptions": "الوصفات الطبية",
   "Odontogram": "مخطط الأسنان",
@@ -143,9 +143,9 @@
   "Complete overview of your clinic operations and system health.": "نظرة شاملة على عمليات العيادة وصحة النظام.",
   "Revenue Overview": "نظرة عامة على الإيرادات",
   "Monthly revenue vs expenses": "الإيرادات الشهرية مقابل المصروفات",
-  "Appointment Status": "حالة المواعيد",
-  "Distribution of appointment statuses": "توزيع حالات المواعيد",
-  "Recent Appointments": "أحدث المواعيد",
+  "Appointment Status": "حالة الحجوزات",
+  "Distribution of appointment statuses": "توزيع حالات الحجوزات",
+  "Recent Appointments": "أحدث الحجوزات",
   "View All": "عرض الكل",
   "Recent Leads": "أحدث العملاء المحتملين",
   "Low Stock Alert": "تنبيه انخفاض المخزون",
@@ -183,14 +183,27 @@
   "Add Patient": "إضافة مريض",
   "Edit Patient": "تعديل بيانات المريض",
   "Patient Details": "تفاصيل المريض",
-  "New Appointment": "موعد جديد",
-  "Schedule New Appointment": "جدولة موعد جديد",
+  "New Appointment": "إضافة حجز",
+  "Schedule New Appointment": "جدولة حجز جديد",
+  "Add Appointment": "إضافة حجز",
   "Edit Appointment": "تعديل الموعد",
   "Appointment Details": "تفاصيل الموعد",
   "Reschedule": "إعادة جدولة",
+  "Change Status": "تغير الحاله",
   "Mark as Completed": "تعيين كمكتمل",
   "Cancel Appointment": "إلغاء الموعد",
   "Convert to Patient": "تحويل إلى مريض",
+  "Convert Lead to Patient": "تحويل العميل المحتمل إلى مريض",
+  "Automatically convert this lead to a patient upon creation": "تحويل العميل المحتمل تلقائياً إلى مريض عند الإنشاء",
+  "Patient Information (Required for Conversion)": "بيانات المريض (مطلوبة للتحويل)",
+  "Patient Information (Optional for Conversion)": "بيانات المريض (اختيارية للتحويل)",
+  "Date of birth is required when converting to patient.": "تاريخ الميلاد مطلوب عند التحويل إلى مريض.",
+  "Address is required when converting to patient.": "العنوان مطلوب عند التحويل إلى مريض.",
+  "Add Lead & Convert": "إضافة وتحويل",
+  "Adding and Converting...": "جاري الإضافة والتحويل...",
+  "has been added as a lead and converted to a patient.": "تمت إضافته كعميل محتمل وتحويله إلى مريض.",
+  "Lead added, but conversion failed": "تمت إضافة العميل المحتمل، لكن التحويل فشل",
+  "Lead was created successfully, but automatic conversion to patient failed.": "تم إنشاء العميل المحتمل بنجاح، لكن التحويل التلقائي إلى مريض فشل.",
   "Create Invoice": "إنشاء فاتورة",
   "Create New Invoice": "إنشاء فاتورة جديدة",
   "Generate an invoice for services, medicines, or tests provided to a patient.": "إنشاء فاتورة للخدمات أو الأدوية أو التحاليل المقدمة للمريض.",
@@ -254,6 +267,11 @@
   "Generate Report": "إنشاء تقرير",
   "Download Report": "تنزيل التقرير",
   "Today": "اليوم",
+  "Tomorrow": "غداً",
+  "Custom Date": "تاريخ مخصص",
+  "Switch Branch": "تبديل الفرع",
+  "Branch": "فرع",
+  "Branches": "فروع",
   "Previous": "السابق",
   "Next": "التالي",
   "New Odontogram": "مخطط أسنان جديد",
@@ -274,10 +292,12 @@
   "Scheduled": "مجدول",
   "Cancelled": "ملغي",
   "No Show": "لم يحضر",
+  "Not Completed": "لم يكتمل",
   "completed": "مكتمل",
   "scheduled": "مجدول",
   "cancelled": "ملغي",
   "no-show": "لم يحضر",
+  "not-completed": "لم يكتمل",
   "Paid": "مدفوع",
   "Unpaid": "غير مدفوع",
   "Refunded": "مسترد",
@@ -598,12 +618,14 @@
   "Failed to update item. Please try again.": "تعذر تحديث الصنف. يرجى المحاولة مرة أخرى.",
   "Manage patient appointments and schedules": "إدارة مواعيد المرضى والجداول",
   "Pending": "قيد الانتظار",
-  "Search appointments by patient or doctor...": "ابحث عن المواعيد بالمريض أو الطبيب...",
+  "Search appointments by patient or doctor...": "ابحث عن الحجوزات بالمريض أو الطبيب...",
   "All Dates": "كل التواريخ",
   "This Week": "هذا الأسبوع",
   "Next Week": "الأسبوع القادم",
-  "Appointment Schedule": "جدول المواعيد",
+  "Appointment Schedule": "جدول الحجوزات",
+  "Appointments Calendar": "تقويم الحجوزات",
   "Manage and track all patient appointments": "إدارة وتتبع جميع مواعيد المرضى",
+  "View and manage all clinic appointments in a calendar view": "عرض وإدارة جميع مواعيد العيادة في عرض التقويم",
   "Table": "جدول",
   "Date & Time": "التاريخ والوقت",
   "Patient & Doctor Selection": "اختيار المريض والطبيب",
@@ -671,6 +693,18 @@
   "Keep Appointment": "الإبقاء على الموعد",
   "Failed to load patients, doctors, nurses, and services.": "تعذر تحميل المرضى والأطباء والتمريض والخدمات.",
   "Update the date and time to reschedule this appointment.": "حدّث التاريخ والوقت لإعادة جدولة هذا الموعد.",
+  "Change appointment status": "تغيير حالة الموعد",
+  "Select new status": "اختر الحالة الجديدة",
+  "Status updated successfully.": "تم تحديث الحالة بنجاح.",
+  "Failed to update status.": "تعذر تحديث الحالة.",
+  "Reschedule Appointment": "إعادة جدولة الموعد",
+  "Update appointment schedule": "تحديث جدول الموعد",
+  "Date": "التاريخ",
+  "Time": "الوقت",
+  "Duration (minutes)": "المدة (دقيقة)",
+  "Appointment rescheduled successfully.": "تم إعادة جدولة الموعد بنجاح.",
+  "Failed to reschedule appointment.": "تعذر إعادة جدولة الموعد.",
+  "Invalid status selected.": "تم اختيار حالة غير صحيحة.",
   "Appointment marked as completed.": "تم تعيين الموعد كمكتمل.",
   "Failed to update appointment status.": "تعذر تحديث حالة الموعد.",
   "Appointment has been cancelled.": "تم إلغاء الموعد.",
@@ -683,8 +717,8 @@
   "Please provide a valid date and time.": "يرجى إدخال تاريخ ووقت صحيحين.",
   "Appointment has been updated successfully.": "تم تحديث الموعد بنجاح.",
   "Failed to update appointment. Please try again.": "تعذر تحديث الموعد. يرجى المحاولة مرة أخرى.",
-  "Failed to load appointments. Please check your connection and try again.": "تعذر تحميل المواعيد. تحقق من الاتصال ثم حاول مرة أخرى.",
-  "Failed to load appointments. Please try again.": "تعذر تحميل المواعيد. يرجى المحاولة مرة أخرى.",
+  "Failed to load appointments. Please check your connection and try again.": "تعذر تحميل الحجوزات. تحقق من الاتصال ثم حاول مرة أخرى.",
+  "Failed to load appointments. Please try again.": "تعذر تحميل الحجوزات. يرجى المحاولة مرة أخرى.",
   "Leads & CRM": "العملاء المحتملون وإدارة العلاقات (CRM)",
   "Manage potential patients and track conversions": "إدارة العملاء المحتملين وتتبع التحويل إلى مرضى",
   "Total Leads": "إجمالي العملاء المحتملين",
@@ -864,7 +898,7 @@
   "No doctors available": "لا يوجد أطباء متاحون",
   "Select a patient first": "اختر مريضًا أولاً",
   "Please select a patient first": "يرجى اختيار مريض أولاً",
-  "Loading appointments...": "جارٍ تحميل المواعيد...",
+  "Loading appointments...": "جارٍ تحميل الحجوزات...",
   "No appointments found for this patient": "لم يتم العثور على مواعيد لهذا المريض",
   "No appointment selected": "لم يتم اختيار موعد",
   "Select an appointment (optional)": "اختر موعدًا (اختياري)",
@@ -1465,7 +1499,7 @@
   "Contract Start": "بداية العقد",
   "Contract End": "نهاية العقد",
   "Vendor ID:": "معرّف المزود:",
-  "Insufficient permissions to view appointments for this clinic.": "صلاحيات غير كافية لعرض المواعيد لهذه العيادة.",
+  "Insufficient permissions to view appointments for this clinic.": "صلاحيات غير كافية لعرض الحجوزات لهذه العيادة.",
   "Failed to load calendar data. Please try again.": "تعذر تحميل بيانات التقويم. يرجى المحاولة مرة أخرى.",
   "Too many requests. Please wait a moment before trying again.": "طلبات كثيرة جدًا. يرجى الانتظار قليلًا ثم المحاولة.",
   "Failed to load appointment details.": "تعذر تحميل تفاصيل الموعد.",
@@ -1473,10 +1507,10 @@
   "Appointment cancelled successfully.": "تم إلغاء الموعد بنجاح.",
   "Calendar refreshed successfully.": "تم تحديث التقويم بنجاح.",
   "Failed to refresh calendar.": "تعذر تحديث التقويم.",
-  "Please select a clinic to view and manage appointments.": "يرجى اختيار عيادة لعرض المواعيد وإدارتها.",
+  "Please select a clinic to view and manage appointments.": "يرجى اختيار عيادة لعرض الحجوزات وإدارتها.",
   "Calendar View": "عرض التقويم",
-  "Manage appointments, surgeries, and clinic events for": "إدارة المواعيد والعمليات وفعاليات العيادة لـ",
-  "Manage appointments, surgeries, and clinic events": "إدارة المواعيد والعمليات وفعاليات العيادة",
+  "Manage appointments, surgeries, and clinic events for": "إدارة الحجوزات والعمليات وفعاليات العيادة لـ",
+  "Manage appointments, surgeries, and clinic events": "إدارة الحجوزات والعمليات وفعاليات العيادة",
   "Month": "شهر",
   "Week": "أسبوع",
   "Day": "يوم",
@@ -1485,11 +1519,11 @@
   "This Week's Events": "فعاليات هذا الأسبوع",
   "Upcoming Events": "الفعاليات القادمة",
   "Events for": "فعاليات لـ",
-  "All appointments and events for this week": "كل المواعيد والفعاليات لهذا الأسبوع",
-  "All scheduled appointments, consultations, and events": "كل المواعيد والاستشارات والفعاليات المجدولة",
-  "Loading appointments...": "جارٍ تحميل المواعيد...",
+  "All appointments and events for this week": "كل الحجوزات والفعاليات لهذا الأسبوع",
+  "All scheduled appointments, consultations, and events": "كل الحجوزات والاستشارات والفعاليات المجدولة",
+  "Loading appointments...": "جارٍ تحميل الحجوزات...",
   "Applying filters...": "جارٍ تطبيق التصفية...",
-  "Error Loading Appointments": "خطأ في تحميل المواعيد",
+  "Error Loading Appointments": "خطأ في تحميل الحجوزات",
   "Edit Event": "تعديل الفعالية",
   "Cancel Event": "إلغاء الفعالية",
   "Event ID:": "معرّف الفعالية:",
@@ -1533,7 +1567,7 @@
   "Percentage": "النسبة",
   "Patient Demographics": "خصائص المرضى",
   "Age and gender distribution": "توزيع العمر والنوع",
-  "Current appointment status distribution": "التوزيع الحالي لحالات المواعيد",
+  "Current appointment status distribution": "التوزيع الحالي لحالات الحجوزات",
   "Role Permissions": "صلاحيات الأدوار",
   "Clinic Access": "وصول العيادات",
   "Manage role and clinic permissions": "إدارة صلاحيات الأدوار والعيادات",
@@ -1545,7 +1579,6 @@
   "Access Granted": "تم منح الوصول",
   "No Access": "لا يوجد وصول",
   "clinics": "عيادات",
-  
   "Jan": "يناير",
   "Feb": "فبراير",
   "Mar": "مارس",
@@ -1558,17 +1591,26 @@
   "Oct": "أكتوبر",
   "Nov": "نوفمبر",
   "Dec": "ديسمبر",
-  
+  "January": "يناير",
+  "February": "فبراير",
+  "March": "مارس",
+  "April": "أبريل",
+  "May": "مايو",
+  "June": "يونيو",
+  "July": "يوليو",
+  "August": "أغسطس",
+  "September": "سبتمبر",
+  "October": "أكتوبر",
+  "November": "نوفمبر",
+  "December": "ديسمبر",
   "Revenue": "الإيراد",
   "Common Findings": "النتائج الشائعة",
   "Low Stock Items": "أصناف المخزون المنخفض",
   "Unknown": "غير معروف",
-  
   "Detected": "تم اكتشافه",
   "Not detected": "لم يتم اكتشافه",
   "Signs present": "علامات موجودة",
   "No signs detected": "لم يتم اكتشاف علامات",
-  
   "Invalid Date": "تاريخ غير صحيح",
   "Medical District": "المنطقة الطبية",
   "PDF": "PDF",
@@ -1577,12 +1619,10 @@
   "Structured Data": "البيانات المنظمة",
   "Test Values": "قيم التحليل",
   "Download Slip": "تنزيل الإيصال",
-  
   "Processing": "قيد المعالجة",
   "Converted": "تم التحويل",
   "Delivered": "تم التسليم",
   "Recorded": "مسجل",
-  
   "Create Payment Link": "إنشاء رابط دفع",
   "Total Costs": "إجمالي التكاليف",
   "Profit Margin": "هامش الربح",
@@ -1775,45 +1815,30 @@
   "categories": "فئات",
   "Across all categories": "عبر جميع الفئات",
   "Currently active": "نشط حالياً",
-
   "Department:": "القسم:",
   "Version": "الإصدار",
   "Beta": "تجريبي",
-  
-    "addTesttitle": "إضافة تحليل معملي جديد",
-    "addTestdescription": "إنشاء تحليل جديد وإضافته إلى قائمة تحاليل المعمل",
-
-    "addTestbasicInfo": "البيانات الأساسية للتحليل",
-
-    "addTesttestName": "اسم التحليل",
-    "addTesttestCode": "كود التحليل",
-    "addTestgenerate": "توليد",
-
-    "addTestcategory": "الفئة",
-    "addTestselectCategory": "اختر فئة التحليل",
-
-    "addTestturnaroundTime": "مدة ظهور النتيجة",
-    "addTestselectTurnaround": "اختر المدة",
-
-    "addTestdescriptionLabel": "الوصف",
-    "addTestdescriptionPlaceholder": "وصف تفصيلي لما يقيسه هذا التحليل",
-
-    "addTestsampleType": "نوع العينة",
-    "addTestselectSampleType": "اختر نوع العينة",
-
-    "addTestmethodology": "طريقة الفحص",
-    "addTestselectMethodology": "اختر طريقة الفحص",
-
-    "addTestnormalRange": "المدى الطبيعي",
-    "addTestunits": "الوحدات",
-
-    "addTestcancel": "إلغاء",
-
-    "addTestcreating": "جاري الإنشاء...",
-  
+  "addTesttitle": "إضافة تحليل معملي جديد",
+  "addTestdescription": "إنشاء تحليل جديد وإضافته إلى قائمة تحاليل المعمل",
+  "addTestbasicInfo": "البيانات الأساسية للتحليل",
+  "addTesttestName": "اسم التحليل",
+  "addTesttestCode": "كود التحليل",
+  "addTestgenerate": "توليد",
+  "addTestcategory": "الفئة",
+  "addTestselectCategory": "اختر فئة التحليل",
+  "addTestturnaroundTime": "مدة ظهور النتيجة",
+  "addTestselectTurnaround": "اختر المدة",
+  "addTestdescriptionLabel": "الوصف",
+  "addTestdescriptionPlaceholder": "وصف تفصيلي لما يقيسه هذا التحليل",
+  "addTestsampleType": "نوع العينة",
+  "addTestselectSampleType": "اختر نوع العينة",
+  "addTestmethodology": "طريقة الفحص",
+  "addTestselectMethodology": "اختر طريقة الفحص",
+  "addTestnormalRange": "المدى الطبيعي",
+  "addTestunits": "الوحدات",
+  "addTestcancel": "إلغاء",
+  "addTestcreating": "جاري الإنشاء...",
   "addTestcreate": "إنشاء التحليل",
-
-
   "recordTestReport": "تسجيل تقرير تحليل",
   "recordTestDescription": "تسجيل نتائج التحاليل المستلمة من المعامل الخارجية",
   "patientTestInfo": "بيانات المريض والتحليل",
@@ -1848,145 +1873,87 @@
   "clinicalRecommendations": "التوصيات السريرية بناءً على النتائج...",
   "additionalNotes": "ملاحظات إضافية",
   "notesPlaceholder": "أي ملاحظات أو ملاحظات إضافية...",
-
-
-
-
-
-
-
-
-"addTestCategorytitle": "إضافة فئة تحليل جديدة",
+  "addTestCategorytitle": "إضافة فئة تحليل جديدة",
   "addTestCategorydescription": "إنشاء فئة تحليل جديدة لتنظيم تحاليل المعمل بشكل فعال.",
   "addTestCategorybasicInformation": "البيانات الأساسية",
-
   "categoryNamelabel": "اسم الفئة *",
   "categoryNameplaceholder": "مثال: أمراض الدم",
-
   "categoryCodelabel": "كود الفئة *",
   "categoryCodeplaceholder": "مثال: HEM",
   "categoryCodenote": "توليد تلقائي من اسم الفئة أو إدخاله يدويًا",
-
   "descriptionFieldlabel": "الوصف *",
   "descriptionFieldplaceholder": "وصف مختصر لهذه الفئة...",
-
   "departmentlabel": "القسم *",
   "departmentplaceholder": "اختر القسم",
-
   "visualSettings": "الإعدادات المرئية",
   "icon": "الأيقونة",
-
   "iconOptionsfolder": "مجلد",
   "iconOptionsbeaker": "دورق",
   "iconOptionstestTube": "أنبوب اختبار",
   "iconOptionsheart": "قلب",
   "iconOptionslightning": "برق",
   "iconOptionsmicroscope": "مجهر",
-
   "colorlabel": "اللون",
   "colorselected": "المختار:",
-
   "preview": "معاينة",
   "categoryNamePreview": "اسم الفئة",
   "categoryCodePreview": "الكود",
   "additionalInformation": "معلومات إضافية",
-
   "commonTestslabel": "التحاليل الشائعة",
   "commonTestsplaceholder": "أدخل التحاليل الشائعة مفصولة بفواصل (مثال: CBC, ESR, تعداد الصفائح)",
   "commonTestsnote": "أدخل أسماء التحاليل مفصولة بفواصل",
-
   "sortOrderlabel": "ترتيب العرض",
   "sortOrderplaceholder": "0",
   "sortOrdernote": "الأرقام الأقل تظهر أولاً في القوائم",
-
   "activeCategory": "فئة نشطة",
-
-
-
-
   "buttonscreateCategory": "إنشاء الفئة",
-
-
-
-
   "addMethodologyTitle": "إضافة منهجية تحليل جديدة",
   "addMethodologyDescription": "إنشاء منهجية تحليل جديدة مع مواصفات وإجراءات تفصيلية.",
-
   "basicInformation": "البيانات الأساسية",
-
   "methodologyNameLabel": "اسم المنهجية *",
   "methodologyNamePlaceholder": "مثال: عدّاد خلايا آلي",
-
   "methodologyCodeLabel": "الكود *",
   "methodologyCodePlaceholder": "مثال: HEM-AUTOCNT01",
-
   "generate": "توليد",
-
   "categoryLabel": "الفئة *",
   "categoryPlaceholder": "اختر الفئة",
-
   "descriptionLabel": "الوصف *",
   "descriptionPlaceholder": "وصف تفصيلي للمنهجية...",
-
   "technicalSpecifications": "المواصفات الفنية",
-
   "principlesLabel": "المبادئ *",
   "principlesPlaceholder": "المبادئ العلمية التي تعتمد عليها المنهجية...",
-
   "equipmentRequiredLabel": "الأجهزة المطلوبة",
   "equipmentRequiredPlaceholder": "قائمة الأجهزة والمعدات المطلوبة...",
-
   "applicationsLabel": "الاستخدامات",
   "applicationsPlaceholder": "التحاليل والتطبيقات التي تستخدم هذه المنهجية (كل عنصر في سطر أو مفصول بفاصلة)...",
-
   "advantagesAndLimitations": "المميزات والقيود",
-
   "advantagesLabel": "المميزات",
   "advantagesPlaceholder": "أهم المميزات والفوائد...",
-
   "limitationsLabel": "القيود",
   "limitationsPlaceholder": "القيود المعروفة والنقاط التي يجب مراعاتها...",
-
   "status": "الحالة",
   "statusDescription": "تفعيل هذه المنهجية وجعلها متاحة للاستخدام",
-
   "buttonscreateMethodology": "إنشاء المنهجية",
-
-
-
-
   "addTatCategoryTitle": "إضافة فئة زمن إنجاز جديدة",
   "addTatCategoryDescription": "إنشاء فئة زمن إنجاز جديدة لتحاليل المعمل.",
-
   "basicInformation": "البيانات الأساسية",
-
   "tatCategoryNameLabel": "اسم الفئة *",
   "tatCategoryNamePlaceholder": "مثال: عاجل (طوارئ)",
-
   "tatCategoryCodeLabel": "الكود *",
   "tatCategoryCodePlaceholder": "مثال: TAT-STAT01",
-
   "generate": "توليد",
-
   "priorityLabel": "الأولوية *",
   "priorityPlaceholder": "اختر الأولوية",
-
   "categoryLabel": "الفئة *",
   "categoryPlaceholder": "اختر الفئة",
-
   "descriptionLabel": "الوصف *",
   "descriptionPlaceholder": "وصف الحالات التي يجب استخدام فئة زمن الإنجاز هذه فيها...",
-
   "durationSettings": "إعدادات المدة",
-
   "durationDisplayLabel": "عرض المدة *",
   "durationDisplayPlaceholder": "مثال: أقل من ساعة، 4-6 ساعات",
-
   "durationMinutesLabel": "المدة (بالدقائق) *",
   "durationMinutesPlaceholder": "مثال: 60، 360",
-
   "quickDurationPresets": "إعدادات المدة السريعة",
-
   "preset30Min": "أقل من 30 دقيقة",
   "preset1Hour": "أقل من ساعة",
   "preset1To2Hours": "من 1 إلى 2 ساعة",
@@ -1999,154 +1966,95 @@
   "preset2To3Days": "من يومين إلى 3 أيام",
   "preset3To5Days": "من 3 إلى 5 أيام",
   "preset1To2Weeks": "من أسبوع إلى أسبوعين",
-
   "slaCommitmentLabel": "الالتزام باتفاقية مستوى الخدمة (SLA)",
   "slaCommitmentPlaceholder": "مثال: 95٪ من التحاليل خلال الإطار الزمني المحدد",
-
   "reportingHoursLabel": "ساعات إصدار النتائج",
   "reportingHoursPlaceholder": "مثال: على مدار الساعة، ساعات العمل فقط",
-
   "testExamplesAndApplications": "أمثلة التحاليل والتطبيقات",
-
   "testExamplesLabel": "أمثلة التحاليل",
   "testExamplesPlaceholder": "اذكر التحاليل التي تستخدم عادة زمن الإنجاز هذا (مفصولة بفواصل)...",
-
   "businessRulesLabel": "قواعد العمل",
   "businessRulesPlaceholder": "متى يجب تطبيق زمن الإنجاز هذا؟ وهل توجد شروط خاصة؟",
-
   "criticalHandling": "التعامل مع الحالات الحرجة",
-
   "criticalNotesLabel": "ملاحظات حرجة",
   "criticalNotesPlaceholder": "ملاحظات مهمة للتعامل مع التحاليل في هذه الفئة...",
-
   "escalationProcedureLabel": "إجراءات التصعيد",
   "escalationProcedurePlaceholder": "ما الإجراء المتبع في حال عدم الالتزام بزمن الإنجاز؟",
-
   "status": "الحالة",
   "statusDescription": "تفعيل فئة زمن الإنجاز هذه وجعلها متاحة للاستخدام",
   "buttonscreateTurnaroundTime": "إنشاء فئة زمن الإنجاز",
-
-
-
-
-
-"sampleType.addTitle": "إضافة نوع عيّنة جديد",
+  "sampleType.addTitle": "إضافة نوع عيّنة جديد",
   "sampleType.editTitle": "تعديل نوع العيّنة",
-
   "sampleType.addDescription": "إنشاء نوع عيّنة جديد مع مواصفات الجمع والتخزين.",
   "sampleType.editDescription": "تحديث بيانات نوع العيّنة أدناه.",
-
   "sampleType.basicInformation": "البيانات الأساسية",
-
   "sampleType.nameLabel": "اسم نوع العيّنة *",
   "sampleType.namePlaceholder": "مثال: دم كامل",
-
   "sampleType.codeLabel": "الكود *",
   "sampleType.codePlaceholder": "مثال: WB",
-
   "sampleType.generate": "توليد",
-
   "sampleType.categoryLabel": "الفئة *",
   "sampleType.categoryPlaceholder": "اختر الفئة",
-
   "sampleType.descriptionLabel": "الوصف *",
   "sampleType.descriptionPlaceholder": "وصف تفصيلي لنوع العيّنة...",
-
   "sampleType.collectionSpecifications": "مواصفات الجمع",
-
   "sampleType.collectionMethodLabel": "طريقة الجمع *",
   "sampleType.collectionMethodPlaceholder": "اختر الطريقة",
-
   "sampleType.volumeLabel": "الكمية المطلوبة",
   "sampleType.volumePlaceholder": "مثال: 3-5 مل",
-
   "sampleType.containerLabel": "نوع الوعاء",
   "sampleType.containerPlaceholder": "اختر الوعاء",
-
   "sampleType.preservativeLabel": "المادة الحافظة / مضاد التجلط",
   "sampleType.preservativePlaceholder": "مثال: EDTA، هيبارين، لا يوجد",
-
   "sampleType.specialInstructionsLabel": "تعليمات جمع خاصة",
   "sampleType.specialInstructionsPlaceholder": "أي تعليمات خاصة بعملية جمع العيّنة...",
-
   "sampleType.storageAndHandling": "التخزين والتعامل",
-
   "sampleType.storageTemperatureLabel": "درجة حرارة التخزين",
   "sampleType.storageTemperaturePlaceholder": "اختر درجة الحرارة",
-
   "sampleType.storageTimeLabel": "مدة التخزين / الثبات",
   "sampleType.storageTimePlaceholder": "مثال: 24 ساعة، 7 أيام",
-
   "sampleType.processingTimeLabel": "وقت المعالجة",
   "sampleType.processingTimePlaceholder": "مثال: المعالجة خلال ساعتين",
-
   "sampleType.transportConditionsLabel": "ظروف النقل",
   "sampleType.transportConditionsPlaceholder": "مثال: درجة حرارة الغرفة، ثلج",
-
   "sampleType.handlingRequirementsLabel": "متطلبات التعامل",
   "sampleType.handlingRequirementsPlaceholder": "متطلبات واحتياطات خاصة للتعامل مع العيّنة...",
-
   "sampleType.qualityAndSafety": "الجودة والسلامة",
-
   "sampleType.rejectionCriteriaLabel": "معايير الرفض",
   "sampleType.rejectionCriteriaPlaceholder": "الحالات التي يجب فيها رفض العيّنة...",
-
   "sampleType.safetyPrecautionsLabel": "احتياطات السلامة",
   "sampleType.safetyPrecautionsPlaceholder": "إجراءات واحتياطات السلامة أثناء التعامل...",
-
   "sampleType.testApplications": "استخدامات التحاليل",
-
   "sampleType.commonTestsLabel": "التحاليل الشائعة",
   "sampleType.commonTestsPlaceholder": "اذكر التحاليل الشائعة التي تُجرى على هذا النوع من العيّنات (مفصولة بفواصل)...",
-
   "sampleType.status": "الحالة",
   "sampleType.activeLabel": "تفعيل نوع العيّنة هذا وجعله متاحًا للاستخدام",
-
   "common.cancel": "إلغاء",
   "common.create": "إنشاء",
   "common.update": "تحديث",
   "common.creating": "جاري الإنشاء...",
   "common.updating": "جاري التحديث...",
-
-
-
-
-
-
-
-
   "test.externalVendorPlaceholder": "اختر المختبر",
-
   "test.testDateLabel": "تاريخ التحليل *",
   "test.testDatePlaceholder": "يوم/شهر/سنة",
-
   "test.recordedByLabel": "تم التسجيل بواسطة *",
   "test.recordedByPlaceholder": "اختر عضو الفريق",
-
   "test.reportAttachmentsLabel": "مرفقات التقرير",
   "test.reportAttachmentsPlaceholder": "اضغط للرفع أو اسحب الملفات هنا",
   "test.reportAttachmentsHint": "ملفات PDF، JPG، PNG، DOC بحجم يصل إلى 10 ميجابايت",
-
   "test.resultsAndInterpretation": "نتائج التحليل والتفسير",
-
   "test.testResultsLabel": "نتائج التحليل",
   "test.testResultsPlaceholder": "أدخل نتائج التحليل بالتفصيل...",
-
   "test.normalValuesLabel": "القيم الطبيعية",
   "test.normalValuesPlaceholder": "النطاقات المرجعية للقيم الطبيعية...",
-
   "test.clinicalInterpretationLabel": "التفسير السريري",
   "test.clinicalInterpretationPlaceholder": "التفسير السريري لنتائج التحليل...",
-
   "test.abnormalFindingsLabel": "النتائج الشاذة",
   "test.abnormalFindingsPlaceholder": "أي نتائج غير طبيعية أو قيم حرجة...",
-
   "test.recommendationsLabel": "التوصيات",
   "test.recommendationsPlaceholder": "التوصيات السريرية بناءً على النتائج...",
-
   "test.additionalNotesLabel": "ملاحظات إضافية",
   "test.additionalNotesPlaceholder": "أي ملاحظات أو ملاحظات إضافية...",
-
   "Clinics refreshed successfully": "تم تحديث العيادات بنجاح",
   "Failed to refresh clinics": "فشل تحديث العيادات",
   "has been successfully added.": "تمت إضافته بنجاح.",
@@ -2203,8 +2111,8 @@
   "Send notifications via email to users and patients": "إرسال الإشعارات عبر البريد الإلكتروني للمستخدمين والمرضى",
   "SMS Notifications": "إشعارات الرسائل النصية",
   "Send notifications via SMS for urgent messages": "إرسال الإشعارات عبر الرسائل النصية للرسائل العاجلة",
-  "Appointment Reminders": "تذكيرات المواعيد",
-  "Automatically remind patients about upcoming appointments": "تذكير المرضى تلقائياً بالمواعيد القادمة",
+  "Appointment Reminders": "تذكيرات الحجوزات",
+  "Automatically remind patients about upcoming appointments": "تذكير المرضى تلقائياً بالحجوزات القادمة",
   "Payment Reminders": "تذكيرات الدفع",
   "Send reminders for pending and overdue payments": "إرسال تذكيرات للمدفوعات المعلقة والمتأخرة",
   "Low Stock Alerts": "تنبيهات المخزون المنخفض",
@@ -2323,57 +2231,45 @@
   "Invoice not found": "الفاتورة غير موجودة",
   "The requested invoice could not be loaded.": "تعذر تحميل الفاتورة المطلوبة.",
   "Failed to load invoice details.": "فشل تحميل تفاصيل الفاتورة.",
-    "patientDetails": "تفاصيل المريض",
+  "patientDetails": "تفاصيل المريض",
   "patientDescription": "جميع معلومات المريض والسجل الطبي",
-
   "personalInformation": "البيانات الشخصية",
   "contactInformation": "معلومات التواصل",
   "emergencyContact": "جهة اتصال الطوارئ",
   "medicalInformation": "المعلومات الطبية",
-
   "fullName": "الاسم الكامل",
   "dateOfBirth": "تاريخ الميلاد",
   "age": "العمر",
   "years": "سنة",
   "gender": "النوع",
   "bloodGroup": "فصيلة الدم",
-
   "phone": "رقم الهاتف",
   "email": "البريد الإلكتروني",
   "address": "العنوان",
   "name": "الاسم",
   "relationship": "صلة القرابة",
-
   "height": "الطول",
   "weight": "الوزن",
   "allergies": "الحساسية",
   "medicalHistory": "التاريخ المرضي",
-
   "patientStatistics": "إحصائيات المريض",
   "totalVisits": "إجمالي الزيارات",
   "lastVisit": "آخر زيارة",
   "status": "الحالة",
   "never": "لم يزر",
   "active": "نشط",
-
   "notSpecified": "غير محدد",
   "noneRecorded": "لا يوجد",
-
   "noPatientData": "لا توجد بيانات للمريض",
   "noPatientDataDesc": "تعذر تحميل بيانات المريض",
-
   "noDentalRecords": "لا توجد سجلات أسنان",
   "noDentalRecordsDesc": "لا يوجد مخطط أسنان لهذا المريض",
-
   "error": "خطأ",
   "failedToLoadDentalChart": "فشل تحميل مخطط الأسنان",
-
   "close": "إغلاق",
   "updateinfo": "قم بتحديث البيانات بالأسفل",
   "Delete Patient": "حذف المريض",
-   
-
-"firstName": "الاسم الأول",
+  "firstName": "الاسم الأول",
   "lastName": "اسم العائلة",
   "email": "البريد الإلكتروني",
   "phoneNumber": "رقم الهاتف",
@@ -2381,13 +2277,102 @@
   "serviceInterest": "الخدمة المهتم بها",
   "status": "الحالة",
   "assignedTo": "مسند إلى",
-  "notes": "ملاحظات"
-
-
-
-
-
-
-
+  "notes": "ملاحظات",
+  "addNew": "إضافة عيادة جديدة",
+  "createDescription": "إنشاء موقع عيادة جديد مع معلومات التواصل والإعدادات الخاصة بها.",
+  "name": "اسم العيادة",
+  "namePlaceholder": "أدخل اسم العيادة",
+  "code": "كود العيادة",
+  "description": "وصف العيادة",
+  "descriptionPlaceholder": "أدخل وصف العيادة (اختياري)",
+  "streetAddress": "عنوان الشارع",
+  "streetAddressPlaceholder": "أدخل عنوان الشارع",
+  "country": "الدولة",
+  "city": "المدينة",
+  "website": "الموقع الإلكتروني",
+  "websiteOptional": "الموقع الإلكتروني (اختياري)",
+  "settings": "إعدادات العيادة",
+  "monday": "الاثنين",
+  "tuesday": "الثلاثاء",
+  "wednesday": "الأربعاء",
+  "thursday": "الخميس",
+  "friday": "الجمعة",
+  "saturday": "السبت",
+  "sunday": "الأحد",
+  "addressInformation": "معلومات العنوان",
+  "clincsettings":  "إعدادات العيادة",
+  "closed": "مغلق",
+  "Appointment Settings": "إعدادات الحجوزات",
+  "CRM Settings": "إعدادات CRM",
+  "Status Configuration": "تكوين الحالات",
+  "Configure appointment statuses with names and colors": "تكوين حالات الحجوزات بالأسماء والألوان",
+  "Add Status": "إضافة حالة",
+  "No statuses configured yet": "لم يتم تكوين حالات بعد",
+  "Add First Status": "إضافة أول حالة",
+  "Edit Appointment Status": "تعديل حالة الموعد",
+  "Add Appointment Status": "إضافة حالة موعد",
+  "Update the appointment status details": "تحديث تفاصيل حالة الموعد",
+  "Create a new appointment status": "إنشاء حالة موعد جديدة",
+  "Status Code": "كود الحالة",
+  "Status Name (Arabic)": "اسم الحالة (عربي)",
+  "Status Name (English)": "اسم الحالة (إنجليزي)",
+  "Enter status name in Arabic": "أدخل اسم الحالة بالعربي",
+  "Enter status name in English": "Enter status name in English",
+  "Status Color": "لون الحالة",
+  "Preview": "معاينة",
+  "(Preview will appear here)": "(ستظهر المعاينة هنا)",
+  "Switch Language": "تبديل اللغة",
+  "Arabic": "العربية",
+  "English": "English",
+  "Status code is required": "كود الحالة مطلوب",
+  "Arabic name is required": "اسم الحالة بالعربي مطلوب",
+  "English name is required": "اسم الحالة بالإنجليزية مطلوب",
+  "Please select a valid color": "يرجى اختيار لون صالح",
+  "This status code already exists": "كود الحالة هذا موجود بالفعل",
+  "Code must contain only lowercase letters, numbers, hyphens, and underscores": "يجب أن يحتوي الكود على أحرف صغيرة وأرقام وشرطات وشرطات سفلية فقط",
+  "Default": "افتراضي",
+  "Deleted": "محذوف",
+  "Deleted Statuses": "الحالات المحذوفة",
+  "These statuses are deleted (soft delete). You can restore them by editing.": "هذه الحالات محذوفة (حذف منطقي). يمكنك استعادتها بالتعديل.",
+  "Restore": "استعادة",
+  "Delete Status": "حذف الحالة",
+  "Are you sure you want to delete this status? This action will mark it as deleted (soft delete).": "هل أنت متأكد من حذف هذه الحالة؟ سيتم تمييزها كمحذوفة (حذف منطقي).",
+  "Cannot delete default status": "لا يمكن حذف الحالة الافتراضية",
+  "Appointment statuses updated successfully": "تم تحديث حالات الحجوزات بنجاح",
+  "Failed to save appointment statuses": "فشل حفظ حالات الحجوزات",
+  "Coming Soon": "قريباً",
+  "CRM settings will be available here soon": "ستكون إعدادات CRM متاحة هنا قريباً",
+  "Please fix the errors before saving": "يرجى إصلاح الأخطاء قبل الحفظ",
+  "e.g., scheduled, confirmed": "مثال: مجدول، مؤكد",
+  "Unique identifier (lowercase letters, numbers, hyphens, underscores only)": "معرف فريد (أحرف صغيرة وأرقام وشرطات وشرطات سفلية فقط)",
+  "(Not set)": "(غير محدد)",
+  "Color Preview": "معاينة اللون",
+  "Click to choose color": "انقر لاختيار اللون",
+  "Select color": "اختر اللون",
+  "Quick Select": "اختيار سريع",
+  "Complete both names for full preview": "أكمل كلا الاسمين لعرض المعاينة الكاملة",
+  "Preview": "معاينة",
+  "Edit": "تعديل",
+  "Delete": "حذف",
+  "Start by adding your first appointment status": "ابدأ بإضافة حالة الموعد الأولى",
+  "Update": "تحديث",
+  "Add": "إضافة",
+  "Language": "اللغة",
+  "Auto-generated": "تلقائي",
+  "This code is automatically generated": "هذا الكود يتم إنشاؤه تلقائياً",
+  "Order": "الترتيب",
+  "Select order": "اختر الترتيب",
+  "Display order of the status": "ترتيب عرض الحالة",
+  "Order must be greater than 0": "يجب أن يكون الترتيب أكبر من 0",
+  "Cannot delete this protected status": "لا يمكن حذف هذه الحالة المحمية",
+  "An error occurred while deleting the status. Please try again.": "حدث خطأ أثناء حذف الحالة. يرجى المحاولة مرة أخرى.",
+  "Status not found. Please refresh and try again.": "لم يتم العثور على الحالة. يرجى التحديث والمحاولة مرة أخرى.",
+  "Show in Calendar": "يظهر في التقويم",
+  "Display this status in the calendar view": "عرض هذه الحالة في عرض التقويم",
+  "Appointments Table": "جدول الحجوزات",
+  "Appointments Calendar": "تقويم الحجوزات",
+  "Manage patient appointments in table view": "إدارة مواعيد المرضى في عرض الجدول",
+  "Appointments List": "قائمة الحجوزات",
+  "View and manage all patient appointments": "عرض وإدارة جميع مواعيد المرضى"
 
 }

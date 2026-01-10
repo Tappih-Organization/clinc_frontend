@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { cn } from "@/lib/utils";
+import { useIsRTL } from "@/hooks/useIsRTL";
 import { useNavigate } from "react-router-dom";
 import apiService from "@/services/api";
 import {
@@ -86,7 +88,7 @@ const AddClinicModal: React.FC<AddClinicModalProps> = ({
   console.log('🎭 AddClinicModal rendered with props:', { isOpen });
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  
+  const isRTL = useIsRTL();
   const [clinicsCount, setClinicsCount] = useState<number>(0);
   const [loadingCount, setLoadingCount] = useState<boolean>(true);
   
@@ -333,14 +335,14 @@ const AddClinicModal: React.FC<AddClinicModalProps> = ({
         if (!open) handleClose();
       }}
     >
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className={cn("max-w-4xl max-h-[90vh] overflow-y-auto", isRTL ? "rtl" : "ltr")}>
         <DialogHeader>
-          <DialogTitle className="flex items-center space-x-2">
+          <DialogTitle className={cn("flex items-center space-x-2", isRTL ? "ltr" : "ltr" ,isRTL && 'pt-5')} dir={isRTL ? "ltr" : "ltr"}>
             <Building2 className="h-5 w-5" />
-            <span>{t("Add New Clinic")}</span>
+            <span>{t("addNew")}</span>
           </DialogTitle>
-          <DialogDescription>
-            {t("Create a new clinic location with its contact information and settings.")}
+          <DialogDescription className={isRTL ? "text-right" : "text-left"} dir={isRTL ? "rtl" : "ltr"}>
+            {t("createDescription")}
           </DialogDescription>
         </DialogHeader>
 
@@ -353,11 +355,11 @@ const AddClinicModal: React.FC<AddClinicModalProps> = ({
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">{t("Clinic Name")} *</Label>
+                  <Label htmlFor="name">{t("name")} *</Label>
                   <Input
                     id="name"
                     name="name"
-                    placeholder={t("Enter clinic name")}
+                    placeholder={t("namePlaceholder")}
                     value={formData.name}
                     onChange={handleInputChange}
                     className={errors.name ? "border-red-500" : ""}
@@ -368,7 +370,7 @@ const AddClinicModal: React.FC<AddClinicModalProps> = ({
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="code">{t("Clinic Code")} *</Label>
+                  <Label htmlFor="code">{t("code")} *</Label>
                   <Input
                     id="code"
                     name="code"
@@ -386,26 +388,27 @@ const AddClinicModal: React.FC<AddClinicModalProps> = ({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="description">{t("Description")}</Label>
+                <Label htmlFor="description">{t("description")}</Label>
                 <Textarea
                   id="description"
                   name="description"
-                  placeholder={t("Enter clinic description (optional)")}
+                  placeholder={t("descriptionPlaceholder")}
                   value={formData.description}
                   onChange={handleInputChange}
                   rows={3}
                 />
               </div>
 
-              <div className="flex items-center space-x-2">
+              <div className={cn("flex items-center space-x-2 ", isRTL && "space-x-reverse" )} dir={isRTL ? "ltr" : "ltr"}>
                 <Switch
+                className={isRTL ? "mr-2" : "mr-2"}
                   id="is_active"
                   checked={formData.is_active}
                   onCheckedChange={(checked) =>
                     setFormData({ ...formData, is_active: checked })
                   }
                 />
-                <Label htmlFor="is_active">{t("Active")}</Label>
+                <Label className={isRTL ? "pr-2" : "mr-2"} htmlFor="is_active">{t("Active")}</Label>
               </div>
             </CardContent>
           </Card>
@@ -413,18 +416,18 @@ const AddClinicModal: React.FC<AddClinicModalProps> = ({
           {/* Address Information */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg flex items-center space-x-2">
+              <CardTitle className="text-lg flex items-center space-x-2" dir={isRTL ? "ltr" : "ltr"}>
                 <MapPin className="h-4 w-4" />
-                <span>{t("Address Information")}</span>
+                <span >{t("addressInformation")}</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="address.street">{t("Street Address")} *</Label>
+                <Label htmlFor="address.street">{t("streetAddress")} *</Label>
                 <Input
                   id="address.street"
                   name="address.street"
-                  placeholder={t("Enter street address")}
+                  placeholder={t("streetAddressPlaceholder")}
                   value={formData.address.street}
                   onChange={handleInputChange}
                   className={errors["address.street"] ? "border-red-500" : ""}
@@ -436,7 +439,7 @@ const AddClinicModal: React.FC<AddClinicModalProps> = ({
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="address.country">{t("Country")} *</Label>
+                  <Label htmlFor="address.country">{t("country")} *</Label>
                   <Select
                     value={formData.address.country}
                     onValueChange={(value) => handleSelectChange("address.country", value)}
@@ -458,7 +461,7 @@ const AddClinicModal: React.FC<AddClinicModalProps> = ({
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="address.city">{t("City")} *</Label>
+                  <Label htmlFor="address.city">{t("city")} *</Label>
                   <Select
                     value={formData.address.city}
                     onValueChange={(value) => handleSelectChange("address.city", value)}
@@ -501,7 +504,7 @@ const AddClinicModal: React.FC<AddClinicModalProps> = ({
           {/* Contact Information */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg flex items-center space-x-2">
+              <CardTitle className="text-lg flex items-center space-x-2" dir={isRTL ? "ltr" : "ltr"}>
                 <Phone className="h-4 w-4" />
                 <span>{t("Contact Information")}</span>
               </CardTitle>
@@ -541,7 +544,7 @@ const AddClinicModal: React.FC<AddClinicModalProps> = ({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="contact.website">{t("Website (Optional)")}</Label>
+                <Label htmlFor="contact.website">{t("websiteOptional")}</Label>
                 <Input
                   id="contact.website"
                   name="contact.website"
@@ -556,9 +559,9 @@ const AddClinicModal: React.FC<AddClinicModalProps> = ({
           {/* Settings */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg flex items-center space-x-2">
+              <CardTitle className="text-lg flex items-center space-x-2" dir={isRTL ? "ltr" : "ltr"}>
                 <Settings className="h-4 w-4" />
-                <span>{t("Clinic Settings")}</span>
+                <span>{t("clincsettings")}</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -622,13 +625,13 @@ const AddClinicModal: React.FC<AddClinicModalProps> = ({
               </div>
 
               {/* Working Hours */}
-              <div className="space-y-3">
-                <Label className="text-sm font-medium">{t("Working Hours")}</Label>
+              <div className={cn("space-y-3", isRTL && "text-right")} dir={isRTL ? "ltr" : "ltr"}>
+                <Label className={cn("text-sm font-medium", isRTL && "text-right")} >{t("Working Hours")}</Label>
                 <div className="space-y-3">
                   {Object.entries(formData.settings.working_hours).map(([day, schedule]) => (
                     <div key={day} className="flex items-center space-x-4 p-3 border rounded-lg">
                       <div className="w-20">
-                        <span className="text-sm font-medium capitalize">{day}</span>
+                        <span className="text-sm font-medium capitalize"> {t(`${day}`)}</span>
                       </div>
                       <Switch
                         checked={schedule.isWorking}
@@ -637,14 +640,14 @@ const AddClinicModal: React.FC<AddClinicModalProps> = ({
                         }
                       />
                       {schedule.isWorking && (
-                        <div className="flex items-center space-x-2">
+                        <div className={cn("flex items-center space-x-4", isRTL && 'space-x-reverse', isRTL && "flex-row-reverse")}>
                           <Input
                             type="time"
                             value={schedule.start}
                             onChange={(e) =>
                               handleWorkingHoursChange(day, "start", e.target.value)
                             }
-                            className="w-24"
+                            className="w-30 "
                           />
                           <span className="text-sm text-gray-500">{t("to")}</span>
                           <Input
@@ -653,12 +656,12 @@ const AddClinicModal: React.FC<AddClinicModalProps> = ({
                             onChange={(e) =>
                               handleWorkingHoursChange(day, "end", e.target.value)
                             }
-                            className="w-24"
+                            className="w-30"
                           />
                         </div>
                       )}
                       {!schedule.isWorking && (
-                        <span className="text-sm text-gray-500">{t("Closed")}</span>
+                        <span className="text-sm text-gray-500">{t("closed")}</span>
                       )}
                     </div>
                   ))}
@@ -668,7 +671,7 @@ const AddClinicModal: React.FC<AddClinicModalProps> = ({
           </Card>
 
           {/* Form Actions */}
-          <div className="flex justify-end space-x-2 pt-4">
+          <div className={cn("flex justify-end space-x-2 pt-4", isRTL && "text-right")} dir={isRTL ? "ltr" : "ltr"}>
             <Button type="button" variant="outline" onClick={handleCancel}>
               {t("Cancel")}
             </Button>

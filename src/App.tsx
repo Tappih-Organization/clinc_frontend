@@ -30,7 +30,9 @@ const XrayAnalysis = lazy(() => import("./pages/dashboard/xray-analysis/XrayAnal
 const AITestAnalysis = lazy(() => import("./pages/dashboard/ai-test-analysis/AITestAnalysis"));
 const AITestComparison = lazy(() => import("./pages/dashboard/ai-test-comparison/AITestComparison"));
 const Patients = lazy(() => import("./pages/dashboard/patients/Patients"));
-const Appointments = lazy(() => import("./pages/dashboard/appointments/Appointments"));
+const AppointmentsTable = lazy(() => import("./pages/dashboard/appointments/AppointmentsTable"));
+const AppointmentsCalendar = lazy(() => import("./pages/dashboard/appointments/AppointmentsCalendar"));
+const AddAppointment = lazy(() => import("./pages/dashboard/appointments/AddAppointment"));
 const Billing = lazy(() => import("./pages/dashboard/billing/Billing"));
 const Leads = lazy(() => import("./pages/dashboard/leads/Leads"));
 const Services = lazy(() => import("./pages/dashboard/services/Services"));
@@ -286,14 +288,42 @@ const App = () => {
                 }
               />
 
-              {/* Appointments - requires appointments.view permission */}
+              {/* Appointments Table - requires appointments.view permission */}
               <Route
-                path="appointments"
+                path="appointments-table"
                 element={
                   <RequirePermission permissions="appointments.view">
                     <PageErrorBoundary>
                       <Suspense fallback={<Loading size="default" />}>
-                        <Appointments />
+                        <AppointmentsTable />
+                      </Suspense>
+                    </PageErrorBoundary>
+                  </RequirePermission>
+                }
+              />
+
+              {/* Appointments Calendar - requires appointments.view permission */}
+              <Route
+                path="appointments-calendar"
+                element={
+                  <RequirePermission permissions="appointments.view">
+                    <PageErrorBoundary>
+                      <Suspense fallback={<Loading size="default" />}>
+                        <AppointmentsCalendar />
+                      </Suspense>
+                    </PageErrorBoundary>
+                  </RequirePermission>
+                }
+              />
+
+              {/* Add Appointment - requires appointments.view permission */}
+              <Route
+                path="add-appointment"
+                element={
+                  <RequirePermission permissions="appointments.view">
+                    <PageErrorBoundary>
+                      <Suspense fallback={<Loading size="default" />}>
+                        <AddAppointment />
                       </Suspense>
                     </PageErrorBoundary>
                   </RequirePermission>

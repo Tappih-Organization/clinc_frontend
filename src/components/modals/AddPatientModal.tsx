@@ -62,7 +62,7 @@ const AddPatientModal: React.FC<AddPatientModalProps> = ({ trigger }) => {
     email: "",
     phone: "",
     dateOfBirth: "",
-    gender: "",
+    gender: "male",
     address: "",
     emergencyContactName: "",
     emergencyContactPhone: "",
@@ -152,10 +152,8 @@ const AddPatientModal: React.FC<AddPatientModalProps> = ({ trigger }) => {
       }
     }
 
-    // Last Name validation
-    if (!formData.lastName.trim()) {
-      newErrors.lastName = t("Last name is required");
-    } else if (!validateName(formData.lastName)) {
+    // Last Name validation (optional)
+    if (formData.lastName.trim() && !validateName(formData.lastName)) {
       if (formData.lastName.trim().length < 2) {
         newErrors.lastName = t("Last name must be at least 2 characters");
       } else {
@@ -185,20 +183,16 @@ const AddPatientModal: React.FC<AddPatientModalProps> = ({ trigger }) => {
       }
     }
 
-    // Date of Birth validation
-    if (!formData.dateOfBirth) {
-      newErrors.dateOfBirth = t("Date of birth is required");
-    }
+    // Date of Birth validation (optional - skip if empty)
+    // No validation needed if dateOfBirth is empty
 
     // Gender validation
     if (!formData.gender) {
       newErrors.gender = t("Gender is required");
     }
 
-    // Address validation
-    if (!formData.address.trim()) {
-      newErrors.address = t("Address is required");
-    } else if (!validateAddress(formData.address)) {
+    // Address validation (optional)
+    if (formData.address.trim() && !validateAddress(formData.address)) {
       newErrors.address = t("Address contains invalid characters");
     }
 
@@ -226,12 +220,12 @@ const AddPatientModal: React.FC<AddPatientModalProps> = ({ trigger }) => {
       // Prepare patient data according to API schema
       const patientData: Omit<Patient, '_id' | 'created_at' | 'updated_at'> = {
         first_name: formData.firstName,
-        last_name: formData.lastName,
-        email: formData.email,
+        ...(formData.lastName && { last_name: formData.lastName }),
+        email: formData.email || `${formData.firstName.toLowerCase().replace(/\s+/g, '')}@temp.clinic`,
         phone: formData.phone,
-        date_of_birth: formData.dateOfBirth,
-        gender: formData.gender as 'male' | 'female' | 'other',
-        address: formData.address,
+        ...(formData.dateOfBirth && { date_of_birth: formData.dateOfBirth }),
+        gender: (formData.gender || 'male') as 'male' | 'female',
+        ...(formData.address && { address: formData.address }),
         ...(formData.lastVisit && {
           last_visit: formData.lastVisit,
         }),
@@ -255,7 +249,7 @@ const AddPatientModal: React.FC<AddPatientModalProps> = ({ trigger }) => {
 
       toast({
         title: t("Patient added successfully"),
-        description: `${formData.firstName} ${formData.lastName} ${t("has been added to the system.")}`,
+        description: `${formData.firstName}${formData.lastName ? ` ${formData.lastName}` : ''} ${t("has been added to the system.")}`,
       });
 
       // Reset form
@@ -265,7 +259,7 @@ const AddPatientModal: React.FC<AddPatientModalProps> = ({ trigger }) => {
         email: "",
         phone: "",
         dateOfBirth: "",
-        gender: "",
+        gender: "male",
         address: "",
         emergencyContactName: "",
         emergencyContactPhone: "",
@@ -380,13 +374,12 @@ const AddPatientModal: React.FC<AddPatientModalProps> = ({ trigger }) => {
                       )}
                     </div>
                     <div className={cn("space-y-2", isRTL && "text-right")}>
-                      <Label htmlFor="lastName" className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Last Name")} *</Label>
+                      <Label htmlFor="lastName" className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Last Name")}</Label>
                       <Input
                         id="lastName"
                         value={formData.lastName}
                         onChange={(e) => handleChange("lastName", e.target.value)}
                         placeholder={t("Doe")}
-                        required
                         className={cn("h-9 sm:h-10", errors.lastName && "border-red-500", isRTL && "text-right")}
                         dir={isRTL ? 'rtl' : 'ltr'}
                       />
@@ -431,7 +424,7 @@ const AddPatientModal: React.FC<AddPatientModalProps> = ({ trigger }) => {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div className={cn("space-y-2", isRTL && "text-right")}>
-                      <Label htmlFor="dateOfBirth" className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Date of Birth")} *</Label>
+                      <Label htmlFor="dateOfBirth" className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Date of Birth")}</Label>
                       <div className="relative">
                         <Calendar className={cn(
                           "absolute top-1/2 transform -translate-y-1/2 h-4 w-4",
@@ -443,7 +436,7 @@ const AddPatientModal: React.FC<AddPatientModalProps> = ({ trigger }) => {
                           type="date"
                           value={formData.dateOfBirth}
                           onChange={(e) => handleChange("dateOfBirth", e.target.value)}
-                          required
+                          max={new Date().toISOString().split('T')[0]}
                           className={cn(
                             "h-9 sm:h-10",
                             isRTL ? "pr-10" : "pl-10",
@@ -467,7 +460,6 @@ const AddPatientModal: React.FC<AddPatientModalProps> = ({ trigger }) => {
                         <SelectContent align={isRTL ? "start" : "end"}>
                           <SelectItem value="male">{t("Male")}</SelectItem>
                           <SelectItem value="female">{t("Female")}</SelectItem>
-                          <SelectItem value="other">{t("Other")}</SelectItem>
                         </SelectContent>
                       </Select>
                       {errors.gender && (
@@ -506,13 +498,12 @@ const AddPatientModal: React.FC<AddPatientModalProps> = ({ trigger }) => {
                   </div>
 
                   <div className={cn("space-y-2", isRTL && "text-right")}>
-                    <Label htmlFor="address" className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Address")} *</Label>
+                    <Label htmlFor="address" className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Address")}</Label>
                     <Textarea
                       id="address"
                       value={formData.address}
                       onChange={(e) => handleChange("address", e.target.value)}
                       placeholder={t("Street address, city, state, ZIP code")}
-                      required
                       className={cn("min-h-[80px] resize-none", errors.address && "border-red-500", isRTL && "text-right")}
                       dir={isRTL ? 'rtl' : 'ltr'}
                     />
