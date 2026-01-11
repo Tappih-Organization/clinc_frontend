@@ -361,17 +361,13 @@ const Patients = () => {
     },
     {
       key: 'contact',
-      label: t('Contact'),
+      label: t('Phone Number'),
       className: cn(isRTL && "text-right contact-column"),
       render: (patient: Patient) => (
-        <div className={cn("space-y-1 contact-cell", isRTL && "text-right w-full")}>
-          <div className={cn("flex items-center w-full", isRTL ? "space-x-reverse space-x-2 flex-row-reverse justify-end" : "space-x-2")}>
+        <div className={cn("contact-cell", isRTL && "text-right w-full")}>
+          <div className={cn("flex items-center w-full gap-2", isRTL && "flex-row-reverse justify-end")}>
             <Phone className="icon-sm text-muted-foreground flex-shrink-0" />
             <span className={cn("text-xs xs:text-sm", isRTL && "text-right")}>{patient.phone}</span>
-          </div>
-          <div className={cn("flex items-center w-full", isRTL ? "space-x-reverse space-x-2 flex-row-reverse justify-end" : "space-x-2")}>
-            <Mail className="icon-sm text-muted-foreground flex-shrink-0" />
-            <span className={cn("text-xs xs:text-sm truncate max-w-32", isRTL && "text-right")}>{patient.email}</span>
           </div>
         </div>
       ),
@@ -586,6 +582,47 @@ const Patients = () => {
         }
       />
 
+      {/* Filters */}
+      <Card className="mb-6">
+        <CardContent className={cn("responsive-card-padding py-4", isRTL && "text-right")}>
+          <div className={cn("flex flex-col xs:flex-row gap-3 xs:gap-4", isRTL && "flex-row-reverse")}>
+            <div className="flex-1">
+              <div className="relative">
+                <Search className={cn(
+                  "absolute top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground",
+                  isRTL ? "right-3" : "left-3"
+                )} />
+                <Input
+                  placeholder={t("Search patients by name, email, or phone...")}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className={cn(
+                    isRTL ? "pr-10" : "pl-10",
+                    "h-10"
+                  )}
+                  dir={isRTL ? 'rtl' : 'ltr'}
+                />
+              </div>
+            </div>
+            <div className={cn("flex gap-2 xs:gap-3", isRTL && "flex-row-reverse")}>
+              <select
+                value={selectedGender}
+                onChange={(e) => setSelectedGender(e.target.value)}
+                className={cn(
+                  "btn-responsive border border-input bg-background px-3 py-2 rounded-md h-10",
+                  isRTL && "text-right"
+                )}
+                dir={isRTL ? 'rtl' : 'ltr'}
+              >
+                <option value="all">{t("All Genders")}</option>
+                <option value="male">{t("Male")}</option>
+                <option value="female">{t("Female")}</option>
+              </select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Stats Cards */}
       <ResponsiveGrid columns={4} className="mb-6">
         <ResponsiveStatsCard
@@ -611,40 +648,6 @@ const Patients = () => {
           icon={Calendar}
         />
       </ResponsiveGrid>
-
-      {/* Filters */}
-      <Card className="mb-6">
-        <CardHeader className="responsive-card-padding pb-3">
-          <CardTitle className="responsive-text-lg">{t("Search & Filter")}</CardTitle>
-        </CardHeader>
-        <CardContent className="responsive-card-padding pt-0">
-          <div className="flex flex-col xs:flex-row gap-3 xs:gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder={t("Search patients by name, email, or phone...")}
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </div>
-            <div className="flex gap-2 xs:gap-3">
-              <select
-                value={selectedGender}
-                onChange={(e) => setSelectedGender(e.target.value)}
-                className="btn-responsive border border-input bg-background px-3 py-2 rounded-md"
-              >
-                <option value="all">{t("All Genders")}</option>
-                <option value="male">{t("Male")}</option>
-                <option value="female">{t("Female")}</option>
-                <option value="other">{t("Other")}</option>
-              </select>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Patient List */}
       <motion.div

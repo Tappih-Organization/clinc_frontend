@@ -22,14 +22,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, Plus, Clock, User, Stethoscope } from "lucide-react";
+import { Calendar, Plus, Clock, User, Stethoscope, UserPlus } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { parseApiError } from "@/utils/errorHandler";
 import { apiService } from "@/services/api";
-import { useCreateAppointment } from "@/hooks/useApi";
+import { useCreateAppointment, useCreatePatient } from "@/hooks/useApi";
 import type { Patient, User as Doctor, Appointment } from "@/services/api";
 import type { Service } from "@/types";
 import { serviceApi } from "@/services/api/serviceApi";
+import QuickAddPatientModal from "./QuickAddPatientModal";
 
 interface NewAppointmentModalProps {
   trigger?: React.ReactNode;
@@ -59,6 +60,7 @@ const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
   
   // React Query mutation for creating appointments
   const createAppointmentMutation = useCreateAppointment();
+  const createPatientMutation = useCreatePatient();
   const [formData, setFormData] = useState({
     patientId: "",
     doctorId: "",
@@ -77,6 +79,9 @@ const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [nurses, setNurses] = useState<Doctor[]>([]);
   const [services, setServices] = useState<Service[]>([]);
+  
+  // State for add patient modal
+  const [addPatientModalOpen, setAddPatientModalOpen] = useState(false);
 
   const timeSlots = [
     "09:00",
@@ -107,6 +112,51 @@ const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
       setFormData(prev => ({ ...prev, patientId: preSelectedPatientId }));
     }
   }, [preSelectedPatientId, open]);
+
+  // Listen for patient creation events to refresh patients list
+  useEffect(() => {
+    const handlePatientCreated = async () => {
+      // Reload patients list when a new patient is created
+      try {
+        const patientsResponse = await apiService.getPatients({ limit: 100 });
+        setPatients(patientsResponse.data.patients);
+      } catch (error) {
+        console.error('Error reloading patients:', error);
+      }
+    };
+
+    window.addEventListener('patientCreated', handlePatientCreated);
+    return () => {
+      window.removeEventListener('patientCreated', handlePatientCreated);
+    };
+  }, []);
+
+  // Handle patient creation success
+  const handlePatientCreated = async (newPatient: Patient) => {
+    // Reload patients list
+    try {
+      const patientsResponse = await apiService.getPatients({ limit: 100 });
+      setPatients(patientsResponse.data.patients);
+      
+      // Select the newly created patient immediately
+      setFormData(prev => ({ ...prev, patientId: newPatient._id }));
+      
+      // Close the add patient modal but keep the appointment modal open
+      setAddPatientModalOpen(false);
+      
+      toast({
+        title: t("Patient added successfully"),
+        description: t("The patient has been added and selected for the appointment."),
+      });
+    } catch (error) {
+      console.error('Error reloading patients:', error);
+      toast({
+        title: t("Error"),
+        description: t("Failed to reload patients list."),
+        variant: "destructive",
+      });
+    }
+  };
 
   const loadData = async () => {
     setLoadingData(true);
@@ -330,22 +380,44 @@ const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
                     <div className={cn("space-y-2", isRTL && "text-right")}>
                       <Label htmlFor="patientId" className={cn("text-sm font-medium", isRTL && "text-right")}>{t("Patient")} *</Label>
-                      <Select
-                        value={formData.patientId}
-                        onValueChange={(value) => handleChange("patientId", value)}
-                        disabled={loadingData}
-                      >
-                        <SelectTrigger className={cn("h-9 sm:h-10", isRTL && "text-right")}>
-                          <SelectValue placeholder={loadingData ? t("Loading patients...") : t("Select a patient")} />
-                        </SelectTrigger>
-                        <SelectContent align={isRTL ? "start" : "end"}>
-                          {patients.map((patient) => (
-                            <SelectItem key={patient._id} value={patient._id}>
-                              {patient.first_name} {patient.last_name} - {patient.phone}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <div className={cn("flex gap-2", isRTL && "flex-row-reverse")}>
+                        <Select
+                          value={formData.patientId}
+                          onValueChange={(value) => handleChange("patientId", value)}
+                          disabled={loadingData}
+                          className="flex-1"
+                        >
+                          <SelectTrigger className={cn("h-9 sm:h-10", isRTL && "text-right")}>
+                            <SelectValue placeholder={loadingData ? t("Loading patients...") : t("Select a patient")} />
+                          </SelectTrigger>
+                          <SelectContent align={isRTL ? "start" : "end"}>
+                            {patients.map((patient) => (
+                              <SelectItem key={patient._id} value={patient._id}>
+                                {patient.first_name} {patient.last_name} - {patient.phone}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <QuickAddPatientModal
+                          open={addPatientModalOpen}
+                          onOpenChange={setAddPatientModalOpen}
+                          onSuccess={handlePatientCreated}
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          className={cn("h-9 sm:h-10 w-9 sm:w-10 flex-shrink-0", isRTL && "flex-row-reverse")}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setAddPatientModalOpen(true);
+                          }}
+                          title={t("Add New Patient")}
+                        >
+                          <UserPlus className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
 
                     <div className={cn("space-y-2", isRTL && "text-right")}>

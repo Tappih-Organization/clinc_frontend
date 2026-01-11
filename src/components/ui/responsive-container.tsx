@@ -244,8 +244,8 @@ export const ResponsiveStatsCard: React.FC<ResponsiveStatsCardProps> = ({
   
   return (
     <ResponsiveCard className={cn("stats-card", className)}>
-      <div className={cn("flex items-start justify-between", isRTL && "flex-row-reverse")}>
-        <div className={cn("flex-1", isRTL && "text-right")}>
+      <div className={cn("flex items-start justify-between gap-3", isRTL && "flex-row-reverse")}>
+        <div className={cn("flex-1 min-w-0", isRTL && "text-right")}>
           <p className={cn("responsive-text-sm text-muted-foreground font-medium", isRTL && "text-right")}>
             {title}
           </p>
@@ -276,8 +276,8 @@ export const ResponsiveStatsCard: React.FC<ResponsiveStatsCardProps> = ({
           )}
         </div>
         {Icon && (
-          <div className={cn("flex-shrink-0 p-2 xs:p-3 bg-primary/10 rounded-lg", isRTL && "ml-2")}>
-            <Icon className="icon-lg text-primary" />
+          <div className={cn("flex-shrink-0 p-2 xs:p-3 bg-primary/10 rounded-lg", isRTL ? "mr-0" : "ml-0")}>
+            <Icon className="h-5 w-5 xs:h-6 xs:w-6 text-primary" />
           </div>
         )}
       </div>

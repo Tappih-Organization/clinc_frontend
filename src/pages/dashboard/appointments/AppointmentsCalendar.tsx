@@ -65,12 +65,16 @@ import userApi, { Doctor } from "@/services/api/userApi";
 import { getLocale, formatDateShort, formatDateShortWithWeekday, formatTime as formatTimeUtil } from "@/utils/dateUtils";
 import NewAppointmentModal from "@/components/modals/NewAppointmentModal";
 import { AppointmentSlipPDFGenerator, convertToAppointmentSlipData, type ClinicInfo } from "@/utils/appointmentSlipPdf";
+import { useAppointmentStatusConfig } from "@/hooks/useAppointmentStatuses";
 
 const AppointmentsCalendar = () => {
   const { t, i18n } = useTranslation();
   const isRTL = useIsRTL();
   const currentLocale = getLocale();
   const { currentClinic, loading: clinicLoading, error: clinicError } = useClinic();
+  
+  // Get dynamic appointment statuses
+  const { statuses, isLoading: statusesLoading, getStatusConfig, getStatusColor, getStatusName, getStatusColorClass, getStatusIcon, getCalendarStatuses } = useAppointmentStatusConfig();
   
   // Calendar view state
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -219,38 +223,9 @@ const AppointmentsCalendar = () => {
   const appointments = (appointmentsData as any)?.data?.appointments || [];
   const processedAppointments = useMemo(() => appointments.map(convertAppointment), [appointments]);
   
-  // Helper function to get color based on status (must be defined before appointmentToCalendarEvent)
+  // Helper function to get color based on status (using dynamic statuses)
   const getStatusColorForCalendar = (status: string): string => {
-    switch (status) {
-      case "completed":
-        return "#10b981"; // green (light green)
-      case "scheduled":
-      case "confirmed":
-        return "#3b82f6"; // blue (light blue)
-      case "cancelled":
-        return "#ef4444"; // red (light red/pink)
-      case "no-show":
-        return "#f59e0b"; // orange (light orange/yellow)
-      default:
-        return "#6b7280"; // gray
-    }
-  };
-  
-  // Helper function to get status color class for display
-  const getStatusColorClass = (status: string): string => {
-    switch (status) {
-      case "completed":
-        return "bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300 border-green-200";
-      case "scheduled":
-      case "confirmed":
-        return "bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 border-blue-200";
-      case "cancelled":
-        return "bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-300 border-red-200";
-      case "no-show":
-        return "bg-orange-100 dark:bg-orange-900/20 text-orange-800 dark:text-orange-300 border-orange-200";
-      default:
-        return "bg-gray-100 dark:bg-gray-900/20 text-gray-800 dark:text-gray-300 border-gray-200";
-    }
+    return getStatusColor(status);
   };
   
   // Helper function to convert appointment to CalendarEvent
@@ -283,9 +258,9 @@ const AppointmentsCalendar = () => {
         appointment.notes.toLowerCase().includes(searchTerm.toLowerCase());
 
       // Apply status filter (client-side filtering for consistency)
+      // Use dynamic status codes - selectedStatus can be "all" or a status code
       const matchesStatus = selectedStatus === "all" || 
-        appointment.status === selectedStatus ||
-        (selectedStatus === "scheduled" && (appointment.status === "scheduled" || appointment.status === "confirmed"));
+        appointment.status === selectedStatus;
 
       return matchesSearch && matchesStatus;
     });
@@ -421,42 +396,7 @@ const AppointmentsCalendar = () => {
   }, [currentClinic]);
 
 
-  // Helper functions for status display
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "completed":
-        return <CheckCircle className="h-4 w-4 text-green-600" />;
-      case "scheduled":
-      case "confirmed":
-        return <Clock className="h-4 w-4 text-primary" />;
-      case "cancelled":
-        return <XCircle className="h-4 w-4 text-red-600" />;
-      case "no-show":
-        return <AlertTriangle className="h-4 w-4 text-orange-600" />;
-      case "in-progress":
-        return <Clock className="h-4 w-4 text-yellow-600" />;
-      default:
-        return <Clock className="h-4 w-4 text-muted-foreground" />;
-    }
-  };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "completed":
-        return "bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300";
-      case "scheduled":
-      case "confirmed":
-        return "bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300";
-      case "cancelled":
-        return "bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-300";
-      case "no-show":
-        return "bg-orange-100 dark:bg-orange-900/20 text-orange-800 dark:text-orange-300";
-      case "in-progress":
-        return "bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-300";
-      default:
-        return "bg-purple-100 dark:bg-purple-900/20 text-purple-800 dark:text-purple-300";
-    }
-  };
   
   // Handle appointment actions
   const handleViewAppointment = async (appointmentId: string) => {
@@ -644,43 +584,22 @@ const AppointmentsCalendar = () => {
   };
 
   const getStatusBadge = (status: string) => {
-    const statusConfig = {
-      scheduled: { icon: Clock, className: "bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300" },
-      confirmed: {
-        icon: CheckCircle,
-        className: "bg-green-100 text-green-800",
-      },
-      completed: { icon: CheckCircle, className: "bg-muted text-muted-foreground" },
-      cancelled: { icon: XCircle, className: "bg-red-100 text-red-800" },
-      "no-show": {
-        icon: AlertTriangle,
-        className: "bg-orange-100 text-orange-800",
-      },
-      "in-progress": {
-        icon: Clock,
-        className: "bg-yellow-100 text-yellow-800",
-      },
-    };
-
-    // Get config with fallback for unknown status
-    const config = statusConfig[status as keyof typeof statusConfig] || {
-      icon: AlertTriangle,
-      className: "bg-muted text-muted-foreground",
-    };
-    
-    const Icon = config.icon;
+    const statusConfig = getStatusConfig(status);
+    const statusName = getStatusName(status);
+    const statusColor = getStatusColorClass(status);
+    const Icon = getStatusIcon(status);
 
     return (
-      <Badge className={config.className}>
+      <Badge className={statusColor}>
         {isRTL ? (
           <>
-            {status.replace("-", " ")}
-            <Icon className="h-3 w-3 ml-1" />
+            {statusName}
+            {Icon}
           </>
         ) : (
           <>
-            <Icon className="h-3 w-3 mr-1" />
-            {status.replace("-", " ")}
+            {Icon}
+            {statusName}
           </>
         )}
       </Badge>
@@ -940,6 +859,97 @@ const AppointmentsCalendar = () => {
         </div>
       </div>
 
+      {/* Search and Filters */}
+      <Card className="mb-6">
+        <CardContent className={cn("p-3 xs:p-4 sm:p-6 py-4", isRTL && "text-right")}>
+          <div className={cn("flex flex-col gap-3 sm:gap-4", isRTL && "flex-row-reverse")}>
+            {/* Search Bar */}
+            <div className="relative flex-1 min-w-0">
+              <Search className={cn(
+                "absolute top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground",
+                isRTL ? "right-3" : "left-3"
+              )} />
+              <Input
+                placeholder={t("Search appointments by patient or doctor...")}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className={cn("w-full h-10", isRTL ? "pr-10" : "pl-10")}
+                dir={isRTL ? 'rtl' : 'ltr'}
+              />
+            </div>
+
+            {/* Filter Controls */}
+            <div className={cn("flex flex-col xs:flex-row gap-2 xs:gap-3 sm:gap-4", isRTL && "flex-row-reverse")}>
+              <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                <SelectTrigger className="w-full xs:w-40">
+                  <SelectValue placeholder={t("All Status")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t("All Status")}</SelectItem>
+                  {statusesLoading ? (
+                    <SelectItem value="loading" disabled>{t("Loading...")}</SelectItem>
+                  ) : (
+                    statuses.filter(s => s.is_active).map((status) => (
+                      <SelectItem key={status.code} value={status.code}>
+                        {getStatusName(status.code)}
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
+
+              <Select value={selectedDateFilter} onValueChange={(value) => {
+                setSelectedDateFilter(value);
+                // If switching to custom-date and no date is selected, set today as default
+                if (value === "custom-date" && !selectedDatefilter) {
+                  const today = new Date();
+                  const todayString = today.toISOString().split("T")[0];
+                  setSelectedDatefilter(todayString);
+                  // Switch to day view and update currentDate immediately
+                  setViewMode("day");
+                  setCurrentDate(new Date(todayString));
+                }
+              }}>
+                <SelectTrigger className="w-full xs:w-48">
+                  <SelectValue placeholder={t("All Dates")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="today">{t("Today")}</SelectItem>
+                  <SelectItem value="tomorrow">{t("Tomorrow")}</SelectItem>
+                  <SelectItem value="this-week">{t("This Week")}</SelectItem>
+                  <SelectItem value="next-week">{t("Next Week")}</SelectItem>
+                  <SelectItem value="custom-date">{t("Custom Date")}</SelectItem>
+                  <SelectItem value="all">{t("All Dates")}</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* Show date picker only when custom-date is selected */}
+              {selectedDateFilter === "custom-date" && (
+                <Input
+                  id="date"
+                  type="date"
+                  value={selectedDatefilter || ""}
+                  onChange={(e) => {
+                    const selectedDateValue = e.target.value;
+                    setSelectedDatefilter(selectedDateValue);
+                    // Immediately switch to day view and update currentDate when date is selected
+                    if (selectedDateValue) {
+                      const selectedDate = new Date(selectedDateValue);
+                      selectedDate.setHours(0, 0, 0, 0);
+                      setViewMode("day");
+                      setCurrentDate(selectedDate);
+                    }
+                  }}
+                  required
+                  className={cn("w-full xs:w-40 h-9 sm:h-10", isRTL && "pr-3")}
+                  dir={isRTL ? 'rtl' : 'ltr'}
+                />
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Stats Cards */}
       <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-2 xs:gap-3 sm:gap-4 lg:gap-6">
         <motion.div
@@ -1030,93 +1040,6 @@ const AppointmentsCalendar = () => {
           </Card>
         </motion.div>
       </div>
-
-      {/* Search and Filters */}
-      <Card>
-        <CardContent className="p-3 xs:p-4 sm:p-6">
-          <div className="flex flex-col gap-3 sm:gap-4">
-            {/* Search Bar */}
-            <div className="relative flex-1 min-w-0">
-              <Search className={cn(
-                "absolute top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground",
-                isRTL ? "right-3" : "left-3"
-              )} />
-              <Input
-                placeholder={t("Search appointments by patient or doctor...")}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className={cn("w-full h-10", isRTL ? "pr-10" : "pl-10")}
-                dir={isRTL ? 'rtl' : 'ltr'}
-              />
-            </div>
-
-            {/* Filter Controls */}
-            <div className="flex flex-col xs:flex-row gap-2 xs:gap-3 sm:gap-4">
-              <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                <SelectTrigger className="w-full xs:w-40">
-                  <SelectValue placeholder={t("All Status")} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t("All Status")}</SelectItem>
-                  <SelectItem value="scheduled">{t("Scheduled")}</SelectItem>
-                  <SelectItem value="confirmed">{t("Confirmed")}</SelectItem>
-                  <SelectItem value="completed">{t("Completed")}</SelectItem>
-                  <SelectItem value="cancelled">{t("Cancelled")}</SelectItem>
-                  <SelectItem value="no-show">{t("No Show")}</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Select value={selectedDateFilter} onValueChange={(value) => {
-                setSelectedDateFilter(value);
-                // If switching to custom-date and no date is selected, set today as default
-                if (value === "custom-date" && !selectedDatefilter) {
-                  const today = new Date();
-                  const todayString = today.toISOString().split("T")[0];
-                  setSelectedDatefilter(todayString);
-                  // Switch to day view and update currentDate immediately
-                  setViewMode("day");
-                  setCurrentDate(new Date(todayString));
-                }
-              }}>
-                <SelectTrigger className="w-full xs:w-48">
-                  <SelectValue placeholder={t("All Dates")} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="today">{t("Today")}</SelectItem>
-                  <SelectItem value="tomorrow">{t("Tomorrow")}</SelectItem>
-                  <SelectItem value="this-week">{t("This Week")}</SelectItem>
-                  <SelectItem value="next-week">{t("Next Week")}</SelectItem>
-                  <SelectItem value="custom-date">{t("Custom Date")}</SelectItem>
-                  <SelectItem value="all">{t("All Dates")}</SelectItem>
-                </SelectContent>
-              </Select>
-
-              {/* Show date picker only when custom-date is selected */}
-              {selectedDateFilter === "custom-date" && (
-                <Input
-                  id="date"
-                  type="date"
-                  value={selectedDatefilter || ""}
-                  onChange={(e) => {
-                    const selectedDateValue = e.target.value;
-                    setSelectedDatefilter(selectedDateValue);
-                    // Immediately switch to day view and update currentDate when date is selected
-                    if (selectedDateValue) {
-                      const selectedDate = new Date(selectedDateValue);
-                      selectedDate.setHours(0, 0, 0, 0);
-                      setViewMode("day");
-                      setCurrentDate(selectedDate);
-                    }
-                  }} 
-                  required
-                  className={cn("w-full xs:w-40 h-9 sm:h-10", isRTL && "pr-3")}
-                  dir={isRTL ? 'rtl' : 'ltr'}
-                />
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Calendar Controls */}
       <Card>
@@ -1286,7 +1209,11 @@ const AppointmentsCalendar = () => {
                                       "text-xs p-1 rounded truncate cursor-pointer hover:opacity-80 border",
                                       getStatusColorClass(event.status)
                                     )}
-                                    style={{ borderLeftColor: event.color, borderLeftWidth: "3px" }}
+                                    style={{ 
+                                      borderLeftColor: event.color, 
+                                      borderLeftWidth: "3px",
+                                      backgroundColor: `${event.color}15`,
+                                    }}
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       if (appointment) {
@@ -1378,7 +1305,11 @@ const AppointmentsCalendar = () => {
                                       "text-xs p-1 rounded cursor-pointer hover:opacity-80 truncate border",
                                       getStatusColorClass(event.status)
                                     )}
-                                    style={{ borderLeftColor: event.color, borderLeftWidth: "3px" }}
+                                    style={{ 
+                                      borderLeftColor: event.color, 
+                                      borderLeftWidth: "3px",
+                                      backgroundColor: `${event.color}15`,
+                                    }}
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       if (appointment) {
@@ -1469,7 +1400,10 @@ const AppointmentsCalendar = () => {
                                       getStatusColorClass(event.status),
                                       "border-l-4"
                                     )}
-                                    style={{ borderLeftColor: event.color }}
+                                    style={{ 
+                                      borderLeftColor: event.color,
+                                      backgroundColor: `${event.color}15`,
+                                    }}
                                     onClick={() => {
                                       if (appointment) {
                                         handleViewDetails(appointment);
@@ -1813,8 +1747,8 @@ const AppointmentsCalendar = () => {
                 </div>
                 <div>
                   <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">{t("Status")}</h4>
-                  <Badge className={cn(getStatusColor(viewDetailsModal.appointment.status), "capitalize")}>
-                    {viewDetailsModal.appointment.status}
+                  <Badge className={cn(getStatusColorClass(viewDetailsModal.appointment.status), "capitalize")}>
+                    {getStatusName(viewDetailsModal.appointment.status)}
                   </Badge>
                 </div>
               </div>
