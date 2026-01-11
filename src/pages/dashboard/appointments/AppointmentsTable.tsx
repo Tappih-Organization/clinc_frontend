@@ -84,19 +84,26 @@ import {
   Download,
   Settings,
   RotateCw,
+  UserPlus,
 } from "lucide-react";
 import { Appointment as ApiAppointment, Patient as ApiPatient, User as ApiUser } from "@/services/api";
 import { apiService } from "@/services/api";
 import { serviceApi } from "@/services/api/serviceApi";
 import type { Service } from "@/types";
 import NewAppointmentModal from "@/components/modals/NewAppointmentModal";
+import QuickAddPatientModal from "@/components/modals/QuickAddPatientModal";
 import { AppointmentSlipPDFGenerator, convertToAppointmentSlipData, type ClinicInfo } from "@/utils/appointmentSlipPdf";
 import { formatTime as formatTimeUtil, formatDateShortWithWeekday } from "@/utils/dateUtils";
+import { useAppointmentStatusConfig } from "@/hooks/useAppointmentStatuses";
 
 const AppointmentsTable = () => {
   const { t } = useTranslation();
   const isRTL = useIsRTL();
   const { currentClinic } = useClinic();
+  
+  // Get dynamic appointment statuses
+  const { statuses, isLoading: statusesLoading, getStatusConfig, getStatusColor, getStatusName, getStatusColorClass, getStatusIcon } = useAppointmentStatusConfig();
+  
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [selectedDate, setSelectedDate] = useState("all");
@@ -182,6 +189,9 @@ useEffect(() => {
     services: [] as Service[],
     loading: false,
   });
+
+  // State for add patient modal in edit appointment modal
+  const [addPatientModalOpen, setAddPatientModalOpen] = useState(false);
 
   // Build API parameters with date filtering
   const getDateRangeParams = () => {
@@ -345,43 +355,7 @@ useEffect(() => {
     setCurrentPage(1);
   }, [selectedStatus, selectedDate, searchTerm]);
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "completed":
-        return <CheckCircle className="h-4 w-4 text-green-600" />;
-      case "scheduled":
-      case "confirmed":
-        return <Clock className="h-4 w-4 text-primary" />;
-      case "cancelled":
-        return <XCircle className="h-4 w-4 text-red-600" />;
-      case "no-show":
-        return <AlertCircle className="h-4 w-4 text-orange-600" />;
-      case "in-progress":
-        return <Clock className="h-4 w-4 text-yellow-600" />;
-      default:
-        return <Clock className="h-4 w-4 text-muted-foreground" />;
-    }
-  };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "completed":
-        return "bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300";
-      case "scheduled":
-      case "confirmed":
-        return "bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300";
-      case "cancelled":
-        return "bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-300";
-      case "no-show":
-        return "bg-orange-100 dark:bg-orange-900/20 text-orange-800 dark:text-orange-300";
-      case "in-progress":
-        return "bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-300";
-      case "not-completed":
-        return "bg-purple-100 dark:bg-purple-900/20 text-purple-800 dark:text-purple-300";
-      default:
-        return "bg-purple-100 dark:bg-purple-900/20 text-purple-800 dark:text-purple-300";
-    }
-  };
 
   const formatTime = (date: Date) => {
     return formatTimeUtil(date);
@@ -499,6 +473,45 @@ useEffect(() => {
     setPageSize(parseInt(newPageSize));
     setCurrentPage(1); // Reset to first page when changing page size
   };
+
+  // Handle patient creation success in edit modal
+  const handlePatientCreatedInEdit = async (newPatient: ApiPatient) => {
+    // Reload patients list
+    try {
+      const patientsResponse = await apiService.getPatients({ limit: 100 });
+      setEditModalData(prev => ({ ...prev, patients: patientsResponse.data.patients }));
+      
+      // Select the newly created patient
+      setEditFormData(prev => ({ ...prev, patientId: newPatient._id }));
+      
+      toast({
+        title: t("Patient added successfully"),
+        description: t("The patient has been added and selected for the appointment."),
+      });
+    } catch (error) {
+      console.error('Error reloading patients:', error);
+    }
+  };
+
+  // Listen for patient creation events to refresh patients list in edit modal
+  useEffect(() => {
+    const handlePatientCreated = async () => {
+      // Reload patients list when a new patient is created
+      if (editModal.open) {
+        try {
+          const patientsResponse = await apiService.getPatients({ limit: 100 });
+          setEditModalData(prev => ({ ...prev, patients: patientsResponse.data.patients }));
+        } catch (error) {
+          console.error('Error reloading patients:', error);
+        }
+      }
+    };
+
+    window.addEventListener('patientCreated', handlePatientCreated);
+    return () => {
+      window.removeEventListener('patientCreated', handlePatientCreated);
+    };
+  }, [editModal.open]);
 
   // Load data for edit modal
   const loadEditModalData = async () => {
@@ -816,10 +829,10 @@ useEffect(() => {
     }
 
     try {
-      const validStatuses: Array<'scheduled' | 'confirmed' | 'in-progress' | 'completed' | 'cancelled' | 'no-show'> = 
-        ['scheduled', 'confirmed', 'in-progress', 'completed', 'cancelled', 'no-show'];
+      // Validate that the selected status exists in active statuses
+      const isValidStatus = statuses.some(s => s.is_active && s.code === statusFormData.status);
       
-      if (!validStatuses.includes(statusFormData.status as any)) {
+      if (!isValidStatus) {
         toast({
           title: t("Validation Error"),
           description: t("Invalid status selected."),
@@ -830,7 +843,7 @@ useEffect(() => {
 
       await updateAppointmentMutation.mutateAsync({
         id: changeStatusModal.appointment.id,
-        data: { status: statusFormData.status as 'scheduled' | 'confirmed' | 'in-progress' | 'completed' | 'cancelled' | 'no-show' }
+        data: { status: statusFormData.status }
       });
 
       setChangeStatusModal({ open: false, appointment: null });
@@ -1006,6 +1019,92 @@ useEffect(() => {
         </div>
       </div>
 
+      {/* Search and Filters */}
+      <Card className="mb-6">
+        <CardContent className={cn("p-3 xs:p-4 sm:p-6 py-4", isRTL && "text-right")}>
+          <div className={cn("flex flex-col gap-3 sm:gap-4", isRTL && "flex-row-reverse")}>
+            {/* Search Bar */}
+            <div className="relative flex-1 min-w-0">
+              <Search className={cn(
+                "absolute top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground",
+                isRTL ? "right-3" : "left-3"
+              )} />
+              <Input
+                placeholder={t("Search appointments by patient or doctor...")}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className={cn(
+                  isRTL ? "pr-10" : "pl-10",
+                  "w-full h-10"
+                )}
+                dir={isRTL ? 'rtl' : 'ltr'}
+              />
+            </div>
+
+            {/* Filter Controls */}
+            <div className={cn("flex flex-col xs:flex-row gap-2 xs:gap-3 sm:gap-4", isRTL && "flex-row-reverse")}>
+              <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                <SelectTrigger className="w-full xs:w-40">
+                  <SelectValue placeholder={t("Status")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t("All Status")}</SelectItem>
+                  {statusesLoading ? (
+                    <SelectItem value="loading" disabled>{t("Loading...")}</SelectItem>
+                  ) : (
+                    statuses.filter(s => s.is_active).map((status) => (
+                      <SelectItem key={status.code} value={status.code}>
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="w-3 h-3 rounded-full flex-shrink-0"
+                            style={{ backgroundColor: status.color }}
+                          />
+                          <span>{getStatusName(status.code)}</span>
+                        </div>
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
+
+              <Select value={selectedDate} onValueChange={(value) => {
+                setSelectedDate(value);
+                // If switching to custom-date and no date is selected, set today as default
+                if (value === "custom-date" && !selectedDatefilter) {
+                  const today = new Date();
+                  setSelectedDatefilter(today.toISOString().split("T")[0]);
+                }
+              }}>
+                <SelectTrigger className="w-full xs:w-48">
+                  <SelectValue placeholder={t("Date Range")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="today">{t("Today")}</SelectItem>
+                  <SelectItem value="tomorrow">{t("Tomorrow")}</SelectItem>
+                  <SelectItem value="this-week">{t("This Week")}</SelectItem>
+                  <SelectItem value="next-week">{t("Next Week")}</SelectItem>
+                  <SelectItem value="custom-date">{t("Custom Date")}</SelectItem>
+                  <SelectItem value="all">{t("All Dates")}</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* Show date picker only when custom-date is selected */}
+              {selectedDate === "custom-date" && (
+                <Input
+                  id="date"
+                  type="date"
+                  value={selectedDatefilter || ""}
+                  onChange={(e) => setSelectedDatefilter(e.target.value)}
+                  required
+                  className={cn("w-40 h-9 sm:h-10", isRTL && "pr-3")}
+                  dir={isRTL ? 'rtl' : 'ltr'}
+                />
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Stats Cards */}
       <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-2 xs:gap-3 sm:gap-4 lg:gap-6">
         <motion.div
@@ -1096,78 +1195,6 @@ useEffect(() => {
           </Card>
         </motion.div>
       </div>
-
-      {/* Search and Filters */}
-      <Card>
-        <CardContent className="p-3 xs:p-4 sm:p-6">
-          <div className="flex flex-col gap-3 sm:gap-4">
-            {/* Search Bar */}
-            <div className="relative flex-1 min-w-0">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder={t("Search appointments by patient or doctor...")}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 w-full h-10"
-              />
-            </div>
-
-            {/* Filter Controls */}
-            <div className="flex flex-col xs:flex-row gap-2 xs:gap-3 sm:gap-4">
-              <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                <SelectTrigger className="w-full xs:w-40">
-                  <SelectValue placeholder={t("Status")} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t("All Status")}</SelectItem>
-                  <SelectItem value="scheduled">{t("Scheduled")}</SelectItem>
-                  <SelectItem value="confirmed">{t("Confirmed")}</SelectItem>
-                  <SelectItem value="completed">{t("Completed")}</SelectItem>
-                  <SelectItem value="cancelled">{t("Cancelled")}</SelectItem>
-                  <SelectItem value="no-show">{t("No Show")}</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Select value={selectedDate} onValueChange={(value) => {
-                setSelectedDate(value);
-                // If switching to custom-date and no date is selected, set today as default
-                if (value === "custom-date" && !selectedDatefilter) {
-                  const today = new Date();
-                  setSelectedDatefilter(today.toISOString().split("T")[0]);
-                }
-              }}>
-                <SelectTrigger className="w-full xs:w-48">
-                  <SelectValue placeholder={t("Date Range")} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="today">{t("Today")}</SelectItem>
-                  <SelectItem value="tomorrow">{t("Tomorrow")}</SelectItem>
-                  <SelectItem value="this-week">{t("This Week")}</SelectItem>
-                  <SelectItem value="next-week">{t("Next Week")}</SelectItem>
-                  <SelectItem value="custom-date">{t("Custom Date")}</SelectItem>
-                  <SelectItem value="all">{t("All Dates")}</SelectItem>
-                </SelectContent>
-              </Select>
-
-              {/* Show date picker only when custom-date is selected */}
-              {selectedDate === "custom-date" && (
-                <Input
-                  id="date"
-                  type="date"
-                  value={selectedDatefilter || ""}
-                  onChange={(e) => setSelectedDatefilter(e.target.value)} 
-                  required
-                  className={cn("w-40 h-9 sm:h-10", isRTL && "pr-3")}
-                  dir={isRTL ? 'rtl' : 'ltr'}
-                />
-              )}
-
-
-
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Appointments Table */}
       <motion.div
@@ -1299,10 +1326,19 @@ useEffect(() => {
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <Badge variant="secondary" className={`text-xs ${getStatusColor(appointment.status)}`}>
+                          <div className={cn("flex items-center", isRTL ? "flex-row-reverse gap-2.5" : "gap-1")}>
                             {getStatusIcon(appointment.status)}
-                            <span className="ml-1 capitalize">{appointment.status}</span>
-                          </Badge>
+                            <Badge 
+                              variant="secondary" 
+                              className={cn("text-xs", getStatusColorClass(appointment.status))}
+                              style={{ 
+                                backgroundColor: `${getStatusColor(appointment.status)}15`,
+                                borderColor: getStatusColor(appointment.status),
+                              }}
+                            >
+                              {getStatusName(appointment.status)}
+                            </Badge>
+                          </div>
                         </TableCell>
                         <TableCell className="text-right">
                           <DropdownMenu>
@@ -1409,13 +1445,19 @@ useEffect(() => {
                             </p>
                           </div>
                         </div>
-                        <Badge 
-                          variant="secondary" 
-                          className={`text-xs flex items-center space-x-1 ${getStatusColor(appointment.status)}`}
-                        >
+                        <div className={cn("flex items-center", isRTL ? "flex-row-reverse gap-2.5" : "gap-1")}>
                           {getStatusIcon(appointment.status)}
-                          <span className="capitalize">{appointment.status}</span>
-                        </Badge>
+                          <Badge 
+                            variant="secondary" 
+                            className={cn("text-xs", getStatusColorClass(appointment.status))}
+                            style={{ 
+                              backgroundColor: `${getStatusColor(appointment.status)}15`,
+                              borderColor: getStatusColor(appointment.status),
+                            }}
+                          >
+                            {getStatusName(appointment.status)}
+                          </Badge>
+                        </div>
                       </div>
 
                       {/* Appointment details */}
@@ -1634,8 +1676,14 @@ useEffect(() => {
                 </div>
                 <div>
                   <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">{t("Status")}</h4>
-                  <Badge className={`${getStatusColor(viewDetailsModal.appointment.status)}`}>
-                    {viewDetailsModal.appointment.status}
+                  <Badge 
+                    className={`${getStatusColorClass(viewDetailsModal.appointment.status)}`}
+                    style={{ 
+                      backgroundColor: `${getStatusColor(viewDetailsModal.appointment.status)}15`,
+                      borderColor: getStatusColor(viewDetailsModal.appointment.status),
+                    }}
+                  >
+                    {getStatusName(viewDetailsModal.appointment.status)}
                   </Badge>
                 </div>
               </div>
@@ -1667,34 +1715,56 @@ useEffect(() => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="edit-patient">{t("Select Patient")} *</Label>
-                  <Select
-                    value={editFormData.patientId}
-                    onValueChange={(value) => setEditFormData(prev => ({ ...prev, patientId: value }))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder={t("Choose a patient")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {editModalData.loading ? (
-                        <SelectItem value="loading" disabled>
-                          {t("Loading patients...")}
-                        </SelectItem>
-                      ) : (
-                        editModalData.patients.map((patient) => (
-                          <SelectItem key={patient._id} value={patient._id}>
-                            <div className="flex flex-col">
-                              <span className="font-medium">
-                                {patient.first_name} {patient.last_name}
-                              </span>
-                              <span className="text-xs text-muted-foreground">
-                                {patient.phone}
-                              </span>
-                            </div>
+                  <div className={cn("flex gap-2", isRTL && "flex-row-reverse")}>
+                    <Select
+                      value={editFormData.patientId}
+                      onValueChange={(value) => setEditFormData(prev => ({ ...prev, patientId: value }))}
+                      className="flex-1"
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder={t("Choose a patient")} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {editModalData.loading ? (
+                          <SelectItem value="loading" disabled>
+                            {t("Loading patients...")}
                           </SelectItem>
-                        ))
-                      )}
-                    </SelectContent>
-                  </Select>
+                        ) : (
+                          editModalData.patients.map((patient) => (
+                            <SelectItem key={patient._id} value={patient._id}>
+                              <div className="flex flex-col">
+                                <span className="font-medium">
+                                  {patient.first_name} {patient.last_name}
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                  {patient.phone}
+                                </span>
+                              </div>
+                            </SelectItem>
+                          ))
+                        )}
+                      </SelectContent>
+                    </Select>
+                    <QuickAddPatientModal
+                      open={addPatientModalOpen}
+                      onOpenChange={setAddPatientModalOpen}
+                      onSuccess={handlePatientCreatedInEdit}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className={cn("h-10 w-10 flex-shrink-0", isRTL && "flex-row-reverse")}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setAddPatientModalOpen(true);
+                      }}
+                      title={t("Add New Patient")}
+                    >
+                      <UserPlus className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
 
                 <div className="space-y-2">
@@ -1952,12 +2022,23 @@ useEffect(() => {
                   <SelectValue placeholder={t("Select new status")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="scheduled">{t("Scheduled")}</SelectItem>
-                  <SelectItem value="confirmed">{t("Confirmed")}</SelectItem>
-                  <SelectItem value="in-progress">{t("In Progress")}</SelectItem>
-                  <SelectItem value="completed">{t("Completed")}</SelectItem>
-                  <SelectItem value="cancelled">{t("Cancelled")}</SelectItem>
-                  <SelectItem value="no-show">{t("No Show")}</SelectItem>
+                  {statusesLoading ? (
+                    <SelectItem value="loading" disabled>{t("Loading...")}</SelectItem>
+                  ) : statuses.length === 0 ? (
+                    <SelectItem value="no-statuses" disabled>{t("No statuses available")}</SelectItem>
+                  ) : (
+                    statuses.filter(s => s.is_active).map((status) => (
+                      <SelectItem key={status.code} value={status.code}>
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="w-3 h-3 rounded-full flex-shrink-0"
+                            style={{ backgroundColor: status.color }}
+                          />
+                          <span>{getStatusName(status.code)}</span>
+                        </div>
+                      </SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
             </div>

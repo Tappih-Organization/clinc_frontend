@@ -25,14 +25,34 @@ import Dashboard from "./pages/dashboard/Dashboard";
 import NotFound from "./pages/NotFound";
 import Features from "./pages/Features";
 
+// Helper function to retry dynamic imports
+const retryLazyImport = (importFn: () => Promise<any>, retries = 3, delay = 1000): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    const attempt = (remaining: number) => {
+      importFn()
+        .then(resolve)
+        .catch((error) => {
+          if (remaining > 0) {
+            console.warn(`Failed to load module, retrying... (${retries - remaining + 1}/${retries})`);
+            setTimeout(() => attempt(remaining - 1), delay);
+          } else {
+            console.error('Failed to load module after retries:', error);
+            reject(error);
+          }
+        });
+    };
+    attempt(retries);
+  });
+};
+
 // Lazy load heavy components for better initial load performance
-const XrayAnalysis = lazy(() => import("./pages/dashboard/xray-analysis/XrayAnalysis"));
-const AITestAnalysis = lazy(() => import("./pages/dashboard/ai-test-analysis/AITestAnalysis"));
-const AITestComparison = lazy(() => import("./pages/dashboard/ai-test-comparison/AITestComparison"));
-const Patients = lazy(() => import("./pages/dashboard/patients/Patients"));
-const AppointmentsTable = lazy(() => import("./pages/dashboard/appointments/AppointmentsTable"));
-const AppointmentsCalendar = lazy(() => import("./pages/dashboard/appointments/AppointmentsCalendar"));
-const AddAppointment = lazy(() => import("./pages/dashboard/appointments/AddAppointment"));
+const XrayAnalysis = lazy(() => retryLazyImport(() => import("./pages/dashboard/xray-analysis/XrayAnalysis")));
+const AITestAnalysis = lazy(() => retryLazyImport(() => import("./pages/dashboard/ai-test-analysis/AITestAnalysis")));
+const AITestComparison = lazy(() => retryLazyImport(() => import("./pages/dashboard/ai-test-comparison/AITestComparison")));
+const Patients = lazy(() => retryLazyImport(() => import("./pages/dashboard/patients/Patients")));
+const AppointmentsTable = lazy(() => retryLazyImport(() => import("./pages/dashboard/appointments/AppointmentsTable")));
+const AppointmentsCalendar = lazy(() => retryLazyImport(() => import("./pages/dashboard/appointments/AppointmentsCalendar")));
+const AddAppointment = lazy(() => retryLazyImport(() => import("./pages/dashboard/appointments/AddAppointment")));
 const Billing = lazy(() => import("./pages/dashboard/billing/Billing"));
 const Leads = lazy(() => import("./pages/dashboard/leads/Leads"));
 const Services = lazy(() => import("./pages/dashboard/services/Services"));

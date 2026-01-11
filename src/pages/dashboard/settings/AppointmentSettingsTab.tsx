@@ -3,11 +3,18 @@ import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit, Trash2, Calendar, Palette } from "lucide-react";
+import { Plus, Edit, Trash2, Calendar, Palette, Loader2, Clock, CheckCircle, XCircle, AlertCircle, AlertTriangle } from "lucide-react";
 import AddEditStatusModal, { AppointmentStatus } from "@/components/modals/AddEditStatusModal";
 import { toast } from "@/hooks/use-toast";
 import { useIsRTL } from "@/hooks/useIsRTL";
 import { cn } from "@/lib/utils";
+import {
+  useAppointmentStatuses,
+  useCreateAppointmentStatus,
+  useUpdateAppointmentStatus,
+  useDeleteAppointmentStatus,
+} from "@/hooks/useAppointmentStatuses";
+import Loading from "@/components/ui/Loading";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,143 +31,46 @@ interface AppointmentSettingsTabProps {
   onChange?: (data: any) => void;
 }
 
-const STORAGE_KEY = "appointment_statuses";
-
-// Default statuses based on the backend schema
-const DEFAULT_STATUSES: AppointmentStatus[] = [
-  {
-    code: "S001",
-    name_ar: "مجدول",
-    name_en: "Scheduled",
-    color: "#3b82f6",
-    order: 1,
-    show_in_calendar: false,
-    is_active: true,
-    is_default: true,
-    is_deleted: false,
-  },
-  {
-    code: "S002",
-    name_ar: "مؤكد",
-    name_en: "Confirmed",
-    color: "#10b981",
-    order: 2,
-    show_in_calendar: false,
-    is_active: true,
-    is_default: false,
-    is_deleted: false,
-  },
-  {
-    code: "S003",
-    name_ar: "قيد التنفيذ",
-    name_en: "In Progress",
-    color: "#f59e0b",
-    order: 3,
-    show_in_calendar: false,
-    is_active: true,
-    is_default: false,
-    is_deleted: false,
-  },
-  {
-    code: "S004",
-    name_ar: "مكتمل",
-    name_en: "Completed",
-    color: "#10b981",
-    order: 4,
-    show_in_calendar: false,
-    is_active: true,
-    is_default: false,
-    is_deleted: false,
-  },
-  {
-    code: "S005",
-    name_ar: "ملغي",
-    name_en: "Cancelled",
-    color: "#ef4444",
-    order: 5,
-    show_in_calendar: false,
-    is_active: true,
-    is_default: false,
-    is_deleted: false,
-  },
-  {
-    code: "S006",
-    name_ar: "لم يحضر",
-    name_en: "No Show",
-    color: "#f59e0b",
-    order: 6,
-    show_in_calendar: false,
-    is_active: true,
-    is_default: false,
-    is_deleted: false,
-  },
-];
-
 const AppointmentSettingsTab: React.FC<AppointmentSettingsTabProps> = ({
   data,
   onChange,
 }) => {
   const { t, i18n } = useTranslation();
   const isRTL = useIsRTL();
-  const [statuses, setStatuses] = useState<AppointmentStatus[]>([]);
-  const [activeStatuses, setActiveStatuses] = useState<AppointmentStatus[]>([]);
-  const [deletedStatuses, setDeletedStatuses] = useState<AppointmentStatus[]>([]);
+  
+  // API hooks - include inactive statuses for settings page
+  const { data: statuses = [], isLoading, error: statusesError } = useAppointmentStatuses(true);
+  const createStatus = useCreateAppointmentStatus();
+  const updateStatus = useUpdateAppointmentStatus();
+  const deleteStatus = useDeleteAppointmentStatus();
+
   const [modalOpen, setModalOpen] = useState(false);
   const [editingStatus, setEditingStatus] = useState<AppointmentStatus | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [statusToDelete, setStatusToDelete] = useState<AppointmentStatus | null>(null);
   const [mode, setMode] = useState<"add" | "edit">("add");
 
-  // Load statuses from localStorage on mount
-  useEffect(() => {
-    const loadStatuses = () => {
-      try {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          setStatuses(parsed);
-          setActiveStatuses(parsed.filter((s: AppointmentStatus) => !s.is_deleted));
-          setDeletedStatuses(parsed.filter((s: AppointmentStatus) => s.is_deleted));
-        } else {
-          // Initialize with default statuses
-          setStatuses(DEFAULT_STATUSES);
-          setActiveStatuses(DEFAULT_STATUSES.filter((s) => !s.is_deleted));
-          setDeletedStatuses(DEFAULT_STATUSES.filter((s) => s.is_deleted));
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_STATUSES));
-        }
-      } catch (error) {
-        console.error("Error loading statuses:", error);
-        setStatuses(DEFAULT_STATUSES);
-        setActiveStatuses(DEFAULT_STATUSES.filter((s) => !s.is_deleted));
-      }
-    };
+  // Debug: Log statuses data
+  React.useEffect(() => {
+    console.log('🔍 AppointmentStatuses Debug:', {
+      totalStatuses: statuses.length,
+      statuses,
+      isLoading,
+      error: statusesError,
+      activeCount: statuses.filter((s) => s.is_active !== false).length,
+      deletedCount: statuses.filter((s) => s.is_active === false).length
+    });
+  }, [statuses, isLoading, statusesError]);
 
-    loadStatuses();
-  }, []);
+  // Sort statuses by order, then by name
+  const sortedStatuses = [...statuses].sort((a, b) => {
+    if (a.order !== b.order) return (a.order || 0) - (b.order || 0);
+    return (a.name_en || '').localeCompare(b.name_en || '');
+  });
 
-  // Save statuses to localStorage whenever they change
-  const saveStatuses = (newStatuses: AppointmentStatus[]) => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newStatuses));
-      setStatuses(newStatuses);
-      setActiveStatuses(newStatuses.filter((s) => !s.is_deleted));
-      setDeletedStatuses(newStatuses.filter((s) => s.is_deleted));
-      if (onChange) {
-        onChange({ appointmentStatuses: newStatuses });
-      }
-      toast({
-        title: t("Success"),
-        description: t("Appointment statuses updated successfully"),
-      });
-    } catch (error) {
-      console.error("Error saving statuses:", error);
-      toast({
-        title: t("Error"),
-        description: t("Failed to save appointment statuses"),
-        variant: "destructive",
-      });
-    }
-  };
+  // Filter active and deleted statuses - handle undefined/null is_active
+  const activeStatuses = sortedStatuses.filter((s) => s.is_active !== false);
+  const deletedStatuses = sortedStatuses.filter((s) => s.is_active === false);
 
   const handleAddStatus = () => {
     setEditingStatus(null);
@@ -174,73 +84,59 @@ const AppointmentSettingsTab: React.FC<AppointmentSettingsTabProps> = ({
     setModalOpen(true);
   };
 
-  const handleSaveStatus = (statusData: AppointmentStatus) => {
-    if (mode === "add") {
-      const newStatus: AppointmentStatus = {
-        ...statusData,
-        _id: `status_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        order: statusData.order || statuses.length + 1,
-      };
-      const updated = [...statuses, newStatus].sort((a, b) => (a.order || 0) - (b.order || 0));
-      saveStatuses(updated);
-    } else {
-      // Edit mode - find exact status and update it
-      const statusIndex = statuses.findIndex((s) => {
-        if (editingStatus?._id && s._id) {
-          return s._id === editingStatus._id;
-        }
-        if (editingStatus?.code && s.code && s.code === editingStatus.code) {
-          return (
-            s.name_ar === editingStatus.name_ar &&
-            s.name_en === editingStatus.name_en &&
-            s.color === editingStatus.color
-          );
-        }
-        return false;
-      });
-
-      if (statusIndex === -1) {
-        toast({
-          title: t("Error"),
-          description: t("Status not found. Please refresh and try again."),
-          variant: "destructive",
+  const handleSaveStatus = async (statusData: AppointmentStatus) => {
+    try {
+      if (mode === "add") {
+        const newStatus = await createStatus.mutateAsync({
+          code: statusData.code.toLowerCase().replace(/\s+/g, '-'),
+          name_ar: statusData.name_ar,
+          name_en: statusData.name_en,
+          color: statusData.color,
+          icon: statusData.icon || 'Clock',
+          order: statusData.order || statuses.length + 1,
+          show_in_calendar: statusData.show_in_calendar ?? false,
+          is_default: statusData.is_default ?? false,
+          description: statusData.description,
         });
-        return;
+        
+        console.log('✅ Status created successfully:', newStatus);
+        
+        // Close modal immediately after success
+        setModalOpen(false);
+        setEditingStatus(null);
+        
+        // The mutation hook will handle cache invalidation and refetch
+      } else if (editingStatus?._id) {
+        const updatedStatus = await updateStatus.mutateAsync({
+          id: editingStatus._id,
+          data: {
+            name_ar: statusData.name_ar,
+            name_en: statusData.name_en,
+            color: statusData.color,
+            icon: statusData.icon,
+            order: statusData.order,
+            show_in_calendar: statusData.show_in_calendar,
+            is_default: statusData.is_default,
+            description: statusData.description,
+          },
+        });
+        
+        console.log('✅ Status updated successfully:', updatedStatus);
+        
+        // Close modal immediately after success
+        setModalOpen(false);
+        setEditingStatus(null);
+        
+        // The mutation hook will handle cache invalidation and refetch
       }
-
-      // Preserve original _id and code, update other fields
-      const updated = statuses.map((s, index) => {
-        if (index === statusIndex) {
-          return {
-            ...s,
-            ...statusData,
-            _id: s._id || statusData._id, // Preserve original _id
-            code: s.code, // Preserve original code in edit mode (cannot change)
-          };
-        }
-        return s;
-      }).sort((a, b) => (a.order || 0) - (b.order || 0));
-      
-      saveStatuses(updated);
+    } catch (error) {
+      // Error handling is done in the mutation hooks
+      console.error('❌ Error saving status:', error);
+      // Don't close modal on error - let user see the error and retry
     }
-    setModalOpen(false);
-    setEditingStatus(null);
   };
 
-  // List of status codes that cannot be deleted
-  const PROTECTED_STATUS_CODES = ["S001", "S002", "S004", "S005"]; // مجدول, مؤكد, مكتمل, ملغي
-
   const handleDeleteStatus = (status: AppointmentStatus) => {
-    // Check if it's a protected status (cannot be deleted)
-    if (status.code && PROTECTED_STATUS_CODES.includes(status.code)) {
-      toast({
-        title: t("Error"),
-        description: t("Cannot delete this protected status"),
-        variant: "destructive",
-      });
-      return;
-    }
-
     // Check if it's a default status
     if (status.is_default) {
       toast({
@@ -255,67 +151,71 @@ const AppointmentSettingsTab: React.FC<AppointmentSettingsTabProps> = ({
     setDeleteDialogOpen(true);
   };
 
-  const confirmDelete = () => {
-    if (!statusToDelete) return;
+  const confirmDelete = async () => {
+    if (!statusToDelete?._id) return;
 
-    // Double check that it's not a protected status
-    if (statusToDelete.code && PROTECTED_STATUS_CODES.includes(statusToDelete.code)) {
-      toast({
-        title: t("Error"),
-        description: t("Cannot delete this protected status"),
-        variant: "destructive",
-      });
+    try {
+      await deleteStatus.mutateAsync(statusToDelete._id);
       setDeleteDialogOpen(false);
       setStatusToDelete(null);
-      return;
+    } catch (error) {
+      // Error handling is done in the mutation hook
+      console.error('Error deleting status:', error);
     }
-
-    // Find the exact status to delete using multiple criteria for safety
-    const statusIndex = statuses.findIndex((s) => {
-      // First try to match by _id if both exist
-      if (statusToDelete._id && s._id) {
-        return s._id === statusToDelete._id;
-      }
-      // If no _id match, match by code and verify it's the same status
-      if (statusToDelete.code && s.code && s.code === statusToDelete.code) {
-        // Verify it's the exact same status by checking name and color
-        return (
-          s.name_ar === statusToDelete.name_ar &&
-          s.name_en === statusToDelete.name_en &&
-          s.color === statusToDelete.color
-        );
-      }
-      return false;
-    });
-
-    if (statusIndex === -1) {
-      console.error("Error: Status not found for deletion");
-      toast({
-        title: t("Error"),
-        description: t("Status not found. Please refresh and try again."),
-        variant: "destructive",
-      });
-      setDeleteDialogOpen(false);
-      setStatusToDelete(null);
-      return;
-    }
-
-    // Create updated array with only the matched status marked as deleted
-    const updated = statuses.map((s, index) => {
-      if (index === statusIndex) {
-        return { ...s, is_deleted: true, is_active: false };
-      }
-      return s;
-    });
-
-    saveStatuses(updated);
-    setDeleteDialogOpen(false);
-    setStatusToDelete(null);
   };
 
   const getStatusName = (status: AppointmentStatus) => {
     return i18n.language === "ar" ? status.name_ar : status.name_en;
   };
+
+  // Get icon component from icon name
+  const getStatusIconComponent = (iconName?: string) => {
+    const iconMap: Record<string, React.ComponentType<any>> = {
+      'Clock': Clock,
+      'CheckCircle': CheckCircle,
+      'XCircle': XCircle,
+      'AlertCircle': AlertCircle,
+      'AlertTriangle': AlertTriangle,
+      'Loader2': Loader2,
+    };
+    const IconComponent = iconMap[iconName || 'Clock'] || Clock;
+    return <IconComponent className="h-4 w-4" />;
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loading size="default" />
+      </div>
+    );
+  }
+
+  // Show error state if there's an error
+  if (statusesError) {
+    return (
+      <div className={cn(
+        "flex flex-col items-center justify-center py-12 text-center",
+        isRTL && "text-right"
+      )}>
+        <AlertTriangle className="h-12 w-12 text-destructive mb-4" />
+        <h3 className="text-lg font-semibold mb-2">{t("Error Loading Statuses")}</h3>
+        <p className="text-sm text-muted-foreground mb-4">
+          {statusesError instanceof Error ? statusesError.message : t("Failed to load appointment statuses")}
+        </p>
+        <Button
+          onClick={() => window.location.reload()}
+          variant="outline"
+          className={cn(
+            "gap-2",
+            isRTL ? "flex-row-reverse" : ""
+          )}
+        >
+          <Loader2 className="h-4 w-4" />
+          {t("Retry")}
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className={cn("space-y-6", isRTL && "rtl")} dir={isRTL ? "rtl" : "ltr"}>
@@ -355,26 +255,53 @@ const AppointmentSettingsTab: React.FC<AppointmentSettingsTabProps> = ({
           </div>
         </CardHeader>
         <CardContent>
-          {activeStatuses.length === 0 ? (
+          {activeStatuses.length === 0 && !isLoading ? (
             <div className={cn(
               "text-center py-12 text-muted-foreground",
               isRTL && "text-right"
             )}>
               <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p className="text-base font-medium mb-2">{t("No statuses configured yet")}</p>
-              <p className="text-sm mb-4">{t("Start by adding your first appointment status")}</p>
-              <Button
-                onClick={handleAddStatus}
-                variant="outline"
-                className={cn(
-                  "mt-4 gap-2",
-                  isRTL ? "flex-row-reverse" : ""
+              <p className="text-sm mb-4">
+                {statuses.length === 0 
+                  ? t("No appointment statuses found. Start by adding your first status.")
+                  : t("All statuses are currently inactive. Add a new status or restore a deleted one.")
+                }
+              </p>
+              <div className={cn(
+                "flex gap-2 justify-center flex-wrap",
+                isRTL ? "flex-row-reverse" : ""
+              )}>
+                <Button
+                  onClick={handleAddStatus}
+                  variant="default"
+                  className={cn(
+                    "gap-2",
+                    isRTL ? "flex-row-reverse" : ""
+                  )}
+                  size="sm"
+                >
+                  <Plus className="h-4 w-4" />
+                  {t("Add First Status")}
+                </Button>
+                {deletedStatuses.length > 0 && (
+                  <Button
+                    onClick={() => {
+                      // Scroll to deleted statuses section
+                      const deletedSection = document.getElementById('deleted-statuses');
+                      deletedSection?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }}
+                    variant="outline"
+                    className={cn(
+                      "gap-2",
+                      isRTL ? "flex-row-reverse" : ""
+                    )}
+                    size="sm"
+                  >
+                    {t("View Deleted Statuses")} ({deletedStatuses.length})
+                  </Button>
                 )}
-                size="sm"
-              >
-                <Plus className="h-4 w-4" />
-                {t("Add First Status")}
-              </Button>
+              </div>
             </div>
           ) : (
             <div className="space-y-3">
@@ -390,10 +317,18 @@ const AppointmentSettingsTab: React.FC<AppointmentSettingsTabProps> = ({
                     "flex items-center gap-3 flex-1 min-w-0",
                     isRTL ? "flex-row-reverse" : ""
                   )}>
-                    <div
-                      className="w-5 h-5 rounded-full flex-shrink-0 border-2 border-border shadow-sm"
-                      style={{ backgroundColor: status.color }}
-                    />
+                    <div className="relative flex-shrink-0">
+                      <div
+                        className="w-8 h-8 rounded-full border-2 border-border shadow-sm flex items-center justify-center"
+                        style={{ backgroundColor: status.color }}
+                      >
+                        {status.icon ? (
+                          <div className="text-white drop-shadow-sm">
+                            {getStatusIconComponent(status.icon)}
+                          </div>
+                        ) : null}
+                      </div>
+                    </div>
                     <div className={cn(
                       "flex-1 min-w-0",
                       isRTL ? "text-right" : ""
@@ -411,6 +346,11 @@ const AppointmentSettingsTab: React.FC<AppointmentSettingsTabProps> = ({
                         {status.is_default && (
                           <Badge variant="secondary" className="text-xs px-2 py-0.5">
                             {t("Default")}
+                          </Badge>
+                        )}
+                        {status.show_in_calendar && (
+                          <Badge variant="outline" className="text-xs px-2 py-0.5 text-primary border-primary">
+                            {t("Calendar")}
                           </Badge>
                         )}
                       </div>
@@ -435,6 +375,11 @@ const AppointmentSettingsTab: React.FC<AppointmentSettingsTabProps> = ({
                         )}>
                           {i18n.language === "ar" ? status.name_en : status.name_ar}
                         </span>
+                        {status.icon && (
+                          <Badge variant="outline" className="text-xs px-2 py-0.5">
+                            {t("Icon")}: {status.icon}
+                          </Badge>
+                        )}
                         <span
                           className="text-xs text-muted-foreground font-mono px-2 py-0.5 bg-muted/50 rounded"
                           style={{ color: status.color }}
@@ -443,6 +388,31 @@ const AppointmentSettingsTab: React.FC<AppointmentSettingsTabProps> = ({
                           {status.color}
                         </span>
                       </div>
+                      {status.description && (
+                        <div className={cn(
+                          "mt-2 text-xs text-muted-foreground italic",
+                          isRTL ? "text-right" : ""
+                        )}>
+                          {status.description}
+                        </div>
+                      )}
+                      {(status.created_at || status.updated_at) && (
+                        <div className={cn(
+                          "mt-1.5 flex items-center gap-2 text-xs text-muted-foreground",
+                          isRTL ? "flex-row-reverse justify-end" : ""
+                        )}>
+                          {status.created_at && (
+                            <span>
+                              {t("Created")}: {new Date(status.created_at).toLocaleDateString(i18n.language)}
+                            </span>
+                          )}
+                          {status.updated_at && status.updated_at !== status.created_at && (
+                            <span>
+                              {t("Updated")}: {new Date(status.updated_at).toLocaleDateString(i18n.language)}
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className={cn(
@@ -458,8 +428,7 @@ const AppointmentSettingsTab: React.FC<AppointmentSettingsTabProps> = ({
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
-                    {!status.is_default && 
-                     !(status.code && PROTECTED_STATUS_CODES.includes(status.code)) && (
+                    {!status.is_default && (
                       <Button
                         variant="ghost"
                         size="icon"
@@ -469,8 +438,13 @@ const AppointmentSettingsTab: React.FC<AppointmentSettingsTabProps> = ({
                         }}
                         className="h-9 w-9 text-destructive hover:text-destructive hover:bg-destructive/10"
                         title={t("Delete")}
+                        disabled={deleteStatus.isPending}
                       >
-                        <Trash2 className="h-4 w-4" />
+                        {deleteStatus.isPending ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-4 w-4" />
+                        )}
                       </Button>
                     )}
                   </div>
@@ -483,7 +457,7 @@ const AppointmentSettingsTab: React.FC<AppointmentSettingsTabProps> = ({
 
       {/* Current System Statuses Section */}
       {deletedStatuses.length > 0 && (
-        <Card className="border-dashed">
+        <Card id="deleted-statuses" className="border-dashed">
           <CardHeader>
             <CardTitle className={cn(
               "flex items-center gap-2 text-lg font-semibold",
@@ -513,10 +487,18 @@ const AppointmentSettingsTab: React.FC<AppointmentSettingsTabProps> = ({
                     "flex items-center gap-3 flex-1 min-w-0",
                     isRTL ? "flex-row-reverse" : ""
                   )}>
-                    <div
-                      className="w-5 h-5 rounded-full flex-shrink-0 border-2 border-border opacity-50"
-                      style={{ backgroundColor: status.color }}
-                    />
+                    <div className="relative flex-shrink-0">
+                      <div
+                        className="w-8 h-8 rounded-full border-2 border-border opacity-50 flex items-center justify-center"
+                        style={{ backgroundColor: status.color }}
+                      >
+                        {status.icon ? (
+                          <div className="text-white drop-shadow-sm opacity-70">
+                            {getStatusIconComponent(status.icon)}
+                          </div>
+                        ) : null}
+                      </div>
+                    </div>
                     <div className={cn(
                       "flex-1 min-w-0",
                       isRTL ? "text-right" : ""
@@ -534,13 +516,71 @@ const AppointmentSettingsTab: React.FC<AppointmentSettingsTabProps> = ({
                         <Badge variant="destructive" className="text-xs px-2 py-0.5">
                           {t("Deleted")}
                         </Badge>
+                        {status.is_default && (
+                          <Badge variant="secondary" className="text-xs px-2 py-0.5 opacity-70">
+                            {t("Default")}
+                          </Badge>
+                        )}
                       </div>
-                      <code className={cn(
-                        "text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded font-mono",
-                        "dir-ltr"
+                      <div className={cn(
+                        "flex items-center gap-2 mt-1.5 flex-wrap",
+                        isRTL ? "flex-row-reverse justify-end" : ""
                       )}>
-                        {status.code}
-                      </code>
+                        <code className={cn(
+                          "text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded font-mono",
+                          "dir-ltr"
+                        )}>
+                          {status.code}
+                        </code>
+                        {status.order && (
+                          <Badge variant="outline" className="text-xs px-2 py-0.5 opacity-70">
+                            {t("Order")}: {status.order}
+                          </Badge>
+                        )}
+                        <span className={cn(
+                          "text-xs text-muted-foreground",
+                          i18n.language === "ar" ? "dir-ltr text-left" : "dir-rtl text-right"
+                        )}>
+                          {i18n.language === "ar" ? status.name_en : status.name_ar}
+                        </span>
+                        {status.icon && (
+                          <Badge variant="outline" className="text-xs px-2 py-0.5 opacity-70">
+                            {t("Icon")}: {status.icon}
+                          </Badge>
+                        )}
+                        <span
+                          className="text-xs text-muted-foreground font-mono px-2 py-0.5 bg-muted/50 rounded opacity-70"
+                          style={{ color: status.color }}
+                          dir="ltr"
+                        >
+                          {status.color}
+                        </span>
+                      </div>
+                      {status.description && (
+                        <div className={cn(
+                          "mt-2 text-xs text-muted-foreground italic opacity-70",
+                          isRTL ? "text-right" : ""
+                        )}>
+                          {status.description}
+                        </div>
+                      )}
+                      {(status.created_at || status.updated_at) && (
+                        <div className={cn(
+                          "mt-1.5 flex items-center gap-2 text-xs text-muted-foreground opacity-70",
+                          isRTL ? "flex-row-reverse justify-end" : ""
+                        )}>
+                          {status.created_at && (
+                            <span>
+                              {t("Created")}: {new Date(status.created_at).toLocaleDateString(i18n.language)}
+                            </span>
+                          )}
+                          {status.updated_at && status.updated_at !== status.created_at && (
+                            <span>
+                              {t("Updated")}: {new Date(status.updated_at).toLocaleDateString(i18n.language)}
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                   <Button
@@ -571,13 +611,13 @@ const AppointmentSettingsTab: React.FC<AppointmentSettingsTabProps> = ({
                         return;
                       }
 
-                      const updated = statuses.map((s, index) => {
-                        if (index === statusIndex) {
-                          return { ...s, is_deleted: false, is_active: true };
-                        }
-                        return s;
-                      });
-                      saveStatuses(updated);
+                      // Restore status by updating is_active to true
+                      if (status._id) {
+                        updateStatus.mutate({
+                          id: status._id,
+                          data: { is_active: true },
+                        });
+                      }
                     }}
                     className={cn(
                       "gap-2",

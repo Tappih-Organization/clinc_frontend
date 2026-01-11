@@ -29,11 +29,13 @@ export interface AppointmentStatus {
   name_ar: string;
   name_en: string;
   color: string;
+  icon?: string;
   order?: number;
   show_in_calendar?: boolean;
   is_active?: boolean;
   is_default?: boolean;
   is_deleted?: boolean;
+  description?: string;
 }
 
 interface AddEditStatusModalProps {
@@ -64,38 +66,38 @@ const AddEditStatusModal: React.FC<AddEditStatusModalProps> = ({
     name_ar: string;
     name_en: string;
     color: string;
+    icon: string;
     order: number;
     show_in_calendar: boolean;
   }>({
     name_ar: "",
     name_en: "",
     color: "#6b7280",
+    icon: "Clock",
     order: 1,
     show_in_calendar: false,
   });
 
-  // Generate code automatically
+  // Generate code automatically from English name
   const generateCode = (): string => {
     if (mode === "edit" && status?.code) {
       return status.code;
     }
-    // Generate S001, S002, etc. based on existing statuses
-    let maxNumber = 0;
-    if (existingStatuses.length > 0) {
-      existingStatuses.forEach(s => {
-        if (s.code) {
-          const match = s.code.match(/^S(\d+)$/);
-          if (match) {
-            const num = parseInt(match[1]);
-            if (num > maxNumber) {
-              maxNumber = num;
-            }
-          }
-        }
-      });
+    // Generate code from English name (lowercase, replace spaces with hyphens)
+    if (formData.name_en.trim()) {
+      return formData.name_en
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
     }
-    const nextNumber = maxNumber + 1;
-    return `S${nextNumber.toString().padStart(3, '0')}`;
+    // Fallback: generate from Arabic name
+    if (formData.name_ar.trim()) {
+      return formData.name_ar
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+    }
+    return 'status';
   };
 
   const generatedCode = generateCode();
@@ -107,6 +109,7 @@ const AddEditStatusModal: React.FC<AddEditStatusModalProps> = ({
           name_ar: status.name_ar || "",
           name_en: status.name_en || "",
           color: status.color || "#6b7280",
+          icon: status.icon || "Clock",
           order: status.order || 1,
           show_in_calendar: status.show_in_calendar ?? false,
         });
@@ -119,6 +122,7 @@ const AddEditStatusModal: React.FC<AddEditStatusModalProps> = ({
           name_ar: "",
           name_en: "",
           color: "#6b7280",
+          icon: "Clock",
           order: maxOrder + 1,
           show_in_calendar: false, // Default is false (closed)
         });
@@ -167,6 +171,7 @@ const AddEditStatusModal: React.FC<AddEditStatusModalProps> = ({
       name_ar: formData.name_ar.trim(),
       name_en: formData.name_en.trim(),
       color: formData.color,
+      icon: formData.icon,
       order: formData.order,
       show_in_calendar: formData.show_in_calendar,
       is_active: mode === "edit" ? status?.is_active ?? true : true,

@@ -812,8 +812,8 @@ class ApiService {
   }
 
   async createPatient(patientData: Omit<Patient, '_id' | 'created_at' | 'updated_at'>): Promise<Patient> {
-    const response = await apiClient.post<ApiResponse<Patient>>('/patients', patientData);
-    return response.data.data!;
+    const response = await apiClient.post<ApiResponse<{ patient: Patient }>>('/patients', patientData);
+    return response.data.data!.patient;
   }
 
   async updatePatient(id: string, patientData: Partial<Patient>): Promise<Patient> {

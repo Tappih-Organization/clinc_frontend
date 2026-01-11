@@ -41,12 +41,25 @@ import type { Patient } from "@/services/api";
 
 interface AddPatientModalProps {
   trigger?: React.ReactNode;
+  onSuccess?: (patient: Patient) => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-const AddPatientModal: React.FC<AddPatientModalProps> = ({ trigger }) => {
+const AddPatientModal: React.FC<AddPatientModalProps> = ({ 
+  trigger, 
+  onSuccess,
+  open: externalOpen,
+  onOpenChange: externalOnOpenChange,
+}) => {
   const { t } = useTranslation();
   const isRTL = useIsRTL();
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  
+  // Use external open state if provided, otherwise use internal state
+  const open = externalOpen !== undefined ? externalOpen : internalOpen;
+  const setOpen = externalOnOpenChange || setInternalOpen;
+  
   const createPatientMutation = useCreatePatient();
   const [errors, setErrors] = useState<Record<string, string>>({});
   
@@ -245,7 +258,7 @@ const AddPatientModal: React.FC<AddPatientModalProps> = ({ trigger }) => {
       };
 
       // Create patient via mutation
-      await createPatientMutation.mutateAsync(patientData);
+      const newPatient = await createPatientMutation.mutateAsync(patientData);
 
       toast({
         title: t("Patient added successfully"),
@@ -276,6 +289,11 @@ const AddPatientModal: React.FC<AddPatientModalProps> = ({ trigger }) => {
 
       setErrors({});
       setOpen(false);
+      
+      // Call onSuccess callback if provided
+      if (onSuccess && newPatient) {
+        onSuccess(newPatient);
+      }
     } catch (error: any) {
       console.error('Error creating patient:', error);
       
@@ -317,7 +335,11 @@ const AddPatientModal: React.FC<AddPatientModalProps> = ({ trigger }) => {
   };
 
   const handleOpenChange = (newOpen: boolean) => {
-    setOpen(newOpen);
+    if (externalOnOpenChange) {
+      externalOnOpenChange(newOpen);
+    } else {
+      setInternalOpen(newOpen);
+    }
     if (!newOpen) {
       // Reset errors when dialog closes
       setErrors({});
@@ -325,15 +347,26 @@ const AddPatientModal: React.FC<AddPatientModalProps> = ({ trigger }) => {
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        {trigger || (
-          <Button className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
-            <Plus className="h-4 w-4" />
-            {t("Add Patient")}
-          </Button>
+    <>
+      {externalOpen !== undefined && trigger && (
+        <div onClick={() => handleOpenChange(true)} style={{ display: 'inline-block' }}>
+          {trigger}
+        </div>
+      )}
+      <Dialog open={open} onOpenChange={handleOpenChange}>
+        {externalOpen === undefined && trigger && (
+          <DialogTrigger asChild>
+            {trigger}
+          </DialogTrigger>
         )}
-      </DialogTrigger>
+        {!trigger && (
+          <DialogTrigger asChild>
+            <Button className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+              <Plus className="h-4 w-4" />
+              {t("Add Patient")}
+            </Button>
+          </DialogTrigger>
+        )}
       <DialogContent className={cn("w-[95vw] max-w-4xl h-[90vh] max-h-[90vh] overflow-hidden p-0", isRTL && "text-right")} dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="flex flex-col h-full min-h-0">
           <DialogHeader className={cn("px-4 sm:px-6 pt-4 sm:pt-6 pb-4 border-b flex-shrink-0", isRTL && "text-right", isRTL ? "pr-12 sm:pr-14" : "pl-12 sm:pl-14")}>
@@ -713,6 +746,7 @@ const AddPatientModal: React.FC<AddPatientModalProps> = ({ trigger }) => {
         </div>
       </DialogContent>
     </Dialog>
+    </>
   );
 };
 
