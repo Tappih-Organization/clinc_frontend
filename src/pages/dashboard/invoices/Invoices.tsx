@@ -456,7 +456,7 @@ const Invoices = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-xs sm:text-sm font-medium">{t('Total Invoices')}</CardTitle>
-            <Receipt className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+            <Receipt className="h-8 w-8 text-green-600" />
           </CardHeader>
           <CardContent>
             <div className="text-xl sm:text-2xl font-bold">
@@ -471,7 +471,7 @@ const Invoices = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-xs sm:text-sm font-medium">{t('Total Revenue')}</CardTitle>
-            <DollarSign className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
+           <DollarSign className="h-8 w-8 text-green-600" />
           </CardHeader>
           <CardContent>
                          <div className="text-xl sm:text-2xl font-bold text-green-600">
@@ -488,7 +488,7 @@ const Invoices = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-xs sm:text-sm font-medium">{t('Monthly Revenue')}</CardTitle>
-            <Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
+            <Calendar className="h-6 w-6 xs:h-8 xs:w-8 text-green-600 flex-shrink-0 ml-2" />
           </CardHeader>
           <CardContent>
             <div className="text-xl sm:text-2xl font-bold text-green-600">
@@ -498,6 +498,7 @@ const Invoices = () => {
                 <CurrencyDisplay amount={monthlyRevenue} variant="default" />
               )}
             </div>
+            
             <p className="text-xs text-muted-foreground">{t('This month')}</p>
           </CardContent>
         </Card>
@@ -505,7 +506,7 @@ const Invoices = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-xs sm:text-sm font-medium">{t('Paid')}</CardTitle>
-            <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-600" />
+                           <CheckCircle className="h-8 w-8 text-green-600" />
           </CardHeader>
           <CardContent>
             <div className="text-xl sm:text-2xl font-bold text-green-600">
@@ -518,7 +519,7 @@ const Invoices = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-xs sm:text-sm font-medium">{t('Overdue')}</CardTitle>
-            <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4 text-red-600" />
+            <AlertTriangle className="h-8 w-8 sm:h-8 sm:w-8 text-red-600" />
           </CardHeader>
           <CardContent>
             <div className="text-xl sm:text-2xl font-bold text-red-600">

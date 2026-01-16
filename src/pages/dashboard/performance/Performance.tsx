@@ -410,7 +410,7 @@ const Performance = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">{t('Total Revenue')}</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
+              <DollarSign className="h-8 w-8 text-green-600" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-green-600">
@@ -432,7 +432,7 @@ const Performance = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">{t('Total Costs')}</CardTitle>
-              <Receipt className="h-4 w-4 text-muted-foreground" />
+              <Receipt className="h-8 w-8 text-green-600" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-red-600">
@@ -455,9 +455,9 @@ const Performance = () => {
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">{t('Net Profit')}</CardTitle>
               {summaryStats.isProfit ? (
-                <TrendingUp className="h-4 w-4 text-green-600" />
+                <TrendingUp className="h-8 w-8 text-green-600" />
               ) : (
-                <TrendingDown className="h-4 w-4 text-red-600" />
+                <TrendingDown className="h-8 w-8 text-red-600" />
               )}
             </CardHeader>
             <CardContent>
@@ -483,7 +483,7 @@ const Performance = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">{t('Profit Margin')}</CardTitle>
-              <BarChart3 className="h-4 w-4 text-muted-foreground" />
+              <BarChart3 className="h-8 w-8 text-green-600" />
             </CardHeader>
             <CardContent>
               <div className={cn(
