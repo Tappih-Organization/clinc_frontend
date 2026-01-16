@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { TenantInfo } from '@/utils/tenantUtils';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://api.tappih.com/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api/';
 
 // Create axios instance for public tenant API (no auth required)
 const publicTenantApi = axios.create({

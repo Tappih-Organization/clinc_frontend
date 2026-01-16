@@ -61,6 +61,8 @@ interface Clinic {
     };
   };
   is_active: boolean;
+  is_main_clinic?: boolean;
+  parent_clinic_id?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -334,16 +336,26 @@ const EditClinicModal: React.FC<EditClinicModalProps> = ({
                 />
               </div>
 
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="is_active"
-                  checked={formData.is_active}
-                  onCheckedChange={(checked) =>
-                    setFormData({ ...formData, is_active: checked })
-                  }
-                />
-                <Label htmlFor="is_active">Active</Label>
-              </div>
+              {/* Hide toggle for Main Clinic - Main Clinics cannot be disabled */}
+              {!clinic?.is_main_clinic && (
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="is_active"
+                    checked={formData.is_active}
+                    onCheckedChange={(checked) =>
+                      setFormData({ ...formData, is_active: checked })
+                    }
+                  />
+                  <Label htmlFor="is_active">Active</Label>
+                </div>
+              )}
+              {clinic?.is_main_clinic && (
+                <div className="flex items-center space-x-2 text-muted-foreground">
+                  <Label className="text-sm">
+                    {t("Main Clinic is always active and cannot be disabled")}
+                  </Label>
+                </div>
+              )}
             </CardContent>
           </Card>
 

@@ -64,7 +64,7 @@ export const useDemoUsers = (options?: UseDemoUsersOptions) => {
       setError(null);
 
       // Fetch all active users from the database (no role filtering, higher limit)
-      const apiBase = import.meta.env.VITE_API_BASE_URL || 'https://api.tappih.com/api';
+      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api/';
       
       // Build query parameters
       const queryParams = new URLSearchParams({

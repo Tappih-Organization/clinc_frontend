@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
+import { useIsRTL } from "@/hooks/useIsRTL";
+
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -73,6 +76,7 @@ import { expenseApi, type Expense, type ExpenseStats } from "@/services/api/expe
 
 const Expenses = () => {
   const { t } = useTranslation();
+  const isRTL = useIsRTL();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState("all");
@@ -287,7 +291,7 @@ const Expenses = () => {
             {t('Manage and track clinic expenses and costs')}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className={cn("flex gap-2" )}>
           <Button
             variant="outline"
             onClick={() => {/* TODO: Export functionality */}}
@@ -295,7 +299,8 @@ const Expenses = () => {
             <Download className="mr-2 h-4 w-4" />
             {t('Export')}
           </Button>
-          <Button onClick={() => setAddModalOpen(true)}>
+          <Button className={cn(isRTL ? "flex-row-reverse" : "flex-row", "items-center")}
+           onClick={() => setAddModalOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
             {t('Add Expense')}
           </Button>
@@ -622,13 +627,19 @@ const Expenses = () => {
         onSuccess={handleExpenseUpdated}
       />
 
-      <DeleteConfirmModal
-        open={deleteModal.open}
-        title={t("Delete Expense")}
-        description={`${t('Are you sure you want to delete')} "${deleteModal.expense?.title}"? ${t('This action cannot be undone.')}`}
-        onClose={() => setDeleteModal({ open: false, expense: null })}
-        onConfirm={handleDeleteConfirm}
-      />
+<DeleteConfirmModal
+  open={deleteModal.open}
+  onOpenChange={(open) =>
+    setDeleteModal({ open, expense: open ? deleteModal.expense : null })
+  }
+  title={t("Delete Expense")}
+  description={`${t("Are you sure you want to delete")} "${
+    deleteModal.expense?.title
+  }"? ${t("This action cannot be undone.")}`}
+  itemName={deleteModal.expense?.title || ""}
+  onConfirm={handleDeleteConfirm}
+/>
+
     </div>
   );
 };

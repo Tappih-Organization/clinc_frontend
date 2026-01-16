@@ -45,6 +45,8 @@ import {
   Loader2,
   Globe,
   Clock,
+  Crown,
+  Building,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useCurrency } from "@/contexts/CurrencyContext";
@@ -59,6 +61,8 @@ interface Clinic {
   name: string;
   code: string;
   description?: string;
+  is_main_clinic?: boolean;
+  parent_clinic_id?: string | null;
   address: {
     street: string;
     city: string;
@@ -116,6 +120,8 @@ const Clinics = () => {
       name: clinicData.name || '',
       code: clinicData.code || '',
       description: clinicData.description || '',
+      is_main_clinic: clinicData.is_main_clinic || false,
+      parent_clinic_id: clinicData.parent_clinic_id || null,
       address: clinicData.address || {
         street: '',
         city: '',
@@ -356,6 +362,16 @@ const Clinics = () => {
     const clinic = clinics.find((c) => c.id === id);
     if (!clinic) return;
 
+    // Prevent disabling main clinic
+    if (clinic.is_main_clinic && !newStatus) {
+      toast({
+        title: t("Error"),
+        description: t("Cannot disable Main Clinic. It is the primary clinic for your organization."),
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       // Clean up contact data - only include website if it has a value
       const contactData = {
@@ -461,6 +477,8 @@ const Clinics = () => {
   const totalClinics = clinics.length;
   const activeClinics = clinics.filter((clinic) => clinic.is_active).length;
   const inactiveClinics = totalClinics - activeClinics;
+  const mainClinics = clinics.filter((clinic) => clinic.is_main_clinic).length;
+  const subClinics = clinics.filter((clinic) => !clinic.is_main_clinic).length;
 
   return (
     <div className="space-y-6">
@@ -483,7 +501,7 @@ const Clinics = () => {
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -555,6 +573,30 @@ const Clinics = () => {
             </CardContent>
           </Card>
         </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+        >
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-3">
+                <div className="p-3 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg">
+                  <Crown className="h-6 w-6 text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    {t('Main Clinics')}
+                  </p>
+                  <p className="text-2xl font-bold text-foreground">
+                    {mainClinics}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
       </div>
 
       {/* Search and Filters */}
@@ -583,10 +625,21 @@ const Clinics = () => {
       >
         <Card>
           <CardHeader>
-            <CardTitle>{t('Clinic Directory')}</CardTitle>
-            <CardDescription>
-              {t('Complete list of clinic locations with their details and settings')}
-            </CardDescription>
+            <div className="flex items-start justify-between">
+              <div>
+                <CardTitle>{t('Clinic Directory')}</CardTitle>
+                <CardDescription>
+                  {t('Complete list of clinic locations with their details and settings')}
+                </CardDescription>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Crown className="h-4 w-4 text-blue-500" />
+                <span>{t('Main Clinic')}</span>
+                <span className="mx-1">•</span>
+                <Building className="h-4 w-4 text-gray-500" />
+                <span>{t('Sub Clinic')}</span>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             {loading ? (
@@ -602,6 +655,7 @@ const Clinics = () => {
                     <TableHeader>
                       <TableRow>
                         <TableHead className="min-w-[200px]">{t('Clinic')}</TableHead>
+                        <TableHead className="min-w-[120px]">{t('Type')}</TableHead>
                         <TableHead className="min-w-[200px]">{t('Contact')}</TableHead>
                         <TableHead className="min-w-[180px]">{t('Address')}</TableHead>
                         <TableHead className="min-w-[140px]">{t('Settings')}</TableHead>
@@ -626,6 +680,19 @@ const Clinics = () => {
                                 {clinic.description && ` • ${clinic.description}`}
                               </div>
                             </div>
+                          </TableCell>
+                          <TableCell>
+                            {clinic.is_main_clinic ? (
+                              <Badge className="bg-gradient-to-r from-blue-500 to-blue-600 text-white border-0 flex items-center gap-1 px-2 py-1">
+                                <Crown className="h-3 w-3" />
+                                {t('Main Clinic')}
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline" className="flex items-center gap-1 px-2 py-1 border-gray-300">
+                                <Building className="h-3 w-3 text-gray-600" />
+                                {t('Sub Clinic')}
+                              </Badge>
+                            )}
                           </TableCell>
                           <TableCell>
                             <div className="space-y-1">
@@ -693,11 +760,19 @@ const Clinics = () => {
                                 >
                                   {t('Edit Clinic')}
                                 </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={() => handleToggleStatus(clinic.id, !clinic.is_active)}
-                                >
-                                  {clinic.is_active ? t("Disable") : t("Enable")} {t('Clinic')}
-                                </DropdownMenuItem>
+                                {!clinic.is_main_clinic && (
+                                  <DropdownMenuItem
+                                    onClick={() => handleToggleStatus(clinic.id, !clinic.is_active)}
+                                  >
+                                    {clinic.is_active ? t("Disable") : t("Enable")} {t('Clinic')}
+                                  </DropdownMenuItem>
+                                )}
+                                {clinic.is_main_clinic && (
+                                  <DropdownMenuItem disabled className="text-muted-foreground cursor-not-allowed">
+                                    <AlertCircle className="h-4 w-4 mr-2" />
+                                    {t("Cannot disable Main Clinic")}
+                                  </DropdownMenuItem>
+                                )}
                               </DropdownMenuContent>
                             </DropdownMenu>
                           </TableCell>
@@ -728,6 +803,21 @@ const Clinics = () => {
                           </div>
                         </div>
                         {getStatusBadge(clinic.is_active)}
+                      </div>
+
+                      {/* Clinic Type Badge */}
+                      <div className="flex items-center gap-2">
+                        {clinic.is_main_clinic ? (
+                          <Badge className="bg-gradient-to-r from-blue-500 to-blue-600 text-white border-0 flex items-center gap-1 px-3 py-1">
+                            <Crown className="h-3.5 w-3.5" />
+                            {t('Main Clinic')}
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="flex items-center gap-1 px-3 py-1 border-gray-300">
+                            <Building className="h-3.5 w-3.5 text-gray-600" />
+                            {t('Sub Clinic')}
+                          </Badge>
+                        )}
                       </div>
 
                       {/* Description */}
@@ -831,11 +921,19 @@ const Clinics = () => {
                             >
                               {t('Edit Clinic')}
                             </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleToggleStatus(clinic.id, !clinic.is_active)}
-                            >
-                              {clinic.is_active ? t("Disable") : t("Enable")} {t('Clinic')}
-                            </DropdownMenuItem>
+                            {!clinic.is_main_clinic && (
+                              <DropdownMenuItem
+                                onClick={() => handleToggleStatus(clinic.id, !clinic.is_active)}
+                              >
+                                {clinic.is_active ? t("Disable") : t("Enable")} {t('Clinic')}
+                              </DropdownMenuItem>
+                            )}
+                            {clinic.is_main_clinic && (
+                              <DropdownMenuItem disabled className="text-muted-foreground cursor-not-allowed">
+                                <AlertCircle className="h-4 w-4 mr-2" />
+                                {t("Cannot disable Main Clinic")}
+                              </DropdownMenuItem>
+                            )}
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>

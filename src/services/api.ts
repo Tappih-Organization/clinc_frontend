@@ -249,23 +249,7 @@ export interface CreateXrayAnalysisRequest {
 
 // API Configuration
 const getApiBaseUrl = (): string => {
-  // Use environment variable if provided
-  if (import.meta.env.VITE_API_BASE_URL) {
-    return import.meta.env.VITE_API_BASE_URL;
-  }
-
-  // For localhost development, use local backend
-  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-    return 'http://localhost:3000/api';
-  }
-
-  // For production or HTTPS contexts (including iframes), ensure we use HTTPS
-  if (window.location.protocol === 'https:' || window.location.hostname !== 'localhost') {
-    return 'https://clinicpro-api.dev3.tech/api';
-  }
-
-  // Default to production API
-  return 'https://api.tappih.com/api';
+  return 'http://localhost:3000/api/';
 };
 
 const API_BASE_URL = getApiBaseUrl();

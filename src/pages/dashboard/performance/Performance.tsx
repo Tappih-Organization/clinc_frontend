@@ -72,6 +72,7 @@ import { format, subMonths, startOfMonth, endOfMonth } from "date-fns";
 import { toast } from "sonner";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { cn } from "@/lib/utils";
+import { useIsRTL } from "@/hooks/useIsRTL";
 import ErrorHandler from "@/components/ErrorHandler";
 import { 
   performanceApi, 
@@ -84,7 +85,7 @@ import {
 const Performance = () => {
   const { t } = useTranslation();
   const { formatAmount } = useCurrency();
-  
+  const isRTL = useIsRTL();
   // State for data
   const [performanceData, setPerformanceData] = useState<PerformanceOverview | null>(null);
   const [comparisonData, setComparisonData] = useState<ComparativePerformance | null>(null);
@@ -523,7 +524,7 @@ const Performance = () => {
               </p>
             </div>
           ) : (
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className={cn("space-y-4", isRTL && "text-right")}>
               <TabsList>
                 <TabsTrigger value="overview">{t('Overview')}</TabsTrigger>
                 <TabsTrigger value="revenue">{t('Revenue Trends')}</TabsTrigger>
@@ -636,17 +637,17 @@ const Performance = () => {
                 {/* Doctor Payouts Filters */}
                 <Card>
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
+                    <CardTitle className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
                       <Users className="h-5 w-5" />
                       {t('Doctor Payouts & Sales Incentives')}
                     </CardTitle>
-                    <CardDescription>
+                    <CardDescription className={isRTL ? "text-right" : "text-left"}>
                       {t('Monthly breakdown of doctor base salaries and sales incentives based on revenue generated')}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex gap-4 mb-6">
-                      <div>
+                    <div className={cn("flex gap-4 mb-6", isRTL && "flex-row-reverse text-right")}>
+                      <div >
                         <Label htmlFor="year">{t('Year')}</Label>
                         <Select value={selectedYear.toString()} onValueChange={(value) => setSelectedYear(parseInt(value))}>
                           <SelectTrigger className="w-32">
@@ -698,7 +699,7 @@ const Performance = () => {
                           <CardContent className="p-4">
                             <div className="flex items-center justify-between">
                               <div>
-                                <p className="text-sm font-medium text-muted-foreground">Total Revenue</p>
+                                <p className="text-sm font-medium text-muted-foreground">{t('Total Revenue')}</p>
                                 <p className="text-2xl font-bold text-green-600">
                                   {formatAmount(doctorPayouts.totals.total_revenue || 0)}
                                 </p>

@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+
+import { useIsRTL } from "@/hooks/useIsRTL";
+import { cn } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -42,6 +45,7 @@ interface RecordPaymentModalProps {
 
 const RecordPaymentModal = ({ invoice, isOpen, onClose, onSuccess }: RecordPaymentModalProps) => {
   const { t } = useTranslation();
+  const isRTL = useIsRTL();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     amount: "",
@@ -51,11 +55,11 @@ const RecordPaymentModal = ({ invoice, isOpen, onClose, onSuccess }: RecordPayme
   });
 
   const paymentMethods = [
-    { value: "cash", label: t("Cash"), icon: Banknote },
-    { value: "credit_card", label: t("Credit Card"), icon: CreditCard },
-    { value: "bank_transfer", label: t("Bank Transfer"), icon: Building2 },
-    { value: "upi", label: t("UPI"), icon: Smartphone },
-    { value: "insurance", label: t("Insurance"), icon: Shield },
+    { value: "cash", label: t("cash"), icon: Banknote },
+    { value: "credit_card", label: t("creditCard"), icon: CreditCard },
+    { value: "bank_transfer", label: t("bankTransfer"), icon: Building2 },
+    { value: "upi", label: t("upi"), icon: Smartphone },
+    { value: "insurance", label: t("insurance"), icon: Shield },
   ];
 
   useEffect(() => {
@@ -172,13 +176,13 @@ const RecordPaymentModal = ({ invoice, isOpen, onClose, onSuccess }: RecordPayme
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+        <DialogHeader dir={isRTL ? "ltr" : "ltr"}>
+          <DialogTitle className={cn(isRTL && "text-right flex items-center gap-2")}>
             <DollarSign className="h-5 w-5" />
             {t("Record Payment")}
           </DialogTitle>
-          <DialogDescription>
-            {t("Record a payment against this invoice")}
+          <DialogDescription className={cn(isRTL && "text-right")}>
+            {t("recordPayment")}
           </DialogDescription>
         </DialogHeader>
 
@@ -212,13 +216,13 @@ const RecordPaymentModal = ({ invoice, isOpen, onClose, onSuccess }: RecordPayme
                 
                 <div className="grid grid-cols-2 gap-4 pt-4 border-t">
                   <div>
-                    <Label className="text-sm text-muted-foreground">{t("Paid Amount")}</Label>
+                    <Label className="text-sm text-muted-foreground">{t("paidAmount")}</Label>
                     <p className="font-medium text-green-600">
                       <CurrencyDisplay amount={invoice.total_paid_amount || 0} />
                     </p>
                   </div>
                   <div>
-                    <Label className="text-sm text-muted-foreground">{t("Due Amount")}</Label>
+                    <Label className="text-sm text-muted-foreground">{t("dueAmount")}</Label>
                     <p className="font-medium text-orange-600">
                       <CurrencyDisplay amount={invoice.due_amount || invoice.total_amount} />
                     </p>
@@ -231,7 +235,7 @@ const RecordPaymentModal = ({ invoice, isOpen, onClose, onSuccess }: RecordPayme
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="amount">{t("Payment Amount")} *</Label>
+                  <Label htmlFor="amount">{t("paymentAmount")} *</Label>
                   <Input
                     id="amount"
                     type="number"
@@ -273,10 +277,10 @@ const RecordPaymentModal = ({ invoice, isOpen, onClose, onSuccess }: RecordPayme
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="transaction_id">{t("Transaction ID")} ({t("Optional")})</Label>
+                <Label htmlFor="transaction_id">{t("transactionIdOptional")} </Label>
                 <Input
                   id="transaction_id"
-                  placeholder={t("Enter transaction ID or reference number")}
+                  placeholder={t("enterTransactionId")}
                   value={formData.transaction_id}
                   onChange={(e) => handleInputChange("transaction_id", e.target.value)}
                 />
@@ -286,7 +290,7 @@ const RecordPaymentModal = ({ invoice, isOpen, onClose, onSuccess }: RecordPayme
                 <Label htmlFor="description">{t("Description")} *</Label>
                 <Textarea
                   id="description"
-                  placeholder={t("Enter payment description or notes")}
+                  placeholder={t("enterPaymentDescription")}
                   value={formData.description}
                   onChange={(e) => handleInputChange("description", e.target.value)}
                   required

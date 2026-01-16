@@ -46,6 +46,8 @@ export interface Clinic {
   name: string;
   code: string;
   description?: string;
+  is_main_clinic?: boolean;
+  parent_clinic_id?: string | null;
   address: Address;
   contact: Contact;
   settings: ClinicSettings;

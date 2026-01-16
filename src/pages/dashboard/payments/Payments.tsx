@@ -70,6 +70,7 @@ import { toast } from "@/hooks/use-toast";
 import { apiService, type PaymentStats } from "@/services/api";
 import { paymentApi, type Payment, type StripePaymentLinkResponse } from "@/services/api/paymentApi";
 import CreatePaymentLinkModal from "@/components/modals/CreatePaymentLinkModal";
+import { cn } from "@/lib/utils";
 
 
 const Payments = () => {
@@ -345,15 +346,15 @@ const Payments = () => {
   const getPaymentMethodLabel = (method: string) => {
     switch (method) {
       case "credit_card":
-        return t("Credit Card");
+        return t("creditCard");
       case "cash":
-        return t("Cash");
+        return t("cash");
       case "bank_transfer":
-        return t("Bank Transfer");
+        return t("bankTransfer");
       case "upi":
-        return t("UPI");
+        return t("upi");
       case "insurance":
-        return t("Insurance");
+        return t("insurance");
       case "stripe":
         return t("Stripe");
       default:
@@ -741,16 +742,16 @@ const Payments = () => {
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-3 flex-shrink-0">
           <Button
             variant="outline"
-            className="w-full sm:w-auto"
+            className="w-full sm:w-auto "
             onClick={() => setShowCreatePaymentLinkModal(true)}
           >
             <Link className="h-4 w-4 mr-2" />
             {t('Create Payment Link')}
           </Button>
           <Button 
-            className="w-full sm:w-auto"
+            className={cn("w-full sm:w-auto" , isRTL ? "flex-row-reverse " : "flex-row" )}
             onClick={handleOpenRecordPaymentModal}
-          >
+          >  
             <Plus className="h-4 w-4 mr-2" />
             {t('Record Payment')}
           </Button>
@@ -1105,7 +1106,7 @@ const Payments = () => {
                           <DropdownMenuTrigger asChild>
                             <Button variant="outline" size="sm" className="h-8">
                               <MoreVertical className="h-4 w-4 mr-1" />
-                              Actions
+                              {t('Actions')}
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
@@ -1113,7 +1114,7 @@ const Payments = () => {
                               onClick={() => handleViewPaymentDetails(payment)}
                             >
                               <Eye className="mr-2 h-4 w-4" />
-                              View Details
+                              {t('View Details')}
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => handleOpenEditPaymentModal(payment)}
@@ -1374,7 +1375,7 @@ const Payments = () => {
         <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{t('Record New Payment')}</DialogTitle>
-            <DialogDescription>
+            <DialogDescription className={cn( isRTL ? "text-right" : "text-left")}>
               {t('Enter the payment details to record a new payment transaction.')}
             </DialogDescription>
           </DialogHeader>
@@ -1393,7 +1394,7 @@ const Payments = () => {
                 disabled={loadingPatients}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder={loadingPatients ? "Loading patients..." : "Select a patient"} />
+                  <SelectValue placeholder={loadingPatients ? "Loading patients..." : t('Select a patient')} />
                 </SelectTrigger>
                 <SelectContent>
                   {availablePatients.map((patient) => (
@@ -1476,7 +1477,7 @@ const Payments = () => {
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="method">Payment Method *</Label>
+                <Label htmlFor="method">{t('Select payment method')} *</Label>
                 <Select
                   value={recordPaymentForm.method}
                   onValueChange={(value) =>
@@ -1487,21 +1488,21 @@ const Payments = () => {
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder={t('Select method')} />
+                    <SelectValue placeholder={t('Payment Method')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="cash">Cash</SelectItem>
-                    <SelectItem value="credit_card">Credit Card</SelectItem>
-                    <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
-                    <SelectItem value="upi">UPI</SelectItem>
-                    <SelectItem value="insurance">Insurance</SelectItem>
+                    <SelectItem value="cash">{t('cash')}</SelectItem>
+                    <SelectItem value="credit_card">{t('creditCard')}</SelectItem>
+                    <SelectItem value="bank_transfer">{t('bankTransfer')}</SelectItem>
+                    <SelectItem value="upi">{t('upi')}</SelectItem>
+                    <SelectItem value="insurance">{t('insurance')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="transaction_id">Transaction ID (Optional)</Label>
+              <Label htmlFor="transaction_id">{t('Transaction ID (Optional)')}</Label>
               <Input
                 id="transaction_id"
                 placeholder={t('Enter transaction ID')}
@@ -1516,7 +1517,7 @@ const Payments = () => {
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="description">Description *</Label>
+              <Label htmlFor="description">{t('descriptionLabel')} </Label>
               <Textarea
                 id="description"
                 placeholder={t('Enter payment description or notes (required)')}
@@ -1557,14 +1558,14 @@ const Payments = () => {
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>{t('Edit Payment')}</DialogTitle>
-            <DialogDescription>
+            <DialogDescription className={cn( isRTL ? "text-right" : "text-left")}>
               {t('Modify the payment details below. Be careful when editing payment information.')}
             </DialogDescription>
           </DialogHeader>
           
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="edit_patient_id">Patient *</Label>
+              <Label htmlFor="edit_patient_id"> {t("Patient")} *</Label>
               <Select
                 value={editPaymentForm.patient_id}
                 onValueChange={(value) =>
@@ -1594,7 +1595,7 @@ const Payments = () => {
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="edit_invoice_id">Invoice (Optional)</Label>
+              <Label htmlFor="edit_invoice_id">{t("Invoice (Optional)")}</Label>
               <Select
                 value={editPaymentForm.invoice_id || "no-invoice"}
                 onValueChange={(value) => {
@@ -1632,7 +1633,7 @@ const Payments = () => {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="edit_amount">Amount *</Label>
+                <Label htmlFor="edit_amount">{t("Amount")} *</Label>
                 <Input
                   id="edit_amount"
                   type="number"
@@ -1649,7 +1650,7 @@ const Payments = () => {
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="edit_method">Payment Method *</Label>
+                <Label htmlFor="edit_method">{t("Payment Method")} *</Label>
                 <Select
                   value={editPaymentForm.method}
                   onValueChange={(value) =>
@@ -1663,11 +1664,11 @@ const Payments = () => {
                     <SelectValue placeholder={t('Select method')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="cash">Cash</SelectItem>
-                    <SelectItem value="credit_card">Credit Card</SelectItem>
-                    <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
-                    <SelectItem value="upi">UPI</SelectItem>
-                    <SelectItem value="insurance">Insurance</SelectItem>
+                    <SelectItem value="cash">{t("cash")}</SelectItem>
+                    <SelectItem value="credit_card">{t("creditCard")}</SelectItem>
+                    <SelectItem value="bank_transfer">{t("Bank Transfer")}</SelectItem>
+                    <SelectItem value="upi">{t("upi")}</SelectItem>
+                    <SelectItem value="insurance">{t("insurance")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -1675,7 +1676,7 @@ const Payments = () => {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="edit_status">Status *</Label>
+                <Label htmlFor="edit_status">{t("Status")} *</Label>
                 <Select
                   value={editPaymentForm.status}
                   onValueChange={(value) =>
@@ -1689,17 +1690,17 @@ const Payments = () => {
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="processing">Processing</SelectItem>
-                    <SelectItem value="completed">Completed</SelectItem>
-                    <SelectItem value="failed">Failed</SelectItem>
-                    <SelectItem value="refunded">Refunded</SelectItem>
+                    <SelectItem value="pending">{t("Pending")}</SelectItem>
+                    <SelectItem value="processing">{t("Processing")}</SelectItem>
+                    <SelectItem value="completed">{t("Completed")}</SelectItem>
+                    <SelectItem value="failed">{t("Failed")}</SelectItem>
+                    <SelectItem value="refunded">{t("Refunded")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="edit_transaction_id">Transaction ID (Optional)</Label>
+                <Label htmlFor="edit_transaction_id">{t("Transaction ID (Optional)")}</Label>
                 <Input
                   id="edit_transaction_id"
                   placeholder={t('Enter transaction ID')}
@@ -1715,7 +1716,7 @@ const Payments = () => {
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="edit_description">Description *</Label>
+              <Label htmlFor="edit_description">{t("Description")} *</Label>
               <Textarea
                 id="edit_description"
                 placeholder={t('Enter payment description or notes (required)')}
@@ -1765,7 +1766,7 @@ const Payments = () => {
         <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{t('Payment Details')}</DialogTitle>
-            <DialogDescription>
+            <DialogDescription className={cn( isRTL ? "text-right" : "text-left")}>
               {t('Complete information about this payment transaction')}
             </DialogDescription>
           </DialogHeader>
@@ -1799,7 +1800,7 @@ const Payments = () => {
                   </div>
                   <div className="space-y-1">
                     <Label className="text-sm text-gray-600">{t('Payment Method')}</Label>
-                    <div className="flex items-center space-x-2">
+                    <div className={`flex items-center space-x-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                       {getPaymentMethodIcon(viewingPayment.method)}
                       <span className="font-medium text-gray-900">
                         {getPaymentMethodLabel(viewingPayment.method)}
@@ -1835,7 +1836,7 @@ const Payments = () => {
                   </div>
                   {typeof viewingPayment.patient_id === 'object' && viewingPayment.patient_id.email && (
                     <div className="space-y-1">
-                      <Label className="text-sm text-gray-600">Email</Label>
+                      <Label className="text-sm text-gray-600">{t('Email')}</Label>
                       <p className="font-medium text-gray-900">
                         {viewingPayment.patient_id.email}
                       </p>
