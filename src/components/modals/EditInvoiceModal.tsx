@@ -530,22 +530,22 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
                   </div>
                 </div>
 
-                <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+                <div className="bg-gray-50 p-4 rounded-lg space-y-2" dir={isRTL ? "ltr" : "ltr"}>
                   <div className={cn("flex justify-between", isRTL && "flex-row-reverse")}>
-                    <span className={cn(isRTL && "font-arabic")} style={isRTL ? { fontFamily: "'IBM Plex Sans Arabic', sans-serif" } : {}}>{t("Subtotal")}:</span>
+                    <span className={cn(isRTL && "font-arabic" )} style={isRTL ? { fontFamily: "'IBM Plex Sans Arabic', sans-serif" } : {}}>{t("Subtotal")}</span>
                     <span><CurrencyDisplay amount={calculateSubtotal()} /></span>
                   </div>
                   <div className={cn("flex justify-between", isRTL && "flex-row-reverse")}>
-                    <span className={cn(isRTL && "font-arabic")} style={isRTL ? { fontFamily: "'IBM Plex Sans Arabic', sans-serif" } : {}}>{t("Tax")} ({formData.tax}%):</span>
+                    <span className={cn(isRTL && "font-arabic")} style={isRTL ? { fontFamily: "'IBM Plex Sans Arabic', sans-serif" } : {}}>{t("Tax")} ({formData.tax}%)</span>
                     <span><CurrencyDisplay amount={calculateTax()} /></span>
                   </div>
                   <div className={cn("flex justify-between", isRTL && "flex-row-reverse")}>
-                    <span className={cn(isRTL && "font-arabic")} style={isRTL ? { fontFamily: "'IBM Plex Sans Arabic', sans-serif" } : {}}>{t("Discount")}:</span>
+                    <span className={cn(isRTL && "font-arabic")} style={isRTL ? { fontFamily: "'IBM Plex Sans Arabic', sans-serif" } : {}}>{t("Discount")}</span>
                     <span>-<CurrencyDisplay amount={formData.discount} /></span>
                   </div>
                   <hr />
                   <div className={cn("flex justify-between font-bold text-lg", isRTL && "flex-row-reverse")}>
-                    <span className={cn(isRTL && "font-arabic")} style={isRTL ? { fontFamily: "'IBM Plex Sans Arabic', sans-serif" } : {}}>{t("Total")}:</span>
+                    <span className={cn(isRTL && "font-arabic")} style={isRTL ? { fontFamily: "'IBM Plex Sans Arabic', sans-serif" } : {}}>{t("Total")}</span>
                     <span><CurrencyDisplay amount={calculateTotal()} /></span>
                   </div>
                 </div>
@@ -572,6 +572,7 @@ const EditInvoiceModal: React.FC<EditInvoiceModalProps> = ({
                 variant="outline"
                 onClick={onClose}
                 disabled={isLoading}
+                className={cn(isRTL && "mr-2 ")}
               >
                 {t("Cancel")}
               </Button>

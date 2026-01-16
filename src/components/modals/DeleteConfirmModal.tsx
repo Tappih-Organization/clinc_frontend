@@ -82,6 +82,8 @@ const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 
           <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3">
             <Button
+              type="button"
+
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isLoading}

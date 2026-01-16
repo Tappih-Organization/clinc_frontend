@@ -282,7 +282,7 @@ const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({ trigger, onSucc
             <Receipt className={cn("h-5 w-5 text-green-600", isRTL ? "ml-2" : "mr-2")} />
             {t("Create New Invoice")}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className={cn("mt-2 text-sm text-gray-500", isRTL && "text-right")}>
             {t("Generate an invoice for services, medicines, or tests provided to a patient.")}
           </DialogDescription>
         </DialogHeader>
@@ -336,7 +336,7 @@ const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({ trigger, onSucc
 
                 <div className="space-y-2">
                   <Label htmlFor="appointmentId">
-                    {t("Related Appointment")} ({t("Optional")})
+                    {t("Related Appointment (Optional)")}
                   </Label>
                   <Select
                     value={formData.appointmentId}
@@ -494,7 +494,7 @@ const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({ trigger, onSucc
                       />
                     </div>
 
-                    <div className="space-y-2">
+                    <div className={cn("space-y-2", isRTL && "text-right")}>
                       <Label>{t("Unit Price")} ($)</Label>
                       <Input
                         type="number"
@@ -523,7 +523,7 @@ const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({ trigger, onSucc
           </Card>
 
           {/* Invoice Summary */}
-          <Card>
+          <Card dir={isRTL ? "rtl" : "ltr"}>
             <CardHeader>
               <CardTitle className="text-lg">{t("Invoice Summary")}</CardTitle>
             </CardHeader>
@@ -558,30 +558,30 @@ const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({ trigger, onSucc
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label>{t("Total Amount")}</Label>
+                <div className={cn("space-y-2", isRTL && "flex-row-reverse text-right")} dir={isRTL ? "ltr" : "ltr"}>
+                  <Label className={cn("text-right", isRTL && "text-right")}>{t("Total Amount")}</Label>
                   <div className="text-2xl font-bold text-green-600">
                     <CurrencyDisplay amount={calculateTotal()} variant="large" />
                   </div>
                 </div>
               </div>
 
-              <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+              <div className={cn("bg-gray-50 p-4 rounded-lg space-y-2", isRTL && "text-right")} dir={isRTL ? "ltr" : "ltr"}>
                 <div className={cn("flex justify-between", isRTL && "flex-row-reverse")}>
-                  <span>{t("Subtotal")}:</span>
+                  <span>{t("Subtotal")}</span>
                   <span><CurrencyDisplay amount={calculateSubtotal()} /></span>
                 </div>
                 <div className={cn("flex justify-between", isRTL && "flex-row-reverse")}>
-                  <span>{t("Tax")} ({formData.tax}%):</span>
+                  <span>{t("Tax")} ({formData.tax}%)</span>
                   <span><CurrencyDisplay amount={calculateTax()} /></span>
                 </div>
                 <div className={cn("flex justify-between", isRTL && "flex-row-reverse")}>
-                  <span>{t("Discount")}:</span>
+                  <span>{t("Discount")}</span>
                   <span>-<CurrencyDisplay amount={formData.discount} /></span>
                 </div>
                 <hr />
                 <div className={cn("flex justify-between font-bold text-lg", isRTL && "flex-row-reverse")}>
-                  <span>{t("Total")}:</span>
+                  <span>{t("Total")}</span>
                   <span><CurrencyDisplay amount={calculateTotal()} /></span>
                 </div>
               </div>
@@ -600,12 +600,13 @@ const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({ trigger, onSucc
           </Card>
 
           {/* Action Buttons */}
-          <div className={cn("flex justify-end pt-4", isRTL ? "flex-row-reverse space-x-reverse space-x-4" : "space-x-4")}>
+          <div className={cn("flex justify-end pt-4 ", isRTL ? "flex-row-reverse space-x-reverse space-x-4" : "space-x-4")}>
             <Button
               type="button"
               variant="outline"
               onClick={() => setOpen(false)}
               disabled={isLoading}
+              className={cn(isRTL && "mr-2 ")}
             >
               {t("Cancel")}
             </Button>

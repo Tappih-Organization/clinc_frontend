@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+
+import { useTranslation } from "react-i18next";
+import { useIsRTL } from "@/hooks/useIsRTL";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -66,6 +69,8 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
     }
   }, [expense]);
 
+  const { t } = useTranslation();
+  const isRTL = useIsRTL();
   const handleInputChange = (field: keyof UpdateExpenseRequest, value: string | number) => {
     setFormData(prev => ({
       ...prev,
@@ -119,16 +124,16 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Edit Expense</DialogTitle>
-          <DialogDescription>
-            Update the expense details.
+          <DialogTitle>{t("editExpense")}</DialogTitle>
+          <DialogDescription className={cn(isRTL ? "text-right" : "text-left")}>
+            {t("updateExpenseDetails")}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
-              <Label htmlFor="title">Title *</Label>
+              <Label htmlFor="title">{t("title")} *</Label>
               <Input
                 id="title"
                 value={formData.title || ""}
@@ -139,7 +144,7 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
             </div>
 
             <div className="col-span-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">{t("description")}</Label>
               <Textarea
                 id="description"
                 value={formData.description || ""}
@@ -150,7 +155,7 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
             </div>
 
             <div>
-              <Label htmlFor="amount">Amount *</Label>
+              <Label htmlFor="amount">{t("amount")} *</Label>
               <Input
                 id="amount"
                 type="number"
@@ -164,56 +169,56 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
             </div>
 
             <div>
-              <Label htmlFor="category">Category *</Label>
+              <Label htmlFor="category">{t("category")} *</Label>
               <Select value={formData.category} onValueChange={(value) => handleInputChange("category", value)}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
+                  <SelectValue placeholder={t("selectCategory")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="supplies">Supplies</SelectItem>
-                  <SelectItem value="equipment">Equipment</SelectItem>
-                  <SelectItem value="utilities">Utilities</SelectItem>
-                  <SelectItem value="maintenance">Maintenance</SelectItem>
-                  <SelectItem value="staff">Staff</SelectItem>
-                  <SelectItem value="marketing">Marketing</SelectItem>
-                  <SelectItem value="insurance">Insurance</SelectItem>
-                  <SelectItem value="rent">Rent</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
+                  <SelectItem value="supplies">{t("supplies")}</SelectItem>
+                  <SelectItem value="equipment">{t("equipment")}</SelectItem>
+                  <SelectItem value="utilities">{t("utilities")}</SelectItem>
+                  <SelectItem value="maintenance">{t("maintenance")}</SelectItem>
+                  <SelectItem value="staff">{t("staff")}</SelectItem>
+                  <SelectItem value="marketing">{t("marketing")}</SelectItem>
+                  <SelectItem value="insurance">{t("insurance")}</SelectItem>
+                  <SelectItem value="rent">{t("rent")}</SelectItem>
+                  <SelectItem value="other">{t("other")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div>
-              <Label htmlFor="payment_method">Payment Method *</Label>
+              <Label htmlFor="payment_method">{t("paymentMethod")} *</Label>
               <Select value={formData.payment_method} onValueChange={(value) => handleInputChange("payment_method", value)}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select payment method" />
+                  <SelectValue placeholder={t("selectPaymentMethod")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="cash">Cash</SelectItem>
-                  <SelectItem value="card">Card</SelectItem>
-                  <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
-                  <SelectItem value="check">Check</SelectItem>
+                  <SelectItem value="cash">{t("cash")}</SelectItem>
+                  <SelectItem value="card">{t("creditCard")}</SelectItem>
+                  <SelectItem value="bank_transfer">{t("bankTransfer")}</SelectItem>
+                  <SelectItem value="check">{t("check")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div>
-              <Label htmlFor="status">Status</Label>
+              <Label htmlFor="status">{t("status")}</Label>
               <Select value={formData.status} onValueChange={(value) => handleInputChange("status", value)}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select status" />
+                  <SelectValue placeholder={t("selectStatus")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="paid">Paid</SelectItem>
-                  <SelectItem value="cancelled">Cancelled</SelectItem>
+                  <SelectItem value="pending">{t("pending")}</SelectItem>
+                  <SelectItem value="paid">{t("paid")}</SelectItem>
+                  <SelectItem value="cancelled">{t("cancelled")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div>
-              <Label>Date *</Label>
+              <Label>{t("date")} *</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -239,7 +244,7 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
             </div>
 
             <div>
-              <Label htmlFor="vendor">Vendor/Supplier</Label>
+              <Label htmlFor="vendor">{t("vendor")}</Label>
               <Input
                 id="vendor"
                 value={formData.vendor || ""}
@@ -249,7 +254,7 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
             </div>
 
             <div className="col-span-2">
-              <Label htmlFor="receipt_url">Receipt URL</Label>
+              <Label htmlFor="receipt_url">{t("receiptUrl") }</Label>
               <Input
                 id="receipt_url"
                 type="url"
@@ -260,7 +265,7 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
             </div>
 
             <div className="col-span-2">
-              <Label htmlFor="notes">Notes</Label>
+              <Label htmlFor="notes">{t("notes")}</Label>
               <Textarea
                 id="notes"
                 value={formData.notes || ""}
@@ -273,11 +278,11 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={handleClose}>
-              Cancel
+              {t("cancel")}
             </Button>
             <Button type="submit" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Update Expense
+              {t("updateExpense")}
             </Button>
           </DialogFooter>
         </form>

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+ import { cn } from "@/lib/utils";
+ import { useIsRTL } from "@/hooks/useIsRTL";
 import {
   Dialog,
   DialogContent,
@@ -65,7 +67,7 @@ export const CreatePaymentLinkModal: React.FC<CreatePaymentLinkModalProps> = ({
     metadata: {}
   });
 
-
+  const isRTL = useIsRTL();
 
   // Load patients when modal opens
   useEffect(() => {
@@ -197,12 +199,12 @@ export const CreatePaymentLinkModal: React.FC<CreatePaymentLinkModalProps> = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+        <DialogHeader className={cn(isRTL ? "text-right" : "text-left")}>
+          <DialogTitle className={cn("flex items-center gap-2", isRTL ? "flex-row-reverse" : "flex-row")}>
             <User className="h-5 w-5" />
             {t("Create Payment Link")}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className={cn(isRTL ? "text-right" : "text-left")}>
             {t("Generate a secure Stripe payment link for your patient")}
           </DialogDescription>
         </DialogHeader>
@@ -311,7 +313,7 @@ export const CreatePaymentLinkModal: React.FC<CreatePaymentLinkModalProps> = ({
                 <Input
                   id="customer_email"
                   type="email"
-                  placeholder={t("Enter customer email")}
+                  placeholder={t("Enter customer's email address")}
                   className="pl-9"
                   value={formData.customer_email}
                   onChange={(e) =>
@@ -320,7 +322,7 @@ export const CreatePaymentLinkModal: React.FC<CreatePaymentLinkModalProps> = ({
                 />
               </div>
               <p className="text-sm text-muted-foreground">
-                {t("Payment confirmation will be sent to this email")}
+                {t("paymentConfirmationEmail")}
               </p>
             </div>
 
@@ -331,7 +333,7 @@ export const CreatePaymentLinkModal: React.FC<CreatePaymentLinkModalProps> = ({
               </Label>
               <Textarea
                 id="description"
-                placeholder={t("Enter payment description (e.g., Consultation fee, Treatment payment)")}
+                placeholder={t("enterPaymentDescriptionExample")}
                 value={formData.description}
                 onChange={(e) =>
                   setFormData({ ...formData, description: e.target.value })
