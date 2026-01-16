@@ -108,7 +108,7 @@ const PublicAppointments: React.FC = () => {
         params.append('status', statusFilter);
       }
 
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'https://api.tappih.com'}/public/appointments/${patientId}?${params}`);
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api/'}/public/appointments/${patientId}?${params}`);
       
       if (!response.ok) {
         throw new Error('Failed to fetch appointments');

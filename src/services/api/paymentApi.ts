@@ -242,7 +242,7 @@ export const paymentApi = {
   // Verify payment by session ID (public endpoint)
   verifyPaymentBySessionId: async (sessionId: string) => {
     // Use the same API base URL configuration as other API calls
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://api.tappih.com/api';
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api/';
     const response = await fetch(`${API_BASE_URL}/payments/verify-session/${sessionId}`);
     
     if (!response.ok) {
