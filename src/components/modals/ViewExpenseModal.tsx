@@ -29,6 +29,8 @@ import {
 import { format } from "date-fns";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
+import { useIsRTL } from "@/hooks/useIsRTL";
 import type { Expense } from "@/services/api/expenseApi";
 
 interface ViewExpenseModalProps {
@@ -60,6 +62,9 @@ const ViewExpenseModal: React.FC<ViewExpenseModalProps> = ({
     return icons[category as keyof typeof icons] || MoreHorizontal;
   };
 
+
+     const { t } = useTranslation();
+     const isRTL = useIsRTL();
   // Status badge colors
   const getStatusBadge = (status: string) => {
     const variants = {
@@ -88,14 +93,14 @@ const ViewExpenseModal: React.FC<ViewExpenseModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className={cn("sm:max-w-[600px]")}>
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className={cn("flex items-center gap-2" , isRTL && "flex-row-reverse mt-5")}>
             <CategoryIcon className="h-5 w-5 text-muted-foreground" />
             {expense.title}
           </DialogTitle>
-          <DialogDescription>
-            Expense details and information
+          <DialogDescription className={cn(isRTL ? "text-right" : "text-left")}>
+          {t("expenseDetailsAndInformation")}
           </DialogDescription>
         </DialogHeader>
 
@@ -104,13 +109,13 @@ const ViewExpenseModal: React.FC<ViewExpenseModalProps> = ({
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-muted-foreground">Amount</label>
+                <label className="text-sm font-medium text-muted-foreground">{t("amount")}</label>
                 <p className="text-2xl font-bold text-primary">
                   {formatAmount(expense.amount)}
                 </p>
               </div>
               <div>
-                <label className="text-sm font-medium text-muted-foreground">Status</label>
+                <label className="text-sm font-medium text-muted-foreground">{t("status")}</label>
                 <div className="mt-1">
                   <Badge className={cn("capitalize", getStatusBadge(expense.status))}>
                     {expense.status}
@@ -121,7 +126,7 @@ const ViewExpenseModal: React.FC<ViewExpenseModalProps> = ({
 
             {expense.description && (
               <div>
-                <label className="text-sm font-medium text-muted-foreground">Description</label>
+                <label className="text-sm font-medium text-muted-foreground">{t("description")}</label>
                 <p className="mt-1 text-sm">{expense.description}</p>
               </div>
             )}
@@ -133,24 +138,24 @@ const ViewExpenseModal: React.FC<ViewExpenseModalProps> = ({
           <div className="grid grid-cols-2 gap-6">
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-muted-foreground">Category</label>
-                <div className="mt-1 flex items-center gap-2">
+                <label className="text-sm font-medium text-muted-foreground">{t("category")}</label>
+                <div className={cn("mt-1 flex items-center gap-2" , isRTL && "flex-row-reverse")}>
                   <CategoryIcon className="h-4 w-4 text-muted-foreground" />
                   <span className="capitalize">{expense.category.replace('_', ' ')}</span>
                 </div>
               </div>
 
               <div>
-                <label className="text-sm font-medium text-muted-foreground">Payment Method</label>
-                <div className="mt-1 flex items-center gap-2">
+                <label className="text-sm font-medium text-muted-foreground">{t("paymentMethod")}</label>
+                <div className={cn("mt-1 flex items-center gap-2", isRTL && "flex-row-reverse")}>
                   <PaymentIcon className="h-4 w-4 text-muted-foreground" />
                   <span className="capitalize">{expense.payment_method.replace('_', ' ')}</span>
                 </div>
               </div>
 
               <div>
-                <label className="text-sm font-medium text-muted-foreground">Date</label>
-                <div className="mt-1 flex items-center gap-2">
+                <label className="text-sm font-medium text-muted-foreground">{t("date")}</label>
+                <div className={cn("mt-1 flex items-center gap-2", isRTL && "flex-row-reverse")}>
                   <CalendarIcon className="h-4 w-4 text-muted-foreground" />
                   <span>{format(new Date(expense.date), "MMMM dd, yyyy")}</span>
                 </div>
@@ -160,21 +165,21 @@ const ViewExpenseModal: React.FC<ViewExpenseModalProps> = ({
             <div className="space-y-4">
               {expense.vendor && (
                 <div>
-                  <label className="text-sm font-medium text-muted-foreground">Vendor/Supplier</label>
+                  <label className="text-sm font-medium text-muted-foreground">{t("vendor")}</label>
                   <p className="mt-1">{expense.vendor}</p>
                 </div>
               )}
 
               <div>
-                <label className="text-sm font-medium text-muted-foreground">Created By</label>
-                <div className="mt-1 flex items-center gap-2">
+                <label className="text-sm font-medium text-muted-foreground">{t("createdBy")}</label>
+                <div className={cn("mt-1 flex items-center gap-2", isRTL && "flex-row-reverse")}>
                   <UserIcon className="h-4 w-4 text-muted-foreground" />
                   <span>{expense.created_by.first_name} {expense.created_by.last_name}</span>
                 </div>
               </div>
 
               <div>
-                <label className="text-sm font-medium text-muted-foreground">Created Date</label>
+                <label className="text-sm font-medium text-muted-foreground">{t("createdDate")}</label>
                 <p className="mt-1 text-sm">
                   {format(new Date(expense.created_at), "MMM dd, yyyy 'at' h:mm a")}
                 </p>
@@ -187,7 +192,7 @@ const ViewExpenseModal: React.FC<ViewExpenseModalProps> = ({
             <>
               <Separator />
               <div>
-                <label className="text-sm font-medium text-muted-foreground">Receipt</label>
+                <label className="text-sm font-medium text-muted-foreground">{t("receipt")}</label>
                 <div className="mt-2">
                   <Button
                     variant="outline"
@@ -208,7 +213,7 @@ const ViewExpenseModal: React.FC<ViewExpenseModalProps> = ({
             <>
               <Separator />
               <div>
-                <label className="text-sm font-medium text-muted-foreground">Notes</label>
+                <label className="text-sm font-medium text-muted-foreground">{t("notes")}</label>
                 <p className="mt-1 text-sm bg-muted p-3 rounded-md">
                   {expense.notes}
                 </p>
@@ -232,7 +237,7 @@ const ViewExpenseModal: React.FC<ViewExpenseModalProps> = ({
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
-            Close
+            {t("close")}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -273,24 +273,24 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className={cn("bg-gray-50 p-4 rounded-lg space-y-2", isRTL && "text-right")}>
+                <div className={cn("bg-gray-50 p-4 rounded-lg space-y-2", isRTL && "text-right")} dir={isRTL ? "ltr" : "ltr"}>
                   <div className={cn("flex justify-between", isRTL && "flex-row-reverse")}>
-                    <span>{t("Subtotal")}:</span>
+                    <span>{t("Subtotal")}</span>
                     <span><CurrencyDisplay amount={invoice.subtotal} /></span>
                   </div>
                   <div className={cn("flex justify-between", isRTL && "flex-row-reverse")}>
-                    <span>{t("Tax")}:</span>
+                    <span>{t("Tax")}</span>
                     <span><CurrencyDisplay amount={invoice.tax_amount} /></span>
                   </div>
                   {invoice.discount && invoice.discount > 0 && (
                     <div className={cn("flex justify-between", isRTL && "flex-row-reverse")}>
-                      <span>{t("Discount")}:</span>
+                      <span>{t("Discount")}</span>
                       <span className="text-green-600">-<CurrencyDisplay amount={invoice.discount} /></span>
                     </div>
                   )}
                   <hr className="my-2" />
                   <div className={cn("flex justify-between font-bold text-xl", isRTL && "flex-row-reverse")}>
-                    <span>{t("Total Amount")}:</span>
+                    <span>{t("Total Amount")}</span>
                     <span className="text-green-600">
                       <CurrencyDisplay amount={invoice.total_amount} variant="large" />
                     </span>

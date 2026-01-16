@@ -29,6 +29,8 @@ import { CalendarIcon, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+
+import { useIsRTL } from "@/hooks/useIsRTL";
 import { expenseApi, type CreateExpenseRequest, type Expense } from "@/services/api/expenseApi";
 
 interface AddExpenseModalProps {
@@ -74,7 +76,8 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
       }));
     }
   };
-
+ 
+   const isRTL = useIsRTL(); 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -121,9 +124,9 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>{t("Add New Expense")}</DialogTitle>
-          <DialogDescription>
-            {t("Create a new expense record for your clinic.")}
+          <DialogTitle>{t("addNewExpense")}</DialogTitle>
+          <DialogDescription className={cn(isRTL ? "text-right" : "text-left")}>
+            {t("createExpenseDescription")}
           </DialogDescription>
         </DialogHeader>
 
@@ -135,7 +138,7 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
                 id="title"
                 value={formData.title}
                 onChange={(e) => handleInputChange("title", e.target.value)}
-                placeholder={t("e.g., Office supplies")}
+                placeholder={t("titlePlaceholder")}
                 required
               />
             </div>
@@ -146,7 +149,7 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
                 id="description"
                 value={formData.description}
                 onChange={(e) => handleInputChange("description", e.target.value)}
-                placeholder={t("Additional details about the expense...")}
+                placeholder={t("descriptionPlaceholder")}
                 className="min-h-[80px]"
               />
             </div>
@@ -169,7 +172,7 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
               <Label htmlFor="category">{t("Category")} *</Label>
               <Select value={formData.category} onValueChange={(value) => handleInputChange("category", value)}>
                 <SelectTrigger>
-                  <SelectValue placeholder={t("Select category")} />
+                  <SelectValue placeholder={t("selectCategory")} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="supplies">{t("Supplies")}</SelectItem>
@@ -192,8 +195,8 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
                   <SelectValue placeholder={t("Select payment method")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="cash">{t("Cash")}</SelectItem>
-                  <SelectItem value="card">{t("Card")}</SelectItem>
+                  <SelectItem value="cash">{t("cash")}</SelectItem>
+                  <SelectItem value="card">{t("creditCard")}</SelectItem>
                   <SelectItem value="bank_transfer">{t("Bank Transfer")}</SelectItem>
                   <SelectItem value="check">{t("Check")}</SelectItem>
                 </SelectContent>
@@ -241,17 +244,17 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
             </div>
 
             <div>
-              <Label htmlFor="vendor">{t("Vendor/Supplier")}</Label>
+              <Label htmlFor="vendor">{t("vendor")}</Label>
               <Input
                 id="vendor"
                 value={formData.vendor}
                 onChange={(e) => handleInputChange("vendor", e.target.value)}
-                placeholder={t("e.g., ABC Medical Supplies")}
+                placeholder={t("vendorPlaceholder")}
               />
             </div>
 
             <div className="col-span-2">
-              <Label htmlFor="receipt_url">{t("Receipt URL")}</Label>
+              <Label htmlFor="receipt_url">{t("receiptUrl")}</Label>
               <Input
                 id="receipt_url"
                 type="url"
@@ -267,7 +270,7 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
                 id="notes"
                 value={formData.notes}
                 onChange={(e) => handleInputChange("notes", e.target.value)}
-                placeholder={t("Additional notes or remarks...")}
+                placeholder={t("notesPlaceholder")}
                 className="min-h-[60px]"
               />
             </div>
@@ -279,7 +282,7 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
             </Button>
             <Button type="submit" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {t("Create Expense")}
+              {t("createExpense")}
             </Button>
           </DialogFooter>
         </form>

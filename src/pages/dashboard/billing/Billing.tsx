@@ -58,13 +58,16 @@ import DeleteInvoiceModal from "@/components/modals/DeleteInvoiceModal";
 import ViewPaymentModal from "@/components/modals/ViewPaymentModal";
 import RecordPaymentModal from "@/components/modals/RecordPaymentModal";
 import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
+import { useIsRTL } from "@/hooks/useIsRTL";
 import { toast } from "@/hooks/use-toast";
 import { apiService, type Invoice, type Payment, type PaymentStats, type InvoiceStats } from "@/services/api";
 import { Skeleton } from "@/components/ui/skeleton";
 import ErrorHandler from "@/components/ErrorHandler";
+import { cn } from "@/lib/utils";
 
 const Billing = () => {
   const { t } = useTranslation();
+  const isRTL = useIsRTL();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [selectedTab, setSelectedTab] = useState("invoices");
@@ -590,8 +593,8 @@ const Billing = () => {
         <TabsContent value="invoices" className="space-y-3 xs:space-y-4">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base xs:text-lg sm:text-xl">{t('Invoice Management')}</CardTitle>
-              <CardDescription className="text-xs xs:text-sm">
+              <CardTitle className={cn("text-base xs:text-lg sm:text-xl", isRTL && "text-right")}>{t('Invoice Management')}</CardTitle>
+              <CardDescription className={cn("text-xs xs:text-sm", isRTL && "text-right")}>
                 {t('Track and manage all patient invoices')}
               </CardDescription>
             </CardHeader>
@@ -844,14 +847,14 @@ const Billing = () => {
         <TabsContent value="payments" className="space-y-3 xs:space-y-4">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base xs:text-lg sm:text-xl">{t('Payment History')}</CardTitle>
-              <CardDescription className="text-xs xs:text-sm">
+              <CardTitle className={cn("text-base xs:text-lg sm:text-xl", isRTL && "text-right")}>{t('Payment History')}</CardTitle>
+              <CardDescription className={cn("text-xs xs:text-sm", isRTL && "text-right")}>
                 {t('Track all payment transactions and refunds')}
               </CardDescription>
             </CardHeader>
             <CardContent className="px-3 xs:px-4 sm:px-6">
               {/* Desktop Table View */}
-              <div className="hidden lg:block">
+              <div className="hidden lg:block" >
                 <Table>
                   <TableHeader>
                     <TableRow>
