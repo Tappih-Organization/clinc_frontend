@@ -125,6 +125,8 @@ export interface Medicine {
   supplier: string;
   description?: string;
   lowStockAlert: number;
+  branches?: Array<{ id: string; name: string; code?: string }>; // Assigned branches/clinics
+  branchWarehouses?: Array<{ branchId: string; warehouseId: string; warehouseName?: string; warehouseType?: string }>; // Branch-warehouse mappings
   createdAt: Date;
   updatedAt: Date;
 }

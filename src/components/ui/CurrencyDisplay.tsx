@@ -19,7 +19,9 @@ export const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({
 }) => {
   const { formatAmount, currentCurrency, currencyInfo } = useCurrency();
 
-  const formattedAmount = formatAmount(amount);
+  // Handle undefined, null, or NaN values
+  const safeAmount = amount === undefined || amount === null || isNaN(amount) ? 0 : amount;
+  const formattedAmount = formatAmount(safeAmount);
   
   const baseClasses = cn(
     'font-medium',
@@ -33,13 +35,13 @@ export const CurrencyDisplay: React.FC<CurrencyDisplayProps> = ({
 
   if (!showSymbol && !showCode) {
     // Just show the number
-    const numberOnly = currencyInfo ? amount.toFixed(currencyInfo.decimals) : amount.toString();
+    const numberOnly = currencyInfo ? safeAmount.toFixed(currencyInfo.decimals) : safeAmount.toString();
     return <span className={baseClasses}>{numberOnly}</span>;
   }
 
   if (showCode && !showSymbol) {
     // Show amount with currency code
-    const numberPart = currencyInfo ? amount.toFixed(currencyInfo.decimals) : amount.toString();
+    const numberPart = currencyInfo ? safeAmount.toFixed(currencyInfo.decimals) : safeAmount.toString();
     return (
       <span className={baseClasses}>
         {numberPart} {currentCurrency}

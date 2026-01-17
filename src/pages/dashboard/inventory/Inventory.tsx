@@ -42,12 +42,12 @@ import {
   AlertTriangle,
   TrendingDown,
   TrendingUp,
-  Calendar,
   DollarSign,
   Eye,
   Edit,
   Trash2,
   RefreshCw,
+  Warehouse,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Medicine } from "@/types";
@@ -56,16 +56,30 @@ import ViewDetailsModal from "@/components/modals/ViewDetailsModal";
 import EditItemModal from "@/components/modals/EditItemModal";
 import DeleteConfirmModal from "@/components/modals/DeleteConfirmModal";
 import AdvancedFiltersModal from "@/components/modals/AdvancedFiltersModal";
+import UpdateStockModal from "@/components/modals/UpdateStockModal";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { useClinic } from "@/contexts/ClinicContext";
 import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
 import { apiService, type InventoryItem } from "@/services/api";
 import Loading from "@/components/ui/Loading";
+import { AssignedBranchesCell } from "@/components/inventory/AssignedBranchesCell";
+import { BranchMultiSelect } from "@/components/inventory/BranchMultiSelect";
+import { cn } from "@/lib/utils";
+import { useIsRTL } from "@/hooks/useIsRTL";
+
+interface Branch {
+  id: string;
+  name: string;
+  code?: string;
+}
 
 const Inventory = () => {
   const { t } = useTranslation();
+  const isRTL = useIsRTL();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedBranch, setSelectedBranch] = useState<string>("all");
+  const [branches, setBranches] = useState<Branch[]>([]);
   const [advancedFilters, setAdvancedFilters] = useState<Record<string, any>>(
     {},
   );
@@ -111,22 +125,146 @@ const Inventory = () => {
     item: Medicine | null;
   }>({ open: false, item: null });
 
+  const [stockModal, setStockModal] = useState<{
+    open: boolean;
+    item: Medicine | null;
+    operation: "add" | "subtract";
+  }>({ open: false, item: null, operation: "add" });
+
+  // Load branches from backend API and filter based on clinic type
+  useEffect(() => {
+    const loadBranches = async () => {
+      if (!currentClinic) {
+        console.warn("No clinic selected, skipping branches load");
+        return;
+      }
+
+      try {
+        const branchesResponse = await apiService.getBranches();
+        
+        // Convert branches from backend format
+        const responseData = branchesResponse.data as any;
+        const branchesArray = Array.isArray(responseData) 
+          ? responseData 
+          : responseData?.clinics || responseData?.data || [];
+        
+        // Extract clinic data and remove duplicates based on clinic ID
+        const uniqueBranchesMap = new Map<string, Branch>();
+        
+        // Get current clinic info
+        const currentClinicId = currentClinic._id?.toString();
+        const isMainClinic = currentClinic.is_main_clinic === true;
+        
+        branchesArray.forEach((item: any) => {
+          // Handle different response structures
+          const clinic = item.clinic_id || item;
+          const clinicId = clinic?._id?.toString() || clinic?._id || clinic?.id;
+          const clinicIsMain = clinic?.is_main_clinic === true;
+          const clinicParentId = clinic?.parent_clinic_id?.toString() || clinic?.parent_clinic_id;
+          
+          if (clinicId && clinic?.name) {
+            // Filter branches based on clinic type:
+            // 1. If current clinic is MAIN → show main clinic itself + all sub clinics
+            // 2. If current clinic is SUB → show only current clinic
+            let shouldInclude = false;
+            
+            if (isMainClinic) {
+              shouldInclude = 
+                clinicId === currentClinicId || 
+                (!clinicIsMain && clinicParentId === currentClinicId);
+            } else {
+              shouldInclude = clinicId === currentClinicId;
+            }
+            
+            if (shouldInclude && !uniqueBranchesMap.has(clinicId)) {
+              uniqueBranchesMap.set(clinicId, {
+                id: clinicId,
+                name: clinic.name,
+                code: clinic.code,
+              });
+            }
+          }
+        });
+        
+        // Convert to array
+        const branchesData = Array.from(uniqueBranchesMap.values());
+        setBranches(branchesData);
+      } catch (error) {
+        console.error("Error loading branches:", error);
+      }
+    };
+    
+    loadBranches();
+  }, [currentClinic]);
+
   // Transform backend inventory data to frontend Medicine interface
-  const transformInventoryItem = (item: InventoryItem): Medicine => ({
-    id: item._id,
-    name: item.name,
-    category: item.category,
-    manufacturer: 'Unknown', // Backend doesn't have this field
-    batchNumber: item.sku, // Use SKU as batch number
-    expiryDate: item.expiry_date ? new Date(item.expiry_date) : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
-    quantity: item.current_stock,
-    unitPrice: item.unit_price,
-    supplier: item.supplier,
-    description: '', // Backend doesn't have this field
-    lowStockAlert: item.minimum_stock,
-    createdAt: new Date(item.created_at),
-    updatedAt: new Date(item.updated_at)
-  });
+  const transformInventoryItem = (item: any): Medicine => {
+    // Extract assignedBranches from backend response (populated)
+    const assignedBranches = (item.assignedBranches || []).map((branch: any) => ({
+      id: branch._id?.toString() || branch._id || branch.id,
+      name: branch.name,
+      code: branch.code,
+    }));
+    
+    // Extract branchWarehouses mapping
+    const branchWarehousesMapping = (item.branchWarehouses || []).map((bw: any) => ({
+      branchId: bw.branchId?._id?.toString() || bw.branchId?.toString() || bw.branchId,
+      warehouseId: bw.warehouseId?._id?.toString() || bw.warehouseId?.toString() || bw.warehouseId,
+      warehouseName: bw.warehouseId?.name || '',
+      warehouseType: bw.warehouseId?.type || '',
+      isShared: bw.warehouseId?.isShared || false,
+    }));
+    
+    // Calculate quantity for current branch
+    // For shared warehouses: use current_stock
+    // For non-shared warehouses: use stock from stockByBranchWarehouse for current branch
+    let displayQuantity = item.current_stock || 0;
+    
+    if (currentClinic && item.stockByBranchWarehouse && item.stockByBranchWarehouse.length > 0) {
+      const currentClinicId = currentClinic._id?.toString();
+      
+      // Find stock entry for current branch
+      // First, find the warehouse assigned to current branch
+      const branchWarehouse = branchWarehousesMapping.find(
+        (bw: any) => bw.branchId === currentClinicId
+      );
+      
+      if (branchWarehouse) {
+        const stockEntry = item.stockByBranchWarehouse.find(
+          (entry: any) => 
+            entry.branchId?.toString() === currentClinicId &&
+            entry.warehouseId?.toString() === branchWarehouse.warehouseId
+        );
+        
+        if (stockEntry) {
+          // Non-shared warehouse: use stock from stockByBranchWarehouse
+          displayQuantity = stockEntry.stock || 0;
+        } else if (!branchWarehouse.isShared) {
+          // Non-shared warehouse but no entry found: use current_stock as fallback
+          displayQuantity = item.current_stock || 0;
+        }
+        // If shared warehouse, use current_stock (already set above)
+      }
+    }
+    
+    return {
+      id: item._id,
+      name: item.name,
+      category: item.category,
+      manufacturer: item.manufacturer || 'Unknown',
+      batchNumber: item.sku, // Use SKU as batch number
+      expiryDate: item.expiry_date ? new Date(item.expiry_date) : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+      quantity: displayQuantity, // Use calculated quantity for current branch
+      unitPrice: item.unit_price || 0,
+      supplier: item.supplier || '',
+      description: item.description || '',
+      lowStockAlert: item.minimum_stock,
+      branches: assignedBranches,
+      branchWarehouses: branchWarehousesMapping, // Add branch-warehouse mappings
+      createdAt: new Date(item.created_at),
+      updatedAt: new Date(item.updated_at)
+    };
+  };
 
   // Load inventory from API
   const fetchInventory = async (showRefreshIndicator = false) => {
@@ -147,6 +285,7 @@ const Inventory = () => {
       const filters = {
         search: searchTerm || undefined,
         category: selectedCategory !== "all" ? selectedCategory : undefined,
+        branchId: selectedBranch !== "all" ? selectedBranch : undefined,
         page: pagination.page,
         limit: pagination.limit,
         ...advancedFilters,
@@ -158,7 +297,27 @@ const Inventory = () => {
       ]);
 
       // Transform backend data to frontend format
-      const transformedItems = inventoryResponse.data.items.map(transformInventoryItem);
+      // Backend returns inventoryItems array
+      const items = inventoryResponse.data.items || inventoryResponse.data.inventoryItems || [];
+      let transformedItems = items.map(transformInventoryItem);
+      
+      // Log transformed items for debugging
+      console.log('📦 Transformed items:', transformedItems.map(item => ({
+        id: item.id,
+        name: item.name,
+        branches: item.branches,
+        branchWarehouses: item.branchWarehouses
+      })));
+      
+      // Client-side branch filtering (backup filter - backend should handle this)
+      if (selectedBranch !== "all") {
+        transformedItems = transformedItems.filter((item) => {
+          const hasBranch = item.branches?.some((branch) => branch.id === selectedBranch);
+          console.log(`🔍 Filtering item ${item.name} for branch ${selectedBranch}:`, hasBranch, item.branches);
+          return hasBranch;
+        });
+      }
+      
       setMedicines(transformedItems);
       setPagination(inventoryResponse.data.pagination);
       setStats(statsResponse);
@@ -186,7 +345,7 @@ const Inventory = () => {
   // Load data on component mount and when filters change
   useEffect(() => {
     fetchInventory();
-  }, [searchTerm, selectedCategory, advancedFilters, pagination.page]);
+  }, [searchTerm, selectedCategory, selectedBranch, advancedFilters, pagination.page]);
 
   // Debounce search
   useEffect(() => {
@@ -254,8 +413,9 @@ const Inventory = () => {
   };
 
   // Using the currency context for dynamic currency formatting
-  const formatCurrency = (amount: number) => {
-    return formatAmount(amount);
+  const formatCurrency = (amount: number | undefined | null) => {
+    const safeAmount = amount === undefined || amount === null || isNaN(amount) ? 0 : amount;
+    return formatAmount(safeAmount);
   };
 
   // Action handlers
@@ -271,26 +431,57 @@ const Inventory = () => {
     setDeleteModal({ open: true, item });
   };
 
-  const handleItemAdded = (newItem?: InventoryItem) => {
+  const handleItemAdded = async (newItem?: InventoryItem | any) => {
     // Add the new item directly to the list without refreshing
     if (newItem) {
+      try {
+        // Log received item from backend
+        console.log('📥 Received new item from backend:', newItem);
+        
+        // Transform the new item to Medicine format
       const transformedItem = transformInventoryItem(newItem);
+        
+        // Log transformed item
+        console.log('🔄 Transformed item:', {
+          id: transformedItem.id,
+          name: transformedItem.name,
+          branches: transformedItem.branches,
+          branchWarehouses: transformedItem.branchWarehouses
+        });
+        
+        // Add to medicines list
       setMedicines((prevMedicines) => {
         // Check if item already exists (avoid duplicates)
         const exists = prevMedicines.some(med => med.id === transformedItem.id);
         if (exists) {
-          return prevMedicines;
+            // Update existing item instead
+            return prevMedicines.map(med => 
+              med.id === transformedItem.id ? transformedItem : med
+            );
         }
         // Add new item at the beginning of the list
         return [transformedItem, ...prevMedicines];
       });
+        
       // Update pagination total
       setPagination((prev) => ({
         ...prev,
         total: prev.total + 1,
       }));
-      // Refresh stats
+        
+        // Refresh stats to reflect the new item
       apiService.getInventoryStats().then(setStats).catch(console.error);
+        
+        // Show success message
+        toast({
+          title: t("Success"),
+          description: t("Item added successfully and displayed in the table"),
+        });
+      } catch (error) {
+        console.error("Error processing new item:", error);
+        // Fallback to full refresh if transformation fails
+        fetchInventory(true);
+      }
     } else {
       // Fallback to full refresh if item data not provided
       fetchInventory(true);
@@ -302,7 +493,7 @@ const Inventory = () => {
       if (!editModal.item) return;
 
       // Transform data to match backend format
-      const updateData = {
+      const updateData: any = {
         name: updatedData.name,
         category: updatedData.category,
         current_stock: parseInt(updatedData.quantity),
@@ -314,6 +505,16 @@ const Inventory = () => {
         batchNumber: updatedData.batchNumber,
         description: updatedData.description,
       };
+
+      // Include assignedBranches if provided
+      if (updatedData.assignedBranches && Array.isArray(updatedData.assignedBranches)) {
+        updateData.assignedBranches = updatedData.assignedBranches;
+      }
+
+      // Include branchWarehouses if provided
+      if (updatedData.branchWarehouses && Array.isArray(updatedData.branchWarehouses)) {
+        updateData.branchWarehouses = updatedData.branchWarehouses;
+      }
 
       const updatedItem = await apiService.updateInventoryItem(editModal.item.id, updateData);
       
@@ -368,52 +569,57 @@ const Inventory = () => {
     }
   };
 
-  const handleAddStock = async (item: Medicine) => {
-    try {
-      // For demo, add 10 units
-      await apiService.updateInventoryStock(item.id, { quantity: 10, operation: 'add' });
-      
-      toast({
-        title: t("Stock Added"),
-        description: `${t('Added 10 units to')} ${item.name}`,
-      });
-
-      fetchInventory(true);
-    } catch (error: any) {
-      toast({
-        title: t("Error"),
-        description: error.message || t("Failed to add stock. Please try again."),
-        variant: "destructive",
-      });
-    }
+  const handleAddStock = (item: Medicine) => {
+    setStockModal({ open: true, item, operation: "add" });
   };
 
-  const handleRemoveStock = async (item: Medicine) => {
-    try {
-      // For demo, remove 5 units
-      await apiService.updateInventoryStock(item.id, { quantity: 5, operation: 'subtract' });
-      
-      toast({
-        title: t("Stock Removed"),
-        description: `${t('Removed 5 units from')} ${item.name}`,
-      });
-
-      fetchInventory(true);
-    } catch (error: any) {
-      toast({
-        title: t("Error"),
-        description: error.message || t("Failed to remove stock. Please try again."),
-        variant: "destructive",
-      });
-    }
+  const handleRemoveStock = (item: Medicine) => {
+    setStockModal({ open: true, item, operation: "subtract" });
   };
 
-  const handleUpdateExpiry = (item: Medicine) => {
-    // This would open a date picker modal in a real implementation
-    toast({
-      title: t("Update Expiry"),
-      description: `${t('Opening expiry date editor for')} ${item.name}`,
-    });
+  const handleConfirmStockUpdate = async (quantity: number, branchId: string, warehouseId: string) => {
+    if (!stockModal.item) return;
+
+    try {
+      const updatedItem = await apiService.updateInventoryStock(stockModal.item.id, {
+        quantity,
+        operation: stockModal.operation,
+        branchId,
+        warehouseId,
+      });
+
+      // Reload the item from API to get updated stockByBranchWarehouse data
+      const refreshedItem = await apiService.getInventoryItem(stockModal.item.id);
+      
+      // Transform and update in list
+      const transformedItem = transformInventoryItem(refreshedItem.inventoryItem || refreshedItem);
+      setMedicines((prevMedicines) =>
+        prevMedicines.map((med) =>
+          med.id === transformedItem.id ? transformedItem : med
+        )
+      );
+
+      // Refresh stats
+      apiService.getInventoryStats().then(setStats).catch(console.error);
+      
+      toast({
+        title: t("Success"),
+        description:
+          stockModal.operation === "add"
+            ? t("Added {{quantity}} units to {{name}}", {
+                quantity,
+                name: stockModal.item.name,
+              })
+            : t("Removed {{quantity}} units from {{name}}", {
+                quantity,
+                name: stockModal.item.name,
+              }),
+      });
+
+      setStockModal({ open: false, item: null, operation: "add" });
+    } catch (error: any) {
+      throw error; // Let modal handle the error display
+    }
   };
 
   // Filter handlers
@@ -470,7 +676,11 @@ const Inventory = () => {
   ).length;
   const outOfStockItems = stats?.outOfStockItems || medicines.filter((m) => m.quantity === 0).length;
   const totalValue = stats?.totalValue || medicines.reduce(
-    (sum, m) => sum + m.quantity * m.unitPrice,
+    (sum, m) => {
+      const quantity = m.quantity || 0;
+      const unitPrice = m.unitPrice || 0;
+      return sum + (quantity * unitPrice);
+    },
     0,
   );
 
@@ -634,6 +844,23 @@ const Inventory = () => {
                 </SelectContent>
               </Select>
 
+              <Select
+                value={selectedBranch}
+                onValueChange={setSelectedBranch}
+              >
+                <SelectTrigger className="w-full sm:w-48">
+                  <SelectValue placeholder={t('Branch')} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t("All Branches")}</SelectItem>
+                  {branches.map((branch) => (
+                    <SelectItem key={branch.id} value={branch.id}>
+                      {branch.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
               <AdvancedFiltersModal
                 filterFields={filterFields}
                 onApplyFilters={handleApplyAdvancedFilters}
@@ -669,6 +896,7 @@ const Inventory = () => {
                     </TableHead>
                     <TableHead className="min-w-[120px]">{t('Category')}</TableHead>
                     <TableHead className="min-w-[140px]">{t('Stock Level')}</TableHead>
+                    <TableHead className="min-w-[150px]">{t('Branches')}</TableHead>
                     <TableHead className="min-w-[120px]">{t('Unit Price')}</TableHead>
                     <TableHead className="min-w-[130px]">{t('Total Value')}</TableHead>
                     <TableHead className="min-w-[130px]">{t('Expiry Date')}</TableHead>
@@ -715,12 +943,19 @@ const Inventory = () => {
                           </div>
                         </TableCell>
                         <TableCell>
-                          {formatCurrency(medicine.unitPrice)}
+                          {medicine.branches && medicine.branches.length > 0 ? (
+                            <AssignedBranchesCell branches={medicine.branches} />
+                          ) : (
+                            <span className="text-muted-foreground text-sm">—</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {formatCurrency(medicine.unitPrice || 0)}
                         </TableCell>
                         <TableCell>
                           <div className="font-medium">
                             {formatCurrency(
-                              medicine.quantity * medicine.unitPrice,
+                              (medicine.quantity || 0) * (medicine.unitPrice || 0),
                             )}
                           </div>
                         </TableCell>
@@ -771,12 +1006,6 @@ const Inventory = () => {
                               >
                                 <TrendingDown className="mr-2 h-4 w-4" />
                                 {t('Remove Stock')}
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => handleUpdateExpiry(medicine)}
-                              >
-                                <Calendar className="mr-2 h-4 w-4" />
-                                {t('Update Expiry')}
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 className="text-red-600"
@@ -858,7 +1087,7 @@ const Inventory = () => {
                           {t('Unit Price')}
                         </div>
                         <div className="text-sm font-medium">
-                          {formatCurrency(medicine.unitPrice)}
+                          {formatCurrency(medicine.unitPrice || 0)}
                         </div>
                       </div>
                     </div>
@@ -870,7 +1099,7 @@ const Inventory = () => {
                         </div>
                         <div className="text-sm font-medium">
                           {formatCurrency(
-                            medicine.quantity * medicine.unitPrice,
+                            (medicine.quantity || 0) * (medicine.unitPrice || 0),
                           )}
                         </div>
                       </div>
@@ -954,16 +1183,97 @@ const Inventory = () => {
         title={`${t('Medicine Details')} - ${viewDetailsModal.item?.name || ""}`}
         data={viewDetailsModal.item || {}}
         fields={[
-          { key: "name", label: t("Name") },
-          { key: "category", label: t("Category"), type: "badge" },
-          { key: "manufacturer", label: t("Manufacturer") },
-          { key: "batchNumber", label: t("Batch Number") },
-          { key: "quantity", label: t("Quantity") },
-          { key: "unitPrice", label: t("Unit Price"), type: "currency" },
-          { key: "expiryDate", label: t("Expiry Date"), type: "date" },
-          { key: "supplier", label: t("Supplier") },
-          { key: "description", label: t("Description") },
-          { key: "lowStockAlert", label: t("Low Stock Alert") },
+          // Basic Information Section
+          { key: "name", label: t("Name"), section: t("Basic Information") },
+          { key: "category", label: t("Category"), type: "badge", section: t("Basic Information") },
+          { key: "description", label: t("Description"), section: t("Basic Information") },
+          
+          // Stock & Pricing Section
+          { key: "quantity", label: t("Quantity"), section: t("Stock & Pricing") },
+          { key: "unitPrice", label: t("Unit Price"), type: "currency", section: t("Stock & Pricing") },
+          { 
+            key: "totalValue", 
+            label: t("Total Value"), 
+            type: "currency", 
+            section: t("Stock & Pricing"),
+            render: (value: any) => {
+              const item = viewDetailsModal.item;
+              const total = (item?.quantity || 0) * (item?.unitPrice || 0);
+              return formatCurrency(total);
+            }
+          },
+          { key: "lowStockAlert", label: t("Low Stock Alert"), section: t("Stock & Pricing") },
+          
+          // Manufacturer & Supplier Section
+          { key: "manufacturer", label: t("Manufacturer"), section: t("Manufacturer & Supplier") },
+          { key: "supplier", label: t("Supplier"), section: t("Manufacturer & Supplier") },
+          { key: "batchNumber", label: t("Batch Number"), section: t("Manufacturer & Supplier") },
+          
+          // Expiry Information Section
+          { key: "expiryDate", label: t("Expiry Date"), type: "date", section: t("Expiry Information") },
+          
+          // Branches & Warehouses Section
+          { 
+            key: "branches", 
+            label: t("Assigned Branches"), 
+            type: "branches", 
+            section: t("Branches & Warehouses"),
+            render: (value: any) => {
+              if (!value || !Array.isArray(value) || value.length === 0) {
+                return <span className="text-gray-400 italic">{t("No branches assigned")}</span>;
+              }
+              return (
+                <div className="flex flex-wrap gap-2">
+                  {value.map((branch: any, index: number) => (
+                    <Badge key={index} variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                      {branch.name || branch.id}
+                      {branch.code && <span className="ml-1 text-xs">({branch.code})</span>}
+                    </Badge>
+                  ))}
+                </div>
+              );
+            }
+          },
+          { 
+            key: "branchWarehouses", 
+            label: t("Branch Warehouses"), 
+            type: "branchWarehouses", 
+            section: t("Branches & Warehouses"),
+            render: (value: any) => {
+              if (!value || !Array.isArray(value) || value.length === 0) {
+                return <span className="text-gray-400 italic">{t("No warehouses assigned")}</span>;
+              }
+              // Get branch names from branches array
+              const branchesMap = new Map(
+                (viewDetailsModal.item?.branches || []).map((b: any) => [b.id || b._id, b.name])
+              );
+              
+              return (
+                <div className="space-y-2">
+                  {value.map((bw: any, index: number) => {
+                    const branchName = branchesMap.get(bw.branchId) || bw.branchId;
+                    return (
+                      <div key={index} className={cn("flex items-center gap-2 text-sm p-2 bg-white rounded border", isRTL && "flex-row-reverse")}>
+                        <Package className={cn("h-4 w-4 text-blue-500", isRTL && "order-last")} />
+                        <span className={cn("font-medium text-gray-700", isRTL && "text-right")}>{branchName}:</span>
+                        <Warehouse className={cn("h-4 w-4 text-green-500", isRTL ? "mr-2 order-first" : "ml-2")} />
+                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                          {bw.warehouseName || bw.warehouseId}
+                          {bw.warehouseType && (
+                            <span className={cn("text-xs", isRTL ? "mr-1" : "ml-1")}>({bw.warehouseType})</span>
+                          )}
+                        </Badge>
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            }
+          },
+          
+          // Additional Information Section
+          { key: "createdAt", label: t("Created At"), type: "date", section: t("Additional Information") },
+          { key: "updatedAt", label: t("Updated At"), type: "date", section: t("Additional Information") },
         ]}
       />
 
@@ -972,42 +1282,12 @@ const Inventory = () => {
         open={editModal.open}
         onOpenChange={(open) => setEditModal({ open, item: null })}
         title={`${t('Edit Medicine')} - ${editModal.item?.name || ""}`}
-        data={editModal.item || {}}
-        fields={[
-          { key: "name", label: t("Name"), type: "text", required: true },
-          {
-            key: "category",
-            label: t("Category"),
-            type: "select",
-            required: true,
-            options: categories
-              .filter((c) => c !== "all")
-              .map((c) => ({ value: c, label: c })),
-          },
-          {
-            key: "manufacturer",
-            label: t("Manufacturer"),
-            type: "text",
-            required: true,
-          },
-          { key: "batchNumber", label: t("Batch Number"), type: "text" },
-          {
-            key: "quantity",
-            label: t("Quantity"),
-            type: "number",
-            required: true,
-          },
-          {
-            key: "unitPrice",
-            label: t("Unit Price"),
-            type: "number",
-            required: true,
-          },
-          { key: "expiryDate", label: t("Expiry Date"), type: "date" },
-          { key: "supplier", label: t("Supplier"), type: "text" },
-          { key: "description", label: t("Description"), type: "textarea" },
-          { key: "lowStockAlert", label: t("Low Stock Alert"), type: "number" },
-        ]}
+        data={{
+          ...editModal.item,
+          assignedBranches: editModal.item?.branches?.map((b: any) => b.id || b._id) || [],
+          branchWarehouses: editModal.item?.branchWarehouses || [],
+        }}
+        fields={[]}
         onSave={handleSaveEdit}
       />
 
@@ -1019,6 +1299,25 @@ const Inventory = () => {
         description={t("Are you sure you want to delete this medicine from the inventory?")}
         itemName={deleteModal.item?.name || ""}
         onConfirm={handleConfirmDelete}
+      />
+
+      {/* Update Stock Modal */}
+      <UpdateStockModal
+        open={stockModal.open}
+        onOpenChange={(open) => setStockModal({ open, item: null, operation: "add" })}
+        item={
+          stockModal.item
+            ? {
+                id: stockModal.item.id,
+                name: stockModal.item.name,
+                quantity: stockModal.item.quantity,
+                branches: stockModal.item.branches,
+                branchWarehouses: stockModal.item.branchWarehouses,
+              }
+            : null
+        }
+        operation={stockModal.operation}
+        onConfirm={handleConfirmStockUpdate}
       />
     </div>
   );

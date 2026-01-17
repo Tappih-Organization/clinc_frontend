@@ -268,50 +268,50 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       collapsible: true,
       defaultCollapsed: false,
     },
-    {
-      title: t("Lab Management"),
-      icon: FlaskConical,
-      items: [
-        {
-          name: t("Tests"),
-          href: "/dashboard/tests",
-          icon: TestTube2,
-          permission: "tests.view",
-        },
-        {
-          name: t("Test Reports"),
-          href: "/dashboard/test-reports",
-          icon: FileText,
-          permission: "test_reports.view",
-        },
-        {
-          name: t("Methodology"),
-          href: "/dashboard/test-modules/methodology",
-          icon: Settings,
-          permission: "tests.view",
-        },
-        {
-          name: t("Turnaround Time"),
-          href: "/dashboard/test-modules/turnaround-time",
-          icon: Clock,
-          permission: "tests.view",
-        },
-        {
-          name: t("Sample Type"),
-          href: "/dashboard/test-modules/sample-type",
-          icon: Droplets,
-          permission: "tests.view",
-        },
-        {
-          name: t("Category"),
-          href: "/dashboard/test-modules/category",
-          icon: Folder,
-          permission: "tests.view",
-        },
-      ],
-      collapsible: true,
-      defaultCollapsed: false,
-    },
+    // {
+    //   title: t("Lab Management"),
+    //   icon: FlaskConical,
+    //   items: [
+    //     {
+    //       name: t("Tests"),
+    //       href: "/dashboard/tests",
+    //       icon: TestTube2,
+    //       permission: "tests.view",
+    //     },
+    //     {
+    //       name: t("Test Reports"),
+    //       href: "/dashboard/test-reports",
+    //       icon: FileText,
+    //       permission: "test_reports.view",
+    //     },
+    //     {
+    //       name: t("Methodology"),
+    //       href: "/dashboard/test-modules/methodology",
+    //       icon: Settings,
+    //       permission: "tests.view",
+    //     },
+    //     {
+    //       name: t("Turnaround Time"),
+    //       href: "/dashboard/test-modules/turnaround-time",
+    //       icon: Clock,
+    //       permission: "tests.view",
+    //     },
+    //     {
+    //       name: t("Sample Type"),
+    //       href: "/dashboard/test-modules/sample-type",
+    //       icon: Droplets,
+    //       permission: "tests.view",
+    //     },
+    //     {
+    //       name: t("Category"),
+    //       href: "/dashboard/test-modules/category",
+    //       icon: Folder,
+    //       permission: "tests.view",
+    //     },
+    //   ],
+    //   collapsible: true,
+    //   defaultCollapsed: false,
+    // },
     {
       title: t("Financial Management"),
       icon: Wallet,
@@ -385,6 +385,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           name: t("Inventory"),
           href: "/dashboard/inventory",
           icon: Package,
+          permission: "inventory.view",
+        },
+        {
+          name: t("Warehouses"),
+          href: "/dashboard/warehouses",
+          icon: Building2,
           permission: "inventory.view",
         },
       ],
@@ -656,46 +662,36 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                     return (
                       <div
                         key={item.name}
-                        className={cn(
-                          "flex items-center gap-2 group/item",
-                          isRTL ? "flex-row-reverse" : ""
-                        )}
+                        className="flex items-center group/item"
                       >
                         <Link
                           to={item.href}
                           onClick={onClose}
                           ref={isActive ? activeItemRef : null}
                           className={cn(
-                            "flex-1 flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative",
-                            isRTL ? "flex-row-reverse" : "",
+                            "flex-1 flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative",
                             isActive
                               ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm"
                               : "text-sidebar-foreground/80 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground",
                           )}
                         >
                           {isActive && (
-                            <div className={cn(
-                              "absolute top-0 bottom-0 w-1 bg-sidebar-primary rounded-full",
-                              isRTL ? "right-0" : "left-0"
+                            <div className="absolute top-0 bottom-0 left-0 w-1 bg-sidebar-primary rounded-full" />
+                          )}
+                          <span className="flex-1 whitespace-nowrap text-left mr-4">
+                            {item.name}
+                          </span>
+                          <div className="flex items-center gap-2">
+                            {item.badge && (
+                              <Badge variant="secondary" className="text-xs bg-sidebar-primary/10 text-sidebar-foreground border-sidebar-primary/20">
+                                {item.badge}
+                              </Badge>
+                            )}
+                            <item.icon className={cn(
+                              "h-4 w-4 flex-shrink-0 opacity-80",
+                              isActive ? "opacity-100" : "opacity-70"
                             )} />
-                          )}
-                          <item.icon className={cn(
-                            "h-4 w-4 flex-shrink-0",
-                            isRTL ? "ml-3" : "mr-3",
-                            isActive ? "opacity-100" : "opacity-70"
-                          )} />
-                          <span className={cn(
-                            "flex-1",
-                            isRTL ? "text-right" : "text-left"
-                          )}>{item.name}</span>
-                          {item.badge && (
-                            <Badge variant="secondary" className={cn(
-                              "text-xs bg-sidebar-primary/10 text-sidebar-foreground border-sidebar-primary/20",
-                              isRTL ? "mr-2" : "ml-2"
-                            )}>
-                              {item.badge}
-                            </Badge>
-                          )}
+                          </div>
                         </Link>
                       </div>
                       );

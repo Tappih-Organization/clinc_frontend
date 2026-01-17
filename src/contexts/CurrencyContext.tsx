@@ -95,6 +95,11 @@ export const CurrencyProvider: React.FC<CurrencyProviderProps> = ({ children }) 
   }, [user?.baseCurrency, isAuthenticated, availableCurrencies]);
 
   const formatAmount = (amount: number): string => {
+    // Handle undefined, null, or NaN values
+    if (amount === undefined || amount === null || isNaN(amount)) {
+      return '0.00';
+    }
+    
     if (!currencyInfo) return amount.toString();
     
     const formattedAmount = amount.toFixed(currencyInfo.decimals);

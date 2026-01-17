@@ -57,6 +57,7 @@ const Billing = lazy(() => import("./pages/dashboard/billing/Billing"));
 const Leads = lazy(() => import("./pages/dashboard/leads/Leads"));
 const Services = lazy(() => import("./pages/dashboard/services/Services"));
 const Inventory = lazy(() => import("./pages/dashboard/inventory/Inventory"));
+const Warehouses = lazy(() => import("./pages/dashboard/inventory/Warehouses"));
 const Staff = lazy(() => import("./pages/dashboard/staff/Staff"));
 const Invoices = lazy(() => import("./pages/dashboard/invoices/Invoices"));
 const Payments = lazy(() => import("./pages/dashboard/payments/Payments"));
@@ -508,6 +509,20 @@ const App = () => {
                     <PageErrorBoundary>
                       <Suspense fallback={<Loading size="default" />}>
                         <Inventory />
+                      </Suspense>
+                    </PageErrorBoundary>
+                  </RequirePermission>
+                }
+              />
+
+              {/* Warehouses - requires inventory.view permission */}
+              <Route
+                path="warehouses"
+                element={
+                  <RequirePermission permissions="inventory.view">
+                    <PageErrorBoundary>
+                      <Suspense fallback={<Loading size="default" />}>
+                        <Warehouses />
                       </Suspense>
                     </PageErrorBoundary>
                   </RequirePermission>

@@ -239,14 +239,16 @@ const Methodology = () => {
   return (
     <div className={cn("space-y-4 sm:space-y-6 lg:space-y-8", isRTL && "text-right")} dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Header */}
-      <div className={cn("flex flex-col sm:flex-row sm:items-center justify-between gap-4", isRTL && "sm:flex-row-reverse")}>
-        <div className={cn("min-w-0 flex-1", isRTL && "text-right sm:order-2")}>
-          <h1 className={cn("text-2xl sm:text-3xl font-bold tracking-tight truncate", isRTL && "text-right")}>{t("Test Methodologies")}</h1>
-          <p className={cn("text-sm sm:text-base text-muted-foreground mt-1", isRTL && "text-right")}>
+      <div className="flex flex-col space-y-3 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex-1 min-w-0">
+          <h1 className="text-xl xs:text-2xl sm:text-3xl font-bold text-foreground">
+            {t("Test Methodologies")}
+          </h1>
+          <p className="text-xs xs:text-sm sm:text-base text-muted-foreground mt-1">
             {t("Manage laboratory test methodologies and their configurations")}
           </p>
         </div>
-        <div className={cn("flex items-center gap-2 flex-shrink-0", isRTL && "flex-row-reverse sm:order-1")}>
+        <div className={cn("flex items-center gap-2 flex-shrink-0 w-full sm:w-auto", isRTL && "flex-row-reverse")}>
           <Button 
             variant="outline" 
             size="sm" 

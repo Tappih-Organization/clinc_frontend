@@ -510,9 +510,16 @@ const ClinicSelection: React.FC = () => {
                             </CardTitle>
                             {!hasAccess && <Lock className="h-4 w-4 text-muted-foreground flex-shrink-0" />}
                           </div>
-                          <p className="text-xs text-muted-foreground font-mono bg-muted/50 px-2 py-1 rounded inline-block">
-                            {clinic.code}
-                          </p>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className="text-xs text-muted-foreground font-mono bg-muted/50 px-2 py-1 rounded inline-block">
+                              {clinic.code}
+                            </p>
+                            {clinic.is_main_clinic && (
+                              <Badge className="bg-primary/20 text-primary border-primary/30 shadow-sm font-semibold">
+                                {t('Main Branch')}
+                              </Badge>
+                            )}
+                          </div>
                         </div>
                       </div>
                       <div className="flex-shrink-0">

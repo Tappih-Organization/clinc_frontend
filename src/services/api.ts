@@ -1088,9 +1088,14 @@ class ApiService {
     return response.data.data!;
   }
 
-  async createInventoryItem(itemData: Omit<InventoryItem, '_id' | 'created_at' | 'updated_at'>): Promise<InventoryItem> {
-    const response = await apiClient.post<ApiResponse<InventoryItem>>('/inventory', itemData);
-    return response.data.data!;
+  async createInventoryItem(itemData: Omit<InventoryItem, '_id' | 'created_at' | 'updated_at'>): Promise<any> {
+    const response = await apiClient.post<ApiResponse<{ inventoryItem: any }>>('/inventory', itemData);
+    // Handle response structure: data.inventoryItem
+    if (response.data.data && 'inventoryItem' in response.data.data) {
+      return response.data.data.inventoryItem;
+    }
+    // Fallback to direct data access
+    return (response.data.data as any)?.inventoryItem || response.data.data;
   }
 
   async updateInventoryItem(id: string, itemData: Partial<InventoryItem>): Promise<InventoryItem> {
@@ -1129,9 +1134,14 @@ class ApiService {
     return response.data.data!;
   }
 
-  async updateInventoryStock(id: string, stockData: { quantity: number; operation: 'add' | 'subtract' }): Promise<InventoryItem> {
-    const response = await apiClient.patch<ApiResponse<{ inventoryItem: InventoryItem }>>(`/inventory/${id}/stock`, stockData);
-    return response.data.data!.inventoryItem;
+  async updateInventoryStock(id: string, stockData: { quantity: number; operation: 'add' | 'subtract'; branchId?: string; warehouseId?: string }): Promise<any> {
+    const response = await apiClient.patch<ApiResponse<{ inventoryItem: any }>>(`/inventory/${id}/stock`, stockData);
+    // Handle response structure: data.inventoryItem
+    if (response.data.data && 'inventoryItem' in response.data.data) {
+      return response.data.data.inventoryItem;
+    }
+    // Fallback to direct data access
+    return (response.data.data as any)?.inventoryItem || response.data.data;
   }
 
   async getLowStockItems(): Promise<InventoryItem[]> {
@@ -2948,6 +2958,161 @@ class ApiService {
   async patch<T = any>(url: string, data?: any, config?: any): Promise<T> {
     const response = await apiClient.patch<T>(url, data, config);
     return response.data;
+  }
+
+  // ============================================================================
+  // WAREHOUSE MANAGEMENT METHODS
+  // ============================================================================
+
+  /**
+   * Get all warehouses with filters, search, pagination, and sorting
+   */
+  async getWarehouses(params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    type?: 'MAIN' | 'SUB';
+    status?: 'ACTIVE' | 'INACTIVE';
+    branchId?: string;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+  }): Promise<{
+    success: boolean;
+    data: any[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
+  }> {
+    const queryParams = new URLSearchParams();
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.search) queryParams.append('search', params.search);
+    if (params?.type) queryParams.append('type', params.type);
+    if (params?.status) queryParams.append('status', params.status);
+    if (params?.branchId) queryParams.append('branchId', params.branchId);
+    if (params?.sortBy) queryParams.append('sortBy', params.sortBy);
+    if (params?.sortOrder) queryParams.append('sortOrder', params.sortOrder);
+
+    const url = `/warehouses${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+    return this.get(url);
+  }
+
+  /**
+   * Get warehouse by ID
+   */
+  async getWarehouseById(id: string): Promise<{
+    success: boolean;
+    data: any;
+  }> {
+    return this.get(`/warehouses/${id}`);
+  }
+
+  /**
+   * Get warehouse items
+   */
+  async getWarehouseItems(id: string, params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+  }): Promise<{
+    success: boolean;
+    data: any[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
+  }> {
+    const queryParams = new URLSearchParams();
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.search) queryParams.append('search', params.search);
+
+    const url = `/warehouses/${id}/items${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+    return this.get(url);
+  }
+
+  /**
+   * Create a new warehouse
+   */
+  async createWarehouse(warehouseData: {
+    name: string;
+    type: 'MAIN' | 'SUB';
+    status?: 'ACTIVE' | 'INACTIVE';
+    assignedBranches: string[];
+    managerUserId?: string;
+    isShared?: boolean;
+  }): Promise<{
+    success: boolean;
+    message: string;
+    data: any;
+  }> {
+    return this.post('/warehouses', warehouseData);
+  }
+
+  /**
+   * Update a warehouse
+   */
+  async updateWarehouse(id: string, warehouseData: {
+    name?: string;
+    type?: 'MAIN' | 'SUB';
+    status?: 'ACTIVE' | 'INACTIVE';
+    assignedBranches?: string[];
+    managerUserId?: string;
+    isShared?: boolean;
+  }): Promise<{
+    success: boolean;
+    message: string;
+    data: any;
+  }> {
+    return this.put(`/warehouses/${id}`, warehouseData);
+  }
+
+  /**
+   * Update warehouse status
+   */
+  async updateWarehouseStatus(id: string, status: 'ACTIVE' | 'INACTIVE'): Promise<{
+    success: boolean;
+    message: string;
+    data: any;
+  }> {
+    return this.patch(`/warehouses/${id}/status`, { status });
+  }
+
+  /**
+   * Delete a warehouse (soft delete)
+   */
+  async deleteWarehouse(id: string): Promise<{
+    success: boolean;
+    message: string;
+  }> {
+    return this.delete(`/warehouses/${id}`);
+  }
+
+  /**
+   * Get all branches/clinics (for warehouse assignment)
+   */
+  async getBranches(): Promise<{
+    success: boolean;
+    data: any[];
+    total: number;
+  }> {
+    return this.get('/clinics');
+  }
+
+  /**
+   * Get all users (for warehouse manager assignment)
+   */
+  async getUsers(): Promise<{
+    success: boolean;
+    data: any[];
+    total: number;
+  }> {
+    return this.get('/users');
   }
 }
 

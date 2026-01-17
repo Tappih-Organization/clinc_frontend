@@ -527,12 +527,28 @@
     direction: rtl;
   }
 
-  body.rtl .text-left {
+  body.rtl .text-left,
+  [dir="rtl"] .text-left {
     text-align: right;
   }
 
-  body.rtl .text-right {
+  body.rtl .text-right,
+  [dir="rtl"] .text-right {
     text-align: left;
+  }
+
+  /* RTL support for table headers - ensure headers are right-aligned in RTL */
+  body.rtl table thead th,
+  [dir="rtl"] table thead th,
+  body.rtl [dir="rtl"] table thead th {
+    text-align: right;
+  }
+
+  /* RTL support for table cells - align to right by default */
+  body.rtl table tbody td,
+  [dir="rtl"] table tbody td,
+  body.rtl [dir="rtl"] table tbody td {
+    text-align: right;
   }
 
   body.rtl .float-left {
@@ -552,6 +568,21 @@
   body.rtl .mr-auto {
     margin-right: 0;
     margin-left: auto;
+  }
+
+  /* RTL support for input placeholder - align placeholder text to right */
+  body.rtl input::placeholder,
+  [dir="rtl"] input::placeholder,
+  body.rtl [dir="rtl"] input::placeholder {
+    text-align: right;
+    direction: rtl;
+  }
+
+  body.rtl textarea::placeholder,
+  [dir="rtl"] textarea::placeholder,
+  body.rtl [dir="rtl"] textarea::placeholder {
+    text-align: right;
+    direction: rtl;
   }
 
   /* RTL support for date inputs */

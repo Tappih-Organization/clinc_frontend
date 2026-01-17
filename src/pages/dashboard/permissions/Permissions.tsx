@@ -10,6 +10,7 @@ import { Shield, Search, Save, Building2, Users, CheckSquare, Square } from 'luc
 import apiService from '@/services/api';
 import { useClinic } from '@/contexts/ClinicContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { cn } from '@/lib/utils';
 
 type RoleSummary = {
   _id: string;
@@ -46,10 +47,11 @@ type UserClinicAccess = {
 };
 
 const Permissions: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { currentClinic } = useClinic();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('role-permissions');
+  const isRTL = i18n.language === 'ar';
   
   // Role Permissions State
   const [roles, setRoles] = useState<RoleSummary[]>([]);
@@ -398,24 +400,26 @@ const Permissions: React.FC = () => {
       )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full max-w-[400px] grid-cols-2">
-          <TabsTrigger value="role-permissions" className="flex items-center gap-2">
-            <Shield className="h-4 w-4" />
-            {t('Role Permissions')}
-          </TabsTrigger>
-          <TabsTrigger value="clinic-permissions" className="flex items-center gap-2">
-            <Building2 className="h-4 w-4" />
-            {t('Clinic Access')}
-          </TabsTrigger>
-        </TabsList>
+        <div className={isRTL ? "flex justify-end" : ""}>
+          <TabsList className="grid w-full max-w-[400px] grid-cols-2">
+            <TabsTrigger value="role-permissions" className="flex items-center gap-2">
+              <Shield className="h-4 w-4" />
+              {t('Role Permissions')}
+            </TabsTrigger>
+            <TabsTrigger value="clinic-permissions" className="flex items-center gap-2">
+              <Building2 className="h-4 w-4" />
+              {t('Clinic Access')}
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="role-permissions" className="space-y-6">
           
           {/* Super Admin Note for Role Permissions */}
           {user?.role === 'super_admin' && (
-            <div className="flex items-center gap-3 p-4 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+            <div className={cn("flex items-center gap-3 p-4 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg", isRTL && "flex-row-reverse")}>
               <Shield className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-              <p className="text-sm text-blue-800 dark:text-blue-200">
+              <p className={cn("text-sm text-blue-800 dark:text-blue-200", isRTL && "text-right")}>
                 <strong>{t('Note')}:</strong> {t('These role permissions do not apply to your Super Admin account. You automatically have access to all features regardless of role-based restrictions.')}
               </p>
             </div>

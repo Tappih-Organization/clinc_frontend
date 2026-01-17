@@ -155,7 +155,7 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
     } catch (error) {
       console.error("Error fetching patients:", error);
       toast({
-        title: "Error",
+        title: t("Error"),
         description: parseApiError(error),
         variant: "destructive",
       });
@@ -182,7 +182,7 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
       console.error("Error fetching doctors:", error);
       setDoctors([]);
       toast({
-        title: "Error",
+        title: t("Error"),
         description: parseApiError(error),
         variant: "destructive",
       });
@@ -214,7 +214,7 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
       console.error("Error fetching appointments:", error);
       setAppointments([]);
       toast({
-        title: "Error",
+        title: t("Error"),
         description: parseApiError(error),
         variant: "destructive",
       });
@@ -389,7 +389,7 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
       console.error("Error creating prescription:", error);
       
       toast({
-        title: "Error",
+        title: t("Error"),
         description: parseApiError(error),
         variant: "destructive",
       });
