@@ -313,7 +313,7 @@ const Expenses = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">{t('Total Expenses')}</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
+              <DollarSign className="h-8 w-8 text-green-600 " />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
@@ -328,7 +328,7 @@ const Expenses = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">{t('This Month')}</CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <Calendar className="h-8 w-8 text-green-600" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
@@ -343,7 +343,7 @@ const Expenses = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">{t('Pending')}</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
+              <Clock className="h-8 w-8 text-green-600" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
@@ -358,7 +358,7 @@ const Expenses = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">{t('Paid')}</CardTitle>
-              <CheckCircle className="h-4 w-4 text-muted-foreground" />
+              <CheckCircle className="h-8 w-8 text-green-600" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
