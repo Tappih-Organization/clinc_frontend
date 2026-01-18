@@ -197,42 +197,31 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
         dir={isRTL ? "rtl" : "ltr"}
       >
         <DialogHeader dir={isRTL ? "rtl" : "ltr"}>
-          <div 
-            className={cn("flex items-start justify-between gap-4")}
-            style={isRTL ? { flexDirection: 'row-reverse' } : { flexDirection: 'row' }}
-          >
-            {/* Status Badge - First element, appears on LEFT in RTL */}
-            <div className={cn("flex items-center gap-2 flex-shrink-0", isRTL && "flex-row-reverse")}>
-              {getStatusIcon(invoice?.status || "")}
-              {invoice && (
-                <Badge 
-                  className={cn(getStatusColor(invoice.status), isRTL && "text-right")}
-                  dir={isRTL ? "rtl" : "ltr"}
-                  style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
-                >
-                  {getStatusLabel(invoice.status)}
-                </Badge>
+          <div className={cn(
+            "flex items-center gap-3",
+            isRTL ? "flex-row-reverse" : "flex-row"
+          )}>
+            <Receipt
+              className={cn(
+                "h-6 w-6 text-blue-600 flex-shrink-0",
+                isRTL ? "order-2" : ""
               )}
-            </div>
-            {/* Title and Description - Second element, appears on RIGHT in RTL */}
-            <div className={cn("flex items-center gap-3 flex-1", isRTL && "flex-row-reverse justify-end")}>
-              <Receipt className={cn("h-6 w-6 text-blue-600 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
-              <div className={cn(isRTL && "text-right", "flex-1")}>
-                <DialogTitle 
-                  className={cn("text-xl", isRTL && "text-right")} 
-                  dir={isRTL ? "rtl" : "ltr"}
-                  style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
-                >
-                  {t("Invoice Details")}
-                </DialogTitle>
-                <DialogDescription 
-                  className={cn(isRTL && "text-right")} 
-                  dir={isRTL ? "rtl" : "ltr"}
-                  style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
-                >
-                  {t("View complete invoice information and payment details")}
-                </DialogDescription>
-              </div>
+            />
+            <div className="flex-1 min-w-0">
+              <DialogTitle
+                className="text-xl font-semibold"
+                dir="ltr"
+                style={{ textAlign: "left", direction: "ltr" }}
+              >
+                {t("Invoice Details")}
+              </DialogTitle>
+              <DialogDescription
+                className="text-sm text-muted-foreground mt-1"
+                dir="ltr"
+                style={{ textAlign: "left", direction: "ltr" }}
+              >
+                {t("View complete invoice information and payment details")}
+              </DialogDescription>
             </div>
           </div>
         </DialogHeader>
@@ -257,20 +246,49 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
             <Card dir={isRTL ? "rtl" : "ltr"}>
               <CardHeader dir={isRTL ? "rtl" : "ltr"}>
                 <CardTitle 
-                  className={cn("text-lg", isRTL && "text-right")}
+                  className={cn("text-lg flex items-center", isRTL && "flex-row-reverse")}
                   dir={isRTL ? "rtl" : "ltr"}
                   style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
                 >
-                  {t("Invoice #")} {invoice.invoice_number}
+                  <FileText className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                  <span className={cn(isRTL && "text-right")}>{t("Basic Information")}</span>
                 </CardTitle>
-                <p 
-                  className={cn("text-sm text-gray-600 mt-1", isRTL && "text-right")}
-                  dir={isRTL ? "rtl" : "ltr"}
+              </CardHeader>
+              <CardContent dir={isRTL ? "rtl" : "ltr"}>
+                <div 
+                  className={cn(
+                    "grid grid-cols-1 md:grid-cols-2 gap-6",
+                    isRTL && "text-right"
+                  )}
                   style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
                 >
-                  {t("Created on")} {formatDate(invoice.created_at)}
-                </p>
-              </CardHeader>
+                  <InfoRow
+                    label={t("Invoice Number")}
+                    value={invoice.invoice_number}
+                    className="text-lg font-semibold"
+                    valueDir="ltr"
+                  />
+                  <InfoRow
+                    label={t("Status")}
+                    value={
+                      <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                        {getStatusIcon(invoice.status)}
+                        <Badge
+                          className={cn(getStatusColor(invoice.status))}
+                          dir="ltr"
+                          style={{ textAlign: "left", direction: "ltr" }}
+                        >
+                          {getStatusLabel(invoice.status)}
+                        </Badge>
+                      </div>
+                    }
+                  />
+                  <InfoRow
+                    label={t("Created on")}
+                    value={formatDate(invoice.created_at)}
+                  />
+                </div>
+              </CardContent>
             </Card>
 
             {/* Patient Information */}

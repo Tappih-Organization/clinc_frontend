@@ -1,16 +1,20 @@
 import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Package, Warehouse, Calendar, Eye, LucideIcon } from "lucide-react";
+import { Package, Warehouse, Calendar, Eye, LucideIcon, Info } from "lucide-react";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { useTranslation } from "react-i18next";
 import { useIsRTL } from "@/hooks/useIsRTL";
 import { cn } from "@/lib/utils";
 import {
-  FormDialog,
-  FormCardSection,
-  FormField,
-} from "@/components/forms";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { formatDate } from "@/utils/dateUtils";
 
 export interface ViewDetailsField {
@@ -36,31 +40,14 @@ export interface ViewDetailsProps {
  * Reusable ViewDetails Component
  * 
  * A modern, RTL-compatible component for displaying detailed information in a modal dialog.
- * Supports multiple field types, sections, and full RTL (Right-to-Left) layout for Arabic.
+ * Uses the same design system as ServiceDetailModal with Dialog, Card, and InfoRow components.
  * 
  * Features:
- * - Modern design with FormDialog, FormCardSection, and FormField components
+ * - Modern design with Dialog, Card, CardHeader, CardContent components
  * - Full RTL support for Arabic and English
  * - Multiple field types: text, badge, date, currency, array, boolean, phone, email, branches, branchWarehouses
  * - Automatic section grouping
- * - Clean design without background colors on fields
- * 
- * @example
- * ```tsx
- * <ViewDetails
- *   open={isOpen}
- *   onOpenChange={setIsOpen}
- *   title="Item Details"
- *   description="View complete information"
- *   icon={Package}
- *   data={itemData}
- *   fields={[
- *     { key: "name", label: "Name", section: "Basic Information" },
- *     { key: "price", label: "Price", type: "currency", section: "Basic Information" },
- *     { key: "createdAt", label: "Created At", type: "date", section: "Additional Information" },
- *   ]}
- * />
- * ```
+ * - Consistent InfoRow component for all fields
  */
 export const ViewDetails: React.FC<ViewDetailsProps> = ({
   open,
@@ -75,6 +62,66 @@ export const ViewDetails: React.FC<ViewDetailsProps> = ({
   const { formatAmount } = useCurrency();
   const { t } = useTranslation();
   const isRTL = useIsRTL();
+
+  // Standardized Info Row Component for consistent RTL alignment
+  const InfoRow: React.FC<{
+    label: string;
+    value: React.ReactNode;
+    valueDir?: "ltr" | "rtl";
+    icon?: React.ReactNode;
+    className?: string;
+  }> = ({ label, value, valueDir, icon, className = "" }) => {
+    const finalValueDir = valueDir || (isRTL ? "rtl" : "ltr");
+    const isLTRContent = finalValueDir === "ltr";
+    return (
+      <div
+        className={cn("space-y-1.5", className)}
+        dir={isRTL ? "rtl" : "ltr"}
+        style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+      >
+        <label
+          className={cn(
+            "text-sm font-medium text-gray-500 block leading-tight",
+            isRTL ? "text-right" : "text-left"
+          )}
+          dir={isRTL ? "rtl" : "ltr"}
+          style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+        >
+          {label}
+        </label>
+        <div
+          className={cn(
+            "flex items-baseline min-h-[1.5rem]",
+            isRTL ? "flex-row-reverse justify-end" : "justify-start",
+            icon && "gap-2"
+          )}
+          style={isRTL && !isLTRContent ? { justifyContent: "flex-end" } : {}}
+        >
+          {icon && (
+            <span className={cn("flex-shrink-0 self-center", isRTL && "order-2")}>
+              {icon}
+            </span>
+          )}
+          <p
+            className={cn(
+              "text-base leading-normal break-words",
+              isLTRContent ? "text-left" : isRTL ? "text-right" : "text-left"
+            )}
+            dir={finalValueDir}
+            style={
+              isLTRContent
+                ? { textAlign: "left", direction: "ltr" }
+                : isRTL
+                  ? { textAlign: "right", direction: "rtl" }
+                  : { textAlign: "left", direction: "ltr" }
+            }
+          >
+            {value}
+          </p>
+        </div>
+      </div>
+    );
+  };
 
   const formatValue = (value: any, type: string = "text") => {
     if (value === null || value === undefined || value === "") return t("Not specified");
@@ -114,14 +161,10 @@ export const ViewDetails: React.FC<ViewDetailsProps> = ({
               <div className={cn(
                 "p-4 border border-dashed rounded-lg",
                 isRTL ? "text-right" : "text-center"
-              )}>
-                <p 
-                  className="text-muted-foreground"
-                  dir={isRTL ? "rtl" : "ltr"}
-                  style={isRTL ? { textAlign: 'right' } : { textAlign: 'center' }}
-                >
-                  {t("No branches assigned")}
-                </p>
+              )}
+              dir={isRTL ? "rtl" : "ltr"}
+              >
+                <p className="text-muted-foreground">{t("No branches assigned")}</p>
               </div>
             );
           }
@@ -140,7 +183,7 @@ export const ViewDetails: React.FC<ViewDetailsProps> = ({
                           isRTL && "text-right"
                         )}
                         dir={isRTL ? "rtl" : "ltr"}
-                        style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+                        style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
                       >
                         {branch.name || branch.id}
                       </div>
@@ -151,7 +194,7 @@ export const ViewDetails: React.FC<ViewDetailsProps> = ({
                             isRTL && "text-right"
                           )}
                           dir={isRTL ? "rtl" : "ltr"}
-                          style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+                          style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
                         >
                           {t("Code")}: {branch.code}
                         </div>
@@ -170,14 +213,10 @@ export const ViewDetails: React.FC<ViewDetailsProps> = ({
           <div className={cn(
             "p-4 border border-dashed rounded-lg",
             isRTL ? "text-right" : "text-center"
-          )}>
-            <p 
-              className="text-muted-foreground"
-              dir={isRTL ? "rtl" : "ltr"}
-              style={isRTL ? { textAlign: 'right' } : { textAlign: 'center' }}
-            >
-              {t("No branches assigned")}
-            </p>
+          )}
+          dir={isRTL ? "rtl" : "ltr"}
+          >
+            <p className="text-muted-foreground">{t("No branches assigned")}</p>
           </div>
         );
       case "branchWarehouses":
@@ -187,14 +226,10 @@ export const ViewDetails: React.FC<ViewDetailsProps> = ({
               <div className={cn(
                 "p-4 border border-dashed rounded-lg",
                 isRTL ? "text-right" : "text-center"
-              )}>
-                <p 
-                  className="text-muted-foreground"
-                  dir={isRTL ? "rtl" : "ltr"}
-                  style={isRTL ? { textAlign: 'right' } : { textAlign: 'center' }}
-                >
-                  {t("No warehouses assigned")}
-                </p>
+              )}
+              dir={isRTL ? "rtl" : "ltr"}
+              >
+                <p className="text-muted-foreground">{t("No warehouses assigned")}</p>
               </div>
             );
           }
@@ -213,7 +248,7 @@ export const ViewDetails: React.FC<ViewDetailsProps> = ({
                           isRTL && "text-right"
                         )}
                         dir={isRTL ? "rtl" : "ltr"}
-                        style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+                        style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
                       >
                         {bw.branchName || bw.branchId}
                       </div>
@@ -223,7 +258,7 @@ export const ViewDetails: React.FC<ViewDetailsProps> = ({
                           isRTL && "text-right"
                         )}
                         dir={isRTL ? "rtl" : "ltr"}
-                        style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+                        style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
                       >
                         <Badge variant="outline" className="inline-block">
                           {bw.warehouseName || bw.warehouseId}
@@ -248,14 +283,10 @@ export const ViewDetails: React.FC<ViewDetailsProps> = ({
           <div className={cn(
             "p-4 border border-dashed rounded-lg",
             isRTL ? "text-right" : "text-center"
-          )}>
-            <p 
-              className="text-muted-foreground"
-              dir={isRTL ? "rtl" : "ltr"}
-              style={isRTL ? { textAlign: 'right' } : { textAlign: 'center' }}
-            >
-              {t("No warehouses assigned")}
-            </p>
+          )}
+          dir={isRTL ? "rtl" : "ltr"}
+          >
+            <p className="text-muted-foreground">{t("No warehouses assigned")}</p>
           </div>
         );
       case "badge":
@@ -266,13 +297,13 @@ export const ViewDetails: React.FC<ViewDetailsProps> = ({
         );
       case "phone":
         return (
-          <span className="font-mono text-sm px-2 py-1 rounded border">
+          <span className="font-mono text-sm px-2 py-1 rounded border" dir="ltr" style={{ direction: "ltr" }}>
             {value}
           </span>
         );
       case "email":
         return (
-          <span className="text-blue-600 hover:text-blue-800 font-medium">
+          <span className="text-blue-600 hover:text-blue-800 font-medium" dir="ltr" style={{ direction: "ltr" }}>
             {value}
           </span>
         );
@@ -294,112 +325,162 @@ export const ViewDetails: React.FC<ViewDetailsProps> = ({
   // Get icon for section
   const getSectionIcon = (sectionName: string): LucideIcon => {
     const lowerSection = sectionName.toLowerCase();
-    if (lowerSection.includes("basic") || lowerSection.includes("معلومات أساسية")) return Package;
+    if (lowerSection.includes("basic") || lowerSection.includes("معلومات أساسية")) return Info;
     if (lowerSection.includes("stock") || lowerSection.includes("مخزون") || lowerSection.includes("pricing")) return Warehouse;
     if (lowerSection.includes("manufacturer") || lowerSection.includes("مصنع") || lowerSection.includes("supplier")) return Package;
     if (lowerSection.includes("expiry") || lowerSection.includes("انتهاء")) return Calendar;
     if (lowerSection.includes("branches") || lowerSection.includes("فروع") || lowerSection.includes("warehouses")) return Warehouse;
     if (lowerSection.includes("additional") || lowerSection.includes("إضافية") || lowerSection.includes("information")) return Calendar;
-    return Package;
+    return Info;
   };
 
+  const maxWidthClass = {
+    sm: "max-w-sm",
+    md: "max-w-md",
+    lg: "max-w-lg",
+    xl: "max-w-xl",
+    "2xl": "max-w-2xl",
+    "3xl": "max-w-3xl",
+    "4xl": "max-w-4xl",
+    "5xl": "max-w-5xl",
+    full: "max-w-full",
+  }[maxWidth] || "max-w-4xl";
+
   return (
-    <FormDialog
-      open={open}
-      onOpenChange={onOpenChange}
-      title={title}
-      description={description || t("View complete information and details")}
-      icon={Icon}
-      maxWidth={maxWidth}
-    >
-      <div className="space-y-6" dir={isRTL ? "rtl" : "ltr"}>
-        {data ? (
-          <>
-            {Object.entries(groupedFields).map(([sectionName, sectionFields]) => {
-              const SectionIcon = getSectionIcon(sectionName);
-              
-              return (
-                <FormCardSection
-                  key={sectionName}
-                  title={sectionName}
-                  icon={SectionIcon}
-                >
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {sectionFields.map((field) => {
-                      const value = data?.[field.key];
-                      const isEmpty = value === null || value === undefined || value === "" || 
-                        (Array.isArray(value) && value.length === 0);
-                      
-                      // Fields that span full width
-                      if (field.type === 'branchWarehouses' || field.type === 'branches') {
-                        return (
-                          <FormField
-                            key={field.key}
-                            label={field.label}
-                            htmlFor={`field-${field.key}`}
-                            className="md:col-span-2"
-                          >
-                            <div className={cn(
-                              "p-3 rounded-md border",
-                              isEmpty && "border-dashed",
-                              isRTL && "text-right"
-                            )}>
-                              {field.render
-                                ? field.render(value)
-                                : formatValue(value, field.type)}
-                            </div>
-                          </FormField>
-                        );
-                      }
-                      
-                      return (
-                        <FormField
-                          key={field.key}
-                          label={field.label}
-                          htmlFor={`field-${field.key}`}
-                        >
-                          <div className={cn(
-                            "px-3 py-2 rounded-md border",
-                            isEmpty && "border-dashed",
-                            isRTL && "text-right"
-                          )}>
-                            <span className={cn(
-                              "font-medium text-foreground",
-                              isEmpty && "text-muted-foreground italic",
-                              isRTL && "text-right"
-                            )}
-                            dir={isRTL ? "rtl" : "ltr"}
-                            style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
-                            >
-                              {field.render
-                                ? field.render(value)
-                                : formatValue(value, field.type)}
-                            </span>
-                          </div>
-                        </FormField>
-                      );
-                    })}
-                  </div>
-                </FormCardSection>
-              );
-            })}
-          </>
-        ) : (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent
+        className={cn(`${maxWidthClass} max-h-[95vh] overflow-y-auto z-50`, isRTL && "rtl")}
+        dir={isRTL ? "rtl" : "ltr"}
+      >
+        <DialogHeader dir={isRTL ? "rtl" : "ltr"}>
           <div className={cn(
-            "p-4 border border-dashed rounded-lg",
-            isRTL ? "text-right" : "text-center"
+            "flex items-center gap-3",
+            isRTL ? "flex-row-reverse" : "flex-row"
           )}>
-            <p 
-              className="text-muted-foreground"
-              dir={isRTL ? "rtl" : "ltr"}
-              style={isRTL ? { textAlign: 'right' } : { textAlign: 'center' }}
-            >
-              {t("No data available")}
-            </p>
+            <Icon
+              className={cn(
+                "h-6 w-6 text-blue-600 flex-shrink-0",
+                isRTL ? "order-2" : ""
+              )}
+            />
+            <div className="flex-1 min-w-0">
+              <DialogTitle
+                className="text-xl font-semibold"
+                dir="ltr"
+                style={{ textAlign: "left", direction: "ltr" }}
+              >
+                {title}
+              </DialogTitle>
+              <DialogDescription
+                className="text-sm text-muted-foreground mt-1"
+                dir="ltr"
+                style={{ textAlign: "left", direction: "ltr" }}
+              >
+                {description || t("View complete information and details")}
+              </DialogDescription>
+            </div>
           </div>
-        )}
-      </div>
-    </FormDialog>
+        </DialogHeader>
+
+        <div className="space-y-6" dir={isRTL ? "rtl" : "ltr"}>
+          {data ? (
+            <>
+              {Object.entries(groupedFields).map(([sectionName, sectionFields]) => {
+                const SectionIcon = getSectionIcon(sectionName);
+                
+                return (
+                  <Card key={sectionName} dir={isRTL ? "rtl" : "ltr"}>
+                    <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+                      <CardTitle
+                        className={cn("flex items-center text-lg", isRTL && "flex-row-reverse")}
+                        dir={isRTL ? "rtl" : "ltr"}
+                        style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                      >
+                        <SectionIcon className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                        <span className={cn(isRTL && "text-right")}>{sectionName}</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent dir={isRTL ? "rtl" : "ltr"}>
+                      <div
+                        className={cn(
+                          "grid grid-cols-1 md:grid-cols-2 gap-6",
+                          isRTL && "text-right"
+                        )}
+                        style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                      >
+                        {sectionFields.map((field) => {
+                          const value = data?.[field.key];
+                          const isEmpty = value === null || value === undefined || value === "" || 
+                            (Array.isArray(value) && value.length === 0);
+                          
+                          // Fields that span full width
+                          if (field.type === 'branchWarehouses' || field.type === 'branches') {
+                            return (
+                              <InfoRow
+                                key={field.key}
+                                label={field.label}
+                                value={
+                                  field.render
+                                    ? field.render(value)
+                                    : formatValue(value, field.type)
+                                }
+                                className="md:col-span-2"
+                              />
+                            );
+                          }
+                          
+                          return (
+                            <InfoRow
+                              key={field.key}
+                              label={field.label}
+                              value={
+                                field.render
+                                  ? field.render(value)
+                                  : formatValue(value, field.type)
+                              }
+                            />
+                          );
+                        })}
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </>
+          ) : (
+            <Card dir={isRTL ? "rtl" : "ltr"}>
+              <CardContent dir={isRTL ? "rtl" : "ltr"}>
+                <div className={cn(
+                  "p-4 border border-dashed rounded-lg",
+                  isRTL ? "text-right" : "text-center"
+                )}
+                dir={isRTL ? "rtl" : "ltr"}
+                >
+                  <p className="text-muted-foreground">{t("No data available")}</p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        {/* Action Buttons */}
+        <div
+          className={cn("flex justify-end items-center pt-6 border-t", isRTL && "flex-row-reverse")}
+          dir={isRTL ? "rtl" : "ltr"}
+        >
+          <div className={cn("flex gap-3", isRTL && "flex-row-reverse")}>
+            <Button
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              dir={isRTL ? "rtl" : "ltr"}
+              style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+            >
+              {t("Close")}
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 

@@ -1,4 +1,7 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -6,11 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Building2,
   User,
@@ -23,8 +22,12 @@ import {
   Activity,
   CheckCircle,
   AlertCircle,
-  X,
+  Info,
 } from "lucide-react";
+import { useIsRTL } from "@/hooks/useIsRTL";
+import { cn } from "@/lib/utils";
+import { formatDate, formatTime } from "@/utils/dateUtils";
+import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
 
 interface Department {
   id: string;
@@ -53,251 +56,335 @@ const ViewDepartmentModal: React.FC<ViewDepartmentModalProps> = ({
   onClose,
   department,
 }) => {
+  const { t } = useTranslation();
+  const isRTL = useIsRTL();
 
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+  const getStatusIcon = (status: string) => {
+    return status === "active" ? (
+      <CheckCircle className="h-4 w-4 text-green-600" />
+    ) : (
+      <AlertCircle className="h-4 w-4 text-gray-600" />
+    );
   };
 
-  const getStatusBadge = (status: string) => {
-    return status === "active" ? (
-      <Badge className="bg-green-100 text-green-800">
-        <CheckCircle className="h-3 w-3 mr-1" />
-        Active
-      </Badge>
-    ) : (
-      <Badge className="bg-red-100 text-red-800">
-        <AlertCircle className="h-3 w-3 mr-1" />
-        Inactive
-      </Badge>
+  const getStatusColor = (status: string) => {
+    return status === "active"
+      ? "bg-green-100 text-green-800"
+      : "bg-gray-100 text-gray-800";
+  };
+
+  const getStatusLabel = (status: string) => {
+    return status === "active" ? t("Active") : t("Inactive");
+  };
+
+  // Standardized Info Row Component for consistent RTL alignment
+  const InfoRow: React.FC<{
+    label: string;
+    value: React.ReactNode;
+    valueDir?: "ltr" | "rtl";
+    icon?: React.ReactNode;
+    className?: string;
+  }> = ({ label, value, valueDir, icon, className = "" }) => {
+    const finalValueDir = valueDir || (isRTL ? "rtl" : "ltr");
+    const isLTRContent = finalValueDir === "ltr";
+    return (
+      <div
+        className={cn("space-y-1.5", className)}
+        dir={isRTL ? "rtl" : "ltr"}
+        style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+      >
+        <label
+          className={cn(
+            "text-sm font-medium text-gray-500 block leading-tight",
+            isRTL ? "text-right" : "text-left"
+          )}
+          dir={isRTL ? "rtl" : "ltr"}
+          style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+        >
+          {label}
+        </label>
+        <div
+          className={cn(
+            "flex items-baseline min-h-[1.5rem]",
+            isRTL ? "flex-row-reverse justify-end" : "justify-start",
+            icon && "gap-2"
+          )}
+          style={isRTL && !isLTRContent ? { justifyContent: "flex-end" } : {}}
+        >
+          {icon && (
+            <span className={cn("flex-shrink-0 self-center", isRTL && "order-2")}>
+              {icon}
+            </span>
+          )}
+          <p
+            className={cn(
+              "text-base leading-normal break-words",
+              isLTRContent ? "text-left" : isRTL ? "text-right" : "text-left"
+            )}
+            dir={finalValueDir}
+            style={
+              isLTRContent
+                ? { textAlign: "left", direction: "ltr" }
+                : isRTL
+                  ? { textAlign: "right", direction: "rtl" }
+                  : { textAlign: "left", direction: "ltr" }
+            }
+          >
+            {value}
+          </p>
+        </div>
+      </div>
     );
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center">
-            <Building2 className="h-6 w-6 mr-3 text-blue-600" />
-            Department Details: {department.name}
-          </DialogTitle>
-          <DialogDescription>
-            Comprehensive information about the {department.name} department.
-          </DialogDescription>
+      <DialogContent
+        className={cn("max-w-5xl max-h-[95vh] overflow-y-auto z-50", isRTL && "rtl")}
+        dir={isRTL ? "rtl" : "ltr"}
+      >
+        <DialogHeader dir={isRTL ? "rtl" : "ltr"}>
+          <div className={cn(
+            "flex items-center gap-3",
+            isRTL ? "flex-row-reverse" : "flex-row"
+          )}>
+            <Building2
+              className={cn(
+                "h-6 w-6 text-blue-600 flex-shrink-0",
+                isRTL ? "order-2" : ""
+              )}
+            />
+            <div className="flex-1 min-w-0">
+              <DialogTitle
+                className="text-xl font-semibold"
+                dir="ltr"
+                style={{ textAlign: "left", direction: "ltr" }}
+              >
+                {department.name}
+              </DialogTitle>
+              <DialogDescription
+                className="text-sm text-muted-foreground mt-1"
+                dir="ltr"
+                style={{ textAlign: "left", direction: "ltr" }}
+              >
+                {t("Detailed view of department information")}
+              </DialogDescription>
+            </div>
+          </div>
         </DialogHeader>
 
-        <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="contact">Contact & Location</TabsTrigger>
-            <TabsTrigger value="management">Management & Stats</TabsTrigger>
-          </TabsList>
-
-          {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-lg font-semibold mb-3">
-                    Basic Information
-                  </h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center space-x-3">
-                      <Badge variant="outline" className="text-lg px-3 py-1">
-                        {department.code}
+        <div className="space-y-6" dir={isRTL ? "rtl" : "ltr"}>
+          {/* Basic Information */}
+          <Card dir={isRTL ? "rtl" : "ltr"}>
+            <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+              <CardTitle
+                className={cn("flex items-center text-lg", isRTL && "flex-row-reverse")}
+                dir={isRTL ? "rtl" : "ltr"}
+                style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+              >
+                <Info className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                <span className={cn(isRTL && "text-right")}>{t("Basic Information")}</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent dir={isRTL ? "rtl" : "ltr"}>
+              <div
+                className={cn(
+                  "grid grid-cols-1 md:grid-cols-2 gap-6",
+                  isRTL && "text-right"
+                )}
+                style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+              >
+                <InfoRow
+                  label={t("Department Name")}
+                  value={department.name}
+                  className="text-lg font-semibold"
+                />
+                <InfoRow
+                  label={t("Status")}
+                  value={
+                    <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                      {getStatusIcon(department.status)}
+                      <Badge
+                        className={cn(getStatusColor(department.status))}
+                        dir="ltr"
+                        style={{ textAlign: "left", direction: "ltr" }}
+                      >
+                        {getStatusLabel(department.status)}
                       </Badge>
-                      <span className="text-xl font-medium">
-                        {department.name}
-                      </span>
-                      {getStatusBadge(department.status)}
                     </div>
-                  </div>
-                </div>
-
-                <Separator />
-
-                <div>
-                  <h4 className="font-medium text-gray-700 mb-2">
-                    Description
-                  </h4>
-                  <p className="text-gray-600 leading-relaxed">
-                    {department.description}
-                  </p>
-                </div>
+                  }
+                />
+                <InfoRow
+                  label={t("Department Code")}
+                  value={
+                    <Badge variant="outline" className={cn(isRTL && "text-right")}>
+                      {department.code}
+                    </Badge>
+                  }
+                  valueDir="ltr"
+                />
+                <InfoRow
+                  label={t("Description")}
+                  value={department.description || t("Not specified")}
+                  className="md:col-span-2"
+                />
               </div>
+            </CardContent>
+          </Card>
 
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Quick Stats</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 bg-blue-50 rounded-lg text-center">
-                    <Users className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                    <p className="text-2xl font-bold text-blue-800">
-                      {department.staffCount}
-                    </p>
-                    <p className="text-sm text-blue-600">Staff Members</p>
-                  </div>
-                  <div className="p-4 bg-green-50 rounded-lg text-center">
-                    <DollarSign className="h-8 w-8 text-green-600 mx-auto mb-2" />
-                    <p className="text-lg font-bold text-green-800">
-                      <CurrencyDisplay amount={department.budget} />
-                    </p>
-                    <p className="text-sm text-green-600">Annual Budget</p>
-                  </div>
-                </div>
+          {/* Contact & Location */}
+          <Card dir={isRTL ? "rtl" : "ltr"}>
+            <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+              <CardTitle
+                className={cn("flex items-center text-lg", isRTL && "flex-row-reverse")}
+                dir={isRTL ? "rtl" : "ltr"}
+                style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+              >
+                <MapPin className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                <span className={cn(isRTL && "text-right")}>{t("Contact & Location")}</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent dir={isRTL ? "rtl" : "ltr"}>
+              <div
+                className={cn(
+                  "grid grid-cols-1 md:grid-cols-2 gap-6",
+                  isRTL && "text-right"
+                )}
+                style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+              >
+                <InfoRow
+                  label={t("Department Location")}
+                  value={department.location || t("Not specified")}
+                  icon={<MapPin className="h-4 w-4 text-gray-500" />}
+                />
+                <InfoRow
+                  label={t("Phone")}
+                  value={department.phone || t("Not specified")}
+                  valueDir="ltr"
+                  icon={<Phone className="h-4 w-4 text-gray-500" />}
+                />
+                <InfoRow
+                  label={t("Email")}
+                  value={department.email || t("Not specified")}
+                  valueDir="ltr"
+                  icon={<Mail className="h-4 w-4 text-gray-500" />}
+                />
               </div>
-            </div>
-          </TabsContent>
+            </CardContent>
+          </Card>
 
-          {/* Contact & Location Tab */}
-          <TabsContent value="contact" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Location Information</h3>
-                <div className="space-y-3">
-                  <div className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
-                    <MapPin className="h-5 w-5 text-gray-600 mt-1" />
-                    <div>
-                      <p className="font-medium text-gray-700">
-                        Department Location
-                      </p>
-                      <p className="text-gray-600">{department.location}</p>
-                    </div>
-                  </div>
-                </div>
+          {/* Management & Statistics */}
+          <Card dir={isRTL ? "rtl" : "ltr"}>
+            <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+              <CardTitle
+                className={cn("flex items-center text-lg", isRTL && "flex-row-reverse")}
+                dir={isRTL ? "rtl" : "ltr"}
+                style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+              >
+                <Users className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                <span className={cn(isRTL && "text-right")}>{t("Management & Statistics")}</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent dir={isRTL ? "rtl" : "ltr"}>
+              <div
+                className={cn(
+                  "grid grid-cols-1 md:grid-cols-2 gap-6",
+                  isRTL && "text-right"
+                )}
+                style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+              >
+                <InfoRow
+                  label={t("Department Head")}
+                  value={department.head || t("Not specified")}
+                  icon={<User className="h-4 w-4 text-gray-500" />}
+                />
+                <InfoRow
+                  label={t("Staff Count")}
+                  value={`${department.staffCount} ${t("members")}`}
+                  icon={<Users className="h-4 w-4 text-gray-500" />}
+                />
+                <InfoRow
+                  label={t("Annual Budget")}
+                  value={<CurrencyDisplay amount={department.budget} />}
+                  valueDir="ltr"
+                  icon={<DollarSign className="h-4 w-4 text-gray-500" />}
+                />
+                <InfoRow
+                  label={t("Department Status")}
+                  value={
+                    <span
+                      className={cn("text-gray-600", isRTL && "text-right")}
+                      dir={isRTL ? "rtl" : "ltr"}
+                      style={isRTL ? { textAlign: "right", direction: "rtl" } : { textAlign: "left", direction: "ltr" }}
+                    >
+                      {department.status === "active"
+                        ? t("Department is currently operational")
+                        : t("Department is currently inactive")}
+                    </span>
+                  }
+                />
               </div>
+            </CardContent>
+          </Card>
 
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Contact Information</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                    <Phone className="h-5 w-5 text-gray-600" />
-                    <div>
-                      <p className="font-medium text-gray-700">Phone</p>
-                      <p className="text-gray-600">{department.phone}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                    <Mail className="h-5 w-5 text-gray-600" />
-                    <div>
-                      <p className="font-medium text-gray-700">Email</p>
-                      <p className="text-gray-600">{department.email}</p>
-                    </div>
-                  </div>
-                </div>
+          {/* Timestamps */}
+          <Card dir={isRTL ? "rtl" : "ltr"}>
+            <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+              <CardTitle
+                className={cn("flex items-center text-lg", isRTL && "flex-row-reverse")}
+                dir={isRTL ? "rtl" : "ltr"}
+                style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+              >
+                <Calendar className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                <span className={cn(isRTL && "text-right")}>{t("Timestamps")}</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent dir={isRTL ? "rtl" : "ltr"}>
+              <div
+                className={cn(
+                  "grid grid-cols-1 md:grid-cols-2 gap-6",
+                  isRTL && "text-right"
+                )}
+                style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+              >
+                <InfoRow
+                  label={t("Created")}
+                  value={
+                    department.createdAt
+                      ? `${formatDate(department.createdAt)} ${t("at")} ${formatTime(department.createdAt)}`
+                      : "-"
+                  }
+                  icon={<Calendar className="h-4 w-4 text-gray-500" />}
+                />
+                <InfoRow
+                  label={t("Last Updated")}
+                  value={
+                    department.updatedAt
+                      ? `${formatDate(department.updatedAt)} ${t("at")} ${formatTime(department.updatedAt)}`
+                      : "-"
+                  }
+                  icon={<Activity className="h-4 w-4 text-gray-500" />}
+                />
               </div>
-            </div>
-          </TabsContent>
+            </CardContent>
+          </Card>
+        </div>
 
-          {/* Management & Stats Tab */}
-          <TabsContent value="management" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Management</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center space-x-3 p-4 bg-blue-50 rounded-lg">
-                    <User className="h-6 w-6 text-blue-600" />
-                    <div>
-                      <p className="font-medium text-blue-800">
-                        Department Head
-                      </p>
-                      <p className="text-blue-700 text-lg">{department.head}</p>
-                    </div>
-                  </div>
-
-                  <div className="p-4 bg-gray-50 rounded-lg">
-                    <h4 className="font-medium text-gray-700 mb-2">
-                      Department Status
-                    </h4>
-                    <div className="flex items-center space-x-2">
-                      {getStatusBadge(department.status)}
-                      <span className="text-gray-600">
-                        {department.status === "active"
-                          ? "Department is currently operational"
-                          : "Department is currently inactive"}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">
-                  Financial & Statistics
-                </h3>
-                <div className="space-y-3">
-                  <div className="p-4 bg-green-50 rounded-lg">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <DollarSign className="h-5 w-5 text-green-600" />
-                      <h4 className="font-medium text-green-800">
-                        Annual Budget
-                      </h4>
-                    </div>
-                    <p className="text-2xl font-bold text-green-700">
-                      <CurrencyDisplay amount={department.budget} />
-                    </p>
-                  </div>
-
-                  <div className="p-4 bg-purple-50 rounded-lg">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <Users className="h-5 w-5 text-purple-600" />
-                      <h4 className="font-medium text-purple-800">
-                        Staff Information
-                      </h4>
-                    </div>
-                    <p className="text-2xl font-bold text-purple-700">
-                      {department.staffCount} members
-                    </p>
-                    <p className="text-sm text-purple-600 mt-1">
-                      Currently assigned to this department
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* Timestamps */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Record Information</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                  <Calendar className="h-5 w-5 text-gray-600" />
-                  <div>
-                    <p className="font-medium text-gray-700">Created</p>
-                    <p className="text-gray-600">
-                      {formatDate(department.createdAt)}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                  <Activity className="h-5 w-5 text-gray-600" />
-                  <div>
-                    <p className="font-medium text-gray-700">Last Updated</p>
-                    <p className="text-gray-600">
-                      {formatDate(department.updatedAt)}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-        </Tabs>
-
-        {/* Footer Actions */}
-        <div className="flex justify-end pt-4 border-t">
-          <Button variant="outline" onClick={onClose}>
-            <X className="h-4 w-4 mr-2" />
-            Close
-          </Button>
+        {/* Action Buttons */}
+        <div
+          className={cn("flex justify-end items-center pt-6 border-t", isRTL && "flex-row-reverse")}
+          dir={isRTL ? "rtl" : "ltr"}
+        >
+          <div className={cn("flex gap-3", isRTL && "flex-row-reverse")}>
+            <Button
+              variant="outline"
+              onClick={onClose}
+              dir={isRTL ? "rtl" : "ltr"}
+              style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+            >
+              {t("Close")}
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

@@ -1,4 +1,6 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -7,9 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import {
   User,
   Mail,
@@ -23,8 +23,15 @@ import {
   Stethoscope,
   UserCheck,
   Users,
+  Info,
+  CheckCircle,
+  XCircle,
 } from "lucide-react";
 import { transformUserToStaff } from "@/hooks/useStaff";
+import { useIsRTL } from "@/hooks/useIsRTL";
+import { cn } from "@/lib/utils";
+import { formatDate } from "@/utils/dateUtils";
+import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
 
 interface ViewStaffModalProps {
   open: boolean;
@@ -37,6 +44,9 @@ const ViewStaffModal: React.FC<ViewStaffModalProps> = ({
   onOpenChange,
   staff,
 }) => {
+  const { t } = useTranslation();
+  const isRTL = useIsRTL();
+
   if (!staff) return null;
 
   const getRoleIcon = (role: string) => {
@@ -73,203 +83,372 @@ const ViewStaffModal: React.FC<ViewStaffModalProps> = ({
     return Object.values(staff.schedule).filter((day: any) => day.isWorking).length;
   };
 
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString("en-US", {
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-    });
+  // Standardized Info Row Component for consistent RTL alignment
+  const InfoRow: React.FC<{
+    label: string;
+    value: React.ReactNode;
+    valueDir?: "ltr" | "rtl";
+    icon?: React.ReactNode;
+    className?: string;
+  }> = ({ label, value, valueDir, icon, className = "" }) => {
+    const finalValueDir = valueDir || (isRTL ? "rtl" : "ltr");
+    const isLTRContent = finalValueDir === "ltr";
+    return (
+      <div
+        className={cn("space-y-1.5", className)}
+        dir={isRTL ? "rtl" : "ltr"}
+        style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+      >
+        <label
+          className={cn(
+            "text-sm font-medium text-gray-500 block leading-tight",
+            isRTL ? "text-right" : "text-left"
+          )}
+          dir={isRTL ? "rtl" : "ltr"}
+          style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+        >
+          {label}
+        </label>
+        <div
+          className={cn(
+            "flex items-baseline min-h-[1.5rem]",
+            isRTL ? "flex-row-reverse justify-end" : "justify-start",
+            icon && "gap-2"
+          )}
+          style={isRTL && !isLTRContent ? { justifyContent: "flex-end" } : {}}
+        >
+          {icon && (
+            <span className={cn("flex-shrink-0 self-center", isRTL && "order-2")}>
+              {icon}
+            </span>
+          )}
+          <p
+            className={cn(
+              "text-base leading-normal break-words",
+              isLTRContent ? "text-left" : isRTL ? "text-right" : "text-left"
+            )}
+            dir={finalValueDir}
+            style={
+              isLTRContent
+                ? { textAlign: "left", direction: "ltr" }
+                : isRTL
+                  ? { textAlign: "right", direction: "rtl" }
+                  : { textAlign: "left", direction: "ltr" }
+            }
+          >
+            {value}
+          </p>
+        </div>
+      </div>
+    );
   };
+
+  const staffName = `${staff.firstName || ""} ${staff.lastName || ""}`.trim();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center text-xl">
-            <User className="h-5 w-5 mr-2 text-blue-600" />
-            Staff Profile
-          </DialogTitle>
-          <DialogDescription>
-            Complete profile information for {staff.firstName} {staff.lastName}
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="space-y-6">
-          {/* Header Section */}
-          <div className="flex items-center space-x-4 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg">
-            <Avatar className="h-20 w-20">
-              <AvatarFallback className="text-xl font-semibold">
-                {staff.firstName.charAt(0)}{staff.lastName.charAt(0)}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1">
-              <h2 className="text-2xl font-bold text-gray-900">
-                {staff.firstName} {staff.lastName}
-              </h2>
-              <div className="flex items-center space-x-2 mt-2">
-                {getRoleIcon(staff.role)}
-                <Badge className={`text-sm ${getRoleColor(staff.role)}`}>
-                  {staff.role.charAt(0).toUpperCase() + staff.role.slice(1)}
-                </Badge>
-                <Badge variant={staff.isActive ? "default" : "secondary"}>
-                  {staff.isActive ? "Active" : "Inactive"}
-                </Badge>
-              </div>
+      <DialogContent
+        className={cn("max-w-5xl max-h-[95vh] overflow-y-auto z-50", isRTL && "rtl")}
+        dir={isRTL ? "rtl" : "ltr"}
+      >
+        <DialogHeader dir={isRTL ? "rtl" : "ltr"}>
+          <div className={cn(
+            "flex items-center gap-3",
+            isRTL ? "flex-row-reverse" : "flex-row"
+          )}>
+            <User
+              className={cn(
+                "h-6 w-6 text-blue-600 flex-shrink-0",
+                isRTL ? "order-2" : ""
+              )}
+            />
+            <div className="flex-1 min-w-0">
+              <DialogTitle
+                className="text-xl font-semibold"
+                dir="ltr"
+                style={{ textAlign: "left", direction: "ltr" }}
+              >
+                {staffName}
+              </DialogTitle>
+              <DialogDescription
+                className="text-sm text-muted-foreground mt-1"
+                dir="ltr"
+                style={{ textAlign: "left", direction: "ltr" }}
+              >
+                {t("Complete profile information for")} {staffName}
+              </DialogDescription>
             </div>
           </div>
+        </DialogHeader>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Contact Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center text-lg">
-                  <Mail className="h-4 w-4 mr-2" />
-                  Contact Information
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <Mail className="h-4 w-4 text-gray-400" />
-                  <div>
-                    <p className="text-sm text-gray-500">Email</p>
-                    <p className="font-medium">{staff.email}</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <Phone className="h-4 w-4 text-gray-400" />
-                  <div>
-                    <p className="text-sm text-gray-500">Phone</p>
-                    <p className="font-medium">{staff.phone || "Not provided"}</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <MapPin className="h-4 w-4 text-gray-400" />
-                  <div>
-                    <p className="text-sm text-gray-500">Address</p>
-                    <p className="font-medium">{staff.address || "Not provided"}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Employment Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center text-lg">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  Employment Details
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <p className="text-sm text-gray-500">Department</p>
-                  <p className="font-medium">{staff.department}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Joining Date</p>
-                  <p className="font-medium">{formatDate(staff.joiningDate)}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Employee ID</p>
-                  <p className="font-medium">#{staff.id}</p>
-                </div>
-                {staff.salary > 0 && (
-                  <div>
-                    <p className="text-sm text-gray-500">Annual Salary</p>
-                    <p className="font-medium">${staff.salary.toLocaleString()}</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Qualifications */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center text-lg">
-                  <GraduationCap className="h-4 w-4 mr-2" />
-                  Qualifications
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {staff.qualifications.length > 0 ? (
-                  <div className="space-y-2">
-                    {staff.qualifications.map((qualification, index) => (
-                      <div key={index} className="flex items-center space-x-2">
-                        <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                        <span className="text-sm">{qualification}</span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-gray-500 italic">No qualifications listed</p>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Schedule */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center text-lg">
-                  <Clock className="h-4 w-4 mr-2" />
-                  Work Schedule
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="font-medium">Working Days per Week:</span>
-                    <span className="text-blue-600 font-semibold">{getWorkingDays()} days</span>
-                  </div>
-                  <Separator />
-                  <div className="space-y-2">
-                    {Object.entries(staff.schedule).map(([day, schedule]: [string, any]) => (
-                      <div key={day} className="flex items-center justify-between text-sm">
-                        <span className="capitalize font-medium">{day}:</span>
-                        <span className={schedule.isWorking ? "text-green-600" : "text-gray-400"}>
-                          {schedule.isWorking 
-                            ? `${schedule.start} - ${schedule.end}`
-                            : "Off"
-                          }
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Account Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center text-lg">
-                <User className="h-4 w-4 mr-2" />
-                Account Information
+        <div className="space-y-6" dir={isRTL ? "rtl" : "ltr"}>
+          {/* Basic Information */}
+          <Card dir={isRTL ? "rtl" : "ltr"}>
+            <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+              <CardTitle
+                className={cn("flex items-center text-lg", isRTL && "flex-row-reverse")}
+                dir={isRTL ? "rtl" : "ltr"}
+                style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+              >
+                <Info className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                <span className={cn(isRTL && "text-right")}>{t("Basic Information")}</span>
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                <div>
-                  <p className="text-gray-500">Created</p>
-                  <p className="font-medium">{formatDate(staff.createdAt)}</p>
+            <CardContent dir={isRTL ? "rtl" : "ltr"}>
+              <div
+                className={cn(
+                  "grid grid-cols-1 md:grid-cols-2 gap-6",
+                  isRTL && "text-right"
+                )}
+                style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+              >
+                <InfoRow
+                  label={t("Staff Name")}
+                  value={staffName}
+                  className="text-lg font-semibold"
+                />
+                <InfoRow
+                  label={t("Employee ID")}
+                  value={`#${staff.id}`}
+                  valueDir="ltr"
+                />
+                <InfoRow
+                  label={t("Role")}
+                  value={
+                    <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                      {getRoleIcon(staff.role)}
+                      <Badge
+                        className={cn(getRoleColor(staff.role))}
+                        dir="ltr"
+                        style={{ textAlign: "left", direction: "ltr" }}
+                      >
+                        {staff.role.charAt(0).toUpperCase() + staff.role.slice(1)}
+                      </Badge>
+                    </div>
+                  }
+                />
+                <InfoRow
+                  label={t("Status")}
+                  value={
+                    <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                      {staff.isActive ? (
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                      ) : (
+                        <XCircle className="h-4 w-4 text-gray-600" />
+                      )}
+                      <Badge
+                        variant={staff.isActive ? "default" : "secondary"}
+                        dir="ltr"
+                        style={{ textAlign: "left", direction: "ltr" }}
+                      >
+                        {staff.isActive ? t("Active") : t("Inactive")}
+                      </Badge>
+                    </div>
+                  }
+                />
+                <InfoRow
+                  label={t("Department")}
+                  value={staff.department}
+                />
+                <InfoRow
+                  label={t("Joining Date")}
+                  value={formatDate(staff.joiningDate)}
+                  icon={<Calendar className="h-4 w-4 text-gray-500" />}
+                />
+                {staff.salary > 0 && (
+                  <InfoRow
+                    label={t("Annual Salary")}
+                    value={<CurrencyDisplay amount={staff.salary} />}
+                    icon={<DollarSign className="h-4 w-4 text-gray-500" />}
+                  />
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Contact Information */}
+          <Card dir={isRTL ? "rtl" : "ltr"}>
+            <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+              <CardTitle
+                className={cn("flex items-center text-lg", isRTL && "flex-row-reverse")}
+                dir={isRTL ? "rtl" : "ltr"}
+                style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+              >
+                <Mail className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                <span className={cn(isRTL && "text-right")}>{t("Contact Information")}</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent dir={isRTL ? "rtl" : "ltr"}>
+              <div
+                className={cn(
+                  "grid grid-cols-1 md:grid-cols-2 gap-6",
+                  isRTL && "text-right"
+                )}
+                style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+              >
+                <InfoRow
+                  label={t("Email")}
+                  value={staff.email}
+                  valueDir="ltr"
+                  icon={<Mail className="h-4 w-4 text-gray-500" />}
+                />
+                <InfoRow
+                  label={t("Phone")}
+                  value={staff.phone || t("Not provided")}
+                  valueDir="ltr"
+                  icon={<Phone className="h-4 w-4 text-gray-500" />}
+                />
+                <InfoRow
+                  label={t("Address")}
+                  value={staff.address || t("Not provided")}
+                  className="md:col-span-2"
+                  icon={<MapPin className="h-4 w-4 text-gray-500" />}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Qualifications */}
+          {staff.qualifications && staff.qualifications.length > 0 && (
+            <Card dir={isRTL ? "rtl" : "ltr"}>
+              <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+                <CardTitle
+                  className={cn("flex items-center text-lg", isRTL && "flex-row-reverse")}
+                  dir={isRTL ? "rtl" : "ltr"}
+                  style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                >
+                  <GraduationCap className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                  <span className={cn(isRTL && "text-right")}>{t("Qualifications")}</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent dir={isRTL ? "rtl" : "ltr"}>
+                <div
+                  className={cn(
+                    "space-y-2",
+                    isRTL && "text-right"
+                  )}
+                  dir={isRTL ? "rtl" : "ltr"}
+                  style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                >
+                  {staff.qualifications.map((qualification, index) => (
+                    <div
+                      key={index}
+                      className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}
+                    >
+                      <div className="w-2 h-2 bg-blue-600 rounded-full flex-shrink-0" />
+                      <span className="text-sm">{qualification}</span>
+                    </div>
+                  ))}
                 </div>
-                <div>
-                  <p className="text-gray-500">Last Updated</p>
-                  <p className="font-medium">{formatDate(staff.updatedAt)}</p>
-                </div>
-                <div>
-                  <p className="text-gray-500">Status</p>
-                  <Badge variant={staff.isActive ? "default" : "secondary"} className="w-fit">
-                    {staff.isActive ? "Active" : "Inactive"}
-                  </Badge>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Work Schedule */}
+          <Card dir={isRTL ? "rtl" : "ltr"}>
+            <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+              <CardTitle
+                className={cn("flex items-center text-lg", isRTL && "flex-row-reverse")}
+                dir={isRTL ? "rtl" : "ltr"}
+                style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+              >
+                <Clock className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                <span className={cn(isRTL && "text-right")}>{t("Work Schedule")}</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent dir={isRTL ? "rtl" : "ltr"}>
+              <div
+                className={cn(
+                  "space-y-4",
+                  isRTL && "text-right"
+                )}
+                style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+              >
+                <InfoRow
+                  label={t("Working Days per Week")}
+                  value={`${getWorkingDays()} ${t("days")}`}
+                />
+                <div
+                  className={cn(
+                    "space-y-2 pt-2 border-t",
+                    isRTL && "text-right"
+                  )}
+                  dir={isRTL ? "rtl" : "ltr"}
+                >
+                  {Object.entries(staff.schedule).map(([day, schedule]: [string, any]) => (
+                    <div
+                      key={day}
+                      className={cn(
+                        "flex items-center justify-between text-sm",
+                        isRTL && "flex-row-reverse"
+                      )}
+                    >
+                      <span className="capitalize font-medium">{t(day)}:</span>
+                      <span className={schedule.isWorking ? "text-green-600" : "text-gray-400"}>
+                        {schedule.isWorking
+                          ? `${schedule.start} - ${schedule.end}`
+                          : t("Off")
+                        }
+                      </span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </CardContent>
           </Card>
+
+          {/* Account Information */}
+          <Card dir={isRTL ? "rtl" : "ltr"}>
+            <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+              <CardTitle
+                className={cn("flex items-center text-lg", isRTL && "flex-row-reverse")}
+                dir={isRTL ? "rtl" : "ltr"}
+                style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+              >
+                <User className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                <span className={cn(isRTL && "text-right")}>{t("Account Information")}</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent dir={isRTL ? "rtl" : "ltr"}>
+              <div
+                className={cn(
+                  "grid grid-cols-1 md:grid-cols-2 gap-6",
+                  isRTL && "text-right"
+                )}
+                style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+              >
+                <InfoRow
+                  label={t("Created")}
+                  value={formatDate(staff.createdAt)}
+                  icon={<Calendar className="h-4 w-4 text-gray-500" />}
+                />
+                <InfoRow
+                  label={t("Last Updated")}
+                  value={formatDate(staff.updatedAt)}
+                  icon={<Calendar className="h-4 w-4 text-gray-500" />}
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Action Buttons */}
+        <div
+          className={cn("flex justify-end items-center pt-6 border-t", isRTL && "flex-row-reverse")}
+          dir={isRTL ? "rtl" : "ltr"}
+        >
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            dir={isRTL ? "rtl" : "ltr"}
+            style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+          >
+            {t("Close")}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
   );
 };
 
-export default ViewStaffModal; 
+export default ViewStaffModal;

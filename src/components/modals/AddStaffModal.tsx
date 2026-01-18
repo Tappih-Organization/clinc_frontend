@@ -44,6 +44,7 @@ import { useClinic } from "@/contexts/ClinicContext";
 import type { User as StaffUser } from "@/services/api";
 import { transformUserToStaff } from "@/hooks/useStaff";
 import { cn } from "@/lib/utils";
+import { useIsRTL } from "@/hooks/useIsRTL";
 
 interface AddStaffModalProps {
   trigger?: React.ReactNode;
@@ -52,6 +53,7 @@ interface AddStaffModalProps {
 
 const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) => {
   const { t } = useTranslation();
+  const isRTL = useIsRTL();
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { currentClinic } = useClinic();
@@ -162,9 +164,8 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
     }));
 
     toast({
-      title: "Password Generated",
-      description:
-        "A strong password has been generated and filled in both fields.",
+      title: t("Password Generated"),
+      description: t("A strong password has been generated and filled in both fields."),
     });
   };
 
@@ -250,8 +251,8 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
     // Check if current clinic is selected
     if (!currentClinic?._id) {
       toast({
-        title: "Error",
-        description: "No clinic selected. Please select a clinic before adding staff.",
+        title: t("Error"),
+        description: t("No clinic selected. Please select a clinic before adding staff."),
         variant: "destructive",
       });
       return;
@@ -285,8 +286,13 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
       }).format(parseFloat(formData.salary));
 
       toast({
-        title: "Staff member added successfully",
-        description: `${newUser.first_name} ${newUser.last_name} has been added as ${newUser.role} with salary ${formattedSalary}.`,
+        title: t("Staff member added successfully"),
+        description: t("{{firstName}} {{lastName}} has been added as {{role}} with salary {{salary}}.", {
+          firstName: newUser.first_name,
+          lastName: newUser.last_name,
+          role: t(newUser.role),
+          salary: formattedSalary,
+        }),
       });
 
       // Reset form
@@ -367,7 +373,7 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
       
       // For non-validation errors, show toast
       toast({
-        title: "Error",
+        title: t("Error"),
         description: parseApiError(error),
         variant: "destructive",
       });
@@ -393,112 +399,163 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center text-xl">
-            <User className="h-5 w-5 mr-2 text-blue-600" />
-            Add New Staff Member
-          </DialogTitle>
-          <DialogDescription>
-            {currentClinic ? (
-              <>Enter staff member information to add them to <strong>{currentClinic.name}</strong>.</>
-            ) : (
-              "Enter staff member information to add them to your clinic team."
-            )}
-          </DialogDescription>
+      <DialogContent
+        className={cn("max-w-5xl max-h-[95vh] overflow-y-auto z-50", isRTL && "rtl")}
+        dir={isRTL ? "rtl" : "ltr"}
+      >
+        <DialogHeader dir={isRTL ? "rtl" : "ltr"}>
+          <div className={cn(
+            "flex items-center gap-3",
+            isRTL ? "flex-row-reverse" : "flex-row"
+          )}>
+            <User
+              className={cn(
+                "h-6 w-6 text-blue-600 flex-shrink-0",
+                isRTL ? "order-2" : ""
+              )}
+            />
+            <div className={cn("flex-1 min-w-0", isRTL && "text-right")}>
+              <DialogTitle
+                className={cn(
+                  "text-xl font-semibold",
+                  isRTL && "text-right"
+                )}
+                dir={isRTL ? "rtl" : "ltr"}
+                style={isRTL ? { textAlign: "right", direction: "rtl" } : { textAlign: "left", direction: "ltr" }}
+              >
+                {t("Add New Staff Member")}
+              </DialogTitle>
+              <DialogDescription
+                className={cn(
+                  "text-sm text-muted-foreground mt-1",
+                  isRTL && "text-right"
+                )}
+                dir={isRTL ? "rtl" : "ltr"}
+                style={isRTL ? { textAlign: "right", direction: "rtl" } : { textAlign: "left", direction: "ltr" }}
+              >
+                {currentClinic ? (
+                  <>{t("Enter staff member information to add them to")} <strong>{currentClinic.name}</strong>.</>
+                ) : (
+                  t("Enter staff member information to add them to your clinic team.")
+                )}
+              </DialogDescription>
+            </div>
+          </div>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6" dir={isRTL ? "rtl" : "ltr"}>
           {/* Personal Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center">
-                <User className="h-4 w-4 mr-2" />
-                Personal Information
+          <Card dir={isRTL ? "rtl" : "ltr"}>
+            <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+              <CardTitle
+                className={cn("text-lg flex items-center", isRTL && "flex-row-reverse")}
+                dir={isRTL ? "rtl" : "ltr"}
+                style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+              >
+                <User className={cn("h-4 w-4 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                <span className={cn(isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"} style={isRTL ? { textAlign: "right", direction: "rtl" } : { textAlign: "left", direction: "ltr" }}>
+                  {t("Personal Information")}
+                </span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <CardContent className="space-y-4" dir={isRTL ? "rtl" : "ltr"}>
+              <div className={cn("grid grid-cols-1 md:grid-cols-2 gap-4", isRTL && "text-right")}>
                 <div className="space-y-2">
-                  <Label htmlFor="firstName">First Name *</Label>
+                  <Label htmlFor="firstName" dir={isRTL ? "rtl" : "ltr"}>{t("First Name")} *</Label>
                   <Input
                     id="firstName"
                     value={formData.firstName}
                     onChange={(e) => handleChange("firstName", e.target.value)}
-                    placeholder="John"
+                    placeholder={t("John")}
                     required
-                    className={errors.firstName ? "border-red-500" : ""}
+                    className={cn(errors.firstName ? "border-red-500" : "", isRTL && "text-right")}
+                    dir="ltr"
                   />
                   {errors.firstName && (
-                    <p className="text-sm text-red-500">{errors.firstName}</p>
+                    <p className={cn("text-sm text-red-500", isRTL && "text-right")}>{errors.firstName}</p>
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="lastName">Last Name *</Label>
+                  <Label htmlFor="lastName" dir={isRTL ? "rtl" : "ltr"}>{t("Last Name")} *</Label>
                   <Input
                     id="lastName"
                     value={formData.lastName}
                     onChange={(e) => handleChange("lastName", e.target.value)}
-                    placeholder="Doe"
+                    placeholder={t("Doe")}
                     required
-                    className={errors.lastName ? "border-red-500" : ""}
+                    className={cn(errors.lastName ? "border-red-500" : "", isRTL && "text-right")}
+                    dir="ltr"
                   />
                   {errors.lastName && (
-                    <p className="text-sm text-red-500">{errors.lastName}</p>
+                    <p className={cn("text-sm text-red-500", isRTL && "text-right")}>{errors.lastName}</p>
                   )}
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className={cn("grid grid-cols-1 md:grid-cols-2 gap-4", isRTL && "text-right")}>
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email *</Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Label htmlFor="email" dir={isRTL ? "rtl" : "ltr"}>{t("Email")} *</Label>
+                  <div className={cn("relative", isRTL && "flex-row-reverse")}>
+                    <Mail className={cn(
+                      "absolute top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400",
+                      isRTL ? "right-3" : "left-3"
+                    )} />
                     <Input
                       id="email"
                       type="email"
                       value={formData.email}
                       onChange={(e) => handleChange("email", e.target.value)}
                       placeholder="john.doe@clinic.com"
-                      className={cn("pl-10", errors.email && "border-red-500")}
+                      className={cn(
+                        errors.email ? "border-red-500" : "",
+                        isRTL ? "pr-10 text-right" : "pl-10"
+                      )}
+                      dir="ltr"
                       required
                     />
                   </div>
                   {errors.email && (
-                    <p className="text-sm text-red-500">{errors.email}</p>
+                    <p className={cn("text-sm text-red-500", isRTL && "text-right")}>{errors.email}</p>
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number *</Label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Label htmlFor="phone" dir={isRTL ? "rtl" : "ltr"}>{t("Phone Number")} *</Label>
+                  <div className={cn("relative", isRTL && "flex-row-reverse")}>
+                    <Phone className={cn(
+                      "absolute top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400",
+                      isRTL ? "right-3" : "left-3"
+                    )} />
                     <Input
                       id="phone"
                       value={formData.phone}
                       onChange={(e) => handleChange("phone", e.target.value)}
                       placeholder="+1 (555) 123-4567"
-                      className={cn("pl-10", errors.phone && "border-red-500")}
+                      className={cn(
+                        errors.phone ? "border-red-500" : "",
+                        isRTL ? "pr-10 text-right" : "pl-10"
+                      )}
+                      dir="ltr"
                       required
                     />
                   </div>
                   {errors.phone && (
-                    <p className="text-sm text-red-500">{errors.phone}</p>
+                    <p className={cn("text-sm text-red-500", isRTL && "text-right")}>{errors.phone}</p>
                   )}
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className={cn("grid grid-cols-1 md:grid-cols-2 gap-4", isRTL && "text-right")}>
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="password">Password *</Label>
+                  <div className={cn("flex items-center justify-between", isRTL && "flex-row-reverse")}>
+                    <Label htmlFor="password" dir={isRTL ? "rtl" : "ltr"}>{t("Password")} *</Label>
                     <Button
                       type="button"
                       variant="outline"
                       size="sm"
                       onClick={generatePassword}
-                      className="text-xs"
+                      className={cn("text-xs", isRTL && "flex-row-reverse")}
                     >
-                      Generate
+                      {t("Generate")}
                     </Button>
                   </div>
                   <Input
@@ -506,9 +563,10 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
                     type="password"
                     value={formData.password}
                     onChange={(e) => handleChange("password", e.target.value)}
-                    placeholder="Enter a strong password"
+                    placeholder={t("Enter a strong password")}
                     required
                     minLength={8}
+                    dir="ltr"
                     className={cn(
                       errors.password && "border-red-500",
                       !errors.password && formData.password.length > 0 &&
@@ -523,11 +581,11 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
                     )}
                   />
                   {errors.password && (
-                    <p className="text-sm text-red-500">{errors.password}</p>
+                    <p className={cn("text-sm text-red-500", isRTL && "text-right")}>{errors.password}</p>
                   )}
-                  <div className="text-xs space-y-1">
-                    <p className="text-gray-500">Password must contain:</p>
-                    <ul className="ml-2 space-y-1">
+                  <div className={cn("text-xs space-y-1", isRTL && "text-right")}>
+                    <p className="text-gray-500">{t("Password must contain")}:</p>
+                    <ul className={cn("space-y-1", isRTL ? "mr-2" : "ml-2")}>
                       <li
                         className={
                           formData.password.length >= 8
@@ -535,7 +593,7 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
                             : "text-gray-400"
                         }
                       >
-                        ✓ At least 8 characters
+                        ✓ {t("At least 8 characters")}
                       </li>
                       <li
                         className={
@@ -544,7 +602,7 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
                             : "text-gray-400"
                         }
                       >
-                        ✓ One uppercase letter
+                        ✓ {t("One uppercase letter")}
                       </li>
                       <li
                         className={
@@ -553,7 +611,7 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
                             : "text-gray-400"
                         }
                       >
-                        ✓ One lowercase letter
+                        ✓ {t("One lowercase letter")}
                       </li>
                       <li
                         className={
@@ -562,7 +620,7 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
                             : "text-gray-400"
                         }
                       >
-                        ✓ One number
+                        ✓ {t("One number")}
                       </li>
                       <li
                         className={
@@ -571,13 +629,13 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
                             : "text-gray-400"
                         }
                       >
-                        ✓ One special character (@$!%*?&)
+                        ✓ {t("One special character")} (@$!%*?&)
                       </li>
                     </ul>
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="confirmPassword">Confirm Password *</Label>
+                  <Label htmlFor="confirmPassword" dir={isRTL ? "rtl" : "ltr"}>{t("Confirm Password")} *</Label>
                   <Input
                     id="confirmPassword"
                     type="password"
@@ -585,9 +643,10 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
                     onChange={(e) =>
                       handleChange("confirmPassword", e.target.value)
                     }
-                    placeholder="Confirm password"
+                    placeholder={t("Confirm password")}
                     required
                     minLength={8}
+                    dir="ltr"
                     className={cn(
                       errors.confirmPassword && "border-red-500",
                       !errors.confirmPassword && formData.confirmPassword.length > 0
@@ -598,34 +657,40 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
                     )}
                   />
                   {errors.confirmPassword && (
-                    <p className="text-sm text-red-500">{errors.confirmPassword}</p>
+                    <p className={cn("text-sm text-red-500", isRTL && "text-right")}>{errors.confirmPassword}</p>
                   )}
                   {!errors.confirmPassword && formData.confirmPassword.length > 0 && (
                     <p
-                      className={`text-xs ${
+                      className={cn(
+                        "text-xs",
                         formData.password === formData.confirmPassword
                           ? "text-green-600"
-                          : "text-red-600"
-                      }`}
+                          : "text-red-600",
+                        isRTL && "text-right"
+                      )}
                     >
                       {formData.password === formData.confirmPassword
-                        ? "✓ Passwords match"
-                        : "✗ Passwords do not match"}
+                        ? `✓ ${t("Passwords match")}`
+                        : `✗ ${t("Passwords do not match")}`}
                     </p>
                   )}
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="address">Address</Label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Label htmlFor="address" dir={isRTL ? "rtl" : "ltr"}>{t("Address")}</Label>
+                <div className={cn("relative", isRTL && "flex-row-reverse")}>
+                  <MapPin className={cn(
+                    "absolute top-3 h-4 w-4 text-gray-400",
+                    isRTL ? "right-3" : "left-3"
+                  )} />
                   <Textarea
                     id="address"
                     value={formData.address}
                     onChange={(e) => handleChange("address", e.target.value)}
-                    placeholder="123 Main Street, City, State, ZIP"
-                    className="pl-10"
+                    placeholder={t("123 Main Street, City, State, ZIP")}
+                    className={isRTL ? "pr-10 text-right" : "pl-10"}
                     rows={2}
+                    dir={isRTL ? "rtl" : "ltr"}
                   />
                 </div>
               </div>
@@ -633,49 +698,55 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
           </Card>
 
           {/* Professional Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center">
-                <Briefcase className="h-4 w-4 mr-2" />
-                Professional Information
+          <Card dir={isRTL ? "rtl" : "ltr"}>
+            <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+              <CardTitle
+                className={cn("text-lg flex items-center", isRTL && "flex-row-reverse")}
+                dir={isRTL ? "rtl" : "ltr"}
+                style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+              >
+                <Briefcase className={cn("h-4 w-4 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                <span className={cn(isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"} style={isRTL ? { textAlign: "right", direction: "rtl" } : { textAlign: "left", direction: "ltr" }}>
+                  {t("Professional Information")}
+                </span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <CardContent className="space-y-4" dir={isRTL ? "rtl" : "ltr"}>
+              <div className={cn("grid grid-cols-1 md:grid-cols-2 gap-4", isRTL && "text-right")}>
                 <div className="space-y-2">
-                  <Label htmlFor="role">Role *</Label>
+                  <Label htmlFor="role" dir={isRTL ? "rtl" : "ltr"}>{t("Role")} *</Label>
                   <Select
                     value={formData.role}
                     onValueChange={(value) => handleChange("role", value)}
                   >
-                    <SelectTrigger className={errors.role ? "border-red-500" : ""}>
-                      <SelectValue placeholder="Select role" />
+                    <SelectTrigger className={cn(errors.role ? "border-red-500" : "", isRTL && "text-right")}>
+                      <SelectValue placeholder={t("Select role")} />
                     </SelectTrigger>
                     <SelectContent>
                       {roles.map((role) => (
                         <SelectItem key={role.value} value={role.value}>
-                          {role.label}
+                          {t(role.label)}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                   {errors.role && (
-                    <p className="text-sm text-red-500">{errors.role}</p>
+                    <p className={cn("text-sm text-red-500", isRTL && "text-right")}>{errors.role}</p>
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="department">Department *</Label>
+                  <Label htmlFor="department" dir={isRTL ? "rtl" : "ltr"}>{t("Department")} *</Label>
                   <Select
                     value={formData.department}
                     onValueChange={(value) => handleChange("department", value)}
                   >
-                    <SelectTrigger className={errors.department ? "border-red-500" : ""}>
-                      <SelectValue placeholder="Select department" />
+                    <SelectTrigger className={cn(errors.department ? "border-red-500" : "", isRTL && "text-right")}>
+                      <SelectValue placeholder={t("Select department")} />
                     </SelectTrigger>
                     <SelectContent>
                       {departments.map((dept) => (
                         <SelectItem key={dept.code} value={dept.name}>
-                          <div className="flex items-center space-x-2">
+                          <div className={cn("flex items-center", isRTL ? "flex-row-reverse space-x-reverse" : "space-x-2")}>
                             <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
                               {dept.code}
                             </span>
@@ -686,16 +757,19 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
                     </SelectContent>
                   </Select>
                   {errors.department && (
-                    <p className="text-sm text-red-500">{errors.department}</p>
+                    <p className={cn("text-sm text-red-500", isRTL && "text-right")}>{errors.department}</p>
                   )}
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className={cn("grid grid-cols-1 md:grid-cols-2 gap-4", isRTL && "text-right")}>
                 <div className="space-y-2">
-                  <Label htmlFor="salary">Annual Salary ($) *</Label>
-                  <div className="relative">
-                    <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Label htmlFor="salary" dir={isRTL ? "rtl" : "ltr"}>{t("Annual Salary")} ($) *</Label>
+                  <div className={cn("relative", isRTL && "flex-row-reverse")}>
+                    <DollarSign className={cn(
+                      "absolute top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400",
+                      isRTL ? "right-3" : "left-3"
+                    )} />
                     <Input
                       id="salary"
                       type="number"
@@ -704,18 +778,25 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
                       value={formData.salary}
                       onChange={(e) => handleChange("salary", e.target.value)}
                       placeholder="50000"
-                      className={cn("pl-10", errors.salary && "border-red-500")}
+                      dir="ltr"
+                      className={cn(
+                        errors.salary && "border-red-500",
+                        isRTL ? "pr-10 text-right" : "pl-10"
+                      )}
                       required
                     />
                   </div>
                   {errors.salary && (
-                    <p className="text-sm text-red-500">{errors.salary}</p>
+                    <p className={cn("text-sm text-red-500", isRTL && "text-right")}>{errors.salary}</p>
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="joiningDate">Joining Date</Label>
-                  <div className="relative">
-                    <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Label htmlFor="joiningDate" dir={isRTL ? "rtl" : "ltr"}>{t("Joining Date")}</Label>
+                  <div className={cn("relative", isRTL && "flex-row-reverse")}>
+                    <Calendar className={cn(
+                      "absolute top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400",
+                      isRTL ? "right-3" : "left-3"
+                    )} />
                     <Input
                       id="joiningDate"
                       type="date"
@@ -723,7 +804,8 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
                       onChange={(e) =>
                         handleChange("joiningDate", e.target.value)
                       }
-                      className="pl-10"
+                      className={isRTL ? "pr-10" : "pl-10"}
+                      dir="ltr"
                     />
                   </div>
                 </div>
@@ -732,9 +814,12 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
               {/* Sales Percentage for Doctors */}
               {formData.role === 'doctor' && (
                 <div className="space-y-2">
-                  <Label htmlFor="salesPercentage">Sales Percentage (%) *</Label>
-                  <div className="relative">
-                    <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Label htmlFor="salesPercentage" dir={isRTL ? "rtl" : "ltr"}>{t("Sales Percentage")} (%) *</Label>
+                  <div className={cn("relative", isRTL && "flex-row-reverse")}>
+                    <DollarSign className={cn(
+                      "absolute top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400",
+                      isRTL ? "right-3" : "left-3"
+                    )} />
                     <Input
                       id="salesPercentage"
                       type="number"
@@ -744,31 +829,39 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
                       value={formData.salesPercentage}
                       onChange={(e) => handleChange("salesPercentage", e.target.value)}
                       placeholder="10.0"
-                      className={cn("pl-10", errors.salesPercentage && "border-red-500")}
+                      dir="ltr"
+                      className={cn(
+                        errors.salesPercentage && "border-red-500",
+                        isRTL ? "pr-10 text-right" : "pl-10"
+                      )}
                     />
                   </div>
                   {errors.salesPercentage && (
-                    <p className="text-sm text-red-500">{errors.salesPercentage}</p>
+                    <p className={cn("text-sm text-red-500", isRTL && "text-right")}>{errors.salesPercentage}</p>
                   )}
-                  <p className="text-sm text-muted-foreground">
-                    Percentage of revenue generated from appointments that will be added as sales incentive
+                  <p className={cn("text-sm text-muted-foreground", isRTL && "text-right")}>
+                    {t("Percentage of revenue generated from appointments that will be added as sales incentive")}
                   </p>
                 </div>
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="qualifications">Qualifications</Label>
-                <div className="relative">
-                  <GraduationCap className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Label htmlFor="qualifications" dir={isRTL ? "rtl" : "ltr"}>{t("Qualifications")}</Label>
+                <div className={cn("relative", isRTL && "flex-row-reverse")}>
+                  <GraduationCap className={cn(
+                    "absolute top-3 h-4 w-4 text-gray-400",
+                    isRTL ? "right-3" : "left-3"
+                  )} />
                   <Textarea
                     id="qualifications"
                     value={formData.qualifications}
                     onChange={(e) =>
                       handleChange("qualifications", e.target.value)
                     }
-                    placeholder="MD, MBBS, Certifications, etc. (separate with commas)"
-                    className="pl-10"
+                    placeholder={t("MD, MBBS, Certifications, etc. (separate with commas)")}
+                    className={isRTL ? "pr-10 text-right" : "pl-10"}
                     rows={2}
+                    dir={isRTL ? "rtl" : "ltr"}
                   />
                 </div>
               </div>
@@ -776,21 +869,33 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
           </Card>
 
           {/* Work Schedule */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center">
-                <Clock className="h-4 w-4 mr-2" />
-                Work Schedule
+          <Card dir={isRTL ? "rtl" : "ltr"}>
+            <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+              <CardTitle
+                className={cn("text-lg flex items-center", isRTL && "flex-row-reverse")}
+                dir={isRTL ? "rtl" : "ltr"}
+                style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+              >
+                <Clock className={cn("h-4 w-4 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                <span className={cn(isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"} style={isRTL ? { textAlign: "right", direction: "rtl" } : { textAlign: "left", direction: "ltr" }}>
+                  {t("Work Schedule")}
+                </span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4" dir={isRTL ? "rtl" : "ltr"}>
               <div className="space-y-3">
                 {daysOfWeek.map((day) => (
                   <div
                     key={day.key}
-                    className="flex items-center space-x-4 p-3 border rounded-lg"
+                    className={cn(
+                      "flex items-center p-3 border rounded-lg",
+                      isRTL ? "flex-row-reverse space-x-reverse" : "space-x-4"
+                    )}
                   >
-                    <div className="flex items-center space-x-2 min-w-[100px]">
+                    <div className={cn(
+                      "flex items-center min-w-[100px]",
+                      isRTL ? "flex-row-reverse space-x-reverse" : "space-x-2"
+                    )}>
                       <Checkbox
                         id={`${day.key}Working`}
                         checked={
@@ -805,14 +910,20 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
                       <Label
                         htmlFor={`${day.key}Working`}
                         className="font-medium"
+                        dir={isRTL ? "rtl" : "ltr"}
                       >
-                        {day.label}
+                        {t(day.label)}
                       </Label>
                     </div>
 
                     {formData[`${day.key}Working` as keyof typeof formData] && (
-                      <div className="flex items-center space-x-2 flex-1">
-                        <Label className="text-sm text-gray-600">From:</Label>
+                      <div className={cn(
+                        "flex items-center flex-1",
+                        isRTL ? "flex-row-reverse space-x-reverse" : "space-x-2"
+                      )}>
+                        <Label className={cn("text-sm text-gray-600", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                          {t("From")}:
+                        </Label>
                         <Input
                           type="time"
                           value={
@@ -824,8 +935,11 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
                             handleChange(`${day.key}Start`, e.target.value)
                           }
                           className="w-32"
+                          dir="ltr"
                         />
-                        <Label className="text-sm text-gray-600">To:</Label>
+                        <Label className={cn("text-sm text-gray-600", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                          {t("To")}:
+                        </Label>
                         <Input
                           type="time"
                           value={
@@ -837,6 +951,7 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
                             handleChange(`${day.key}End`, e.target.value)
                           }
                           className="w-32"
+                          dir="ltr"
                         />
                       </div>
                     )}
@@ -847,24 +962,29 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ trigger, onStaffAdded }) 
           </Card>
 
           {/* Form Actions */}
-          <div className="flex justify-end space-x-3 pt-4">
+          <div className={cn("flex justify-end pt-4 border-t gap-3", isRTL && "flex-row-reverse")} dir={isRTL ? "rtl" : "ltr"}>
             <Button
               type="button"
               variant="outline"
               onClick={() => setOpen(false)}
               disabled={isLoading}
+              dir={isRTL ? "rtl" : "ltr"}
             >
-              Cancel
+              {t("Cancel")}
             </Button>
-            <Button type="submit" disabled={isLoading}>
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}
+            >
               {isLoading ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   {t("Adding Staff...")}
                 </>
               ) : (
                 <>
-                  <Plus className="h-4 w-4 mr-2" />
+                  <Plus className="h-4 w-4" />
                   {t("Add Staff Member")}
                 </>
               )}

@@ -91,6 +91,7 @@ import { apiService } from "@/services/api";
 import { serviceApi } from "@/services/api/serviceApi";
 import type { Service } from "@/types";
 import NewAppointmentModal from "@/components/modals/NewAppointmentModal";
+import AppointmentDetailModal from "@/components/modals/AppointmentDetailModal";
 import QuickAddPatientModal from "@/components/modals/QuickAddPatientModal";
 import { AppointmentSlipPDFGenerator, convertToAppointmentSlipData, type ClinicInfo } from "@/utils/appointmentSlipPdf";
 import { formatTime as formatTimeUtil, formatDateShortWithWeekday } from "@/utils/dateUtils";
@@ -1621,83 +1622,15 @@ useEffect(() => {
       </motion.div>
 
       {/* View Details Modal */}
-      <Dialog open={viewDetailsModal.open} onOpenChange={(open) => setViewDetailsModal({ open, appointment: null })}>
-        <DialogContent className="max-w-2xl" dir={isRTL ? 'rtl' : 'ltr'}>
-          <DialogHeader className={cn(isRTL && 'text-right', isRTL && 'mt-5')}>
-            <div className={cn("flex items-start gap-4", isRTL && "flex-row-reverse")}>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleDownloadSlip(viewDetailsModal.appointment)}
-                className={cn("flex items-center gap-2 flex-shrink-0", isRTL && "flex-row-reverse")}
-              >
-                <Download className="h-4 w-4" />
-                {t("Download Slip")}
-              </Button>
-              <div className="flex-1">
-                <DialogTitle className={cn(isRTL && 'text-right')}>{t("Appointment Details")}</DialogTitle>
-                <DialogDescription className={cn(isRTL && 'text-right')}>
-                  {t("View complete appointment information")}
-                </DialogDescription>
-              </div>
-            </div>
-          </DialogHeader>
-          {viewDetailsModal.appointment && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">{t("Patient")}</h4>
-                  <p className="text-lg font-medium text-foreground">{viewDetailsModal.appointment.patient?.name}</p>
-                  <p className="text-sm text-muted-foreground">{viewDetailsModal.appointment.patient?.phone}</p>
-                  <p className="text-sm text-muted-foreground">{viewDetailsModal.appointment.patient?.email}</p>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">{t("Doctor")}</h4>
-                  <p className="text-lg font-medium text-foreground">{viewDetailsModal.appointment.doctor?.name}</p>
-                  <p className="text-sm text-muted-foreground">{viewDetailsModal.appointment.doctor?.specialty}</p>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">{t("Date & Time")}</h4>
-                  <p className="text-lg font-medium text-foreground">{formatDate(viewDetailsModal.appointment.date)} at {formatTime(viewDetailsModal.appointment.date)}</p>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">{t("Duration")}</h4>
-                  <p className="text-lg font-medium text-foreground">{viewDetailsModal.appointment.duration} {t("minutes")}</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">{t("Type")}</h4>
-                  <p className="text-lg font-medium text-foreground capitalize">{viewDetailsModal.appointment.type}</p>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">{t("Status")}</h4>
-                  <Badge 
-                    className={`${getStatusColorClass(viewDetailsModal.appointment.status)}`}
-                    style={{ 
-                      backgroundColor: `${getStatusColor(viewDetailsModal.appointment.status)}15`,
-                      borderColor: getStatusColor(viewDetailsModal.appointment.status),
-                    }}
-                  >
-                    {getStatusName(viewDetailsModal.appointment.status)}
-                  </Badge>
-                </div>
-              </div>
-
-              {viewDetailsModal.appointment.notes && (
-                <div>
-                  <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">{t("Notes")}</h4>
-                  <p className="text-sm text-foreground bg-muted p-3 rounded-lg">{viewDetailsModal.appointment.notes}</p>
-                </div>
-              )}
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      <AppointmentDetailModal
+        open={viewDetailsModal.open}
+        onOpenChange={(open) => setViewDetailsModal({ open, appointment: null })}
+        appointment={viewDetailsModal.appointment}
+        onEdit={handleEditAppointment}
+        onMarkComplete={handleMarkComplete}
+        onDownloadSlip={handleDownloadSlip}
+        isLoading={updateAppointmentMutation.isPending}
+      />
 
       {/* Edit Appointment Modal */}
       <Dialog open={editModal.open} onOpenChange={(open) => setEditModal({ open, appointment: null })}>

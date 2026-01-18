@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,6 +33,7 @@ import { transformUserToStaff } from "@/hooks/useStaff";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiService } from "@/services/api";
 import { cn } from "@/lib/utils";
+import { useIsRTL } from "@/hooks/useIsRTL";
 
 interface EditStaffModalProps {
   open: boolean;
@@ -46,6 +48,8 @@ const EditStaffModal: React.FC<EditStaffModalProps> = ({
   staff,
   onUpdate,
 }) => {
+  const { t } = useTranslation();
+  const isRTL = useIsRTL();
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -203,79 +207,121 @@ const EditStaffModal: React.FC<EditStaffModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center text-xl">
-            <User className="h-5 w-5 mr-2 text-blue-600" />
-            Edit Staff Member
-          </DialogTitle>
-          <DialogDescription>
-            Update information for {staff.firstName} {staff.lastName}
-          </DialogDescription>
+      <DialogContent
+        className={cn("max-w-5xl max-h-[95vh] overflow-y-auto z-50", isRTL && "rtl")}
+        dir={isRTL ? "rtl" : "ltr"}
+      >
+        <DialogHeader dir={isRTL ? "rtl" : "ltr"}>
+          <div className={cn(
+            "flex items-center gap-3",
+            isRTL ? "flex-row-reverse" : "flex-row"
+          )}>
+            <User
+              className={cn(
+                "h-6 w-6 text-blue-600 flex-shrink-0",
+                isRTL ? "order-2" : ""
+              )}
+            />
+            <div className="flex-1 min-w-0">
+              <DialogTitle
+                className="text-xl font-semibold"
+                dir="ltr"
+                style={{ textAlign: "left", direction: "ltr" }}
+              >
+                {t("Edit Staff Member")}
+              </DialogTitle>
+              <DialogDescription
+                className="text-sm text-muted-foreground mt-1"
+                dir="ltr"
+                style={{ textAlign: "left", direction: "ltr" }}
+              >
+                {t("Update information for")} {staff.firstName} {staff.lastName}
+              </DialogDescription>
+            </div>
+          </div>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6" dir={isRTL ? "rtl" : "ltr"}>
           {/* Personal Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center">
-                <User className="h-4 w-4 mr-2" />
-                Personal Information
+          <Card dir={isRTL ? "rtl" : "ltr"}>
+            <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+              <CardTitle
+                className={cn("text-lg flex items-center", isRTL && "flex-row-reverse")}
+                dir={isRTL ? "rtl" : "ltr"}
+                style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+              >
+                <User className={cn("h-4 w-4 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                <span className={cn(isRTL && "text-right")}>{t("Personal Information")}</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <CardContent className="space-y-4" dir={isRTL ? "rtl" : "ltr"}>
+              <div className={cn("grid grid-cols-1 md:grid-cols-2 gap-4", isRTL && "text-right")}>
                 <div className="space-y-2">
-                  <Label htmlFor="firstName">First Name *</Label>
+                  <Label htmlFor="firstName" dir={isRTL ? "rtl" : "ltr"}>{t("First Name")} *</Label>
                   <Input
                     id="firstName"
                     value={formData.first_name}
                     onChange={(e) => handleChange("first_name", e.target.value)}
-                    placeholder="John"
+                    placeholder={t("John")}
                     required
+                    dir="ltr"
+                    className={isRTL && "text-right"}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="lastName">Last Name *</Label>
+                  <Label htmlFor="lastName" dir={isRTL ? "rtl" : "ltr"}>{t("Last Name")} *</Label>
                   <Input
                     id="lastName"
                     value={formData.last_name}
                     onChange={(e) => handleChange("last_name", e.target.value)}
-                    placeholder="Doe"
+                    placeholder={t("Doe")}
                     required
+                    dir="ltr"
+                    className={isRTL && "text-right"}
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className={cn("grid grid-cols-1 md:grid-cols-2 gap-4", isRTL && "text-right")}>
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email *</Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Label htmlFor="email" dir={isRTL ? "rtl" : "ltr"}>{t("Email")} *</Label>
+                  <div className={cn("relative", isRTL && "flex-row-reverse")}>
+                    <Mail className={cn(
+                      "absolute top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400",
+                      isRTL ? "right-3" : "left-3"
+                    )} />
                     <Input
                       id="email"
                       type="email"
                       value={formData.email}
                       onChange={(e) => handleChange("email", e.target.value)}
                       placeholder="john.doe@clinic.com"
-                      className={cn("pl-10", errors.email && "border-red-500")}
+                      className={cn(
+                        errors.email && "border-red-500",
+                        isRTL ? "pr-10 text-right" : "pl-10"
+                      )}
+                      dir="ltr"
                       required
                     />
                   </div>
                   {errors.email && (
-                    <p className="text-sm text-red-500">{errors.email}</p>
+                    <p className={cn("text-sm text-red-500", isRTL && "text-right")}>{errors.email}</p>
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number</Label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Label htmlFor="phone" dir={isRTL ? "rtl" : "ltr"}>{t("Phone Number")}</Label>
+                  <div className={cn("relative", isRTL && "flex-row-reverse")}>
+                    <Phone className={cn(
+                      "absolute top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400",
+                      isRTL ? "right-3" : "left-3"
+                    )} />
                     <Input
                       id="phone"
                       value={formData.phone}
                       onChange={(e) => handleChange("phone", e.target.value)}
                       placeholder="+1 (555) 123-4567"
-                      className="pl-10"
+                      className={isRTL ? "pr-10 text-right" : "pl-10"}
+                      dir="ltr"
                     />
                   </div>
                 </div>
@@ -284,37 +330,41 @@ const EditStaffModal: React.FC<EditStaffModalProps> = ({
           </Card>
 
           {/* Role Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center">
-                <Briefcase className="h-4 w-4 mr-2" />
-                Role Information
+          <Card dir={isRTL ? "rtl" : "ltr"}>
+            <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+              <CardTitle
+                className={cn("text-lg flex items-center", isRTL && "flex-row-reverse")}
+                dir={isRTL ? "rtl" : "ltr"}
+                style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+              >
+                <Briefcase className={cn("h-4 w-4 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                <span className={cn(isRTL && "text-right")}>{t("Role Information")}</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4" dir={isRTL ? "rtl" : "ltr"}>
               <div className="space-y-2">
-                <Label htmlFor="role">Role *</Label>
+                <Label htmlFor="role" dir={isRTL ? "rtl" : "ltr"}>{t("Role")} *</Label>
                 <Select value={formData.role} onValueChange={(value) => handleChange("role", value)}>
-                  <SelectTrigger className={errors.role ? "border-red-500" : ""}>
-                    <SelectValue placeholder="Select a role" />
+                  <SelectTrigger className={cn(errors.role ? "border-red-500" : "", isRTL && "text-right")}>
+                    <SelectValue placeholder={t("Select a role")} />
                   </SelectTrigger>
                   <SelectContent>
                     {roles.map((role) => (
                       <SelectItem key={role.value} value={role.value}>
-                        {role.label}
+                        {t(role.label)}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 {errors.role && (
-                  <p className="text-sm text-red-500">{errors.role}</p>
+                  <p className={cn("text-sm text-red-500", isRTL && "text-right")}>{errors.role}</p>
                 )}
               </div>
               
               {/* Sales Percentage for Doctors */}
               {formData.role === 'doctor' && (
                 <div className="space-y-2">
-                  <Label htmlFor="sales_percentage">Sales Percentage (%) *</Label>
+                  <Label htmlFor="sales_percentage" dir={isRTL ? "rtl" : "ltr"}>{t("Sales Percentage")} (%) *</Label>
                   <Input
                     id="sales_percentage"
                     type="number"
@@ -324,9 +374,11 @@ const EditStaffModal: React.FC<EditStaffModalProps> = ({
                     value={formData.sales_percentage}
                     onChange={(e) => handleChange("sales_percentage", e.target.value)}
                     placeholder="10.0"
+                    dir="ltr"
+                    className={isRTL && "text-right"}
                   />
-                  <p className="text-sm text-muted-foreground">
-                    Percentage of revenue generated from appointments that will be added as sales incentive
+                  <p className={cn("text-sm text-muted-foreground", isRTL && "text-right")}>
+                    {t("Percentage of revenue generated from appointments that will be added as sales incentive")}
                   </p>
                 </div>
               )}
@@ -335,33 +387,46 @@ const EditStaffModal: React.FC<EditStaffModalProps> = ({
 
           {/* Password Information - Admin Only */}
           {isAdmin && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center">
-                  <Lock className="h-4 w-4 mr-2" />
-                  Password Management
+            <Card dir={isRTL ? "rtl" : "ltr"}>
+              <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+                <CardTitle
+                  className={cn("text-lg flex items-center", isRTL && "flex-row-reverse")}
+                  dir={isRTL ? "rtl" : "ltr"}
+                  style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                >
+                  <Lock className={cn("h-4 w-4 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                  <span className={cn(isRTL && "text-right")}>{t("Password Management")}</span>
                 </CardTitle>
-                <p className="text-sm text-gray-600 mt-1">
-                  Only administrators can update user passwords. Leave blank to keep current password.
+                <p className={cn("text-sm text-gray-600 mt-1", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                  {t("Only administrators can update user passwords. Leave blank to keep current password.")}
                 </p>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4" dir={isRTL ? "rtl" : "ltr"}>
                 <div className="space-y-2">
-                  <Label htmlFor="password">New Password</Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Label htmlFor="password" dir={isRTL ? "rtl" : "ltr"}>{t("New Password")}</Label>
+                  <div className={cn("relative", isRTL && "flex-row-reverse")}>
+                    <Lock className={cn(
+                      "absolute top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400",
+                      isRTL ? "right-3" : "left-3"
+                    )} />
                     <Input
                       id="password"
                       type={showPassword ? "text" : "password"}
                       value={formData.password}
                       onChange={(e) => handleChange("password", e.target.value)}
-                      placeholder="Enter new password (optional)"
-                      className="pl-10 pr-10"
+                      placeholder={t("Enter new password (optional)")}
+                      className={cn(
+                        isRTL ? "pr-10 pl-10 text-right" : "pl-10 pr-10"
+                      )}
+                      dir="ltr"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      className={cn(
+                        "absolute top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600",
+                        isRTL ? "left-3" : "right-3"
+                      )}
                     >
                       {showPassword ? (
                         <EyeOff className="h-4 w-4" />
@@ -370,8 +435,8 @@ const EditStaffModal: React.FC<EditStaffModalProps> = ({
                       )}
                     </button>
                   </div>
-                  <p className="text-xs text-gray-500">
-                    Password must be at least 6 characters and contain uppercase, lowercase, and number.
+                  <p className={cn("text-xs text-gray-500", isRTL && "text-right")}>
+                    {t("Password must be at least 6 characters and contain uppercase, lowercase, and number.")}
                   </p>
                 </div>
               </CardContent>
@@ -379,23 +444,28 @@ const EditStaffModal: React.FC<EditStaffModalProps> = ({
           )}
 
           {/* Form Actions */}
-          <div className="flex justify-end space-x-4 pt-4">
-            <Button 
-              type="button" 
-              variant="outline" 
+          <div className={cn("flex justify-end pt-4 border-t gap-3", isRTL && "flex-row-reverse")} dir={isRTL ? "rtl" : "ltr"}>
+            <Button
+              type="button"
+              variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isLoading}
+              dir={isRTL ? "rtl" : "ltr"}
             >
-              Cancel
+              {t("Cancel")}
             </Button>
-            <Button type="submit" disabled={isLoading}>
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}
+            >
               {isLoading ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Updating...
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  {t("Updating...")}
                 </>
               ) : (
-                "Update Staff"
+                t("Update Staff")
               )}
             </Button>
           </div>

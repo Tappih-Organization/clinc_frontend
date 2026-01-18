@@ -72,6 +72,8 @@ import { toast } from "@/hooks/use-toast";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
 import { apiService, type Payroll, type PayrollStats } from "@/services/api";
+import { cn } from "@/lib/utils";
+import { formatDate as formatDateUtil } from "@/utils/dateUtils";
 
 const Payroll = () => {
   const { t } = useTranslation();
@@ -361,11 +363,7 @@ const Payroll = () => {
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return "-";
-    return new Date(dateString).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
+    return formatDateUtil(dateString);
   };
 
   const handleViewPayslip = async (payrollId: string) => {
@@ -1074,319 +1072,496 @@ const Payroll = () => {
 
       {/* Payroll Detail Modal */}
       <Dialog open={isModalOpen} onOpenChange={closeModal}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
-              {modalMode === 'view' ? t('Payroll Details') : t('Edit Payroll Details')}
-            </DialogTitle>
-            <DialogDescription>
-              {modalMode === 'view'
-                ? t('View complete payroll information and salary breakdown.')
-                : t('Edit payroll information. Only non-paid entries can be modified.')}
-            </DialogDescription>
+        <DialogContent
+          className={cn("max-w-5xl max-h-[95vh] overflow-y-auto z-50", isRTL && "rtl")}
+          dir={isRTL ? "rtl" : "ltr"}
+        >
+          <DialogHeader dir={isRTL ? "rtl" : "ltr"}>
+            <div className={cn(
+              "flex items-center gap-3",
+              isRTL ? "flex-row-reverse" : "flex-row"
+            )}>
+              <DollarSign
+                className={cn(
+                  "h-6 w-6 text-blue-600 flex-shrink-0",
+                  isRTL ? "order-2" : ""
+                )}
+              />
+              <div className="flex-1 min-w-0">
+                <DialogTitle
+                  className="text-xl font-semibold"
+                  dir="ltr"
+                  style={{ textAlign: "left", direction: "ltr" }}
+                >
+                  {modalMode === 'view' ? t('Payroll Details') : t('Edit Payroll Details')}
+                </DialogTitle>
+                <DialogDescription
+                  className="text-sm text-muted-foreground mt-1"
+                  dir="ltr"
+                  style={{ textAlign: "left", direction: "ltr" }}
+                >
+                  {modalMode === 'view'
+                    ? t('View complete payroll information and salary breakdown.')
+                    : t('Edit payroll information. Only non-paid entries can be modified.')}
+                </DialogDescription>
+              </div>
+            </div>
           </DialogHeader>
 
           {selectedPayroll && (
-            <div className="space-y-6">
-              {/* Employee Information */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold flex items-center">
-                  <Briefcase className="h-5 w-5 mr-2 text-blue-600" />
-                  {t('Employee Information')}
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600">{t('Name')}</Label>
-                    <p className="text-sm font-semibold">
-                      {getEmployeeDisplay(selectedPayroll.employee_id)}
-                    </p>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600">{t('Email')}</Label>
-                    <p className="text-sm">
-                      {getEmployeeEmail(selectedPayroll.employee_id)}
-                    </p>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600">{t('Role')}</Label>
-                    <p className="text-sm">
-                      {getEmployeeRole(selectedPayroll.employee_id)}
-                    </p>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600">{t('Employee ID')}</Label>
-                    <p className="text-sm">
-                      {typeof selectedPayroll.employee_id === 'string' 
-                        ? selectedPayroll.employee_id 
-                        : selectedPayroll.employee_id._id}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Pay Period Information */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold flex items-center">
-                  <Calendar className="h-5 w-5 mr-2 text-blue-600" />
-                  {t('Pay Period Information')}
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600">{t('Month & Year')}</Label>
-                    <p className="text-sm font-semibold">
-                      {selectedPayroll.month} {selectedPayroll.year}
-                    </p>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600">{t('Working Days')}</Label>
-                    {modalMode === 'edit' ? (
-                      <Input
-                        type="number"
-                        value={editForm.working_days ?? selectedPayroll.working_days}
-                        onChange={(e) => updateEditForm({
-                          working_days: parseIntegerValue(e.target.value)
-                        })}
-                        className="mt-1"
-                        min="0"
-                        max="31"
-                      />
-                    ) : (
-                      <p className="text-sm font-semibold">
-                        {selectedPayroll.working_days}/{selectedPayroll.total_days} {t('days')}
-                      </p>
-                    )}
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600">{t('Leaves Taken')}</Label>
-                    {modalMode === 'edit' ? (
-                      <Input
-                        type="number"
-                        value={editForm.leaves ?? selectedPayroll.leaves}
-                        onChange={(e) => updateEditForm({
-                          leaves: parseIntegerValue(e.target.value)
-                        })}
-                        className="mt-1"
-                        min="0"
-                      />
-                    ) : (
-                      <p className="text-sm font-semibold">{selectedPayroll.leaves} {t('days')}</p>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Salary Information */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold flex items-center">
-                  <DollarSign className="h-5 w-5 mr-2 text-green-600" />
-                  {t('Salary Breakdown')}
-                </h3>
-                
-                {/* Base Salary */}
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label className="text-sm font-medium text-gray-600">Base Salary</Label>
-                      {modalMode === 'edit' ? (
-                        <Input
-                          type="number"
-                          value={editForm.base_salary ?? selectedPayroll.base_salary}
-                          onChange={(e) => updateEditForm({
-                            base_salary: parseNumericValue(e.target.value)
-                          })}
-                          className="mt-1"
-                          min="0"
-                          step="0.01"
-                        />
-                      ) : (
-                        <p className="text-lg font-bold text-gray-900">
-                          <CurrencyDisplay amount={selectedPayroll.base_salary} variant="large" />
-                        </p>
-                      )}
-                    </div>
-                    <div>
-                      <Label className="text-sm font-medium text-gray-600">{t('Status')}</Label>
-                      <div className={`flex items-center space-x-2 mt-1 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                        {getStatusIcon(selectedPayroll.status)}
-                        <Badge className={getStatusColor(selectedPayroll.status)}>
-                          {selectedPayroll.status}
-                        </Badge>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Additions */}
-                <div className="p-4 bg-green-50 rounded-lg">
-                  <h4 className="font-semibold text-green-800 mb-3">{t('Additions')}</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <Label className="text-sm font-medium text-gray-600">{t('Overtime')}</Label>
-                      {modalMode === 'edit' ? (
-                        <Input
-                          type="number"
-                          value={editForm.overtime ?? selectedPayroll.overtime}
-                          onChange={(e) => updateEditForm({
-                            overtime: parseNumericValue(e.target.value)
-                          })}
-                          className="mt-1"
-                          min="0"
-                          step="0.01"
-                        />
-                      ) : (
-                        <p className="text-sm font-semibold text-green-700">
-                          {formatCurrency(selectedPayroll.overtime)}
-                        </p>
-                      )}
-                    </div>
-                    <div>
-                      <Label className="text-sm font-medium text-gray-600">{t('Bonus')}</Label>
-                      {modalMode === 'edit' ? (
-                        <Input
-                          type="number"
-                          value={editForm.bonus ?? selectedPayroll.bonus}
-                          onChange={(e) => updateEditForm({
-                            bonus: parseNumericValue(e.target.value)
-                          })}
-                          className="mt-1"
-                          min="0"
-                          step="0.01"
-                        />
-                      ) : (
-                        <p className="text-sm font-semibold text-green-700">
-                          {formatCurrency(selectedPayroll.bonus)}
-                        </p>
-                      )}
-                    </div>
-                    <div>
-                      <Label className="text-sm font-medium text-gray-600">{t('Allowances')}</Label>
-                      {modalMode === 'edit' ? (
-                        <Input
-                          type="number"
-                          value={editForm.allowances ?? selectedPayroll.allowances}
-                          onChange={(e) => updateEditForm({
-                            allowances: parseNumericValue(e.target.value)
-                          })}
-                          className="mt-1"
-                          min="0"
-                          step="0.01"
-                        />
-                      ) : (
-                        <p className="text-sm font-semibold text-green-700">
-                          {formatCurrency(selectedPayroll.allowances)}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Deductions */}
-                <div className="p-4 bg-red-50 rounded-lg">
-                  <h4 className="font-semibold text-red-800 mb-3">{t('Deductions')}</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label className="text-sm font-medium text-gray-600">{t('Tax')}</Label>
-                      {modalMode === 'edit' ? (
-                        <Input
-                          type="number"
-                          value={editForm.tax ?? selectedPayroll.tax}
-                          onChange={(e) => updateEditForm({
-                            tax: parseNumericValue(e.target.value)
-                          })}
-                          className="mt-1"
-                          min="0"
-                          step="0.01"
-                        />
-                      ) : (
-                        <p className="text-sm font-semibold text-red-700">
-                          {formatCurrency(selectedPayroll.tax)}
-                        </p>
-                      )}
-                    </div>
-                    <div>
-                      <Label className="text-sm font-medium text-gray-600">{t('Other Deductions')}</Label>
-                      {modalMode === 'edit' ? (
-                        <Input
-                          type="number"
-                          value={editForm.deductions ?? selectedPayroll.deductions}
-                          onChange={(e) => updateEditForm({
-                            deductions: parseNumericValue(e.target.value)
-                          })}
-                          className="mt-1"
-                          min="0"
-                          step="0.01"
-                        />
-                      ) : (
-                        <p className="text-sm font-semibold text-red-700">
-                          {formatCurrency(selectedPayroll.deductions)}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Net Salary */}
-                <div className="p-4 bg-blue-50 rounded-lg">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label className="text-sm font-medium text-gray-600">
-                        {t('Net Salary')}
-                        {modalMode === 'edit' && (
-                          <span className="ml-2 text-xs text-blue-600 font-normal">
-                            <Calculator className="inline h-3 w-3 mr-1" />
-                            {t('Auto-calculated')}
+            <div className="space-y-6" dir={isRTL ? "rtl" : "ltr"}>
+              {/* Standardized Info Row Component */}
+              {(() => {
+                const InfoRow: React.FC<{
+                  label: string;
+                  value: React.ReactNode;
+                  valueDir?: "ltr" | "rtl";
+                  icon?: React.ReactNode;
+                  className?: string;
+                }> = ({ label, value, valueDir, icon, className = "" }) => {
+                  const finalValueDir = valueDir || (isRTL ? "rtl" : "ltr");
+                  const isLTRContent = finalValueDir === "ltr";
+                  return (
+                    <div
+                      className={cn("space-y-1.5", className)}
+                      dir={isRTL ? "rtl" : "ltr"}
+                      style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                    >
+                      <label
+                        className={cn(
+                          "text-sm font-medium text-gray-500 block leading-tight",
+                          isRTL ? "text-right" : "text-left"
+                        )}
+                        dir={isRTL ? "rtl" : "ltr"}
+                        style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                      >
+                        {label}
+                      </label>
+                      <div
+                        className={cn(
+                          "flex items-baseline min-h-[1.5rem]",
+                          isRTL ? "flex-row-reverse justify-end" : "justify-start",
+                          icon && "gap-2"
+                        )}
+                        style={isRTL && !isLTRContent ? { justifyContent: "flex-end" } : {}}
+                      >
+                        {icon && (
+                          <span className={cn("flex-shrink-0 self-center", isRTL && "order-2")}>
+                            {icon}
                           </span>
                         )}
-                      </Label>
-                      <p className="text-2xl font-bold text-blue-700">
-                        <CurrencyDisplay 
-                          amount={modalMode === 'edit' 
-                            ? (editForm.net_salary ?? selectedPayroll.net_salary) 
-                            : selectedPayroll.net_salary
-                          } 
-                          variant="large" 
-                        />
-                      </p>
-                    </div>
-                    {selectedPayroll.pay_date && (
-                      <div className="text-right">
-                        <Label className="text-sm font-medium text-gray-600">{t('Pay Date')}</Label>
-                        <p className="text-sm font-semibold">{formatDate(selectedPayroll.pay_date)}</p>
+                        <div
+                          className={cn(
+                            "text-base leading-normal break-words",
+                            isLTRContent ? "text-left" : isRTL ? "text-right" : "text-left"
+                          )}
+                          dir={finalValueDir}
+                          style={
+                            isLTRContent
+                              ? { textAlign: "left", direction: "ltr" }
+                              : isRTL
+                                ? { textAlign: "right", direction: "rtl" }
+                                : { textAlign: "left", direction: "ltr" }
+                          }
+                        >
+                          {value}
+                        </div>
                       </div>
-                    )}
-                  </div>
-                </div>
-              </div>
+                    </div>
+                  );
+                };
 
-              {/* Timestamps */}
-              <div className="p-4 bg-gray-50 rounded-lg">
-                <h4 className="font-semibold text-gray-800 mb-3">{t('Record Information')}</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600">{t('Created At')}</Label>
-                    <p className="text-sm">
-                      {new Date(selectedPayroll.created_at).toLocaleString()}
-                    </p>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600">{t('Last Updated')}</Label>
-                    <p className="text-sm">
-                      {new Date(selectedPayroll.updated_at).toLocaleString()}
-                    </p>
-                  </div>
-                </div>
-              </div>
+                return (
+                  <>
+                    {/* Basic Information */}
+                    <Card dir={isRTL ? "rtl" : "ltr"}>
+                      <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+                        <CardTitle
+                          className={cn("flex items-center text-lg", isRTL && "flex-row-reverse")}
+                          dir={isRTL ? "rtl" : "ltr"}
+                          style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                        >
+                          <Info className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                          <span className={cn(isRTL && "text-right")}>{t("Basic Information")}</span>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent dir={isRTL ? "rtl" : "ltr"}>
+                        <div
+                          className={cn(
+                            "grid grid-cols-1 md:grid-cols-2 gap-6",
+                            isRTL && "text-right"
+                          )}
+                          style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                        >
+                          <InfoRow
+                            label={t("Status")}
+                            value={
+                              <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                                {getStatusIcon(selectedPayroll.status)}
+                                <Badge
+                                  className={cn(getStatusColor(selectedPayroll.status))}
+                                  dir="ltr"
+                                  style={{ textAlign: "left", direction: "ltr" }}
+                                >
+                                  {selectedPayroll.status}
+                                </Badge>
+                              </div>
+                            }
+                          />
+                          <InfoRow
+                            label={t("Month & Year")}
+                            value={`${selectedPayroll.month} ${selectedPayroll.year}`}
+                            icon={<Calendar className="h-4 w-4 text-gray-500" />}
+                          />
+                          <InfoRow
+                            label={t("Working Days")}
+                            value={
+                              modalMode === 'edit' ? (
+                                <Input
+                                  type="number"
+                                  value={editForm.working_days ?? selectedPayroll.working_days}
+                                  onChange={(e) => updateEditForm({
+                                    working_days: parseIntegerValue(e.target.value)
+                                  })}
+                                  className="w-full"
+                                  min="0"
+                                  max="31"
+                                />
+                              ) : (
+                                `${selectedPayroll.working_days}/${selectedPayroll.total_days} ${t('days')}`
+                              )
+                            }
+                          />
+                          <InfoRow
+                            label={t("Leaves Taken")}
+                            value={
+                              modalMode === 'edit' ? (
+                                <Input
+                                  type="number"
+                                  value={editForm.leaves ?? selectedPayroll.leaves}
+                                  onChange={(e) => updateEditForm({
+                                    leaves: parseIntegerValue(e.target.value)
+                                  })}
+                                  className="w-full"
+                                  min="0"
+                                />
+                              ) : (
+                                `${selectedPayroll.leaves} ${t('days')}`
+                              )
+                            }
+                          />
+                          {selectedPayroll.pay_date && (
+                            <InfoRow
+                              label={t("Pay Date")}
+                              value={formatDate(selectedPayroll.pay_date)}
+                              icon={<Calendar className="h-4 w-4 text-gray-500" />}
+                            />
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Employee Information */}
+                    <Card dir={isRTL ? "rtl" : "ltr"}>
+                      <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+                        <CardTitle
+                          className={cn("flex items-center text-lg", isRTL && "flex-row-reverse")}
+                          dir={isRTL ? "rtl" : "ltr"}
+                          style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                        >
+                          <Briefcase className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                          <span className={cn(isRTL && "text-right")}>{t("Employee Information")}</span>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent dir={isRTL ? "rtl" : "ltr"}>
+                        <div
+                          className={cn(
+                            "grid grid-cols-1 md:grid-cols-2 gap-6",
+                            isRTL && "text-right"
+                          )}
+                          style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                        >
+                          <InfoRow
+                            label={t("Name")}
+                            value={getEmployeeDisplay(selectedPayroll.employee_id)}
+                            className="text-lg font-semibold"
+                            icon={<User className="h-4 w-4 text-gray-500" />}
+                          />
+                          <InfoRow
+                            label={t("Email")}
+                            value={getEmployeeEmail(selectedPayroll.employee_id)}
+                            valueDir="ltr"
+                            icon={<Mail className="h-4 w-4 text-gray-500" />}
+                          />
+                          <InfoRow
+                            label={t("Role")}
+                            value={getEmployeeRole(selectedPayroll.employee_id)}
+                          />
+                          <InfoRow
+                            label={t("Employee ID")}
+                            value={
+                              typeof selectedPayroll.employee_id === 'string'
+                                ? selectedPayroll.employee_id
+                                : selectedPayroll.employee_id._id
+                            }
+                            valueDir="ltr"
+                          />
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Salary Breakdown */}
+                    <Card dir={isRTL ? "rtl" : "ltr"}>
+                      <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+                        <CardTitle
+                          className={cn("flex items-center text-lg", isRTL && "flex-row-reverse")}
+                          dir={isRTL ? "rtl" : "ltr"}
+                          style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                        >
+                          <DollarSign className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                          <span className={cn(isRTL && "text-right")}>{t("Salary Breakdown")}</span>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent dir={isRTL ? "rtl" : "ltr"}>
+                        <div className="space-y-4" dir={isRTL ? "rtl" : "ltr"}>
+                          {/* Base Salary */}
+                          <div className={cn("p-4 bg-gray-50 rounded-lg", isRTL && "text-right")}>
+                            <InfoRow
+                              label={t("Base Salary")}
+                              value={
+                                modalMode === 'edit' ? (
+                                  <Input
+                                    type="number"
+                                    value={editForm.base_salary ?? selectedPayroll.base_salary}
+                                    onChange={(e) => updateEditForm({
+                                      base_salary: parseNumericValue(e.target.value)
+                                    })}
+                                    className="w-full"
+                                    min="0"
+                                    step="0.01"
+                                  />
+                                ) : (
+                                  <CurrencyDisplay amount={selectedPayroll.base_salary} variant="large" />
+                                )
+                              }
+                            />
+                          </div>
+
+                          {/* Additions */}
+                          <div className={cn("p-4 bg-green-50 rounded-lg", isRTL && "text-right")}>
+                            <h4 className={cn("font-semibold text-green-800 mb-3", isRTL && "text-right")}>
+                              {t('Additions')}
+                            </h4>
+                            <div className={cn(
+                              "grid grid-cols-1 md:grid-cols-3 gap-4",
+                              isRTL && "text-right"
+                            )}>
+                              <InfoRow
+                                label={t("Overtime")}
+                                value={
+                                  modalMode === 'edit' ? (
+                                    <Input
+                                      type="number"
+                                      value={editForm.overtime ?? selectedPayroll.overtime}
+                                      onChange={(e) => updateEditForm({
+                                        overtime: parseNumericValue(e.target.value)
+                                      })}
+                                      className="w-full"
+                                      min="0"
+                                      step="0.01"
+                                    />
+                                  ) : (
+                                    <span className="text-green-700 font-semibold">
+                                      {formatCurrency(selectedPayroll.overtime)}
+                                    </span>
+                                  )
+                                }
+                              />
+                              <InfoRow
+                                label={t("Bonus")}
+                                value={
+                                  modalMode === 'edit' ? (
+                                    <Input
+                                      type="number"
+                                      value={editForm.bonus ?? selectedPayroll.bonus}
+                                      onChange={(e) => updateEditForm({
+                                        bonus: parseNumericValue(e.target.value)
+                                      })}
+                                      className="w-full"
+                                      min="0"
+                                      step="0.01"
+                                    />
+                                  ) : (
+                                    <span className="text-green-700 font-semibold">
+                                      {formatCurrency(selectedPayroll.bonus)}
+                                    </span>
+                                  )
+                                }
+                              />
+                              <InfoRow
+                                label={t("Allowances")}
+                                value={
+                                  modalMode === 'edit' ? (
+                                    <Input
+                                      type="number"
+                                      value={editForm.allowances ?? selectedPayroll.allowances}
+                                      onChange={(e) => updateEditForm({
+                                        allowances: parseNumericValue(e.target.value)
+                                      })}
+                                      className="w-full"
+                                      min="0"
+                                      step="0.01"
+                                    />
+                                  ) : (
+                                    <span className="text-green-700 font-semibold">
+                                      {formatCurrency(selectedPayroll.allowances)}
+                                    </span>
+                                  )
+                                }
+                              />
+                            </div>
+                          </div>
+
+                          {/* Deductions */}
+                          <div className={cn("p-4 bg-red-50 rounded-lg", isRTL && "text-right")}>
+                            <h4 className={cn("font-semibold text-red-800 mb-3", isRTL && "text-right")}>
+                              {t('Deductions')}
+                            </h4>
+                            <div className={cn(
+                              "grid grid-cols-1 md:grid-cols-2 gap-4",
+                              isRTL && "text-right"
+                            )}>
+                              <InfoRow
+                                label={t("Tax")}
+                                value={
+                                  modalMode === 'edit' ? (
+                                    <Input
+                                      type="number"
+                                      value={editForm.tax ?? selectedPayroll.tax}
+                                      onChange={(e) => updateEditForm({
+                                        tax: parseNumericValue(e.target.value)
+                                      })}
+                                      className="w-full"
+                                      min="0"
+                                      step="0.01"
+                                    />
+                                  ) : (
+                                    <span className="text-red-700 font-semibold">
+                                      {formatCurrency(selectedPayroll.tax)}
+                                    </span>
+                                  )
+                                }
+                              />
+                              <InfoRow
+                                label={t("Other Deductions")}
+                                value={
+                                  modalMode === 'edit' ? (
+                                    <Input
+                                      type="number"
+                                      value={editForm.deductions ?? selectedPayroll.deductions}
+                                      onChange={(e) => updateEditForm({
+                                        deductions: parseNumericValue(e.target.value)
+                                      })}
+                                      className="w-full"
+                                      min="0"
+                                      step="0.01"
+                                    />
+                                  ) : (
+                                    <span className="text-red-700 font-semibold">
+                                      {formatCurrency(selectedPayroll.deductions)}
+                                    </span>
+                                  )
+                                }
+                              />
+                            </div>
+                          </div>
+
+                          {/* Net Salary */}
+                          <div className={cn("p-4 bg-blue-50 rounded-lg", isRTL && "text-right")}>
+                            <InfoRow
+                              label={
+                                <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                                  <span>{t('Net Salary')}</span>
+                                  {modalMode === 'edit' && (
+                                    <span className="text-xs text-blue-600 font-normal">
+                                      <Calculator className="inline h-3 w-3" />
+                                      {t('Auto-calculated')}
+                                    </span>
+                                  )}
+                                </div>
+                              }
+                              value={
+                                <CurrencyDisplay
+                                  amount={modalMode === 'edit'
+                                    ? (editForm.net_salary ?? selectedPayroll.net_salary)
+                                    : selectedPayroll.net_salary
+                                  }
+                                  variant="large"
+                                />
+                              }
+                              className="text-2xl font-bold text-blue-700"
+                            />
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Record Information */}
+                    <Card dir={isRTL ? "rtl" : "ltr"}>
+                      <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+                        <CardTitle
+                          className={cn("flex items-center text-lg", isRTL && "flex-row-reverse")}
+                          dir={isRTL ? "rtl" : "ltr"}
+                          style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                        >
+                          <FileText className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                          <span className={cn(isRTL && "text-right")}>{t("Record Information")}</span>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent dir={isRTL ? "rtl" : "ltr"}>
+                        <div
+                          className={cn(
+                            "grid grid-cols-1 md:grid-cols-2 gap-6",
+                            isRTL && "text-right"
+                          )}
+                          style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                        >
+                          <InfoRow
+                            label={t("Created At")}
+                            value={formatDateUtil(selectedPayroll.created_at)}
+                            icon={<Calendar className="h-4 w-4 text-gray-500" />}
+                          />
+                          <InfoRow
+                            label={t("Last Updated")}
+                            value={formatDateUtil(selectedPayroll.updated_at)}
+                            icon={<Calendar className="h-4 w-4 text-gray-500" />}
+                          />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </>
+                );
+              })()}
             </div>
           )}
 
-          <DialogFooter className="space-x-2">
-            <Button variant="outline" onClick={closeModal} disabled={isLoading}>
-              <X className="h-4 w-4 mr-2" />
+          <DialogFooter className={cn("space-x-2", isRTL && "flex-row-reverse")} dir={isRTL ? "rtl" : "ltr"}>
+            <Button
+              variant="outline"
+              onClick={closeModal}
+              disabled={isLoading}
+              className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}
+            >
+              <X className="h-4 w-4" />
               {modalMode === 'edit' ? t('Cancel') : t('Close')}
             </Button>
             {modalMode === 'edit' && (
-              <Button onClick={handleSavePayroll} disabled={isLoading}>
-                <Save className="h-4 w-4 mr-2" />
+              <Button
+                onClick={handleSavePayroll}
+                disabled={isLoading}
+                className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}
+              >
+                <Save className="h-4 w-4" />
                 {isLoading ? t('Saving...') : t('Save Changes')}
               </Button>
             )}

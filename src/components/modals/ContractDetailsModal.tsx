@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Calendar,
@@ -15,11 +17,16 @@ import {
   Clock,
   AlertTriangle,
   CheckCircle,
-  X,
   Bell,
+  Info,
+  Loader2,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { labVendorApi, ContractDetails } from "@/services/api/labVendorApi";
+import { useIsRTL } from "@/hooks/useIsRTL";
+import { cn } from "@/lib/utils";
+import { formatDate, formatTime } from "@/utils/dateUtils";
+import { useCurrency } from "@/contexts/CurrencyContext";
 
 interface ContractDetailsModalProps {
   vendorId: string | null;
@@ -34,6 +41,9 @@ const ContractDetailsModal: React.FC<ContractDetailsModalProps> = ({
   isOpen,
   onClose,
 }) => {
+  const { t } = useTranslation();
+  const isRTL = useIsRTL();
+  const { formatAmount } = useCurrency();
   const [contract, setContract] = useState<ContractDetails | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -81,14 +91,29 @@ const ContractDetailsModal: React.FC<ContractDetailsModalProps> = ({
     } catch (error) {
       console.error("Error fetching contract details:", error);
       toast({
-        title: "Error",
-        description: "Failed to load contract details. Showing sample data.",
+        title: t("Error"),
+        description: t("Failed to load contract details. Showing sample data."),
         variant: "destructive",
       });
       // Fallback to mock data
       setContract(mockContract);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "active":
+        return <CheckCircle className="h-4 w-4 text-green-600" />;
+      case "expired":
+        return <AlertTriangle className="h-4 w-4 text-red-600" />;
+      case "pending_renewal":
+        return <Clock className="h-4 w-4 text-orange-600" />;
+      case "terminated":
+        return <AlertTriangle className="h-4 w-4 text-gray-600" />;
+      default:
+        return <AlertTriangle className="h-4 w-4 text-gray-600" />;
     }
   };
 
@@ -107,58 +132,180 @@ const ContractDetailsModal: React.FC<ContractDetailsModalProps> = ({
     }
   };
 
-  const formatDate = (date: Date | string) => {
-    const dateObj = typeof date === 'string' ? new Date(date) : date;
-    return dateObj.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+  const getStatusLabel = (status: string) => {
+    const statusMap: Record<string, string> = {
+      "active": t("Active"),
+      "expired": t("Expired"),
+      "pending_renewal": t("Pending Renewal"),
+      "terminated": t("Terminated"),
+    };
+    return statusMap[status] || status.replace("_", " ").toUpperCase();
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(amount);
+  // Standardized Info Row Component for consistent RTL alignment
+  const InfoRow: React.FC<{
+    label: string;
+    value: React.ReactNode;
+    valueDir?: "ltr" | "rtl";
+    icon?: React.ReactNode;
+    className?: string;
+  }> = ({ label, value, valueDir, icon, className = "" }) => {
+    const finalValueDir = valueDir || (isRTL ? "rtl" : "ltr");
+    const isLTRContent = finalValueDir === "ltr";
+    return (
+      <div
+        className={cn("space-y-1.5", className)}
+        dir={isRTL ? "rtl" : "ltr"}
+        style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+      >
+        <label
+          className={cn(
+            "text-sm font-medium text-gray-500 block leading-tight",
+            isRTL ? "text-right" : "text-left"
+          )}
+          dir={isRTL ? "rtl" : "ltr"}
+          style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+        >
+          {label}
+        </label>
+        <div
+          className={cn(
+            "flex items-baseline min-h-[1.5rem]",
+            isRTL ? "flex-row-reverse justify-end" : "justify-start",
+            icon && "gap-2"
+          )}
+          style={isRTL && !isLTRContent ? { justifyContent: "flex-end" } : {}}
+        >
+          {icon && (
+            <span className={cn("flex-shrink-0 self-center", isRTL && "order-2")}>
+              {icon}
+            </span>
+          )}
+          <p
+            className={cn(
+              "text-base leading-normal break-words",
+              isLTRContent ? "text-left" : isRTL ? "text-right" : "text-left"
+            )}
+            dir={finalValueDir}
+            style={
+              isLTRContent
+                ? { textAlign: "left", direction: "ltr" }
+                : isRTL
+                  ? { textAlign: "right", direction: "rtl" }
+                  : { textAlign: "left", direction: "ltr" }
+            }
+          >
+            {value}
+          </p>
+        </div>
+      </div>
+    );
   };
 
   const daysUntilExpiry = contract ? Math.ceil((new Date(contract.endDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : 0;
   const isExpiringSoon = daysUntilExpiry <= 30 && daysUntilExpiry > 0;
   const isExpired = daysUntilExpiry <= 0;
 
+  if (isLoading) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent
+          className={cn("max-w-4xl max-h-[90vh]", isRTL && "rtl")}
+          dir={isRTL ? "rtl" : "ltr"}
+        >
+          <div className={cn("flex items-center justify-center h-64", isRTL && "flex-row-reverse")}>
+            <Loader2 className={cn("h-8 w-8 animate-spin", isRTL && "order-2")} />
+            <span
+              className={cn(isRTL ? "mr-2" : "ml-2")}
+              dir={isRTL ? "rtl" : "ltr"}
+              style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+            >
+              {t("Loading contract details...")}
+            </span>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  if (!contract) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent
+          className={cn("max-w-4xl max-h-[90vh]", isRTL && "rtl")}
+          dir={isRTL ? "rtl" : "ltr"}
+        >
+          <div className={cn("flex items-center justify-center h-64", isRTL && "flex-row-reverse")}>
+            <div className={cn("text-center", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+              <AlertTriangle className="h-8 w-8 text-red-500 mx-auto mb-2" />
+              <p className="text-red-600">{t("Contract not found")}</p>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <div className="flex items-center justify-between">
-            <DialogTitle className="text-2xl font-bold">
-              Contract Details - {vendorName || "Vendor"}
-            </DialogTitle>
-            <Button variant="ghost" size="sm" onClick={onClose}>
-              <X className="h-4 w-4" />
-            </Button>
+      <DialogContent
+        className={cn("max-w-5xl max-h-[95vh] overflow-y-auto z-50", isRTL && "rtl")}
+        dir={isRTL ? "rtl" : "ltr"}
+      >
+        <DialogHeader dir={isRTL ? "rtl" : "ltr"}>
+          <div
+            className={cn("flex items-start justify-between gap-4")}
+            style={isRTL ? { flexDirection: "row-reverse" } : { flexDirection: "row" }}
+          >
+            {/* Status Badge - First element, appears on LEFT in RTL */}
+            <div className={cn("flex items-center gap-2 flex-shrink-0", isRTL && "flex-row-reverse")}>
+              {getStatusIcon(contract.status)}
+              <Badge
+                className={cn(getStatusColor(contract.status), isRTL && "text-right")}
+                dir={isRTL ? "rtl" : "ltr"}
+                style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+              >
+                {getStatusLabel(contract.status)}
+              </Badge>
+            </div>
+            {/* Title and Description - Second element, appears on RIGHT in RTL */}
+            <div className={cn("flex items-center gap-3 flex-1", isRTL && "flex-row-reverse justify-end")}>
+              <FileText
+                className={cn("h-6 w-6 text-blue-600 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")}
+              />
+              <div className={cn(isRTL && "text-right", "flex-1")}>
+                <DialogTitle
+                  className={cn("text-xl", isRTL && "text-right")}
+                  dir={isRTL ? "rtl" : "ltr"}
+                  style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                >
+                  {t("Contract Details")} - {vendorName || t("Vendor")}
+                </DialogTitle>
+                <DialogDescription
+                  className={cn(isRTL && "text-right")}
+                  dir={isRTL ? "rtl" : "ltr"}
+                  style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                >
+                  {t("Detailed view of contract information")}
+                </DialogDescription>
+              </div>
+            </div>
           </div>
         </DialogHeader>
 
-        {isLoading ? (
-          <div className="flex items-center justify-center py-8">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading contract details...</p>
-            </div>
-          </div>
-        ) : contract ? (
-          <div className="space-y-6">
+        {contract ? (
+          <div className="space-y-6" dir={isRTL ? "rtl" : "ltr"}>
             {/* Status Alert */}
             {isExpired && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                <div className="flex items-center">
-                  <AlertTriangle className="h-5 w-5 text-red-600 mr-2" />
-                  <div>
-                    <h3 className="text-sm font-medium text-red-800">Contract Expired</h3>
-                    <p className="text-sm text-red-700">
-                      This contract expired {Math.abs(daysUntilExpiry)} days ago. Please renew or terminate.
+              <div className={cn("bg-red-50 border border-red-200 rounded-lg p-4", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                <div className={cn("flex items-center", isRTL && "flex-row-reverse")}>
+                  <AlertTriangle className={cn("h-5 w-5 text-red-600 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                  <div className={cn(isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                    <h3 className={cn("text-sm font-medium text-red-800", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                      {t("Contract Expired")}
+                    </h3>
+                    <p className={cn("text-sm text-red-700", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                      {t("This contract expired {{days}} days ago. Please renew or terminate.", { days: Math.abs(daysUntilExpiry) })}
                     </p>
                   </div>
                 </div>
@@ -166,181 +313,340 @@ const ContractDetailsModal: React.FC<ContractDetailsModalProps> = ({
             )}
 
             {isExpiringSoon && (
-              <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-                <div className="flex items-center">
-                  <Bell className="h-5 w-5 text-orange-600 mr-2" />
-                  <div>
-                    <h3 className="text-sm font-medium text-orange-800">Contract Expiring Soon</h3>
-                    <p className="text-sm text-orange-700">
-                      This contract expires in {daysUntilExpiry} days. Consider renewal.
+              <div className={cn("bg-orange-50 border border-orange-200 rounded-lg p-4", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                <div className={cn("flex items-center", isRTL && "flex-row-reverse")}>
+                  <Bell className={cn("h-5 w-5 text-orange-600 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                  <div className={cn(isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                    <h3 className={cn("text-sm font-medium text-orange-800", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                      {t("Contract Expiring Soon")}
+                    </h3>
+                    <p className={cn("text-sm text-orange-700", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                      {t("This contract expires in {{days}} days. Consider renewal.", { days: daysUntilExpiry })}
                     </p>
                   </div>
                 </div>
               </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6" dir={isRTL ? "rtl" : "ltr"}>
               {/* Basic Information */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <FileText className="h-5 w-5 mr-2" />
-                    Contract Information
+              <Card dir={isRTL ? "rtl" : "ltr"}>
+                <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+                  <CardTitle
+                    className={cn("flex items-center text-lg", isRTL && "flex-row-reverse")}
+                    dir={isRTL ? "rtl" : "ltr"}
+                    style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                  >
+                    <Info className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                    <span className={cn(isRTL && "text-right")}>{t("Contract Information")}</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium text-gray-500">Contract Number</label>
-                    <p className="text-sm font-mono bg-gray-100 px-2 py-1 rounded">
-                      {contract.contractNumber}
-                    </p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-500">Status</label>
-                    <div className="mt-1">
-                      <Badge className={getStatusColor(contract.status)}>
-                        {contract.status.replace("_", " ").toUpperCase()}
-                      </Badge>
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-500">Auto Renewal</label>
-                    <div className="flex items-center space-x-2 mt-1">
-                      <CheckCircle className={`h-4 w-4 ${contract.autoRenewal ? 'text-green-600' : 'text-gray-400'}`} />
-                      <span className="text-sm">
-                        {contract.autoRenewal ? 'Enabled' : 'Disabled'}
-                      </span>
-                    </div>
+                <CardContent dir={isRTL ? "rtl" : "ltr"}>
+                  <div
+                    className={cn(
+                      "grid grid-cols-1 gap-6",
+                      isRTL && "text-right"
+                    )}
+                    style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                  >
+                    <InfoRow
+                      label={t("Contract Number")}
+                      value={
+                        <Badge variant="outline" className={cn(isRTL && "text-right")}>
+                          {contract.contractNumber}
+                        </Badge>
+                      }
+                      valueDir="ltr"
+                    />
+                    <InfoRow
+                      label={t("Status")}
+                      value={
+                        <Badge
+                          className={cn(getStatusColor(contract.status), isRTL && "text-right")}
+                          dir={isRTL ? "rtl" : "ltr"}
+                        >
+                          {getStatusLabel(contract.status)}
+                        </Badge>
+                      }
+                    />
+                    <InfoRow
+                      label={t("Auto Renewal")}
+                      value={
+                        <div className={cn("flex items-center", isRTL ? "space-x-reverse space-x-2 flex-row-reverse" : "space-x-2")}>
+                          <CheckCircle className={cn(`h-4 w-4 flex-shrink-0 ${contract.autoRenewal ? 'text-green-600' : 'text-gray-400'}`, isRTL && "order-2")} />
+                          <span className={cn("text-sm", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                            {contract.autoRenewal ? t("Enabled") : t("Disabled")}
+                          </span>
+                        </div>
+                      }
+                    />
                   </div>
                 </CardContent>
               </Card>
 
               {/* Contract Period */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Calendar className="h-5 w-5 mr-2" />
-                    Contract Period
+              <Card dir={isRTL ? "rtl" : "ltr"}>
+                <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+                  <CardTitle
+                    className={cn("flex items-center text-lg", isRTL && "flex-row-reverse")}
+                    dir={isRTL ? "rtl" : "ltr"}
+                    style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                  >
+                    <Calendar className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                    <span className={cn(isRTL && "text-right")}>{t("Contract Period")}</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium text-gray-500">Start Date</label>
-                    <p className="text-sm">{formatDate(contract.startDate)}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-500">End Date</label>
-                    <p className="text-sm">{formatDate(contract.endDate)}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-500">Days Remaining</label>
-                    <p className={`text-sm ${isExpired ? 'text-red-600' : isExpiringSoon ? 'text-orange-600' : 'text-gray-900'}`}>
-                      {isExpired ? `Expired ${Math.abs(daysUntilExpiry)} days ago` : `${daysUntilExpiry} days`}
-                    </p>
+                <CardContent dir={isRTL ? "rtl" : "ltr"}>
+                  <div
+                    className={cn(
+                      "grid grid-cols-1 gap-6",
+                      isRTL && "text-right"
+                    )}
+                    style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                  >
+                    <InfoRow
+                      label={t("Start Date")}
+                      value={formatDate(contract.startDate)}
+                      icon={<Calendar className="h-4 w-4 text-gray-500" />}
+                    />
+                    <InfoRow
+                      label={t("End Date")}
+                      value={formatDate(contract.endDate)}
+                      icon={<Calendar className="h-4 w-4 text-gray-500" />}
+                    />
+                    <InfoRow
+                      label={t("Days Remaining")}
+                      value={
+                        <span className={cn(`text-sm ${isExpired ? 'text-red-600' : isExpiringSoon ? 'text-orange-600' : 'text-gray-900'}`, isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                          {isExpired
+                            ? t("Expired {{days}} days ago", { days: Math.abs(daysUntilExpiry) })
+                            : `${daysUntilExpiry} ${t("days")}`}
+                        </span>
+                      }
+                    />
                   </div>
                 </CardContent>
               </Card>
             </div>
 
             {/* Pricing Information */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <DollarSign className="h-5 w-5 mr-2" />
-                    Pricing Structure
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6" dir={isRTL ? "rtl" : "ltr"}>
+              <Card dir={isRTL ? "rtl" : "ltr"}>
+                <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+                  <CardTitle
+                    className={cn("flex items-center text-lg", isRTL && "flex-row-reverse")}
+                    dir={isRTL ? "rtl" : "ltr"}
+                    style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                  >
+                    <DollarSign className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                    <span className={cn(isRTL && "text-right")}>{t("Pricing Structure")}</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium text-gray-500">Base Rate</label>
-                    <p className="text-lg font-semibold text-green-600">
-                      {formatCurrency(contract.pricing.baseRate)}
-                    </p>
+                <CardContent dir={isRTL ? "rtl" : "ltr"}>
+                  <div
+                    className={cn(
+                      "grid grid-cols-1 gap-6",
+                      isRTL && "text-right"
+                    )}
+                    style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                  >
+                    <InfoRow
+                      label={t("Base Rate")}
+                      value={formatAmount(contract.pricing.baseRate)}
+                      valueDir="ltr"
+                      icon={<DollarSign className="h-4 w-4 text-gray-500" />}
+                      className="text-lg font-semibold text-green-600"
+                    />
+                    <InfoRow
+                      label={t("Volume Discount")}
+                      value={`${contract.pricing.discountPercentage}%`}
+                      className="text-lg font-semibold text-blue-600"
+                    />
+                    {contract.pricing.minimumVolume && (
+                      <InfoRow
+                        label={t("Minimum Volume")}
+                        value={`${contract.pricing.minimumVolume} ${t("tests/month")}`}
+                      />
+                    )}
                   </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-500">Volume Discount</label>
-                    <p className="text-lg font-semibold text-blue-600">
-                      {contract.pricing.discountPercentage}%
-                    </p>
-                  </div>
-                  {contract.pricing.minimumVolume && (
-                    <div>
-                      <label className="text-sm font-medium text-gray-500">Minimum Volume</label>
-                      <p className="text-sm">{contract.pricing.minimumVolume} tests/month</p>
-                    </div>
-                  )}
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Clock className="h-5 w-5 mr-2" />
-                    Service Levels
+              <Card dir={isRTL ? "rtl" : "ltr"}>
+                <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+                  <CardTitle
+                    className={cn("flex items-center text-lg", isRTL && "flex-row-reverse")}
+                    dir={isRTL ? "rtl" : "ltr"}
+                    style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                  >
+                    <Clock className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                    <span className={cn(isRTL && "text-right")}>{t("Service Levels")}</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium text-gray-500">Turnaround Time</label>
-                    <p className="text-sm">{contract.serviceLevels.turnaroundTime}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-500">Accuracy Guarantee</label>
-                    <p className="text-lg font-semibold text-green-600">
-                      {contract.serviceLevels.accuracyGuarantee}%
-                    </p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-500">Availability</label>
-                    <p className="text-sm">{contract.serviceLevels.availabilityHours}</p>
+                <CardContent dir={isRTL ? "rtl" : "ltr"}>
+                  <div
+                    className={cn(
+                      "grid grid-cols-1 gap-6",
+                      isRTL && "text-right"
+                    )}
+                    style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                  >
+                    <InfoRow
+                      label={t("Turnaround Time")}
+                      value={contract.serviceLevels.turnaroundTime}
+                      icon={<Clock className="h-4 w-4 text-gray-500" />}
+                    />
+                    <InfoRow
+                      label={t("Accuracy Guarantee")}
+                      value={`${contract.serviceLevels.accuracyGuarantee}%`}
+                      className="text-lg font-semibold text-green-600"
+                    />
+                    <InfoRow
+                      label={t("Availability")}
+                      value={contract.serviceLevels.availabilityHours}
+                    />
                   </div>
                 </CardContent>
               </Card>
             </div>
 
             {/* Contract Terms */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Contract Terms</CardTitle>
+            <Card dir={isRTL ? "rtl" : "ltr"}>
+              <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+                <CardTitle
+                  className={cn("flex items-center text-lg", isRTL && "flex-row-reverse")}
+                  dir={isRTL ? "rtl" : "ltr"}
+                  style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                >
+                  <FileText className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                  <span className={cn(isRTL && "text-right")}>{t("Contract Terms")}</span>
+                </CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-sm text-gray-700 whitespace-pre-wrap">
-                  {contract.terms}
-                </p>
+              <CardContent dir={isRTL ? "rtl" : "ltr"}>
+                <div className={cn(isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                  <p
+                    className={cn("text-sm text-gray-700 whitespace-pre-wrap", isRTL && "text-right")}
+                    dir={isRTL ? "rtl" : "ltr"}
+                    style={isRTL ? { textAlign: "right", direction: "rtl" } : { textAlign: "left", direction: "ltr" }}
+                  >
+                    {contract.terms}
+                  </p>
+                </div>
               </CardContent>
             </Card>
 
             {/* Payment Terms */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Payment Terms</CardTitle>
+            <Card dir={isRTL ? "rtl" : "ltr"}>
+              <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+                <CardTitle
+                  className={cn("flex items-center text-lg", isRTL && "flex-row-reverse")}
+                  dir={isRTL ? "rtl" : "ltr"}
+                  style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                >
+                  <DollarSign className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                  <span className={cn(isRTL && "text-right")}>{t("Payment Terms")}</span>
+                </CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-sm text-gray-700 whitespace-pre-wrap">
-                  {contract.paymentTerms}
-                </p>
+              <CardContent dir={isRTL ? "rtl" : "ltr"}>
+                <div className={cn(isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                  <p
+                    className={cn("text-sm text-gray-700 whitespace-pre-wrap", isRTL && "text-right")}
+                    dir={isRTL ? "rtl" : "ltr"}
+                    style={isRTL ? { textAlign: "right", direction: "rtl" } : { textAlign: "left", direction: "ltr" }}
+                  >
+                    {contract.paymentTerms}
+                  </p>
+                </div>
               </CardContent>
             </Card>
 
             {/* Penalties */}
             {contract.pricing.penalties && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <AlertTriangle className="h-5 w-5 mr-2" />
-                    Penalties & SLA
+              <Card dir={isRTL ? "rtl" : "ltr"}>
+                <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+                  <CardTitle
+                    className={cn("flex items-center text-lg", isRTL && "flex-row-reverse")}
+                    dir={isRTL ? "rtl" : "ltr"}
+                    style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                  >
+                    <AlertTriangle className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                    <span className={cn(isRTL && "text-right")}>{t("Penalties & SLA")}</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-gray-700 whitespace-pre-wrap">
-                    {contract.pricing.penalties}
-                  </p>
+                <CardContent dir={isRTL ? "rtl" : "ltr"}>
+                  <div className={cn(isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                    <p
+                      className={cn("text-sm text-gray-700 whitespace-pre-wrap", isRTL && "text-right")}
+                      dir={isRTL ? "rtl" : "ltr"}
+                      style={isRTL ? { textAlign: "right", direction: "rtl" } : { textAlign: "left", direction: "ltr" }}
+                    >
+                      {contract.pricing.penalties}
+                    </p>
+                  </div>
                 </CardContent>
               </Card>
             )}
+
+            {/* Timestamps */}
+            <Card dir={isRTL ? "rtl" : "ltr"}>
+              <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+                <CardTitle
+                  className={cn("flex items-center text-lg", isRTL && "flex-row-reverse")}
+                  dir={isRTL ? "rtl" : "ltr"}
+                  style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                >
+                  <Calendar className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                  <span className={cn(isRTL && "text-right")}>{t("Timestamps")}</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent dir={isRTL ? "rtl" : "ltr"}>
+                <div
+                  className={cn(
+                    "grid grid-cols-1 md:grid-cols-2 gap-6",
+                    isRTL && "text-right"
+                  )}
+                  style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                >
+                  <InfoRow
+                    label={t("Created")}
+                    value={
+                      contract.createdAt
+                        ? `${formatDate(contract.createdAt)} ${t("at")} ${formatTime(contract.createdAt)}`
+                        : "-"
+                    }
+                    icon={<Calendar className="h-4 w-4 text-gray-500" />}
+                  />
+                  <InfoRow
+                    label={t("Last Updated")}
+                    value={
+                      contract.updatedAt
+                        ? `${formatDate(contract.updatedAt)} ${t("at")} ${formatTime(contract.updatedAt)}`
+                        : "-"
+                    }
+                    icon={<Calendar className="h-4 w-4 text-gray-500" />}
+                  />
+                </div>
+              </CardContent>
+            </Card>
           </div>
         ) : null}
+
+        {/* Action Buttons */}
+        <div
+          className={cn("flex justify-end items-center pt-6 border-t", isRTL && "flex-row-reverse")}
+          dir={isRTL ? "rtl" : "ltr"}
+        >
+          <div className={cn("flex gap-3", isRTL && "flex-row-reverse")}>
+            <Button
+              variant="outline"
+              onClick={onClose}
+              dir={isRTL ? "rtl" : "ltr"}
+              style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+            >
+              {t("Close")}
+            </Button>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );

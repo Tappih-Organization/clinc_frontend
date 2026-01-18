@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,7 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   DollarSign,
   Briefcase,
@@ -22,11 +23,17 @@ import {
   CheckCircle,
   Clock,
   FileText,
+  Info,
+  User,
+  Mail,
+  Loader2,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { CurrencyDisplay } from "@/components/ui/CurrencyDisplay";
 import { apiService, type Payroll, type User } from "@/services/api";
+import { useIsRTL } from "@/hooks/useIsRTL";
+import { cn } from "@/lib/utils";
 
 interface UpdateSalaryModalProps {
   open: boolean;
@@ -41,6 +48,8 @@ const UpdateSalaryModal: React.FC<UpdateSalaryModalProps> = ({
   employeeId,
   onUpdate,
 }) => {
+  const { t } = useTranslation();
+  const isRTL = useIsRTL();
   const [employeeData, setEmployeeData] = useState<User | null>(null);
   const [payrollData, setPayrollData] = useState<Payroll | null>(null);
   const [editForm, setEditForm] = useState<Partial<Payroll>>({});
@@ -167,8 +176,8 @@ const UpdateSalaryModal: React.FC<UpdateSalaryModalProps> = ({
     } catch (error: any) {
       console.error('Error loading employee/payroll data:', error);
       toast({
-        title: "Error",
-        description: "Failed to load employee data. Please try again.",
+        title: t("Error"),
+        description: t("Failed to load employee data. Please try again."),
         variant: "destructive",
       });
     } finally {
@@ -192,9 +201,9 @@ const UpdateSalaryModal: React.FC<UpdateSalaryModalProps> = ({
 
   const getEmployeeRole = (employee: string | User) => {
     if (typeof employee === 'string') {
-      return 'Staff Member';
+      return t('Staff Member');
     }
-    return employee.role || 'Staff Member';
+    return employee.role || t('Staff Member');
   };
 
   const getStatusIcon = (status: string) => {
@@ -245,15 +254,15 @@ const UpdateSalaryModal: React.FC<UpdateSalaryModalProps> = ({
         // Update existing payroll
         updatedPayroll = await apiService.updatePayroll(payrollData._id, payload);
         toast({
-          title: "Success",
-          description: "Payroll details updated successfully.",
+          title: t("Success"),
+          description: t("Payroll details updated successfully."),
         });
       } else {
         // Create new payroll
         updatedPayroll = await apiService.createPayroll(payload as Omit<Payroll, '_id' | 'created_at' | 'updated_at'>);
         toast({
-          title: "Success",
-          description: "New payroll record created successfully.",
+          title: t("Success"),
+          description: t("New payroll record created successfully."),
         });
       }
 
@@ -269,20 +278,20 @@ const UpdateSalaryModal: React.FC<UpdateSalaryModalProps> = ({
         ).join(', ');
         
         toast({
-          title: "Validation Error",
-          description: `Please check the following fields: ${errorMessages}`,
+          title: t("Validation Error"),
+          description: `${t("Please check the following fields")}: ${errorMessages}`,
           variant: "destructive",
         });
       } else if (error.response?.data?.message) {
         toast({
-          title: "Error",
+          title: t("Error"),
           description: error.response.data.message,
           variant: "destructive",
         });
       } else {
         toast({
-          title: "Error",
-          description: "Failed to save payroll details. Please try again.",
+          title: t("Error"),
+          description: t("Failed to save payroll details. Please try again."),
           variant: "destructive",
         });
       }
@@ -302,296 +311,422 @@ const UpdateSalaryModal: React.FC<UpdateSalaryModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={closeModal}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>
-            Update Salary & Payroll Details
-          </DialogTitle>
-          <DialogDescription>
-            {payrollData 
-              ? 'Edit payroll information. Only non-paid entries can be modified.'
-              : 'Create new payroll record for this employee.'}
-          </DialogDescription>
+      <DialogContent
+        className={cn("max-w-5xl max-h-[95vh] overflow-y-auto z-50", isRTL && "rtl")}
+        dir={isRTL ? "rtl" : "ltr"}
+      >
+        <DialogHeader dir={isRTL ? "rtl" : "ltr"}>
+          <div className={cn(
+            "flex items-center gap-3",
+            isRTL ? "flex-row-reverse" : "flex-row"
+          )}>
+            <DollarSign
+              className={cn(
+                "h-6 w-6 text-blue-600 flex-shrink-0",
+                isRTL ? "order-2" : ""
+              )}
+            />
+            <div className="flex-1 min-w-0">
+              <DialogTitle
+                className="text-xl font-semibold"
+                dir="ltr"
+                style={{ textAlign: "left", direction: "ltr" }}
+              >
+                {t("Update Salary & Payroll Details")}
+              </DialogTitle>
+              <DialogDescription
+                className="text-sm text-muted-foreground mt-1"
+                dir="ltr"
+                style={{ textAlign: "left", direction: "ltr" }}
+              >
+                {payrollData
+                  ? t('Edit payroll information. Only non-paid entries can be modified.')
+                  : t('Create new payroll record for this employee.')}
+              </DialogDescription>
+            </div>
+          </div>
         </DialogHeader>
 
         {isFetching ? (
-          <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <span className="ml-2">Loading employee data...</span>
+          <div className={cn("flex items-center justify-center py-8", isRTL && "flex-row-reverse")} dir={isRTL ? "rtl" : "ltr"}>
+            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+            <span className={cn(isRTL ? "mr-2" : "ml-2")}>{t("Loading employee data...")}</span>
           </div>
         ) : editForm && (
-          <div className="space-y-6">
+          <div className="space-y-6" dir={isRTL ? "rtl" : "ltr"}>
             {/* Employee Information */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold flex items-center">
-                <Briefcase className="h-5 w-5 mr-2 text-blue-600" />
-                Employee Information
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
-                <div>
-                  <Label className="text-sm font-medium text-gray-600">Name</Label>
-                  <p className="text-sm font-semibold">
-                    {employeeData ? getEmployeeDisplay(employeeData) : 'Loading...'}
-                  </p>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium text-gray-600">Email</Label>
-                  <p className="text-sm">
-                    {employeeData ? getEmployeeEmail(employeeData) : 'Loading...'}
-                  </p>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium text-gray-600">Role</Label>
-                  <p className="text-sm">
-                    {employeeData ? getEmployeeRole(employeeData) : 'Loading...'}
-                  </p>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium text-gray-600">Employee ID</Label>
-                  <p className="text-sm">
-                    {employeeId}
-                  </p>
-                </div>
-                {payrollData && (
+            <Card dir={isRTL ? "rtl" : "ltr"}>
+              <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+                <CardTitle
+                  className={cn("flex items-center text-lg", isRTL && "flex-row-reverse")}
+                  dir={isRTL ? "rtl" : "ltr"}
+                  style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                >
+                  <Briefcase className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                  <span className={cn(isRTL && "text-right")}>{t("Employee Information")}</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent dir={isRTL ? "rtl" : "ltr"}>
+                <div className={cn(
+                  "grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg",
+                  isRTL && "text-right"
+                )}>
                   <div>
-                    <Label className="text-sm font-medium text-gray-600">Status</Label>
-                    <div className="flex items-center space-x-2 mt-1">
-                      {getStatusIcon(payrollData.status)}
-                      <Badge className={getStatusColor(payrollData.status)}>
-                        {payrollData.status}
-                      </Badge>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Pay Period Information */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold flex items-center">
-                <Calendar className="h-5 w-5 mr-2 text-blue-600" />
-                Pay Period Information
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
-                <div>
-                  <Label className="text-sm font-medium text-gray-600">Month & Year</Label>
-                  <p className="text-sm font-semibold">
-                    {editForm.month} {editForm.year}
-                  </p>
-                </div>
-                <div>
-                  <Label className="text-sm font-medium text-gray-600">Working Days</Label>
-                  <Input
-                    type="number"
-                    value={editForm.working_days ?? 0}
-                    onChange={(e) => updateEditForm({
-                      working_days: parseIntegerValue(e.target.value)
-                    })}
-                    className="mt-1"
-                    min="0"
-                    max="31"
-                  />
-                </div>
-                <div>
-                  <Label className="text-sm font-medium text-gray-600">Leaves Taken</Label>
-                  <Input
-                    type="number"
-                    value={editForm.leaves ?? 0}
-                    onChange={(e) => updateEditForm({
-                      leaves: parseIntegerValue(e.target.value)
-                    })}
-                    className="mt-1"
-                    min="0"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Salary Information */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold flex items-center">
-                <DollarSign className="h-5 w-5 mr-2 text-green-600" />
-                Salary Breakdown
-              </h3>
-              
-              {/* Base Salary */}
-              <div className="p-4 bg-gray-50 rounded-lg">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600">Base Salary</Label>
-                    <Input
-                      type="number"
-                      value={editForm.base_salary ?? 0}
-                      onChange={(e) => updateEditForm({
-                        base_salary: parseNumericValue(e.target.value)
-                      })}
-                      className="mt-1"
-                      min="0"
-                      step="0.01"
-                      placeholder="Enter base salary"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600">Total Days</Label>
-                    <Input
-                      type="number"
-                      value={editForm.total_days ?? 30}
-                      onChange={(e) => updateEditForm({
-                        total_days: parseIntegerValue(e.target.value)
-                      })}
-                      className="mt-1"
-                      min="1"
-                      max="31"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Additions */}
-              <div className="p-4 bg-green-50 rounded-lg">
-                <h4 className="font-semibold text-green-800 mb-3">Additions</h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600">Overtime</Label>
-                    <Input
-                      type="number"
-                      value={editForm.overtime ?? 0}
-                      onChange={(e) => updateEditForm({
-                        overtime: parseNumericValue(e.target.value)
-                      })}
-                      className="mt-1"
-                      min="0"
-                      step="0.01"
-                      placeholder="0.00"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600">Bonus</Label>
-                    <Input
-                      type="number"
-                      value={editForm.bonus ?? 0}
-                      onChange={(e) => updateEditForm({
-                        bonus: parseNumericValue(e.target.value)
-                      })}
-                      className="mt-1"
-                      min="0"
-                      step="0.01"
-                      placeholder="0.00"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600">Allowances</Label>
-                    <Input
-                      type="number"
-                      value={editForm.allowances ?? 0}
-                      onChange={(e) => updateEditForm({
-                        allowances: parseNumericValue(e.target.value)
-                      })}
-                      className="mt-1"
-                      min="0"
-                      step="0.01"
-                      placeholder="0.00"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Deductions */}
-              <div className="p-4 bg-red-50 rounded-lg">
-                <h4 className="font-semibold text-red-800 mb-3">Deductions</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600">Tax</Label>
-                    <Input
-                      type="number"
-                      value={editForm.tax ?? 0}
-                      onChange={(e) => updateEditForm({
-                        tax: parseNumericValue(e.target.value)
-                      })}
-                      className="mt-1"
-                      min="0"
-                      step="0.01"
-                      placeholder="0.00"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600">Other Deductions</Label>
-                    <Input
-                      type="number"
-                      value={editForm.deductions ?? 0}
-                      onChange={(e) => updateEditForm({
-                        deductions: parseNumericValue(e.target.value)
-                      })}
-                      className="mt-1"
-                      min="0"
-                      step="0.01"
-                      placeholder="0.00"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Net Salary */}
-              <div className="p-4 bg-blue-50 rounded-lg">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label className="text-sm font-medium text-gray-600">
-                      Net Salary
-                      <span className="ml-2 text-xs text-blue-600 font-normal">
-                        <Calculator className="inline h-3 w-3 mr-1" />
-                        Auto-calculated
-                      </span>
+                    <Label className={cn("text-sm font-medium text-gray-600", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                      {t("Name")}
                     </Label>
-                    <p className="text-2xl font-bold text-blue-700">
-                      <CurrencyDisplay 
-                        amount={editForm.net_salary ?? 0} 
-                        variant="large" 
-                      />
+                    <p className={cn("text-sm font-semibold", isRTL && "text-right")}>
+                      {employeeData ? getEmployeeDisplay(employeeData) : t('Loading...')}
                     </p>
                   </div>
-                  {payrollData?.pay_date && (
-                    <div className="text-right">
-                      <Label className="text-sm font-medium text-gray-600">Pay Date</Label>
-                      <p className="text-sm font-semibold">
-                        {new Date(payrollData.pay_date).toLocaleDateString()}
-                      </p>
+                  <div>
+                    <Label className={cn("text-sm font-medium text-gray-600", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                      {t("Email")}
+                    </Label>
+                    <p className={cn("text-sm", isRTL && "text-right")} dir="ltr">
+                      {employeeData ? getEmployeeEmail(employeeData) : t('Loading...')}
+                    </p>
+                  </div>
+                  <div>
+                    <Label className={cn("text-sm font-medium text-gray-600", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                      {t("Role")}
+                    </Label>
+                    <p className={cn("text-sm", isRTL && "text-right")}>
+                      {employeeData ? getEmployeeRole(employeeData) : t('Loading...')}
+                    </p>
+                  </div>
+                  <div>
+                    <Label className={cn("text-sm font-medium text-gray-600", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                      {t("Employee ID")}
+                    </Label>
+                    <p className={cn("text-sm", isRTL && "text-right")} dir="ltr">
+                      {employeeId}
+                    </p>
+                  </div>
+                  {payrollData && (
+                    <div>
+                      <Label className={cn("text-sm font-medium text-gray-600", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                        {t("Status")}
+                      </Label>
+                      <div className={cn("flex items-center gap-2 mt-1", isRTL && "flex-row-reverse")}>
+                        {getStatusIcon(payrollData.status)}
+                        <Badge className={getStatusColor(payrollData.status)} dir="ltr" style={{ textAlign: "left", direction: "ltr" }}>
+                          {payrollData.status}
+                        </Badge>
+                      </div>
                     </div>
                   )}
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
 
-            {/* Current vs New Salary Comparison */}
-            {payrollData && editForm.base_salary !== payrollData.base_salary && (
-              <div className="p-4 bg-yellow-50 rounded-lg">
-                <h4 className="font-semibold text-yellow-800 mb-3">Salary Change Summary</h4>
-                <div className="grid grid-cols-2 gap-4 text-center">
-                  <div className="p-3 bg-white rounded-lg">
-                    <div className="text-sm text-gray-500">Previous Base Salary</div>
-                    <div className="text-lg font-semibold">
-                      <CurrencyDisplay amount={payrollData.base_salary} />
+            {/* Pay Period Information */}
+            <Card dir={isRTL ? "rtl" : "ltr"}>
+              <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+                <CardTitle
+                  className={cn("flex items-center text-lg", isRTL && "flex-row-reverse")}
+                  dir={isRTL ? "rtl" : "ltr"}
+                  style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                >
+                  <Calendar className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                  <span className={cn(isRTL && "text-right")}>{t("Pay Period Information")}</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent dir={isRTL ? "rtl" : "ltr"}>
+                <div className={cn(
+                  "grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg",
+                  isRTL && "text-right"
+                )}>
+                  <div>
+                    <Label className={cn("text-sm font-medium text-gray-600", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                      {t("Month & Year")}
+                    </Label>
+                    <p className={cn("text-sm font-semibold", isRTL && "text-right")}>
+                      {editForm.month} {editForm.year}
+                    </p>
+                  </div>
+                  <div>
+                    <Label className={cn("text-sm font-medium text-gray-600", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                      {t("Working Days")}
+                    </Label>
+                    <Input
+                      type="number"
+                      value={editForm.working_days ?? 0}
+                      onChange={(e) => updateEditForm({
+                        working_days: parseIntegerValue(e.target.value)
+                      })}
+                      className="mt-1"
+                      min="0"
+                      max="31"
+                      dir="ltr"
+                    />
+                  </div>
+                  <div>
+                    <Label className={cn("text-sm font-medium text-gray-600", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                      {t("Leaves Taken")}
+                    </Label>
+                    <Input
+                      type="number"
+                      value={editForm.leaves ?? 0}
+                      onChange={(e) => updateEditForm({
+                        leaves: parseIntegerValue(e.target.value)
+                      })}
+                      className="mt-1"
+                      min="0"
+                      dir="ltr"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Salary Breakdown */}
+            <Card dir={isRTL ? "rtl" : "ltr"}>
+              <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+                <CardTitle
+                  className={cn("flex items-center text-lg", isRTL && "flex-row-reverse")}
+                  dir={isRTL ? "rtl" : "ltr"}
+                  style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                >
+                  <DollarSign className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                  <span className={cn(isRTL && "text-right")}>{t("Salary Breakdown")}</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent dir={isRTL ? "rtl" : "ltr"}>
+                <div className="space-y-4" dir={isRTL ? "rtl" : "ltr"}>
+                  {/* Base Salary */}
+                  <div className={cn("p-4 bg-gray-50 rounded-lg", isRTL && "text-right")}>
+                    <div className={cn("grid grid-cols-1 md:grid-cols-2 gap-4", isRTL && "text-right")}>
+                      <div>
+                        <Label className={cn("text-sm font-medium text-gray-600", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                          {t("Base Salary")}
+                        </Label>
+                        <Input
+                          type="number"
+                          value={editForm.base_salary ?? 0}
+                          onChange={(e) => updateEditForm({
+                            base_salary: parseNumericValue(e.target.value)
+                          })}
+                          className="mt-1"
+                          min="0"
+                          step="0.01"
+                          placeholder={t("Enter base salary")}
+                          dir="ltr"
+                        />
+                      </div>
+                      <div>
+                        <Label className={cn("text-sm font-medium text-gray-600", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                          {t("Total Days")}
+                        </Label>
+                        <Input
+                          type="number"
+                          value={editForm.total_days ?? 30}
+                          onChange={(e) => updateEditForm({
+                            total_days: parseIntegerValue(e.target.value)
+                          })}
+                          className="mt-1"
+                          min="1"
+                          max="31"
+                          dir="ltr"
+                        />
+                      </div>
                     </div>
                   </div>
-                  <div className="p-3 bg-white rounded-lg">
-                    <div className="text-sm text-gray-500">New Base Salary</div>
-                    <div className="text-lg font-semibold text-blue-600">
-                      <CurrencyDisplay amount={editForm.base_salary ?? 0} />
+
+                  {/* Additions */}
+                  <div className={cn("p-4 bg-green-50 rounded-lg", isRTL && "text-right")}>
+                    <h4 className={cn("font-semibold text-green-800 mb-3", isRTL && "text-right")}>
+                      {t('Additions')}
+                    </h4>
+                    <div className={cn("grid grid-cols-1 md:grid-cols-3 gap-4", isRTL && "text-right")}>
+                      <div>
+                        <Label className={cn("text-sm font-medium text-gray-600", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                          {t("Overtime")}
+                        </Label>
+                        <Input
+                          type="number"
+                          value={editForm.overtime ?? 0}
+                          onChange={(e) => updateEditForm({
+                            overtime: parseNumericValue(e.target.value)
+                          })}
+                          className="mt-1"
+                          min="0"
+                          step="0.01"
+                          placeholder="0.00"
+                          dir="ltr"
+                        />
+                      </div>
+                      <div>
+                        <Label className={cn("text-sm font-medium text-gray-600", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                          {t("Bonus")}
+                        </Label>
+                        <Input
+                          type="number"
+                          value={editForm.bonus ?? 0}
+                          onChange={(e) => updateEditForm({
+                            bonus: parseNumericValue(e.target.value)
+                          })}
+                          className="mt-1"
+                          min="0"
+                          step="0.01"
+                          placeholder="0.00"
+                          dir="ltr"
+                        />
+                      </div>
+                      <div>
+                        <Label className={cn("text-sm font-medium text-gray-600", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                          {t("Allowances")}
+                        </Label>
+                        <Input
+                          type="number"
+                          value={editForm.allowances ?? 0}
+                          onChange={(e) => updateEditForm({
+                            allowances: parseNumericValue(e.target.value)
+                          })}
+                          className="mt-1"
+                          min="0"
+                          step="0.01"
+                          placeholder="0.00"
+                          dir="ltr"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Deductions */}
+                  <div className={cn("p-4 bg-red-50 rounded-lg", isRTL && "text-right")}>
+                    <h4 className={cn("font-semibold text-red-800 mb-3", isRTL && "text-right")}>
+                      {t('Deductions')}
+                    </h4>
+                    <div className={cn("grid grid-cols-1 md:grid-cols-2 gap-4", isRTL && "text-right")}>
+                      <div>
+                        <Label className={cn("text-sm font-medium text-gray-600", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                          {t("Tax")}
+                        </Label>
+                        <Input
+                          type="number"
+                          value={editForm.tax ?? 0}
+                          onChange={(e) => updateEditForm({
+                            tax: parseNumericValue(e.target.value)
+                          })}
+                          className="mt-1"
+                          min="0"
+                          step="0.01"
+                          placeholder="0.00"
+                          dir="ltr"
+                        />
+                      </div>
+                      <div>
+                        <Label className={cn("text-sm font-medium text-gray-600", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                          {t("Other Deductions")}
+                        </Label>
+                        <Input
+                          type="number"
+                          value={editForm.deductions ?? 0}
+                          onChange={(e) => updateEditForm({
+                            deductions: parseNumericValue(e.target.value)
+                          })}
+                          className="mt-1"
+                          min="0"
+                          step="0.01"
+                          placeholder="0.00"
+                          dir="ltr"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Net Salary */}
+                  <div className={cn("p-4 bg-blue-50 rounded-lg", isRTL && "text-right")}>
+                    <div className={cn("flex items-center justify-between", isRTL && "flex-row-reverse")}>
+                      <div>
+                        <Label className={cn("text-sm font-medium text-gray-600", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                          <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                            <span>{t('Net Salary')}</span>
+                            <span className="text-xs text-blue-600 font-normal">
+                              <Calculator className="inline h-3 w-3" />
+                              {t('Auto-calculated')}
+                            </span>
+                          </div>
+                        </Label>
+                        <p className={cn("text-2xl font-bold text-blue-700", isRTL && "text-right")}>
+                          <CurrencyDisplay
+                            amount={editForm.net_salary ?? 0}
+                            variant="large"
+                          />
+                        </p>
+                      </div>
+                      {payrollData?.pay_date && (
+                        <div className={cn("text-right", isRTL && "text-left")}>
+                          <Label className={cn("text-sm font-medium text-gray-600", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                            {t("Pay Date")}
+                          </Label>
+                          <p className={cn("text-sm font-semibold", isRTL && "text-right")} dir="ltr">
+                            {new Date(payrollData.pay_date).toLocaleDateString()}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
-              </div>
+              </CardContent>
+            </Card>
+
+            {/* Current vs New Salary Comparison */}
+            {payrollData && editForm.base_salary !== payrollData.base_salary && (
+              <Card dir={isRTL ? "rtl" : "ltr"}>
+                <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+                  <CardTitle
+                    className={cn("flex items-center text-lg", isRTL && "flex-row-reverse")}
+                    dir={isRTL ? "rtl" : "ltr"}
+                    style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                  >
+                    <Info className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                    <span className={cn(isRTL && "text-right")}>{t("Salary Change Summary")}</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent dir={isRTL ? "rtl" : "ltr"}>
+                  <div className={cn("grid grid-cols-2 gap-4 text-center", isRTL && "text-right")}>
+                    <div className="p-3 bg-white rounded-lg">
+                      <div className={cn("text-sm text-gray-500", isRTL && "text-right")}>{t("Previous Base Salary")}</div>
+                      <div className="text-lg font-semibold">
+                        <CurrencyDisplay amount={payrollData.base_salary} />
+                      </div>
+                    </div>
+                    <div className="p-3 bg-white rounded-lg">
+                      <div className={cn("text-sm text-gray-500", isRTL && "text-right")}>{t("New Base Salary")}</div>
+                      <div className="text-lg font-semibold text-blue-600">
+                        <CurrencyDisplay amount={editForm.base_salary ?? 0} />
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             )}
           </div>
         )}
 
-        <DialogFooter className="space-x-2">
-          <Button variant="outline" onClick={closeModal} disabled={isLoading}>
-            <X className="h-4 w-4 mr-2" />
-            Cancel
+        <DialogFooter className={cn("space-x-2", isRTL && "flex-row-reverse")} dir={isRTL ? "rtl" : "ltr"}>
+          <Button
+            variant="outline"
+            onClick={closeModal}
+            disabled={isLoading}
+            className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}
+          >
+            <X className="h-4 w-4" />
+            {t("Cancel")}
           </Button>
-          <Button onClick={handleSavePayroll} disabled={isLoading || isFetching}>
-            <Save className="h-4 w-4 mr-2" />
-            {isLoading ? 'Saving...' : payrollData ? 'Update Payroll' : 'Create Payroll'}
+          <Button
+            onClick={handleSavePayroll}
+            disabled={isLoading || isFetching}
+            className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}
+          >
+            <Save className="h-4 w-4" />
+            {isLoading
+              ? t('Saving...')
+              : payrollData
+                ? t('Update Payroll')
+                : t('Create Payroll')}
           </Button>
         </DialogFooter>
       </DialogContent>

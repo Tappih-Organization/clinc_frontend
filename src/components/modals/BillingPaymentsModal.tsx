@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -33,13 +35,16 @@ import {
   AlertTriangle,
   CheckCircle,
   Clock,
-  X,
   Plus,
   Download,
-  Filter,
+  Loader2,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { labVendorApi, PaymentRecord, BillingSummary } from "@/services/api/labVendorApi";
+import { useIsRTL } from "@/hooks/useIsRTL";
+import { cn } from "@/lib/utils";
+import { formatDate, formatTime } from "@/utils/dateUtils";
+import { useCurrency } from "@/contexts/CurrencyContext";
 
 interface BillingPaymentsModalProps {
   vendorId: string | null;
@@ -54,6 +59,9 @@ const BillingPaymentsModal: React.FC<BillingPaymentsModalProps> = ({
   isOpen,
   onClose,
 }) => {
+  const { t } = useTranslation();
+  const isRTL = useIsRTL();
+  const { formatAmount } = useCurrency();
   const [payments, setPayments] = useState<PaymentRecord[]>([]);
   const [summary, setSummary] = useState<BillingSummary | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -160,8 +168,8 @@ const BillingPaymentsModal: React.FC<BillingPaymentsModalProps> = ({
     } catch (error) {
       console.error("Error fetching billing data:", error);
       toast({
-        title: "Error",
-        description: "Failed to load billing data. Showing sample data.",
+        title: t("Error"),
+        description: t("Failed to load billing data. Showing sample data."),
         variant: "destructive",
       });
       // Fallback to mock data
@@ -204,53 +212,40 @@ const BillingPaymentsModal: React.FC<BillingPaymentsModalProps> = ({
     }
   };
 
+  const getStatusLabel = (status: string) => {
+    const statusMap: Record<string, string> = {
+      "completed": t("Completed"),
+      "pending": t("Pending"),
+      "failed": t("Failed"),
+    };
+    return statusMap[status] || status.toUpperCase();
+  };
+
   const getPaymentMethodLabel = (method: string) => {
-    switch (method) {
-      case "bank_transfer":
-        return "Bank Transfer";
-      case "check":
-        return "Check";
-      case "credit_card":
-        return "Credit Card";
-      case "ach":
-        return "ACH";
-      case "wire":
-        return "Wire Transfer";
-      default:
-        return method;
-    }
-  };
-
-  const formatDate = (date: Date | string) => {
-    const dateObj = typeof date === 'string' ? new Date(date) : date;
-    return dateObj.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(amount);
+    const methodMap: Record<string, string> = {
+      "bank_transfer": t("Bank Transfer"),
+      "check": t("Check"),
+      "credit_card": t("Credit Card"),
+      "ach": t("ACH"),
+      "wire": t("Wire Transfer"),
+    };
+    return methodMap[method] || method;
   };
 
   const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
   const months = [
-    { value: "1", label: "January" },
-    { value: "2", label: "February" },
-    { value: "3", label: "March" },
-    { value: "4", label: "April" },
-    { value: "5", label: "May" },
-    { value: "6", label: "June" },
-    { value: "7", label: "July" },
-    { value: "8", label: "August" },
-    { value: "9", label: "September" },
-    { value: "10", label: "October" },
-    { value: "11", label: "November" },
-    { value: "12", label: "December" },
+    { value: "1", label: t("January") },
+    { value: "2", label: t("February") },
+    { value: "3", label: t("March") },
+    { value: "4", label: t("April") },
+    { value: "5", label: t("May") },
+    { value: "6", label: t("June") },
+    { value: "7", label: t("July") },
+    { value: "8", label: t("August") },
+    { value: "9", label: t("September") },
+    { value: "10", label: t("October") },
+    { value: "11", label: t("November") },
+    { value: "12", label: t("December") },
   ];
 
   const handlePageChange = (newPage: number) => {
@@ -259,74 +254,104 @@ const BillingPaymentsModal: React.FC<BillingPaymentsModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <div className="flex items-center justify-between">
-            <DialogTitle className="text-2xl font-bold">
-              Billing & Payments - {vendorName || "Vendor"}
-            </DialogTitle>
-            <Button variant="ghost" size="sm" onClick={onClose}>
-              <X className="h-4 w-4" />
-            </Button>
+      <DialogContent
+        className={cn("max-w-6xl max-h-[95vh] overflow-y-auto z-50", isRTL && "rtl")}
+        dir={isRTL ? "rtl" : "ltr"}
+      >
+        <DialogHeader dir={isRTL ? "rtl" : "ltr"}>
+          <div
+            className={cn("flex items-start justify-between gap-4")}
+            style={isRTL ? { flexDirection: "row-reverse" } : { flexDirection: "row" }}
+          >
+            {/* Title and Description */}
+            <div className={cn("flex items-center gap-3 flex-1", isRTL && "flex-row-reverse justify-end")}>
+              <DollarSign
+                className={cn("h-6 w-6 text-blue-600 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")}
+              />
+              <div className={cn(isRTL && "text-right", "flex-1")}>
+                <DialogTitle
+                  className={cn("text-xl", isRTL && "text-right")}
+                  dir={isRTL ? "rtl" : "ltr"}
+                  style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                >
+                  {t("Billing & Payments")} - {vendorName || t("Vendor")}
+                </DialogTitle>
+                <DialogDescription
+                  className={cn(isRTL && "text-right")}
+                  dir={isRTL ? "rtl" : "ltr"}
+                  style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                >
+                  {t("View and manage billing and payment records")}
+                </DialogDescription>
+              </div>
+            </div>
           </div>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-6" dir={isRTL ? "rtl" : "ltr"}>
           {/* Summary Cards */}
           {summary && (
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Total Amount</p>
-                      <p className="text-2xl font-bold text-blue-600">
-                        {formatCurrency(summary.totalAmount)}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4" dir={isRTL ? "rtl" : "ltr"}>
+              <Card dir={isRTL ? "rtl" : "ltr"}>
+                <CardContent className="p-4" dir={isRTL ? "rtl" : "ltr"}>
+                  <div className={cn("flex items-center", isRTL ? "justify-between flex-row-reverse" : "justify-between")}>
+                    <div className={cn(isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                      <p className={cn("text-sm font-medium text-gray-600", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                        {t("Total Amount")}
+                      </p>
+                      <p className={cn("text-2xl font-bold text-blue-600", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                        {formatAmount(summary.totalAmount)}
                       </p>
                     </div>
-                    <DollarSign className="h-8 w-8 text-blue-600" />
+                    <DollarSign className={cn("h-8 w-8 text-blue-600 flex-shrink-0", isRTL && "order-2")} />
                   </div>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Paid Amount</p>
-                      <p className="text-2xl font-bold text-green-600">
-                        {formatCurrency(summary.paidAmount)}
+              <Card dir={isRTL ? "rtl" : "ltr"}>
+                <CardContent className="p-4" dir={isRTL ? "rtl" : "ltr"}>
+                  <div className={cn("flex items-center", isRTL ? "justify-between flex-row-reverse" : "justify-between")}>
+                    <div className={cn(isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                      <p className={cn("text-sm font-medium text-gray-600", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                        {t("Paid Amount")}
+                      </p>
+                      <p className={cn("text-2xl font-bold text-green-600", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                        {formatAmount(summary.paidAmount)}
                       </p>
                     </div>
-                    <CheckCircle className="h-8 w-8 text-green-600" />
+                    <CheckCircle className={cn("h-8 w-8 text-green-600 flex-shrink-0", isRTL && "order-2")} />
                   </div>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Pending</p>
-                      <p className="text-2xl font-bold text-orange-600">
-                        {formatCurrency(summary.pendingAmount)}
+              <Card dir={isRTL ? "rtl" : "ltr"}>
+                <CardContent className="p-4" dir={isRTL ? "rtl" : "ltr"}>
+                  <div className={cn("flex items-center", isRTL ? "justify-between flex-row-reverse" : "justify-between")}>
+                    <div className={cn(isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                      <p className={cn("text-sm font-medium text-gray-600", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                        {t("Pending")}
+                      </p>
+                      <p className={cn("text-2xl font-bold text-orange-600", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                        {formatAmount(summary.pendingAmount)}
                       </p>
                     </div>
-                    <Clock className="h-8 w-8 text-orange-600" />
+                    <Clock className={cn("h-8 w-8 text-orange-600 flex-shrink-0", isRTL && "order-2")} />
                   </div>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-gray-600">Monthly Avg</p>
-                      <p className="text-2xl font-bold text-purple-600">
-                        {formatCurrency(summary.averageMonthlySpend)}
+              <Card dir={isRTL ? "rtl" : "ltr"}>
+                <CardContent className="p-4" dir={isRTL ? "rtl" : "ltr"}>
+                  <div className={cn("flex items-center", isRTL ? "justify-between flex-row-reverse" : "justify-between")}>
+                    <div className={cn(isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                      <p className={cn("text-sm font-medium text-gray-600", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                        {t("Monthly Avg")}
+                      </p>
+                      <p className={cn("text-2xl font-bold text-purple-600", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                        {formatAmount(summary.averageMonthlySpend)}
                       </p>
                     </div>
-                    <TrendingUp className="h-8 w-8 text-purple-600" />
+                    <TrendingUp className={cn("h-8 w-8 text-purple-600 flex-shrink-0", isRTL && "order-2")} />
                   </div>
                 </CardContent>
               </Card>
@@ -335,13 +360,15 @@ const BillingPaymentsModal: React.FC<BillingPaymentsModalProps> = ({
 
           {/* Payment Status */}
           {summary?.overdueAmount > 0 && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <div className="flex items-center">
-                <AlertTriangle className="h-5 w-5 text-red-600 mr-2" />
-                <div>
-                  <h3 className="text-sm font-medium text-red-800">Overdue Payments</h3>
-                  <p className="text-sm text-red-700">
-                    You have {formatCurrency(summary.overdueAmount)} in overdue payments.
+            <div className={cn("bg-red-50 border border-red-200 rounded-lg p-4", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+              <div className={cn("flex items-center", isRTL && "flex-row-reverse")}>
+                <AlertTriangle className={cn("h-5 w-5 text-red-600 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                <div className={cn(isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                  <h3 className={cn("text-sm font-medium text-red-800", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                    {t("Overdue Payments")}
+                  </h3>
+                  <p className={cn("text-sm text-red-700", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                    {t("You have {{amount}} in overdue payments.", { amount: formatAmount(summary.overdueAmount) })}
                   </p>
                 </div>
               </div>
@@ -349,35 +376,39 @@ const BillingPaymentsModal: React.FC<BillingPaymentsModalProps> = ({
           )}
 
           {/* Filters */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex gap-4">
-                  <div>
-                    <Label htmlFor="year-filter">Year</Label>
+          <Card dir={isRTL ? "rtl" : "ltr"}>
+            <CardContent className="p-4" dir={isRTL ? "rtl" : "ltr"}>
+              <div className={cn("flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between", isRTL && "flex-row-reverse")} dir={isRTL ? "rtl" : "ltr"}>
+                <div className={cn("flex gap-4", isRTL && "flex-row-reverse")} dir={isRTL ? "rtl" : "ltr"}>
+                  <div className={cn(isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                    <Label htmlFor="year-filter" className={cn(isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                      {t("Year")}
+                    </Label>
                     <Select value={selectedYear} onValueChange={setSelectedYear}>
-                      <SelectTrigger className="w-32">
+                      <SelectTrigger className={cn("w-32", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent dir={isRTL ? "rtl" : "ltr"}>
                         {years.map((year) => (
-                          <SelectItem key={year} value={year.toString()}>
+                          <SelectItem key={year} value={year.toString()} dir={isRTL ? "rtl" : "ltr"}>
                             {year}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
-                  <div>
-                    <Label htmlFor="month-filter">Month</Label>
+                  <div className={cn(isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                    <Label htmlFor="month-filter" className={cn(isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                      {t("Month")}
+                    </Label>
                     <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                      <SelectTrigger className="w-40">
-                        <SelectValue placeholder="All months" />
+                      <SelectTrigger className={cn("w-40", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                        <SelectValue placeholder={t("All months")} />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All months</SelectItem>
+                      <SelectContent dir={isRTL ? "rtl" : "ltr"}>
+                        <SelectItem value="all" dir={isRTL ? "rtl" : "ltr"}>{t("All months")}</SelectItem>
                         {months.map((month) => (
-                          <SelectItem key={month.value} value={month.value}>
+                          <SelectItem key={month.value} value={month.value} dir={isRTL ? "rtl" : "ltr"}>
                             {month.label}
                           </SelectItem>
                         ))}
@@ -385,14 +416,14 @@ const BillingPaymentsModal: React.FC<BillingPaymentsModalProps> = ({
                     </Select>
                   </div>
                 </div>
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm">
-                    <Download className="h-4 w-4 mr-1" />
-                    Export
+                <div className={cn("flex gap-2", isRTL && "flex-row-reverse")} dir={isRTL ? "rtl" : "ltr"}>
+                  <Button variant="outline" size="sm" className={cn("flex items-center", isRTL && "flex-row-reverse")} dir={isRTL ? "rtl" : "ltr"}>
+                    <Download className={cn("h-4 w-4 flex-shrink-0", isRTL ? "ml-1 order-2" : "mr-1")} />
+                    {t("Export")}
                   </Button>
-                  <Button variant="outline" size="sm">
-                    <Plus className="h-4 w-4 mr-1" />
-                    Record Payment
+                  <Button variant="outline" size="sm" className={cn("flex items-center", isRTL && "flex-row-reverse")} dir={isRTL ? "rtl" : "ltr"}>
+                    <Plus className={cn("h-4 w-4 flex-shrink-0", isRTL ? "ml-1 order-2" : "mr-1")} />
+                    {t("Record Payment")}
                   </Button>
                 </div>
               </div>
@@ -400,106 +431,122 @@ const BillingPaymentsModal: React.FC<BillingPaymentsModalProps> = ({
           </Card>
 
           {/* Payments Table */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <CreditCard className="h-5 w-5 mr-2" />
-                Payment History
+          <Card dir={isRTL ? "rtl" : "ltr"}>
+            <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+              <CardTitle
+                className={cn("flex items-center", isRTL && "flex-row-reverse")}
+                dir={isRTL ? "rtl" : "ltr"}
+                style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+              >
+                <CreditCard className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                <span className={cn(isRTL && "text-right")}>{t("Payment History")}</span>
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent dir={isRTL ? "rtl" : "ltr"}>
               {isLoading ? (
-                <div className="flex items-center justify-center py-8">
-                  <div className="text-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                    <p className="text-gray-600">Loading payment history...</p>
+                <div className={cn("flex items-center justify-center py-8", isRTL && "flex-row-reverse")} dir={isRTL ? "rtl" : "ltr"}>
+                  <div className={cn("text-center", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                    <Loader2 className={cn("h-8 w-8 animate-spin mx-auto mb-4", isRTL && "order-2")} />
+                    <p className={cn("text-gray-600", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                      {t("Loading payment history...")}
+                    </p>
                   </div>
                 </div>
               ) : (
                 <>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Amount</TableHead>
-                        <TableHead>Method</TableHead>
-                        <TableHead>Reference</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Notes</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {payments.map((payment) => (
-                        <TableRow key={payment.id}>
-                          <TableCell className="font-medium">
-                            {formatDate(payment.paymentDate)}
-                          </TableCell>
-                          <TableCell className="font-semibold">
-                            {formatCurrency(payment.amount)}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center">
-                              <CreditCard className="h-4 w-4 mr-2 text-gray-400" />
-                              {getPaymentMethodLabel(payment.paymentMethod)}
-                            </div>
-                          </TableCell>
-                          <TableCell className="font-mono text-sm">
-                            {payment.reference || "-"}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center space-x-2">
-                              {getStatusIcon(payment.status)}
-                              <Badge className={getStatusColor(payment.status)}>
-                                {payment.status.toUpperCase()}
-                              </Badge>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="max-w-xs">
-                              <p className="text-sm truncate" title={payment.notes}>
-                                {payment.notes || "-"}
-                              </p>
-                            </div>
-                          </TableCell>
+                  <div className="overflow-x-auto" dir={isRTL ? "rtl" : "ltr"}>
+                    <Table dir={isRTL ? "rtl" : "ltr"}>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className={cn(isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>{t("Date")}</TableHead>
+                          <TableHead className={cn(isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>{t("Amount")}</TableHead>
+                          <TableHead className={cn(isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>{t("Method")}</TableHead>
+                          <TableHead className={cn(isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>{t("Reference")}</TableHead>
+                          <TableHead className={cn(isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>{t("Status")}</TableHead>
+                          <TableHead className={cn(isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>{t("Notes")}</TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                      </TableHeader>
+                      <TableBody>
+                        {payments.map((payment) => (
+                          <TableRow key={payment.id}>
+                            <TableCell className={cn("font-medium", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                              {formatDate(payment.paymentDate)}
+                            </TableCell>
+                            <TableCell className={cn("font-semibold", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                              {formatAmount(payment.amount)}
+                            </TableCell>
+                            <TableCell>
+                              <div className={cn("flex items-center", isRTL && "flex-row-reverse")}>
+                                <CreditCard className={cn("h-4 w-4 text-gray-400 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                                <span className={cn(isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                                  {getPaymentMethodLabel(payment.paymentMethod)}
+                                </span>
+                              </div>
+                            </TableCell>
+                            <TableCell className={cn("font-mono text-sm", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                              {payment.reference || "-"}
+                            </TableCell>
+                            <TableCell>
+                              <div className={cn("flex items-center", isRTL ? "space-x-reverse space-x-2 flex-row-reverse" : "space-x-2")}>
+                                {getStatusIcon(payment.status)}
+                                <Badge className={cn(getStatusColor(payment.status), isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                                  {getStatusLabel(payment.status)}
+                                </Badge>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className={cn("max-w-xs", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                                <p className={cn("text-sm truncate", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"} title={payment.notes}>
+                                  {payment.notes || "-"}
+                                </p>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
 
                   {payments.length === 0 && (
-                    <div className="text-center py-8">
+                    <div className={cn("text-center py-8", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
                       <CreditCard className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-600">No payment records found</p>
-                      <p className="text-sm text-gray-500">
-                        Try adjusting your filters or date range
+                      <p className={cn("text-gray-600", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                        {t("No payment records found")}
+                      </p>
+                      <p className={cn("text-sm text-gray-500", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                        {t("Try adjusting your filters or date range")}
                       </p>
                     </div>
                   )}
 
                   {/* Pagination */}
                   {pagination.pages > 1 && (
-                    <div className="flex items-center justify-between mt-6">
-                      <p className="text-sm text-gray-600">
-                        Showing {((pagination.page - 1) * pagination.limit) + 1} to{" "}
-                        {Math.min(pagination.page * pagination.limit, pagination.total)} of{" "}
-                        {pagination.total} results
+                    <div className={cn("flex items-center mt-6", isRTL ? "justify-between flex-row-reverse" : "justify-between")} dir={isRTL ? "rtl" : "ltr"}>
+                      <p className={cn("text-sm text-gray-600", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                        {t("Showing {{from}} to {{to}} of {{total}} results", {
+                          from: ((pagination.page - 1) * pagination.limit) + 1,
+                          to: Math.min(pagination.page * pagination.limit, pagination.total),
+                          total: pagination.total
+                        })}
                       </p>
-                      <div className="flex space-x-2">
+                      <div className={cn("flex", isRTL ? "space-x-reverse space-x-2 flex-row-reverse" : "space-x-2")}>
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => handlePageChange(pagination.page - 1)}
                           disabled={pagination.page <= 1}
+                          dir={isRTL ? "rtl" : "ltr"}
                         >
-                          Previous
+                          {t("Previous")}
                         </Button>
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => handlePageChange(pagination.page + 1)}
                           disabled={pagination.page >= pagination.pages}
+                          dir={isRTL ? "rtl" : "ltr"}
                         >
-                          Next
+                          {t("Next")}
                         </Button>
                       </div>
                     </div>
@@ -511,60 +558,109 @@ const BillingPaymentsModal: React.FC<BillingPaymentsModalProps> = ({
 
           {/* Payment Summary */}
           {summary && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Calendar className="h-5 w-5 mr-2" />
-                    Payment Schedule
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6" dir={isRTL ? "rtl" : "ltr"}>
+              <Card dir={isRTL ? "rtl" : "ltr"}>
+                <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+                  <CardTitle
+                    className={cn("flex items-center text-lg", isRTL && "flex-row-reverse")}
+                    dir={isRTL ? "rtl" : "ltr"}
+                    style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                  >
+                    <Calendar className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                    <span className={cn(isRTL && "text-right")}>{t("Payment Schedule")}</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium text-gray-500">Last Payment</label>
-                    <p className="text-sm">
-                      {summary.lastPaymentDate
-                        ? formatDate(summary.lastPaymentDate)
-                        : "No payments yet"}
-                    </p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-500">Next Payment Due</label>
-                    <p className="text-sm">
-                      {summary.nextPaymentDue
-                        ? formatDate(summary.nextPaymentDue)
-                        : "No scheduled payments"}
-                    </p>
+                <CardContent dir={isRTL ? "rtl" : "ltr"}>
+                  <div
+                    className={cn(
+                      "grid grid-cols-1 gap-6",
+                      isRTL && "text-right"
+                    )}
+                    style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                  >
+                    <div className={cn("space-y-1.5", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                      <label className={cn("text-sm font-medium text-gray-500 block", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                        {t("Last Payment")}
+                      </label>
+                      <p className={cn("text-sm", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                        {summary.lastPaymentDate
+                          ? formatDate(summary.lastPaymentDate)
+                          : t("No payments yet")}
+                      </p>
+                    </div>
+                    <div className={cn("space-y-1.5", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                      <label className={cn("text-sm font-medium text-gray-500 block", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                        {t("Next Payment Due")}
+                      </label>
+                      <p className={cn("text-sm", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                        {summary.nextPaymentDue
+                          ? formatDate(summary.nextPaymentDue)
+                          : t("No scheduled payments")}
+                      </p>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <TrendingUp className="h-5 w-5 mr-2" />
-                    Payment Statistics
+              <Card dir={isRTL ? "rtl" : "ltr"}>
+                <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+                  <CardTitle
+                    className={cn("flex items-center text-lg", isRTL && "flex-row-reverse")}
+                    dir={isRTL ? "rtl" : "ltr"}
+                    style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                  >
+                    <TrendingUp className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                    <span className={cn(isRTL && "text-right")}>{t("Payment Statistics")}</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium text-gray-500">Payment Completion Rate</label>
-                    <p className="text-lg font-semibold text-green-600">
-                      {summary.totalAmount > 0 
-                        ? Math.round((summary.paidAmount / summary.totalAmount) * 100)
-                        : 0}%
-                    </p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-500">Outstanding Balance</label>
-                    <p className="text-lg font-semibold text-blue-600">
-                      {formatCurrency(summary.totalAmount - summary.paidAmount)}
-                    </p>
+                <CardContent dir={isRTL ? "rtl" : "ltr"}>
+                  <div
+                    className={cn(
+                      "grid grid-cols-1 gap-6",
+                      isRTL && "text-right"
+                    )}
+                    style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                  >
+                    <div className={cn("space-y-1.5", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                      <label className={cn("text-sm font-medium text-gray-500 block", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                        {t("Payment Completion Rate")}
+                      </label>
+                      <p className={cn("text-lg font-semibold text-green-600", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                        {summary.totalAmount > 0 
+                          ? Math.round((summary.paidAmount / summary.totalAmount) * 100)
+                          : 0}%
+                      </p>
+                    </div>
+                    <div className={cn("space-y-1.5", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                      <label className={cn("text-sm font-medium text-gray-500 block", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                        {t("Outstanding Balance")}
+                      </label>
+                      <p className={cn("text-lg font-semibold text-blue-600", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                        {formatAmount(summary.totalAmount - summary.paidAmount)}
+                      </p>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
             </div>
           )}
+        </div>
+
+        {/* Action Buttons */}
+        <div
+          className={cn("flex justify-end items-center pt-6 border-t", isRTL && "flex-row-reverse")}
+          dir={isRTL ? "rtl" : "ltr"}
+        >
+          <div className={cn("flex gap-3", isRTL && "flex-row-reverse")}>
+            <Button
+              variant="outline"
+              onClick={onClose}
+              dir={isRTL ? "rtl" : "ltr"}
+              style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+            >
+              {t("Close")}
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

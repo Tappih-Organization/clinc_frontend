@@ -8,27 +8,25 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
 import { useIsRTL } from "@/hooks/useIsRTL";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import { 
-  X, 
-  Eye, 
-  Zap, 
-  Calendar, 
-  Stethoscope, 
   User,
   Phone,
   Mail,
-  MapPin,
   Users,
-  Heart
+  Heart,
+  Info,
+  Calendar,
 } from "lucide-react";
 import { Patient } from "@/types";
 import OdontogramDetailModal from "./OdontogramDetailModal";
 import odontogramApi from "@/services/api/odontogramApi";
 import { toast } from "@/hooks/use-toast";
+import { formatDate } from "@/utils/dateUtils";
 
 interface PatientDetailsModalProps {
   open: boolean;
@@ -45,18 +43,13 @@ const PatientDetailsModal: React.FC<PatientDetailsModalProps> = ({
   const [activeOdontogramId, setActiveOdontogramId] = useState<string | null>(null);
   const [loadingOdontogram, setLoadingOdontogram] = useState(false);
 
+  const { t } = useTranslation();
+  const isRTL = useIsRTL();
 
-    const { t } = useTranslation();
-    const isRTL = useIsRTL();
-  const formatDate = (value: any) => {
-    if (!value) return "Not specified";
+  const formatDateValue = (value: any) => {
+    if (!value) return t("Not specified");
     try {
-      const date = new Date(value);
-      return date.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
+      return formatDate(value);
     } catch (e) {
       return value.toString();
     }
@@ -81,24 +74,21 @@ const PatientDetailsModal: React.FC<PatientDetailsModalProps> = ({
     
     try {
       setLoadingOdontogram(true);
-      
-      // Try to get the active odontogram for this patient
       const activeOdontogram = await odontogramApi.getActiveOdontogramByPatient(patient.id);
       setActiveOdontogramId(activeOdontogram._id);
       setOdontogramModalOpen(true);
-      
     } catch (error: any) {
       if (error.message.includes("No active odontogram found")) {
         toast({
-          title: "No Dental Records",
-          description: "No dental chart found for this patient. Please create one first.",
+          title: t("No Dental Records"),
+          description: t("No dental chart found for this patient. Please create one first."),
           variant: "default",
         });
       } else {
         console.error("Error fetching odontogram:", error);
         toast({
-          title: "Error",
-          description: "Failed to load dental chart",
+          title: t("Error"),
+          description: t("Failed to load dental chart"),
           variant: "destructive",
         });
       }
@@ -107,167 +97,348 @@ const PatientDetailsModal: React.FC<PatientDetailsModalProps> = ({
     }
   };
 
-  const patientSections = [
-    {
-      title: t("personalInformation"),
-      icon: <User className="h-5 w-5" />,
-      fields: [
-        { label: t("fullName"), value: `${patient?.firstName || ""} ${patient?.lastName || ""}`.trim() },
-        { label: t("dateOfBirth"), value: formatDate(patient?.dateOfBirth) },
-        { label: t("age"), value: patient?.dateOfBirth ? `${calculateAge(patient.dateOfBirth)} years` : "N/A" },
-        { label: t("gender"), value: patient?.gender ? patient.gender.charAt(0).toUpperCase() + patient.gender.slice(1) : "Not specified" },
-        { label: t("bloodGroup"), value: patient?.bloodGroup || "Not specified" },
-      ]
-    },
-    {
-      title: t("contactInformation"),
-      icon: <Phone className="h-5 w-5" />,
-      fields: [
-        { label: t("phone"), value: patient?.phone || "Not specified", type: "phone" },
-        { label: t("email"), value: patient?.email || "Not specified", type: "email" },
-        { label: t("address"), value: patient?.address || "Not specified" },
-      ]
-    },
-    {
-      title: t("emergencyContact"),
-      icon: <Users className="h-5 w-5" />,
-      fields: [
-        { label: t("name"), value: patient?.emergencyContact?.name || "Not specified" },
-        { label: t("phone"), value: patient?.emergencyContact?.phone || "Not specified", type: "phone" },
-        { label: t("relationship"), value: patient?.emergencyContact?.relationship || "Not specified" },
-      ]
-    },
-    {
-      title: t("medicalInformation"),
-      icon: <Heart className="h-5 w-5" />,
-      fields: [
-        { label: t("height"), value: patient?.height ? `${patient.height} cm` : "Not specified" },
-        { label: t("weight"), value: patient?.weight ? `${patient.weight} kg` : "Not specified" },
-        { label: t("allergies"), value: patient?.allergies?.length ? patient.allergies.join(", ") : "None recorded" },
-        { label: t("medicalHistory"), value: patient?.medicalHistory?.length ? patient.medicalHistory.join(", ") : "None recorded" },
-      ]
-    }
-  ];
-
-  const formatFieldValue = (value: string, type?: string) => {
-    if (!value || value === "Not specified") {
-      return <span className="text-gray-400 italic">{value || "Not specified"}</span>;
-    }
-
-    switch (type) {
-      case "phone":
-        return (
-          <span className="font-mono text-sm bg-blue-50 text-blue-700 px-2 py-1 rounded">
+  // Standardized Info Row Component for consistent RTL alignment
+  const InfoRow: React.FC<{
+    label: string;
+    value: React.ReactNode;
+    valueDir?: "ltr" | "rtl";
+    icon?: React.ReactNode;
+    className?: string;
+  }> = ({ label, value, valueDir, icon, className = "" }) => {
+    const finalValueDir = valueDir || (isRTL ? "rtl" : "ltr");
+    const isLTRContent = finalValueDir === "ltr";
+    return (
+      <div
+        className={cn("space-y-1.5", className)}
+        dir={isRTL ? "rtl" : "ltr"}
+        style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+      >
+        <label
+          className={cn(
+            "text-sm font-medium text-gray-500 block leading-tight",
+            isRTL ? "text-right" : "text-left"
+          )}
+          dir={isRTL ? "rtl" : "ltr"}
+          style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+        >
+          {label}
+        </label>
+        <div
+          className={cn(
+            "flex items-baseline min-h-[1.5rem]",
+            isRTL ? "flex-row-reverse justify-end" : "justify-start",
+            icon && "gap-2"
+          )}
+          style={isRTL && !isLTRContent ? { justifyContent: "flex-end" } : {}}
+        >
+          {icon && (
+            <span className={cn("flex-shrink-0 self-center", isRTL && "order-2")}>
+              {icon}
+            </span>
+          )}
+          <p
+            className={cn(
+              "text-base leading-normal break-words",
+              isLTRContent ? "text-left" : isRTL ? "text-right" : "text-left"
+            )}
+            dir={finalValueDir}
+            style={
+              isLTRContent
+                ? { textAlign: "left", direction: "ltr" }
+                : isRTL
+                  ? { textAlign: "right", direction: "rtl" }
+                  : { textAlign: "left", direction: "ltr" }
+            }
+          >
             {value}
-          </span>
-        );
-      case "email":
-        return (
-          <span className="text-blue-600 hover:text-blue-800 font-medium">
-            {value}
-          </span>
-        );
-      default:
-        return <span className="text-gray-900">{value}</span>;
-    }
+          </p>
+        </div>
+      </div>
+    );
   };
+
+  if (!patient) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent
+          className={cn("max-w-4xl max-h-[90vh]", isRTL && "rtl")}
+          dir={isRTL ? "rtl" : "ltr"}
+        >
+          <div className={cn("flex items-center justify-center h-64", isRTL && "flex-row-reverse")}>
+            <div className={cn("text-center", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+              <User className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+              <p className="text-gray-600">{t("No patient data available")}</p>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  const patientName = `${patient.firstName || ""} ${patient.lastName || ""}`.trim();
 
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className={cn("max-w-4xl max-h-[90vh] overflow-hidden ", isRTL && 'dir-rtl', isRTL && 'flex-row-reverse')}>
-          <DialogHeader className={cn("border-b pb-4")}>
-            <DialogTitle className={cn("flex items-center text-xl font-semibold", isRTL && 'flex-row-reverse')}>
-              <Eye className={cn("h-5 w-5 mr-3 text-blue-600 ")} />
-              {t("patientDetails")}
-            </DialogTitle>
-            <DialogDescription className={cn("text-sm text-gray-600 mt-1", isRTL && 'text-right')}>
-              {t("patientDescription")}
-            </DialogDescription>
+        <DialogContent
+          className={cn("max-w-5xl max-h-[95vh] overflow-y-auto z-50", isRTL && "rtl")}
+          dir={isRTL ? "rtl" : "ltr"}
+        >
+          <DialogHeader dir={isRTL ? "rtl" : "ltr"}>
+            <div className={cn(
+              "flex items-center gap-3",
+              isRTL ? "flex-row-reverse" : "flex-row"
+            )}>
+              <User
+                className={cn(
+                  "h-6 w-6 text-blue-600 flex-shrink-0",
+                  isRTL ? "order-2" : ""
+                )}
+              />
+              <div className="flex-1 min-w-0">
+                <DialogTitle
+                  className="text-xl font-semibold"
+                  dir="ltr"
+                  style={{ textAlign: "left", direction: "ltr" }}
+                >
+                  {patientName}
+                </DialogTitle>
+                <DialogDescription
+                  className="text-sm text-muted-foreground mt-1"
+                  dir="ltr"
+                  style={{ textAlign: "left", direction: "ltr" }}
+                >
+                  {t("Detailed view of patient information")}
+                </DialogDescription>
+              </div>
+            </div>
           </DialogHeader>
 
-          <div className="overflow-y-auto max-h-[calc(90vh-200px)] py-4">
-            {patient ? (
-              <div className="space-y-6">
-
-                {/* Patient Information Sections */}
-                {patientSections.map((section, sectionIndex) => (
-                  <div key={section.title}>
-                    {/* Section Header */}
-                    <div className="mb-4">
-                      <h3 className={cn("text-lg font-semibold text-gray-900 mb-3 flex items-center", isRTL && 'flex-row-reverse' )}>
-                        {section.icon}
-                        <span className="ml-2">{section.title}</span>
-                      </h3>
-                    </div>
-
-                    {/* Section Content */}
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {section.fields.map((field, fieldIndex) => (
-                          <div key={fieldIndex} className="space-y-1">
-                            <h4 className="font-semibold text-sm text-gray-500 uppercase tracking-wide">
-                              {field.label}
-                            </h4>
-                            <div className="text-sm font-medium">
-                              {formatFieldValue(field.value, field.type)}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {sectionIndex < patientSections.length - 1 && (
-                      <Separator className="mt-6" />
-                    )}
-                  </div>
-                ))}
-
-                {/* Patient Stats */}
-                <div className={cn("bg-green-50 border border-green-200 rounded-lg p-4", isRTL && 'text-right', isRTL && 'flex-row-reverse')}>
-                  <h3 className={cn("text-lg font-semibold text-green-900 mb-3", isRTL && 'text-right', isRTL && 'flex-row-reverse', isRTL && 'flex justify-end')}>
-                    {t("patientStatistics")}
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-green-700">{patient.totalVisits || 0}</div>
-                      <div className="text-sm text-green-600">{t("totalVisits")}</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-green-700">
-                        {patient.lastVisit ? formatDate(patient.lastVisit) : "Never"}
-                      </div>
-                      <div className="text-sm text-green-600">{t("lastVisit")}</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-green-700">
-                        <Badge variant="secondary" className="text-lg px-3 py-1">
-                          {patient.status || "Active"}
-                        </Badge>
-                      </div>
-                      <div className="text-sm text-green-600">{t("status")}</div>
-                    </div>
-                  </div>
+          <div className="space-y-6" dir={isRTL ? "rtl" : "ltr"}>
+            {/* Personal Information */}
+            <Card dir={isRTL ? "rtl" : "ltr"}>
+              <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+                <CardTitle
+                  className={cn("flex items-center text-lg", isRTL && "flex-row-reverse")}
+                  dir={isRTL ? "rtl" : "ltr"}
+                  style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                >
+                  <Info className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                  <span className={cn(isRTL && "text-right")}>{t("Personal Information")}</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent dir={isRTL ? "rtl" : "ltr"}>
+                <div
+                  className={cn(
+                    "grid grid-cols-1 md:grid-cols-2 gap-6",
+                    isRTL && "text-right"
+                  )}
+                  style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                >
+                  <InfoRow
+                    label={t("Full Name")}
+                    value={patientName}
+                    className="text-lg font-semibold"
+                  />
+                  <InfoRow
+                    label={t("Date of Birth")}
+                    value={formatDateValue(patient.dateOfBirth)}
+                    icon={<Calendar className="h-4 w-4 text-gray-500" />}
+                  />
+                  <InfoRow
+                    label={t("Age")}
+                    value={patient.dateOfBirth ? `${calculateAge(patient.dateOfBirth)} ${t("years")}` : t("N/A")}
+                  />
+                  <InfoRow
+                    label={t("Gender")}
+                    value={patient.gender ? patient.gender.charAt(0).toUpperCase() + patient.gender.slice(1) : t("Not specified")}
+                  />
+                  <InfoRow
+                    label={t("Blood Group")}
+                    value={patient.bloodGroup || t("Not specified")}
+                  />
                 </div>
-              </div>
-            ) : (
-              <div className="text-center text-gray-500 py-12">
-                <div className="text-6xl mb-4 opacity-50">👤</div>
-                <p className="text-lg font-medium">{t("noPatientDataAvailable")}</p>
-                <p className="text-sm mt-1">{t("patientInformationCouldNotBeLoaded")}</p>
-              </div>
-            )}
+              </CardContent>
+            </Card>
+
+            {/* Contact Information */}
+            <Card dir={isRTL ? "rtl" : "ltr"}>
+              <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+                <CardTitle
+                  className={cn("flex items-center text-lg", isRTL && "flex-row-reverse")}
+                  dir={isRTL ? "rtl" : "ltr"}
+                  style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                >
+                  <Phone className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                  <span className={cn(isRTL && "text-right")}>{t("Contact Information")}</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent dir={isRTL ? "rtl" : "ltr"}>
+                <div
+                  className={cn(
+                    "grid grid-cols-1 md:grid-cols-2 gap-6",
+                    isRTL && "text-right"
+                  )}
+                  style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                >
+                  <InfoRow
+                    label={t("Phone")}
+                    value={patient.phone || t("Not specified")}
+                    valueDir="ltr"
+                    icon={<Phone className="h-4 w-4 text-gray-500" />}
+                  />
+                  <InfoRow
+                    label={t("Email")}
+                    value={patient.email || t("Not specified")}
+                    valueDir="ltr"
+                    icon={<Mail className="h-4 w-4 text-gray-500" />}
+                  />
+                  <InfoRow
+                    label={t("Address")}
+                    value={patient.address || t("Not specified")}
+                    className="md:col-span-2"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Emergency Contact */}
+            <Card dir={isRTL ? "rtl" : "ltr"}>
+              <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+                <CardTitle
+                  className={cn("flex items-center text-lg", isRTL && "flex-row-reverse")}
+                  dir={isRTL ? "rtl" : "ltr"}
+                  style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                >
+                  <Users className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                  <span className={cn(isRTL && "text-right")}>{t("Emergency Contact")}</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent dir={isRTL ? "rtl" : "ltr"}>
+                <div
+                  className={cn(
+                    "grid grid-cols-1 md:grid-cols-2 gap-6",
+                    isRTL && "text-right"
+                  )}
+                  style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                >
+                  <InfoRow
+                    label={t("Name")}
+                    value={patient.emergencyContact?.name || t("Not specified")}
+                  />
+                  <InfoRow
+                    label={t("Phone")}
+                    value={patient.emergencyContact?.phone || t("Not specified")}
+                    valueDir="ltr"
+                    icon={<Phone className="h-4 w-4 text-gray-500" />}
+                  />
+                  <InfoRow
+                    label={t("Relationship")}
+                    value={patient.emergencyContact?.relationship || t("Not specified")}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Medical Information */}
+            <Card dir={isRTL ? "rtl" : "ltr"}>
+              <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+                <CardTitle
+                  className={cn("flex items-center text-lg", isRTL && "flex-row-reverse")}
+                  dir={isRTL ? "rtl" : "ltr"}
+                  style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                >
+                  <Heart className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                  <span className={cn(isRTL && "text-right")}>{t("Medical Information")}</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent dir={isRTL ? "rtl" : "ltr"}>
+                <div
+                  className={cn(
+                    "grid grid-cols-1 md:grid-cols-2 gap-6",
+                    isRTL && "text-right"
+                  )}
+                  style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                >
+                  <InfoRow
+                    label={t("Height")}
+                    value={patient.height ? `${patient.height} cm` : t("Not specified")}
+                  />
+                  <InfoRow
+                    label={t("Weight")}
+                    value={patient.weight ? `${patient.weight} kg` : t("Not specified")}
+                  />
+                  <InfoRow
+                    label={t("Allergies")}
+                    value={patient.allergies?.length ? patient.allergies.join(", ") : t("None recorded")}
+                    className="md:col-span-2"
+                  />
+                  <InfoRow
+                    label={t("Medical History")}
+                    value={patient.medicalHistory?.length ? patient.medicalHistory.join(", ") : t("None recorded")}
+                    className="md:col-span-2"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Patient Statistics */}
+            <Card dir={isRTL ? "rtl" : "ltr"}>
+              <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+                <CardTitle
+                  className={cn("flex items-center text-lg", isRTL && "flex-row-reverse")}
+                  dir={isRTL ? "rtl" : "ltr"}
+                  style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                >
+                  <Calendar className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                  <span className={cn(isRTL && "text-right")}>{t("Patient Statistics")}</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent dir={isRTL ? "rtl" : "ltr"}>
+                <div
+                  className={cn(
+                    "grid grid-cols-1 md:grid-cols-3 gap-6",
+                    isRTL && "text-right"
+                  )}
+                  style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+                >
+                  <InfoRow
+                    label={t("Total Visits")}
+                    value={patient.totalVisits || 0}
+                  />
+                  <InfoRow
+                    label={t("Last Visit")}
+                    value={patient.lastVisit ? formatDateValue(patient.lastVisit) : t("Never")}
+                    icon={<Calendar className="h-4 w-4 text-gray-500" />}
+                  />
+                  <InfoRow
+                    label={t("Status")}
+                    value={
+                      <Badge variant="secondary">
+                        {patient.status || t("Active")}
+                      </Badge>
+                    }
+                  />
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
-          <div className="border-t pt-4 flex justify-end">
-            <Button 
-              variant="outline" 
-              onClick={() => onOpenChange(false)}
-              className={cn("min-w-[100px]", isRTL && 'flex-row-reverse', isRTL && 'text-right')}
-            >
-              <X className={cn("h-4 w-4 mr-2")} />
-              {t("close")}
-            </Button>
+          {/* Action Buttons */}
+          <div
+            className={cn("flex justify-end items-center pt-6 border-t", isRTL && "flex-row-reverse")}
+            dir={isRTL ? "rtl" : "ltr"}
+          >
+            <div className={cn("flex gap-3", isRTL && "flex-row-reverse")}>
+              <Button
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                dir={isRTL ? "rtl" : "ltr"}
+                style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+              >
+                {t("Close")}
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

@@ -185,42 +185,31 @@ const ServiceDetailModal: React.FC<ServiceDetailModalProps> = ({
         dir={isRTL ? "rtl" : "ltr"}
       >
         <DialogHeader dir={isRTL ? "rtl" : "ltr"}>
-          <div
-            className={cn("flex items-start justify-between gap-4")}
-            style={isRTL ? { flexDirection: "row-reverse" } : { flexDirection: "row" }}
-          >
-            {/* Status Badge - First element, appears on LEFT in RTL */}
-            <div className={cn("flex items-center gap-2 flex-shrink-0", isRTL && "flex-row-reverse")}>
-              {getStatusIcon(service.isActive)}
-              <Badge
-                className={cn(getStatusColor(service.isActive), isRTL && "text-right")}
-                dir={isRTL ? "rtl" : "ltr"}
-                style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
+          <div className={cn(
+            "flex items-center gap-3",
+            isRTL ? "flex-row-reverse" : "flex-row"
+          )}>
+            <Stethoscope
+              className={cn(
+                "h-6 w-6 text-blue-600 flex-shrink-0",
+                isRTL ? "order-2" : ""
+              )}
+            />
+            <div className="flex-1 min-w-0">
+              <DialogTitle
+                className="text-xl font-semibold"
+                dir="ltr"
+                style={{ textAlign: "left", direction: "ltr" }}
               >
-                {getStatusLabel(service.isActive)}
-              </Badge>
-            </div>
-            {/* Title and Description - Second element, appears on RIGHT in RTL */}
-            <div className={cn("flex items-center gap-3 flex-1", isRTL && "flex-row-reverse justify-end")}>
-              <Stethoscope
-                className={cn("h-6 w-6 text-blue-600 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")}
-              />
-              <div className={cn(isRTL && "text-right", "flex-1")}>
-                <DialogTitle
-                  className={cn("text-xl", isRTL && "text-right")}
-                  dir={isRTL ? "rtl" : "ltr"}
-                  style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
-                >
-                  {service.name}
-                </DialogTitle>
-                <DialogDescription
-                  className={cn(isRTL && "text-right")}
-                  dir={isRTL ? "rtl" : "ltr"}
-                  style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
-                >
-                  {t("Detailed view of service information")}
-                </DialogDescription>
-              </div>
+                {service.name}
+              </DialogTitle>
+              <DialogDescription
+                className="text-sm text-muted-foreground mt-1"
+                dir="ltr"
+                style={{ textAlign: "left", direction: "ltr" }}
+              >
+                {t("Detailed view of service information")}
+              </DialogDescription>
             </div>
           </div>
         </DialogHeader>
@@ -250,6 +239,21 @@ const ServiceDetailModal: React.FC<ServiceDetailModalProps> = ({
                   label={t("Service Name")}
                   value={service.name}
                   className="text-lg font-semibold"
+                />
+                <InfoRow
+                  label={t("Status")}
+                  value={
+                    <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                      {getStatusIcon(service.isActive)}
+                      <Badge
+                        className={cn(getStatusColor(service.isActive))}
+                        dir="ltr"
+                        style={{ textAlign: "left", direction: "ltr" }}
+                      >
+                        {getStatusLabel(service.isActive)}
+                      </Badge>
+                    </div>
+                  }
                 />
                 <InfoRow
                   label={t("Service ID")}

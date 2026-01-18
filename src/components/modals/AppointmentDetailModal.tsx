@@ -2,8 +2,6 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useIsRTL } from "@/hooks/useIsRTL";
-import { cn } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -12,93 +10,53 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
-  UserPlus, 
-  Phone, 
-  Mail, 
-  Globe, 
-  Users, 
-  UserCheck, 
-  UserX,
-  TrendingUp,
-  Calendar,
+import {
+  Calendar as CalendarIcon,
+  Clock,
   User,
+  Stethoscope,
   FileText,
   Info,
+  Download,
+  Edit,
+  CheckCircle,
 } from "lucide-react";
-import { Lead } from "@/types";
-import { formatDate } from "@/utils/dateUtils";
+import { useIsRTL } from "@/hooks/useIsRTL";
+import { cn } from "@/lib/utils";
+import { formatDate, formatTime } from "@/utils/dateUtils";
+import { useAppointmentStatusConfig } from "@/hooks/useAppointmentStatuses";
 
-interface ViewLeadModalProps {
-  lead: Lead | null;
+interface AppointmentDetailModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  appointment: any | null;
+  onEdit?: (appointment: any) => void;
+  onMarkComplete?: (appointment: any) => void;
+  onDownloadSlip?: (appointment: any) => void;
+  isLoading?: boolean;
 }
 
-const ViewLeadModal: React.FC<ViewLeadModalProps> = ({ lead, open, onOpenChange }) => {
+const AppointmentDetailModal: React.FC<AppointmentDetailModalProps> = ({
+  open,
+  onOpenChange,
+  appointment,
+  onEdit,
+  onMarkComplete,
+  onDownloadSlip,
+  isLoading = false,
+}) => {
   const { t } = useTranslation();
   const isRTL = useIsRTL();
-  
-  if (!lead) return null;
+  const { getStatusName, getStatusColorClass, getStatusIcon } = useAppointmentStatusConfig();
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "new":
-        return <UserPlus className="h-4 w-4 text-blue-600" />;
-      case "contacted":
-        return <Phone className="h-4 w-4 text-orange-600" />;
-      case "converted":
-        return <UserCheck className="h-4 w-4 text-green-600" />;
-      case "lost":
-        return <UserX className="h-4 w-4 text-red-600" />;
-      default:
-        return <UserPlus className="h-4 w-4 text-gray-600" />;
-    }
+  const formatDateDisplay = (date: Date | string) => {
+    if (!date) return "-";
+    return formatDate(date);
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "new":
-        return "bg-blue-100 text-blue-800";
-      case "contacted":
-        return "bg-orange-100 text-orange-800";
-      case "converted":
-        return "bg-green-100 text-green-800";
-      case "lost":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const getSourceIcon = (source: string) => {
-    switch (source) {
-      case "website":
-        return <Globe className="h-4 w-4 text-gray-500" />;
-      case "referral":
-        return <Users className="h-4 w-4 text-gray-500" />;
-      case "social":
-        return <UserPlus className="h-4 w-4 text-gray-500" />;
-      case "advertisement":
-        return <TrendingUp className="h-4 w-4 text-gray-500" />;
-      case "walk-in":
-        return <UserPlus className="h-4 w-4 text-gray-500" />;
-      default:
-        return <Globe className="h-4 w-4 text-gray-500" />;
-    }
-  };
-
-  const formatDateValue = (date: Date | string | undefined | null) => {
-    if (!date) {
-      return t("N/A");
-    }
-    
-    try {
-      return formatDate(date);
-    } catch (error) {
-      console.error("Error formatting date:", error);
-      return t("N/A");
-    }
+  const formatTimeDisplay = (date: Date | string) => {
+    if (!date) return "-";
+    return formatTime(date);
   };
 
   // Standardized Info Row Component for consistent RTL alignment
@@ -161,7 +119,11 @@ const ViewLeadModal: React.FC<ViewLeadModalProps> = ({ lead, open, onOpenChange 
     );
   };
 
-  const leadName = `${lead.firstName || ""} ${lead.lastName || ""}`.trim();
+  if (!appointment) {
+    return null;
+  }
+
+  const StatusIcon = getStatusIcon(appointment.status);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -174,7 +136,7 @@ const ViewLeadModal: React.FC<ViewLeadModalProps> = ({ lead, open, onOpenChange 
             "flex items-center gap-3",
             isRTL ? "flex-row-reverse" : "flex-row"
           )}>
-            <UserPlus
+            <CalendarIcon
               className={cn(
                 "h-6 w-6 text-blue-600 flex-shrink-0",
                 isRTL ? "order-2" : ""
@@ -186,14 +148,14 @@ const ViewLeadModal: React.FC<ViewLeadModalProps> = ({ lead, open, onOpenChange 
                 dir="ltr"
                 style={{ textAlign: "left", direction: "ltr" }}
               >
-                {leadName}
+                {t("Appointment Details")}
               </DialogTitle>
               <DialogDescription
                 className="text-sm text-muted-foreground mt-1"
                 dir="ltr"
                 style={{ textAlign: "left", direction: "ltr" }}
               >
-                {t("View detailed information about this lead")}
+                {t("View complete appointment information")}
               </DialogDescription>
             </div>
           </div>
@@ -221,61 +183,43 @@ const ViewLeadModal: React.FC<ViewLeadModalProps> = ({ lead, open, onOpenChange 
                 style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
               >
                 <InfoRow
-                  label={t("Lead Name")}
-                  value={leadName}
-                  className="text-lg font-semibold"
-                />
-                <InfoRow
-                  label={t("Lead ID")}
-                  value={lead._id || lead.id || t("N/A")}
-                  valueDir="ltr"
+                  label={t("Date & Time")}
+                  value={`${formatDateDisplay(appointment.date)} ${t("at")} ${formatTimeDisplay(appointment.date)}`}
+                  icon={<CalendarIcon className="h-4 w-4 text-gray-500" />}
                 />
                 <InfoRow
                   label={t("Status")}
                   value={
                     <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
-                      {getStatusIcon(lead.status)}
+                      {StatusIcon && (
+                        <span className="flex-shrink-0">
+                          {StatusIcon}
+                        </span>
+                      )}
                       <Badge
-                        className={cn(getStatusColor(lead.status))}
+                        className={cn(getStatusColorClass(appointment.status))}
                         dir="ltr"
                         style={{ textAlign: "left", direction: "ltr" }}
                       >
-                        {lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}
+                        {getStatusName(appointment.status)}
                       </Badge>
                     </div>
                   }
                 />
                 <InfoRow
-                  label={t("Source")}
-                  value={
-                    <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
-                      {getSourceIcon(lead.source)}
-                      <span className="capitalize">{lead.source}</span>
-                    </div>
-                  }
+                  label={t("Duration")}
+                  value={`${appointment.duration || 30} ${t("minutes")}`}
+                  icon={<Clock className="h-4 w-4 text-gray-500" />}
                 />
-                {lead.serviceInterest && (
-                  <InfoRow
-                    label={t("Service Interest")}
-                    value={
-                      <Badge variant="outline">
-                        {lead.serviceInterest}
-                      </Badge>
-                    }
-                  />
-                )}
-                {lead.assignedTo && (
-                  <InfoRow
-                    label={t("Assigned To")}
-                    value={lead.assignedTo}
-                    icon={<User className="h-4 w-4 text-gray-500" />}
-                  />
-                )}
+                <InfoRow
+                  label={t("Type")}
+                  value={appointment.type ? appointment.type.charAt(0).toUpperCase() + appointment.type.slice(1) : t("Consultation")}
+                />
               </div>
             </CardContent>
           </Card>
 
-          {/* Contact Information */}
+          {/* Patient Information */}
           <Card dir={isRTL ? "rtl" : "ltr"}>
             <CardHeader dir={isRTL ? "rtl" : "ltr"}>
               <CardTitle
@@ -283,8 +227,8 @@ const ViewLeadModal: React.FC<ViewLeadModalProps> = ({ lead, open, onOpenChange 
                 dir={isRTL ? "rtl" : "ltr"}
                 style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
               >
-                <Phone className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
-                <span className={cn(isRTL && "text-right")}>{t("Contact Information")}</span>
+                <User className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                <span className={cn(isRTL && "text-right")}>{t("Patient Information")}</span>
               </CardTitle>
             </CardHeader>
             <CardContent dir={isRTL ? "rtl" : "ltr"}>
@@ -295,25 +239,31 @@ const ViewLeadModal: React.FC<ViewLeadModalProps> = ({ lead, open, onOpenChange 
                 )}
                 style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
               >
-                {lead.email && (
+                <InfoRow
+                  label={t("Patient Name")}
+                  value={appointment.patient?.name || t("Unknown Patient")}
+                  className="text-lg font-semibold"
+                />
+                {appointment.patient?.phone && (
+                  <InfoRow
+                    label={t("Phone")}
+                    value={appointment.patient.phone}
+                    valueDir="ltr"
+                  />
+                )}
+                {appointment.patient?.email && (
                   <InfoRow
                     label={t("Email")}
-                    value={lead.email}
+                    value={appointment.patient.email}
                     valueDir="ltr"
-                    icon={<Mail className="h-4 w-4 text-gray-500" />}
+                    className="md:col-span-2"
                   />
                 )}
-                <InfoRow
-                  label={t("Phone")}
-                  value={lead.phone}
-                  valueDir="ltr"
-                  icon={<Phone className="h-4 w-4 text-gray-500" />}
-                />
               </div>
             </CardContent>
           </Card>
 
-          {/* Lead Information */}
+          {/* Doctor Information */}
           <Card dir={isRTL ? "rtl" : "ltr"}>
             <CardHeader dir={isRTL ? "rtl" : "ltr"}>
               <CardTitle
@@ -321,8 +271,8 @@ const ViewLeadModal: React.FC<ViewLeadModalProps> = ({ lead, open, onOpenChange 
                 dir={isRTL ? "rtl" : "ltr"}
                 style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
               >
-                <Globe className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
-                <span className={cn(isRTL && "text-right")}>{t("Lead Information")}</span>
+                <Stethoscope className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                <span className={cn(isRTL && "text-right")}>{t("Doctor Information")}</span>
               </CardTitle>
             </CardHeader>
             <CardContent dir={isRTL ? "rtl" : "ltr"}>
@@ -334,15 +284,14 @@ const ViewLeadModal: React.FC<ViewLeadModalProps> = ({ lead, open, onOpenChange 
                 style={isRTL ? { textAlign: "right" } : { textAlign: "left" }}
               >
                 <InfoRow
-                  label={t("Created")}
-                  value={formatDateValue(lead.created_at || lead.createdAt)}
-                  icon={<Calendar className="h-4 w-4 text-gray-500" />}
+                  label={t("Doctor Name")}
+                  value={appointment.doctor?.name || t("Unknown Doctor")}
+                  className="text-lg font-semibold"
                 />
-                {(lead.updated_at || lead.updatedAt) && (lead.updated_at || lead.updatedAt) !== (lead.created_at || lead.createdAt) && (
+                {appointment.doctor?.specialty && (
                   <InfoRow
-                    label={t("Last Updated")}
-                    value={formatDateValue(lead.updated_at || lead.updatedAt)}
-                    icon={<Calendar className="h-4 w-4 text-gray-500" />}
+                    label={t("Specialty")}
+                    value={appointment.doctor.specialty}
                   />
                 )}
               </div>
@@ -350,7 +299,7 @@ const ViewLeadModal: React.FC<ViewLeadModalProps> = ({ lead, open, onOpenChange 
           </Card>
 
           {/* Notes */}
-          {lead.notes && (
+          {appointment.notes && (
             <Card dir={isRTL ? "rtl" : "ltr"}>
               <CardHeader dir={isRTL ? "rtl" : "ltr"}>
                 <CardTitle
@@ -372,7 +321,7 @@ const ViewLeadModal: React.FC<ViewLeadModalProps> = ({ lead, open, onOpenChange 
                   style={isRTL ? { textAlign: "right", direction: "rtl" } : { textAlign: "left", direction: "ltr" }}
                 >
                   <p className="text-sm text-foreground whitespace-pre-wrap break-words">
-                    {lead.notes}
+                    {appointment.notes}
                   </p>
                 </div>
               </CardContent>
@@ -382,7 +331,7 @@ const ViewLeadModal: React.FC<ViewLeadModalProps> = ({ lead, open, onOpenChange 
 
         {/* Action Buttons */}
         <div
-          className={cn("flex justify-end items-center pt-6 border-t", isRTL && "flex-row-reverse")}
+          className={cn("flex justify-end items-center pt-6 border-t gap-3", isRTL && "flex-row-reverse")}
           dir={isRTL ? "rtl" : "ltr"}
         >
           <Button
@@ -393,10 +342,43 @@ const ViewLeadModal: React.FC<ViewLeadModalProps> = ({ lead, open, onOpenChange 
           >
             {t("Close")}
           </Button>
+          {onDownloadSlip && (
+            <Button
+              variant="outline"
+              onClick={() => onDownloadSlip(appointment)}
+              className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}
+            >
+              <Download className="h-4 w-4" />
+              {t("Download Slip")}
+            </Button>
+          )}
+          {onEdit && (
+            <Button
+              variant="outline"
+              onClick={() => {
+                onOpenChange(false);
+                onEdit(appointment);
+              }}
+              className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}
+            >
+              <Edit className="h-4 w-4" />
+              {t("Edit")}
+            </Button>
+          )}
+          {onMarkComplete && appointment.status !== "completed" && (
+            <Button
+              onClick={() => onMarkComplete(appointment)}
+              disabled={isLoading}
+              className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}
+            >
+              <CheckCircle className="h-4 w-4" />
+              {isLoading ? t("Saving...") : t("Mark Complete")}
+            </Button>
+          )}
         </div>
       </DialogContent>
     </Dialog>
   );
 };
 
-export default ViewLeadModal;
+export default AppointmentDetailModal;
