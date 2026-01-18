@@ -51,7 +51,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { Service } from "@/types";
 import AddServiceModal from "@/components/modals/AddServiceModal";
-import ViewDetailsModal from "@/components/modals/ViewDetailsModal";
+import ServiceDetailModal from "@/components/modals/ServiceDetailModal";
 import EditItemModal from "@/components/modals/EditItemModal";
 import DeleteConfirmModal from "@/components/modals/DeleteConfirmModal";
 import AdvancedFiltersModal from "@/components/modals/AdvancedFiltersModal";
@@ -905,47 +905,12 @@ const Services = () => {
       </motion.div>
 
       {/* Modals */}
-      <ViewDetailsModal
+      <ServiceDetailModal
         open={viewDetailsModal.open}
         onOpenChange={(open) =>
           setViewDetailsModal({ open, item: viewDetailsModal.item })
         }
-        title={t("Service Details")}
-        data={viewDetailsModal.item}
-        fields={[
-          { key: "id", label: t("Service ID"), type: "text" },
-          { key: "name", label: t("Service Name"), type: "text" },
-          { key: "category", label: t("Category"), type: "badge" },
-          { key: "department", label: t("Department"), type: "text" },
-          { key: "description", label: t("Description"), type: "text" },
-          {
-            key: "duration",
-            label: t("Duration"),
-            type: "text",
-            render: (value: number) => formatDuration(value),
-          },
-          { key: "price", label: t("Price"), type: "currency" },
-          { key: "maxBookingsPerDay", label: t("Max Bookings/Day"), type: "text" },
-          { key: "prerequisites", label: t("Prerequisites"), type: "text" },
-          {
-            key: "followUpRequired",
-            label: t("Follow-up Required"),
-            type: "boolean",
-          },
-          {
-            key: "specialInstructions",
-            label: t("Special Instructions"),
-            type: "text",
-          },
-          {
-            key: "isActive",
-            label: t("Status"),
-            type: "boolean",
-            render: (value: boolean) => (value ? t("Active") : t("Inactive")),
-          },
-          { key: "createdAt", label: t("Created"), type: "date" },
-          { key: "updatedAt", label: t("Last Updated"), type: "date" },
-        ]}
+        service={viewDetailsModal.item}
       />
 
       <EditItemModal

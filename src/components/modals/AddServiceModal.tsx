@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useIsRTL } from "@/hooks/useIsRTL";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -42,6 +43,7 @@ interface AddServiceModalProps {
 
 const AddServiceModal: React.FC<AddServiceModalProps> = ({ onServiceCreated }) => {
   const { t } = useTranslation();
+  const isRTL = useIsRTL();
   const [open, setOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("basic");
   const [isLoading, setIsLoading] = useState(false);
@@ -62,35 +64,35 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({ onServiceCreated }) =
     isActive: true,
   });
 
-  // Predefined options
-  const categories = [
-    "Consultation",
-    "Specialist Consultation",
-    "Diagnostic",
-    "Treatment",
-    "Imaging",
-    "Preventive",
-    "Emergency",
-    "Surgery",
-    "Therapy",
+  // Predefined options - using English keys for storage, translated for display
+  const categoryOptions = [
+    { value: "Consultation", label: t("Consultation") },
+    { value: "Specialist Consultation", label: t("Specialist Consultation") },
+    { value: "Diagnostic", label: t("Diagnostic") },
+    { value: "Treatment", label: t("Treatment") },
+    { value: "Imaging", label: t("Imaging") },
+    { value: "Preventive", label: t("Preventive") },
+    { value: "Emergency", label: t("Emergency") },
+    { value: "Surgery", label: t("Surgery") },
+    { value: "Therapy", label: t("Therapy") },
   ];
 
-  const departments = [
-    "General Medicine",
-    "Cardiology",
-    "Neurology",
-    "Orthopedics",
-    "Pediatrics",
-    "Gynecology",
-    "Dermatology",
-    "Ophthalmology",
-    "ENT",
-    "Psychiatry",
-    "Radiology",
-    "Laboratory",
-    "Physiotherapy",
-    "Dentistry",
-    "Emergency",
+  const departmentOptions = [
+    { value: "General Medicine", label: t("General Medicine") },
+    { value: "Cardiology", label: t("Cardiology") },
+    { value: "Neurology", label: t("Neurology") },
+    { value: "Orthopedics", label: t("Orthopedics") },
+    { value: "Pediatrics", label: t("Pediatrics") },
+    { value: "Gynecology", label: t("Gynecology") },
+    { value: "Dermatology", label: t("Dermatology") },
+    { value: "Ophthalmology", label: t("Ophthalmology") },
+    { value: "ENT", label: t("ENT") },
+    { value: "Psychiatry", label: t("Psychiatry") },
+    { value: "Radiology", label: t("Radiology") },
+    { value: "Laboratory", label: t("Laboratory") },
+    { value: "Physiotherapy", label: t("Physiotherapy") },
+    { value: "Dentistry", label: t("Dentistry") },
+    { value: "Emergency", label: t("Emergency") },
   ];
 
   const handleInputChange = (field: string, value: any) => {
@@ -142,45 +144,45 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({ onServiceCreated }) =
     const newErrors: Record<string, string> = {};
 
     if (!serviceData.name.trim()) {
-      newErrors.name = "Service name is required";
+      newErrors.name = t("Service name is required");
     }
 
     if (!serviceData.category) {
-      newErrors.category = "Category is required";
+      newErrors.category = t("Category is required");
     }
 
     if (!serviceData.department) {
-      newErrors.department = "Department is required";
+      newErrors.department = t("Department is required");
     }
 
     if (!serviceData.description.trim()) {
-      newErrors.description = "Description is required";
+      newErrors.description = t("Description is required");
     }
 
     if (!serviceData.duration.trim()) {
-      newErrors.duration = "Duration is required";
+      newErrors.duration = t("Duration is required");
     } else {
       const duration = parseInt(serviceData.duration);
       if (isNaN(duration) || duration <= 0) {
-        newErrors.duration = "Duration must be greater than 0";
+        newErrors.duration = t("Duration must be greater than 0");
       }
     }
 
     if (!serviceData.price.trim()) {
-      newErrors.price = "Price is required";
+      newErrors.price = t("Price is required");
     } else {
       const price = parseFloat(serviceData.price);
       if (isNaN(price) || price <= 0) {
-        newErrors.price = "Price must be greater than 0";
+        newErrors.price = t("Price must be greater than 0");
       }
     }
 
     if (!serviceData.maxBookingsPerDay.trim()) {
-      newErrors.maxBookingsPerDay = "Max bookings per day is required";
+      newErrors.maxBookingsPerDay = t("Max bookings per day is required");
     } else {
       const maxBookings = parseInt(serviceData.maxBookingsPerDay);
       if (isNaN(maxBookings) || maxBookings <= 0) {
-        newErrors.maxBookingsPerDay = "Max bookings per day must be greater than 0";
+        newErrors.maxBookingsPerDay = t("Max bookings per day must be greater than 0");
       }
     }
 
@@ -213,8 +215,8 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({ onServiceCreated }) =
       const createdService = await serviceApi.createService(requestData);
 
       toast({
-        title: "Service Created",
-        description: `${createdService.name} has been created successfully.`,
+        title: t("Service Created"),
+        description: `${createdService.name} ${t("has been created successfully.")}`,
       });
 
       setErrors({});
@@ -235,7 +237,7 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({ onServiceCreated }) =
         error.response.data.errors.forEach((err: any) => {
           const fieldName = err.path || err.param;
           if (fieldName) {
-            validationErrors[fieldName] = err.msg || "Invalid value";
+            validationErrors[fieldName] = err.msg || t("Invalid value");
           }
         });
         
@@ -284,108 +286,110 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({ onServiceCreated }) =
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button onClick={() => setOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
+          <Plus className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
           {t("Add Service")}
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className={cn("sm:max-w-[800px] max-h-[90vh] overflow-y-auto", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
         <DialogHeader>
-          <DialogTitle className="flex items-center space-x-2">
+          <DialogTitle className={cn("flex items-center", isRTL ? "space-x-reverse space-x-2" : "space-x-2")}>
             <Stethoscope className="h-5 w-5" />
-            <span>Add New Service</span>
+            <span>{t("Add New Service")}</span>
           </DialogTitle>
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="basic">Basic Info</TabsTrigger>
-            <TabsTrigger value="pricing">Pricing</TabsTrigger>
-            <TabsTrigger value="scheduling">Scheduling</TabsTrigger>
-            <TabsTrigger value="instructions">Instructions</TabsTrigger>
+            <TabsTrigger value="basic">{t("Basic Info")}</TabsTrigger>
+            <TabsTrigger value="pricing">{t("Pricing")}</TabsTrigger>
+            <TabsTrigger value="scheduling">{t("Scheduling")}</TabsTrigger>
+            <TabsTrigger value="instructions">{t("Instructions")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="basic" className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Service Name *</Label>
+                <Label htmlFor="name" className={cn(isRTL && "text-right")}>{t("Service Name *")}</Label>
                 <Input
                   id="name"
                   value={serviceData.name}
                   onChange={(e) => handleInputChange("name", e.target.value)}
-                  placeholder="Enter service name"
-                  className={errors.name ? "border-red-500" : ""}
+                  placeholder={t("Enter service name")}
+                  className={cn(errors.name ? "border-red-500" : "", isRTL && "text-right")}
+                  dir={isRTL ? "rtl" : "ltr"}
                 />
                 {errors.name && (
-                  <p className="text-sm text-red-500">{errors.name}</p>
+                  <p className={cn("text-sm text-red-500", isRTL && "text-right")}>{errors.name}</p>
                 )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="category">Category *</Label>
+                <Label htmlFor="category" className={cn(isRTL && "text-right")}>{t("Category *")}</Label>
                 <Select
                   value={serviceData.category}
                   onValueChange={(value) =>
                     handleInputChange("category", value)
                   }
                 >
-                  <SelectTrigger className={errors.category ? "border-red-500" : ""}>
-                    <SelectValue placeholder="Select category" />
+                  <SelectTrigger className={cn(errors.category ? "border-red-500" : "", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                    <SelectValue placeholder={t("Select category")} />
                   </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((category) => (
-                      <SelectItem key={category} value={category}>
-                        {category}
+                  <SelectContent dir={isRTL ? "rtl" : "ltr"}>
+                    {categoryOptions.map((category) => (
+                      <SelectItem key={category.value} value={category.value} className={cn(isRTL && "text-right")}>
+                        {category.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 {errors.category && (
-                  <p className="text-sm text-red-500">{errors.category}</p>
+                  <p className={cn("text-sm text-red-500", isRTL && "text-right")}>{errors.category}</p>
                 )}
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="department">Department *</Label>
+              <Label htmlFor="department" className={cn(isRTL && "text-right")}>{t("Department *")}</Label>
               <Select
                 value={serviceData.department}
                 onValueChange={(value) =>
                   handleInputChange("department", value)
                 }
               >
-                <SelectTrigger className={errors.department ? "border-red-500" : ""}>
-                  <SelectValue placeholder="Select department" />
+                <SelectTrigger className={cn(errors.department ? "border-red-500" : "", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                  <SelectValue placeholder={t("Select department")} />
                 </SelectTrigger>
-                <SelectContent>
-                  {departments.map((department) => (
-                    <SelectItem key={department} value={department}>
-                      {department}
+                <SelectContent dir={isRTL ? "rtl" : "ltr"}>
+                  {departmentOptions.map((department) => (
+                    <SelectItem key={department.value} value={department.value} className={cn(isRTL && "text-right")}>
+                      {department.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               {errors.department && (
-                <p className="text-sm text-red-500">{errors.department}</p>
+                <p className={cn("text-sm text-red-500", isRTL && "text-right")}>{errors.department}</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">Description *</Label>
+              <Label htmlFor="description" className={cn(isRTL && "text-right")}>{t("Description *")}</Label>
               <Textarea
                 id="description"
                 value={serviceData.description}
                 onChange={(e) =>
                   handleInputChange("description", e.target.value)
                 }
-                placeholder="Enter service description"
+                placeholder={t("Enter service description")}
                 rows={3}
-                className={errors.description ? "border-red-500" : ""}
+                className={cn(errors.description ? "border-red-500" : "", isRTL && "text-right")}
+                dir={isRTL ? "rtl" : "ltr"}
               />
               {errors.description && (
-                <p className="text-sm text-red-500">{errors.description}</p>
+                <p className={cn("text-sm text-red-500", isRTL && "text-right")}>{errors.description}</p>
               )}
             </div>
 
-            <div className="flex items-center space-x-2">
+            <div className={cn("flex items-center", isRTL ? "space-x-reverse space-x-2" : "space-x-2")}>
               <Switch
                 id="isActive"
                 checked={serviceData.isActive}
@@ -393,16 +397,16 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({ onServiceCreated }) =
                   handleInputChange("isActive", checked)
                 }
               />
-              <Label htmlFor="isActive">Active Service</Label>
+              <Label htmlFor="isActive" className={cn(isRTL && "text-right")}>{t("Active Service")}</Label>
             </div>
           </TabsContent>
 
           <TabsContent value="pricing" className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="duration">Duration (minutes) *</Label>
+                <Label htmlFor="duration" className={cn(isRTL && "text-right")}>{t("Duration (minutes) *")}</Label>
                 <div className="relative">
-                  <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Clock className={cn("absolute top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400", isRTL ? "right-3" : "left-3")} />
                   <Input
                     id="duration"
                     type="number"
@@ -410,35 +414,37 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({ onServiceCreated }) =
                     onChange={(e) =>
                       handleInputChange("duration", e.target.value)
                     }
-                    placeholder="Enter duration in minutes"
-                    className={cn("pl-10", errors.duration && "border-red-500")}
+                    placeholder={t("Enter duration in minutes")}
+                    className={cn(isRTL ? "pr-10 text-right" : "pl-10", errors.duration && "border-red-500")}
+                    dir={isRTL ? "rtl" : "ltr"}
                   />
                 </div>
                 {errors.duration && (
-                  <p className="text-sm text-red-500">{errors.duration}</p>
+                  <p className={cn("text-sm text-red-500", isRTL && "text-right")}>{errors.duration}</p>
                 )}
                 {serviceData.duration && !errors.duration && (
-                  <p className="text-sm text-gray-500">
-                    Duration: {formatDuration(serviceData.duration)}
+                  <p className={cn("text-sm text-gray-500", isRTL && "text-right")}>
+                    {t("Duration:")} {formatDuration(serviceData.duration)}
                   </p>
                 )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="price">Price (USD) *</Label>
+                <Label htmlFor="price" className={cn(isRTL && "text-right")}>{t("Price (USD) *")}</Label>
                 <div className="relative">
-                  <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <DollarSign className={cn("absolute top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400", isRTL ? "right-3" : "left-3")} />
                   <Input
                     id="price"
                     type="number"
                     step="0.01"
                     value={serviceData.price}
                     onChange={(e) => handleInputChange("price", e.target.value)}
-                    placeholder="Enter price"
-                    className={cn("pl-10", errors.price && "border-red-500")}
+                    placeholder={t("Enter price")}
+                    className={cn(isRTL ? "pr-10 text-right" : "pl-10", errors.price && "border-red-500")}
+                    dir={isRTL ? "rtl" : "ltr"}
                   />
                 </div>
                 {errors.price && (
-                  <p className="text-sm text-red-500">{errors.price}</p>
+                  <p className={cn("text-sm text-red-500", isRTL && "text-right")}>{errors.price}</p>
                 )}
               </div>
             </div>
@@ -457,11 +463,11 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({ onServiceCreated }) =
 
           <TabsContent value="scheduling" className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="maxBookingsPerDay">
-                Maximum Bookings Per Day *
+              <Label htmlFor="maxBookingsPerDay" className={cn(isRTL && "text-right")}>
+                {t("Maximum Bookings Per Day *")}
               </Label>
               <div className="relative">
-                <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Users className={cn("absolute top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400", isRTL ? "right-3" : "left-3")} />
                 <Input
                   id="maxBookingsPerDay"
                   type="number"
@@ -469,22 +475,22 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({ onServiceCreated }) =
                   onChange={(e) =>
                     handleInputChange("maxBookingsPerDay", e.target.value)
                   }
-                  placeholder="Enter maximum bookings per day"
-                  className={cn("pl-10", errors.maxBookingsPerDay && "border-red-500")}
+                  placeholder={t("Enter maximum bookings per day")}
+                  className={cn(isRTL ? "pr-10 text-right" : "pl-10", errors.maxBookingsPerDay && "border-red-500")}
+                  dir={isRTL ? "rtl" : "ltr"}
                 />
               </div>
               {errors.maxBookingsPerDay && (
-                <p className="text-sm text-red-500">{errors.maxBookingsPerDay}</p>
+                <p className={cn("text-sm text-red-500", isRTL && "text-right")}>{errors.maxBookingsPerDay}</p>
               )}
               {!errors.maxBookingsPerDay && (
-                <p className="text-sm text-gray-500">
-                  Maximum number of appointments that can be scheduled for this
-                  service per day
+                <p className={cn("text-sm text-gray-500", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                  {t("Maximum number of appointments that can be scheduled for this service per day")}
                 </p>
               )}
             </div>
 
-            <div className="flex items-center space-x-2">
+            <div className={cn("flex items-center", isRTL ? "space-x-reverse space-x-2" : "space-x-2")}>
               <Switch
                 id="followUpRequired"
                 checked={serviceData.followUpRequired}
@@ -492,86 +498,91 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({ onServiceCreated }) =
                   handleInputChange("followUpRequired", checked)
                 }
               />
-              <Label htmlFor="followUpRequired">Follow-up Required</Label>
+              <Label htmlFor="followUpRequired" className={cn(isRTL && "text-right")}>{t("Follow-up Required")}</Label>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="prerequisites">Prerequisites</Label>
+              <Label htmlFor="prerequisites" className={cn(isRTL && "text-right")}>{t("Prerequisites")}</Label>
               <Textarea
                 id="prerequisites"
                 value={serviceData.prerequisites}
                 onChange={(e) =>
                   handleInputChange("prerequisites", e.target.value)
                 }
-                placeholder="Enter any prerequisites for this service (e.g., doctor's referral, fasting)"
+                placeholder={t("Enter any prerequisites for this service (e.g., doctor's referral, fasting)")}
                 rows={2}
+                className={cn(isRTL && "text-right")}
+                dir={isRTL ? "rtl" : "ltr"}
               />
             </div>
           </TabsContent>
 
           <TabsContent value="instructions" className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="specialInstructions">Special Instructions</Label>
+              <Label htmlFor="specialInstructions" className={cn(isRTL && "text-right")}>{t("Special Instructions")}</Label>
               <Textarea
                 id="specialInstructions"
                 value={serviceData.specialInstructions}
                 onChange={(e) =>
                   handleInputChange("specialInstructions", e.target.value)
                 }
-                placeholder="Enter special instructions for patients (e.g., what to bring, preparation needed)"
+                placeholder={t("Enter special instructions for patients (e.g., what to bring, preparation needed)")}
                 rows={4}
+                className={cn(isRTL && "text-right")}
+                dir={isRTL ? "rtl" : "ltr"}
               />
             </div>
 
-            <div className="p-4 bg-yellow-50 rounded-lg">
-              <div className="flex items-center space-x-2 mb-2">
+            <div className={cn("p-4 bg-yellow-50 rounded-lg", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+              <div className={cn("flex items-center mb-2", isRTL ? "space-x-reverse space-x-2" : "space-x-2")}>
                 <AlertCircle className="h-4 w-4 text-yellow-600" />
                 <span className="font-medium text-yellow-800">
-                  Service Summary
+                  {t("Service Summary")}
                 </span>
               </div>
-              <div className="space-y-1 text-sm">
-                <p>
-                  <strong>Name:</strong> {serviceData.name || "Not specified"}
+              <div className={cn("space-y-1 text-sm", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                <p dir={isRTL ? "rtl" : "ltr"}>
+                  <strong>{t("Name:")}</strong> {serviceData.name || t("Not specified")}
                 </p>
-                <p>
-                  <strong>Category:</strong>{" "}
-                  {serviceData.category || "Not specified"}
+                <p dir={isRTL ? "rtl" : "ltr"}>
+                  <strong>{t("Category:")}</strong>{" "}
+                  {serviceData.category ? categoryOptions.find(c => c.value === serviceData.category)?.label || serviceData.category : t("Not specified")}
                 </p>
-                <p>
-                  <strong>Department:</strong>{" "}
-                  {serviceData.department || "Not specified"}
+                <p dir={isRTL ? "rtl" : "ltr"}>
+                  <strong>{t("Department:")}</strong>{" "}
+                  {serviceData.department ? departmentOptions.find(d => d.value === serviceData.department)?.label || serviceData.department : t("Not specified")}
                 </p>
-                <p>
-                  <strong>Duration:</strong>{" "}
+                <p dir={isRTL ? "rtl" : "ltr"}>
+                  <strong>{t("Duration:")}</strong>{" "}
                   {serviceData.duration
                     ? formatDuration(serviceData.duration)
-                    : "Not specified"}
+                    : t("Not specified")}
                 </p>
-                <p>
-                  <strong>Price:</strong>{" "}
+                <p dir={isRTL ? "rtl" : "ltr"}>
+                  <strong>{t("Price:")}</strong>{" "}
                   {serviceData.price
                     ? formatCurrency(serviceData.price)
-                    : "Not specified"}
+                    : t("Not specified")}
                 </p>
-                <p>
-                  <strong>Max Bookings/Day:</strong>{" "}
-                  {serviceData.maxBookingsPerDay || "Not specified"}
+                <p dir={isRTL ? "rtl" : "ltr"}>
+                  <strong>{t("Max Bookings/Day:")}</strong>{" "}
+                  {serviceData.maxBookingsPerDay || t("Not specified")}
                 </p>
-                <p>
-                  <strong>Follow-up Required:</strong>{" "}
-                  {serviceData.followUpRequired ? "Yes" : "No"}
+                <p dir={isRTL ? "rtl" : "ltr"}>
+                  <strong>{t("Follow-up Required:")}</strong>{" "}
+                  {serviceData.followUpRequired ? t("Yes") : t("No")}
                 </p>
-                <p>
-                  <strong>Status:</strong>
+                <p dir={isRTL ? "rtl" : "ltr"}>
+                  <strong>{t("Status:")}</strong>
                   <Badge
-                    className={
+                    className={cn(
                       serviceData.isActive
-                        ? "ml-1 bg-green-100 text-green-800"
-                        : "ml-1 bg-gray-100 text-gray-800"
-                    }
+                        ? "bg-green-100 text-green-800"
+                        : "bg-gray-100 text-gray-800",
+                      isRTL ? "mr-1" : "ml-1"
+                    )}
                   >
-                    {serviceData.isActive ? "Active" : "Inactive"}
+                    {serviceData.isActive ? t("Active") : t("Inactive")}
                   </Badge>
                 </p>
               </div>
@@ -581,22 +592,22 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({ onServiceCreated }) =
 
         <Separator />
 
-        <div className="flex justify-between space-x-2 pt-4">
+        <div className={cn("flex justify-between pt-4", isRTL ? "space-x-reverse space-x-2" : "space-x-2")}>
           <Button variant="outline" onClick={resetForm} disabled={isLoading}>
-            Reset Form
+            {t("Reset Form")}
           </Button>
-          <div className="flex space-x-2">
+          <div className={cn("flex", isRTL ? "space-x-reverse space-x-2" : "space-x-2")}>
             <Button variant="outline" onClick={() => setOpen(false)} disabled={isLoading}>
-              Cancel
+              {t("Cancel")}
             </Button>
             <Button onClick={handleSave} disabled={isLoading}>
               {isLoading ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Creating...
+                  <Loader2 className={cn("h-4 w-4 animate-spin", isRTL ? "ml-2" : "mr-2")} />
+                  {t("Creating...")}
                 </>
               ) : (
-                "Create Service"
+                t("Create Service")
               )}
             </Button>
           </div>

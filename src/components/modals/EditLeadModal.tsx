@@ -317,10 +317,10 @@ const EditLeadModal: React.FC<EditLeadModalProps> = ({ lead, open, onOpenChange 
                     value={formData.source}
                     onValueChange={(value) => handleChange("source", value)}
                   >
-                    <SelectTrigger className={cn(errors.source && "border-red-500", isRTL && "text-right")} dir={isRTL ? 'rtl' : 'ltr'}>
+                    <SelectTrigger className={cn(errors.source && "border-red-500", isRTL && "text-right")}>
                       <SelectValue placeholder={t("How did they find us?")} />
                     </SelectTrigger>
-                    <SelectContent dir={isRTL ? 'rtl' : 'ltr'} className={cn(isRTL && "text-right")}>
+                    <SelectContent className={cn(isRTL && "text-right")}>
                       {leadSources.map((source) => (
                         <SelectItem key={source.value} value={source.value} className={cn(isRTL && "text-right")}>
                           {source.label}
@@ -341,10 +341,10 @@ const EditLeadModal: React.FC<EditLeadModalProps> = ({ lead, open, onOpenChange 
                       handleChange("serviceInterest", value)
                     }
                   >
-                    <SelectTrigger className={cn(errors.serviceInterest && "border-red-500", isRTL && "text-right")} dir={isRTL ? 'rtl' : 'ltr'}>
+                    <SelectTrigger className={cn(errors.serviceInterest && "border-red-500", isRTL && "text-right")}>
                       <SelectValue placeholder={t("What service are they interested in?")} />
                     </SelectTrigger>
-                    <SelectContent dir={isRTL ? 'rtl' : 'ltr'} className={cn(isRTL && "text-right")}>
+                    <SelectContent className={cn(isRTL && "text-right")}>
                       {services.map((service) => (
                         <SelectItem key={service} value={service} className={cn(isRTL && "text-right")}>
                           {service}

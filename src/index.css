@@ -573,16 +573,28 @@
   /* RTL support for input placeholder - align placeholder text to right */
   body.rtl input::placeholder,
   [dir="rtl"] input::placeholder,
-  body.rtl [dir="rtl"] input::placeholder {
-    text-align: right;
-    direction: rtl;
+  body.rtl [dir="rtl"] input::placeholder,
+  input[dir="rtl"]::placeholder {
+    text-align: right !important;
+    direction: rtl !important;
+    unicode-bidi: bidi-override;
   }
 
   body.rtl textarea::placeholder,
   [dir="rtl"] textarea::placeholder,
-  body.rtl [dir="rtl"] textarea::placeholder {
-    text-align: right;
-    direction: rtl;
+  body.rtl [dir="rtl"] textarea::placeholder,
+  textarea[dir="rtl"]::placeholder {
+    text-align: right !important;
+    direction: rtl !important;
+    unicode-bidi: bidi-override;
+  }
+
+  /* Ensure inputs with RTL direction have RTL placeholder */
+  [dir="rtl"] input:not([type="checkbox"]):not([type="radio"])::placeholder,
+  input[dir="rtl"]:not([type="checkbox"]):not([type="radio"])::placeholder {
+    text-align: right !important;
+    direction: rtl !important;
+    unicode-bidi: bidi-override;
   }
 
   /* RTL support for date inputs */
@@ -598,6 +610,64 @@
   input[type="date"][dir="rtl"]::-webkit-calendar-picker-indicator {
     left: 0.5rem !important;
     right: auto !important;
+  }
+
+  /* RTL support for form labels - align to right */
+  [dir="rtl"] label,
+  body.rtl label,
+  [dir="rtl"] .form-field label,
+  body.rtl .form-field label {
+    text-align: right !important;
+    display: block;
+    width: 100%;
+  }
+
+  /* RTL support for form inputs - align text to right */
+  [dir="rtl"] input:not([type="checkbox"]):not([type="radio"]),
+  body.rtl input:not([type="checkbox"]):not([type="radio"]),
+  [dir="rtl"] textarea,
+  body.rtl textarea,
+  [dir="rtl"] select,
+  body.rtl select {
+    text-align: right !important;
+    direction: rtl;
+  }
+
+  /* RTL support for placeholder in form inputs */
+  [dir="rtl"] input:not([type="checkbox"]):not([type="radio"])::placeholder,
+  body.rtl input:not([type="checkbox"]):not([type="radio"])::placeholder,
+  input[dir="rtl"]:not([type="checkbox"]):not([type="radio"])::placeholder,
+  [dir="rtl"] textarea::placeholder,
+  body.rtl textarea::placeholder,
+  textarea[dir="rtl"]::placeholder {
+    text-align: right !important;
+    direction: rtl !important;
+    unicode-bidi: bidi-override;
+  }
+
+  /* RTL support for form field containers */
+  [dir="rtl"] .form-field,
+  body.rtl .form-field {
+    text-align: right;
+    direction: rtl;
+  }
+
+  /* RTL support for DialogDescription - ensure description text starts from right */
+  [dir="rtl"] [role="dialog"] [data-radix-dialog-description],
+  body.rtl [role="dialog"] [data-radix-dialog-description],
+  [dir="rtl"] [role="dialog"] p.text-sm.text-muted-foreground,
+  body.rtl [role="dialog"] p.text-sm.text-muted-foreground {
+    text-align: right !important;
+    direction: rtl !important;
+  }
+
+  /* RTL support for DialogHeader - ensure header content aligns right */
+  [dir="rtl"] [role="dialog"] [data-radix-dialog-header],
+  body.rtl [role="dialog"] [data-radix-dialog-header],
+  [dir="rtl"] [role="dialog"] header,
+  body.rtl [role="dialog"] header {
+    text-align: right;
+    direction: rtl;
   }
 
   /* Root container for preventing overflow */

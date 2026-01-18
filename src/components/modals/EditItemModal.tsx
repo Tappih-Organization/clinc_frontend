@@ -413,7 +413,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
                 <SelectTrigger className={errors.category ? "border-red-500" : ""}>
                   <SelectValue placeholder={t("Select category")} />
                 </SelectTrigger>
-                <SelectContent dir="auto">
+                <SelectContent>
                   {predefinedCategories.map((category) => (
                     <SelectItem key={category} value={category}>
                       {t(category)}
@@ -544,7 +544,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
                 <SelectTrigger>
                   <SelectValue placeholder={t("Select supplier")} />
                 </SelectTrigger>
-                <SelectContent dir="auto">
+                <SelectContent>
                   {predefinedSuppliers.map((supplier) => (
                     <SelectItem key={supplier} value={supplier}>
                       {supplier}

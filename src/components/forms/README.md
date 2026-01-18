@@ -126,6 +126,112 @@ const { t } = useTranslation();
 
 ---
 
+### 5. `ItemsDetails`
+مكون قابل لإعادة الاستخدام لإدارة قوائم الأصناف (أدوية، مخزون، إلخ) مع دعم RTL كامل
+
+**الخصائص:**
+- `items`: FormItem[] - قائمة الأصناف
+- `onItemsChange`: (items: FormItem[]) => void - دالة تحديث القائمة
+- `title?`: string - عنوان القسم (افتراضي: "Items")
+- `itemLabel?`: string - تسمية الصنف (افتراضي: "Item")
+- `addButtonLabel?`: string - نص زر الإضافة (افتراضي: "Add Item")
+- `showCommonItems?`: boolean - عرض قائمة الأصناف الشائعة
+- `commonItems?`: Array<{ name: string; dosages?: string[] }> - قائمة الأصناف الشائعة
+- `frequencies?`: string[] - قائمة التكرارات (للأدوية)
+- `durations?`: string[] - قائمة المدد (للأدوية)
+- `fields?`: object - تحديد الحقول المعروضة:
+  - `showName?`: boolean - عرض حقل الاسم
+  - `showDosage?`: boolean - عرض حقل الجرعة
+  - `showFrequency?`: boolean - عرض حقل التكرار
+  - `showDuration?`: boolean - عرض حقل المدة
+  - `showQuantity?`: boolean - عرض حقل الكمية
+  - `showInstructions?`: boolean - عرض حقل التعليمات
+  - `customFields?`: Array - حقول مخصصة إضافية
+- `calculateTotal?`: (items: FormItem[]) => number - دالة حساب المجموع المخصصة
+- `totalLabel?`: string - نص المجموع (افتراضي: "Total:")
+- `minItems?`: number - الحد الأدنى لعدد الأصناف (افتراضي: 1)
+- `className?`: string - كلاسات CSS إضافية
+
+**مثال الاستخدام الأساسي:**
+```tsx
+import { ItemsDetails, FormItem } from "@/components/forms";
+import { useTranslation } from "react-i18next";
+import { useState } from "react";
+
+const { t } = useTranslation();
+const [medications, setMedications] = useState<FormItem[]>([]);
+
+const commonMedications = [
+  { name: "Paracetamol", dosages: ["500mg", "650mg", "1000mg"] },
+  { name: "Amoxicillin", dosages: ["250mg", "500mg", "875mg"] },
+];
+
+const frequencies = [
+  "Once daily",
+  "Twice daily",
+  "Three times daily",
+];
+
+<ItemsDetails
+  items={medications}
+  onItemsChange={setMedications}
+  title={t("Medications")}
+  itemLabel={t("Medication")}
+  addButtonLabel={t("Add Medication")}
+  showCommonItems={true}
+  commonItems={commonMedications}
+  frequencies={frequencies}
+  durations={["3 days", "7 days", "14 days"]}
+  fields={{
+    showName: true,
+    showDosage: true,
+    showFrequency: true,
+    showDuration: true,
+    showQuantity: true,
+    showInstructions: true,
+  }}
+  minItems={1}
+/>
+```
+
+**مثال مع حقول مخصصة:**
+```tsx
+<ItemsDetails
+  items={inventoryItems}
+  onItemsChange={setInventoryItems}
+  title={t("Inventory Items")}
+  itemLabel={t("Item")}
+  fields={{
+    showName: true,
+    showQuantity: true,
+    customFields: [
+      {
+        key: "price",
+        label: t("Price"),
+        type: "number",
+        required: true,
+        placeholder: t("Enter price"),
+      },
+      {
+        key: "category",
+        label: t("Category"),
+        type: "select",
+        options: ["Medicine", "Equipment", "Supply"],
+        required: true,
+      },
+      {
+        key: "notes",
+        label: t("Notes"),
+        type: "textarea",
+        placeholder: t("Additional notes..."),
+      },
+    ],
+  }}
+/>
+```
+
+---
+
 ## مثال كامل
 
 ```tsx
@@ -225,6 +331,7 @@ export default MyForm;
 ✅ **سهولة الاستخدام**: واجهة برمجية بسيطة وواضحة  
 ✅ **قابل للتخصيص**: يمكن إضافة كلاسات CSS إضافية  
 ✅ **TypeScript**: دعم كامل لـ TypeScript مع type safety  
+✅ **مكونات قابلة لإعادة الاستخدام**: مثل `ItemsDetails` لإدارة قوائم الأصناف  
 
 ---
 

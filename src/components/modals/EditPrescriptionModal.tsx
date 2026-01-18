@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,20 +19,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
-  Plus,
-  Trash2,
   Stethoscope,
-  Pill,
   Calendar,
   AlertTriangle,
   Loader2,
   Save,
 } from "lucide-react";
+import { ItemsDetails, FormItem } from "@/components/forms/ItemsDetails";
 import { toast } from "@/hooks/use-toast";
 import { apiService } from "@/services/api";
 import { Prescription, CreatePrescriptionRequest, Medication } from "@/types";
+import { useIsRTL } from "@/hooks/useIsRTL";
+import { cn } from "@/lib/utils";
 
 interface EditPrescriptionModalProps {
   open: boolean;
@@ -50,16 +50,23 @@ const EditPrescriptionModal: React.FC<EditPrescriptionModalProps> = ({
   prescriptionId,
   onSuccess,
 }) => {
+  const { t } = useTranslation();
+  const isRTL = useIsRTL();
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [prescription, setPrescription] = useState<Prescription | null>(null);
   const [error, setError] = useState<string | null>(null);
   
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    diagnosis: string;
+    notes: string;
+    followUpDate: string;
+    status: "pending" | "active" | "completed" | "cancelled" | "expired";
+  }>({
     diagnosis: "",
     notes: "",
     followUpDate: "",
-    status: "pending" as const,
+    status: "pending",
   });
 
   const [medications, setMedications] = useState<FormMedication[]>([]);
@@ -128,7 +135,7 @@ const EditPrescriptionModal: React.FC<EditPrescriptionModalProps> = ({
         followUpDate: prescriptionData.follow_up_date 
           ? new Date(prescriptionData.follow_up_date).toISOString().split('T')[0] 
           : "",
-        status: prescriptionData.status || "pending",
+        status: (prescriptionData.status || "pending") as "pending" | "active" | "completed" | "cancelled" | "expired",
       });
 
       // Populate medications with IDs for form handling
@@ -155,52 +162,8 @@ const EditPrescriptionModal: React.FC<EditPrescriptionModalProps> = ({
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const addMedication = () => {
-    const newMedication: FormMedication = {
-      id: `med_${Date.now()}`,
-      name: "",
-      dosage: "",
-      frequency: "",
-      duration: "",
-      instructions: "",
-      quantity: 1,
-    };
-    setMedications([...medications, newMedication]);
-  };
-
-  const removeMedication = (id: string) => {
-    if (medications.length > 1) {
-      setMedications(medications.filter((med) => med.id !== id));
-    }
-  };
-
-  const updateMedication = (
-    id: string,
-    field: keyof FormMedication,
-    value: string | number,
-  ) => {
-    setMedications(
-      medications.map((med) =>
-        med.id === id ? { ...med, [field]: value } : med,
-      ),
-    );
-  };
-
-  const selectCommonMedication = (medId: string, medicationName: string) => {
-    const selectedMed = commonMedications.find(
-      (med) => med.name === medicationName,
-    );
-    if (selectedMed) {
-      updateMedication(medId, "name", selectedMed.name);
-      // Auto-select first dosage if available
-      if (selectedMed.dosages.length > 0) {
-        updateMedication(medId, "dosage", selectedMed.dosages[0]);
-      }
-    }
-  };
-
-  const calculateTotalQuantity = () => {
-    return medications.reduce((total, med) => total + med.quantity, 0);
+  const handleMedicationsChange = (updatedMedications: FormItem[]) => {
+    setMedications(updatedMedications as FormMedication[]);
   };
 
   const resetForm = () => {
@@ -426,179 +389,26 @@ const EditPrescriptionModal: React.FC<EditPrescriptionModalProps> = ({
           </Card>
 
           {/* Medications */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center justify-between">
-                <div className="flex items-center">
-                  <Pill className="h-4 w-4 mr-2" />
-                  Medications
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Badge variant="outline">
-                    Total: {calculateTotalQuantity()} units
-                  </Badge>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={addMedication}
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Medication
-                  </Button>
-                </div>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {medications.map((medication, index) => (
-                <div
-                  key={medication.id}
-                  className="border rounded-lg p-4 space-y-4 bg-gray-50"
-                >
-                  <div className="flex justify-between items-center">
-                    <h4 className="font-medium">Medication {index + 1}</h4>
-                    {medications.length > 1 && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeMedication(medication.id)}
-                        className="text-red-600 hover:text-red-800"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Medication Name *</Label>
-                      <Input
-                        value={medication.name}
-                        onChange={(e) =>
-                          updateMedication(
-                            medication.id,
-                            "name",
-                            e.target.value,
-                          )
-                        }
-                        placeholder="Enter medication name"
-                        required
-                      />
-                      <Select
-                        onValueChange={(value) =>
-                          selectCommonMedication(medication.id, value)
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Or select from common medications" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {commonMedications.map((med) => (
-                            <SelectItem key={med.name} value={med.name}>
-                              {med.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Dosage *</Label>
-                      <Input
-                        value={medication.dosage}
-                        onChange={(e) =>
-                          updateMedication(
-                            medication.id,
-                            "dosage",
-                            e.target.value,
-                          )
-                        }
-                        placeholder="e.g., 500mg"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="space-y-2">
-                      <Label>Frequency *</Label>
-                      <Select
-                        value={medication.frequency}
-                        onValueChange={(value) =>
-                          updateMedication(medication.id, "frequency", value)
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="How often" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {frequencies.map((freq) => (
-                            <SelectItem key={freq} value={freq}>
-                              {freq}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Duration *</Label>
-                      <Select
-                        value={medication.duration}
-                        onValueChange={(value) =>
-                          updateMedication(medication.id, "duration", value)
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="How long" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {durations.map((duration) => (
-                            <SelectItem key={duration} value={duration}>
-                              {duration}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Quantity</Label>
-                      <Input
-                        type="number"
-                        min="1"
-                        value={medication.quantity}
-                        onChange={(e) =>
-                          updateMedication(
-                            medication.id,
-                            "quantity",
-                            parseInt(e.target.value) || 1,
-                          )
-                        }
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Instructions</Label>
-                    <Textarea
-                      value={medication.instructions}
-                      onChange={(e) =>
-                        updateMedication(
-                          medication.id,
-                          "instructions",
-                          e.target.value,
-                        )
-                      }
-                      placeholder="Special instructions for taking this medication..."
-                      rows={2}
-                    />
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
+          <ItemsDetails
+            items={medications}
+            onItemsChange={handleMedicationsChange}
+            title={t("Medications")}
+            itemLabel={t("Medication")}
+            addButtonLabel={t("Add Medication")}
+            showCommonItems={true}
+            commonItems={commonMedications}
+            frequencies={frequencies}
+            durations={durations}
+            fields={{
+              showName: true,
+              showDosage: true,
+              showFrequency: true,
+              showDuration: true,
+              showQuantity: true,
+              showInstructions: true,
+            }}
+            minItems={1}
+          />
 
           {/* Additional Information */}
           <Card>
@@ -679,4 +489,4 @@ const EditPrescriptionModal: React.FC<EditPrescriptionModalProps> = ({
   );
 };
 
-export default EditPrescriptionModal; 
+export default EditPrescriptionModal;

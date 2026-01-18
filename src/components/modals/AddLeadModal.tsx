@@ -405,10 +405,10 @@ const AddLeadModal: React.FC<AddLeadModalProps> = ({ trigger }) => {
                     value={formData.source}
                     onValueChange={(value) => handleChange("source", value)}
                   >
-                    <SelectTrigger className={cn("w-full", isRTL && "text-right", errors.source && "border-red-500")} dir={isRTL ? 'rtl' : 'ltr'}>
+                    <SelectTrigger className={cn("w-full", isRTL && "text-right", errors.source && "border-red-500")}>
                       <SelectValue placeholder={t("How did they find us?")} />
                     </SelectTrigger>
-                    <SelectContent dir={isRTL ? 'rtl' : 'ltr'} className={cn(isRTL && "text-right")}>
+                    <SelectContent className={cn(isRTL && "text-right")}>
                       {leadSources.map((source) => (
                         <SelectItem key={source.value} value={source.value} className={cn(isRTL && "text-right")}>
                           {source.label}
@@ -431,10 +431,10 @@ const AddLeadModal: React.FC<AddLeadModalProps> = ({ trigger }) => {
                       handleChange("serviceInterest", value)
                     }
                   >
-                    <SelectTrigger className={cn("w-full", isRTL && "text-right", errors.serviceInterest && "border-red-500")} dir={isRTL ? 'rtl' : 'ltr'}>
+                    <SelectTrigger className={cn("w-full", isRTL && "text-right", errors.serviceInterest && "border-red-500")}>
                       <SelectValue placeholder={t("What service are they interested in?")} />
                     </SelectTrigger>
-                    <SelectContent dir={isRTL ? 'rtl' : 'ltr'} className={cn(isRTL && "text-right")}>
+                    <SelectContent className={cn(isRTL && "text-right")}>
                       {services.map((service) => (
                         <SelectItem key={service} value={service} className={cn(isRTL && "text-right")}>
                           {service}
@@ -579,10 +579,10 @@ const AddLeadModal: React.FC<AddLeadModalProps> = ({ trigger }) => {
                           "w-full",
                           isRTL && "text-right",
                           errors.gender && "border-red-500"
-                        )} dir={isRTL ? 'rtl' : 'ltr'}>
+                        )}>
                           <SelectValue placeholder={t("Select gender")} />
                         </SelectTrigger>
-                        <SelectContent dir={isRTL ? 'rtl' : 'ltr'} className={cn(isRTL && "text-right")}>
+                        <SelectContent className={cn(isRTL && "text-right")}>
                           <SelectItem value="male" className={cn(isRTL && "text-right")}>{t("Male")}</SelectItem>
                           <SelectItem value="female" className={cn(isRTL && "text-right")}>{t("Female")}</SelectItem>
                         </SelectContent>

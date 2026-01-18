@@ -119,142 +119,331 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
     };
   };
 
+  // Standardized Info Row Component for consistent RTL alignment
+  const InfoRow: React.FC<{
+    label: string;
+    value: React.ReactNode;
+    valueDir?: "ltr" | "rtl";
+    icon?: React.ReactNode;
+    className?: string;
+  }> = ({ label, value, valueDir, icon, className = "" }) => {
+    const finalValueDir = valueDir || (isRTL ? "rtl" : "ltr");
+    const isLTRContent = finalValueDir === "ltr";
+    return (
+      <div 
+        className={cn("space-y-1.5", className)} 
+        dir={isRTL ? "rtl" : "ltr"}
+        style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+      >
+        <label 
+          className={cn(
+            "text-sm font-medium text-gray-500 block leading-tight",
+            isRTL ? "text-right" : "text-left"
+          )}
+          dir={isRTL ? "rtl" : "ltr"}
+          style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+        >
+          {label}
+        </label>
+        <div 
+          className={cn(
+            "flex items-baseline min-h-[1.5rem]",
+            isRTL ? "flex-row-reverse justify-end" : "justify-start",
+            icon && "gap-2"
+          )}
+          style={isRTL && !isLTRContent ? { justifyContent: 'flex-end' } : {}}
+        >
+          {icon && (
+            <span className={cn("flex-shrink-0 self-center", isRTL && "order-2")}>
+              {icon}
+            </span>
+          )}
+          <p 
+            className={cn(
+              "text-base leading-normal break-words",
+              isLTRContent ? "text-left" : isRTL ? "text-right" : "text-left"
+            )}
+            dir={finalValueDir}
+            style={isLTRContent 
+              ? { textAlign: 'left', direction: 'ltr' } 
+              : isRTL 
+                ? { textAlign: 'right', direction: 'rtl' } 
+                : { textAlign: 'left', direction: 'ltr' }
+            }
+          >
+            {value}
+          </p>
+        </div>
+      </div>
+    );
+  };
+
+  const getStatusLabel = (status: string) => {
+    const statusMap: Record<string, string> = {
+      "paid": t("Paid"),
+      "pending": t("Pending"),
+      "overdue": t("Overdue"),
+      "cancelled": t("Cancelled"),
+    };
+    return statusMap[status.toLowerCase()] || status.toUpperCase();
+  };
+
   if (!isOpen) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className={cn("flex items-center text-xl", isRTL && "flex-row-reverse")}>
-            <Receipt className={cn("h-5 w-5 text-blue-600", isRTL ? "ml-2" : "mr-2")} />
-            {t("Invoice Details")}
-          </DialogTitle>
-          <DialogDescription className={cn(isRTL && "text-right")}>
-            {t("View complete invoice information and payment details")}
-          </DialogDescription>
+      <DialogContent 
+        className={cn("max-w-4xl max-h-[90vh] overflow-y-auto", isRTL && "rtl")} 
+        dir={isRTL ? "rtl" : "ltr"}
+      >
+        <DialogHeader dir={isRTL ? "rtl" : "ltr"}>
+          <div 
+            className={cn("flex items-start justify-between gap-4")}
+            style={isRTL ? { flexDirection: 'row-reverse' } : { flexDirection: 'row' }}
+          >
+            {/* Status Badge - First element, appears on LEFT in RTL */}
+            <div className={cn("flex items-center gap-2 flex-shrink-0", isRTL && "flex-row-reverse")}>
+              {getStatusIcon(invoice?.status || "")}
+              {invoice && (
+                <Badge 
+                  className={cn(getStatusColor(invoice.status), isRTL && "text-right")}
+                  dir={isRTL ? "rtl" : "ltr"}
+                  style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+                >
+                  {getStatusLabel(invoice.status)}
+                </Badge>
+              )}
+            </div>
+            {/* Title and Description - Second element, appears on RIGHT in RTL */}
+            <div className={cn("flex items-center gap-3 flex-1", isRTL && "flex-row-reverse justify-end")}>
+              <Receipt className={cn("h-6 w-6 text-blue-600 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+              <div className={cn(isRTL && "text-right", "flex-1")}>
+                <DialogTitle 
+                  className={cn("text-xl", isRTL && "text-right")} 
+                  dir={isRTL ? "rtl" : "ltr"}
+                  style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+                >
+                  {t("Invoice Details")}
+                </DialogTitle>
+                <DialogDescription 
+                  className={cn(isRTL && "text-right")} 
+                  dir={isRTL ? "rtl" : "ltr"}
+                  style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+                >
+                  {t("View complete invoice information and payment details")}
+                </DialogDescription>
+              </div>
+            </div>
+          </div>
         </DialogHeader>
 
         {loading ? (
-          <div className={cn("flex items-center justify-center h-64", isRTL && "flex-row-reverse")}>
+          <div 
+            className={cn("flex items-center justify-center h-64", isRTL && "flex-row-reverse")}
+            dir={isRTL ? "rtl" : "ltr"}
+          >
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <span className={cn("text-gray-600", isRTL ? "mr-2" : "ml-2")}>{t("Loading invoice...")}</span>
+            <span 
+              className={cn("text-gray-600", isRTL ? "mr-2" : "ml-2")}
+              dir={isRTL ? "rtl" : "ltr"}
+              style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+            >
+              {t("Loading invoice...")}
+            </span>
           </div>
         ) : invoice ? (
-          <div className="space-y-6">
+          <div className="space-y-6" dir={isRTL ? "rtl" : "ltr"}>
             {/* Invoice Header */}
-            <Card>
-              <CardHeader>
-                <div className={cn("flex items-center justify-between", isRTL && "flex-row-reverse")}>
-                  <div className={cn(isRTL && "text-right")}>
-                    <CardTitle className="text-lg">{t("Invoice #")} {invoice.invoice_number}</CardTitle>
-                    <p className={cn("text-sm text-gray-600", isRTL && "text-right")}>
-                      {t("Created on")} {formatDate(invoice.created_at)}
-                    </p>
-                  </div>
-                  <div className={cn("flex items-center", isRTL ? "flex-row-reverse space-x-reverse space-x-2" : "space-x-2")}>
-                    <Badge className={`${getStatusColor(invoice.status)}`}>
-                      {invoice.status.toUpperCase()}
-                    </Badge>
-                    <span className={cn(isRTL ? "ml-2" : "mr-2")}>
-                      {getStatusIcon(invoice.status)}
-                    </span>
-                  </div>
-                </div>
+            <Card dir={isRTL ? "rtl" : "ltr"}>
+              <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+                <CardTitle 
+                  className={cn("text-lg", isRTL && "text-right")}
+                  dir={isRTL ? "rtl" : "ltr"}
+                  style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+                >
+                  {t("Invoice #")} {invoice.invoice_number}
+                </CardTitle>
+                <p 
+                  className={cn("text-sm text-gray-600 mt-1", isRTL && "text-right")}
+                  dir={isRTL ? "rtl" : "ltr"}
+                  style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+                >
+                  {t("Created on")} {formatDate(invoice.created_at)}
+                </p>
               </CardHeader>
             </Card>
 
             {/* Patient Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle className={cn("text-lg flex items-center", isRTL && "flex-row-reverse")}>
-                  <User className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
-                  {t("Patient Information")}
+            <Card dir={isRTL ? "rtl" : "ltr"}>
+              <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+                <CardTitle 
+                  className={cn("text-lg flex items-center", isRTL && "flex-row-reverse")}
+                  dir={isRTL ? "rtl" : "ltr"}
+                  style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+                >
+                  <User className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                  <span className={cn(isRTL && "text-right")}>{t("Patient Information")}</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className={cn(isRTL && "text-right")}>
-                    <p className={cn("text-sm font-medium text-gray-600", isRTL && "text-right")}>{t("Patient Name")}</p>
-                    <p className={cn("text-lg font-semibold", isRTL && "text-right")}>{getPatientDisplay(invoice.patient_id)}</p>
-                  </div>
+              <CardContent dir={isRTL ? "rtl" : "ltr"}>
+                <div 
+                  className={cn(
+                    "grid grid-cols-1 md:grid-cols-2 gap-6",
+                    isRTL && "text-right"
+                  )}
+                  style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+                >
+                  <InfoRow
+                    label={t("Patient Name")}
+                    value={getPatientDisplay(invoice.patient_id)}
+                    className="text-lg font-semibold"
+                  />
                   {getPatientContact(invoice.patient_id).phone && (
-                    <div className={cn(isRTL && "text-right")}>
-                      <p className={cn("text-sm font-medium text-gray-600", isRTL && "text-right")}>{t("Phone")}</p>
-                      <p className={cn("text-lg", isRTL && "text-right")}>{getPatientContact(invoice.patient_id).phone}</p>
-                    </div>
+                    <InfoRow
+                      label={t("Phone")}
+                      value={getPatientContact(invoice.patient_id).phone}
+                      valueDir="ltr"
+                    />
                   )}
                   {getPatientContact(invoice.patient_id).email && (
-                    <div className={cn(isRTL && "text-right")}>
-                      <p className={cn("text-sm font-medium text-gray-600", isRTL && "text-right")}>{t("Email")}</p>
-                      <p className={cn("text-lg", isRTL && "text-right")}>{getPatientContact(invoice.patient_id).email}</p>
-                    </div>
+                    <InfoRow
+                      label={t("Email")}
+                      value={getPatientContact(invoice.patient_id).email}
+                      valueDir="ltr"
+                    />
                   )}
                 </div>
               </CardContent>
             </Card>
 
             {/* Invoice Dates */}
-            <Card>
-              <CardHeader>
-                <CardTitle className={cn("text-lg flex items-center", isRTL && "flex-row-reverse")}>
-                  <Calendar className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
-                  {t("Important Dates")}
+            <Card dir={isRTL ? "rtl" : "ltr"}>
+              <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+                <CardTitle 
+                  className={cn("text-lg flex items-center", isRTL && "flex-row-reverse")}
+                  dir={isRTL ? "rtl" : "ltr"}
+                  style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+                >
+                  <Calendar className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                  <span className={cn(isRTL && "text-right")}>{t("Important Dates")}</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className={cn(isRTL && "text-right")}>
-                    <p className={cn("text-sm font-medium text-gray-600", isRTL && "text-right")}>{t("Issue Date")}</p>
-                    <p className={cn("text-lg", isRTL && "text-right")}>{formatDate(invoice.issue_date)}</p>
-                  </div>
-                  <div className={cn(isRTL && "text-right")}>
-                    <p className={cn("text-sm font-medium text-gray-600", isRTL && "text-right")}>{t("Due Date")}</p>
-                    <p className={cn(`text-lg ${invoice.status === "overdue" ? "text-red-600 font-semibold" : ""}`, isRTL && "text-right")}>
-                      {formatDate(invoice.due_date)}
-                    </p>
-                  </div>
+              <CardContent dir={isRTL ? "rtl" : "ltr"}>
+                <div 
+                  className={cn(
+                    "grid grid-cols-1 md:grid-cols-3 gap-6",
+                    isRTL && "text-right"
+                  )}
+                  style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+                >
+                  <InfoRow
+                    label={t("Issue Date")}
+                    value={formatDate(invoice.issue_date)}
+                  />
+                  <InfoRow
+                    label={t("Due Date")}
+                    value={formatDate(invoice.due_date)}
+                    className={invoice.status === "overdue" ? "text-red-600 font-semibold" : ""}
+                  />
                   {invoice.paid_at && (
-                    <div className={cn(isRTL && "text-right")}>
-                      <p className={cn("text-sm font-medium text-gray-600", isRTL && "text-right")}>{t("Payment Date")}</p>
-                      <p className={cn("text-lg text-green-600", isRTL && "text-right")}>{formatDate(invoice.paid_at)}</p>
-                    </div>
+                    <InfoRow
+                      label={t("Payment Date")}
+                      value={formatDate(invoice.paid_at)}
+                      className="text-green-600"
+                    />
                   )}
                 </div>
               </CardContent>
             </Card>
 
             {/* Services */}
-            <Card>
-              <CardHeader>
-                <CardTitle className={cn("text-lg flex items-center", isRTL && "flex-row-reverse")}>
-                  <FileText className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
-                  {t("Services & Items")}
+            <Card dir={isRTL ? "rtl" : "ltr"}>
+              <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+                <CardTitle 
+                  className={cn("text-lg flex items-center", isRTL && "flex-row-reverse")}
+                  dir={isRTL ? "rtl" : "ltr"}
+                  style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+                >
+                  <FileText className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                  <span className={cn(isRTL && "text-right")}>{t("Services & Items")}</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent dir={isRTL ? "rtl" : "ltr"}>
                 <div className="space-y-4">
                   {invoice.services.map((service, index) => (
-                    <div key={index} className="border rounded-lg p-4">
-                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div className={cn("md:col-span-2", isRTL && "text-right")}>
-                          <p className={cn("font-medium", isRTL && "text-right")}>{service.description}</p>
-                          <Badge variant="outline" className={cn("mt-1", isRTL && "mr-0")}>
+                    <div 
+                      key={index} 
+                      className={cn("border rounded-lg p-4", isRTL && "text-right")}
+                      dir={isRTL ? "rtl" : "ltr"}
+                      style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+                    >
+                      <div 
+                        className={cn(
+                          "grid grid-cols-1 md:grid-cols-4 gap-6",
+                          isRTL && "text-right"
+                        )}
+                        style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+                      >
+                        {/* Description - Right side in RTL */}
+                        <div className={cn("md:col-span-2", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                          <p 
+                            className={cn("font-medium text-lg", isRTL && "text-right")}
+                            dir={isRTL ? "rtl" : "ltr"}
+                            style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+                          >
+                            {service.description}
+                          </p>
+                          <Badge 
+                            variant="outline" 
+                            className={cn("mt-2", isRTL && "text-right")}
+                            dir={isRTL ? "rtl" : "ltr"}
+                            style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+                          >
                             {service.type}
                           </Badge>
                         </div>
-                        <div className={cn("text-center", isRTL && "text-right")}>
-                          <p className={cn("text-sm text-gray-600", isRTL && "text-right")}>{t("Quantity")}</p>
-                          <p className={cn("font-semibold", isRTL && "text-right")}>{service.quantity}</p>
+                        {/* Quantity - Right aligned in RTL */}
+                        <div className={cn(isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                          <p 
+                            className={cn("text-sm font-medium text-gray-500 block mb-1", isRTL && "text-right")}
+                            dir={isRTL ? "rtl" : "ltr"}
+                            style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+                          >
+                            {t("Quantity")}
+                          </p>
+                          <p 
+                            className="font-semibold text-lg"
+                            dir="ltr"
+                            style={{ textAlign: 'right' }}
+                          >
+                            {service.quantity}
+                          </p>
                         </div>
-                        <div className={cn("text-center", isRTL && "text-right")}>
-                          <p className={cn("text-sm text-gray-600", isRTL && "text-right")}>{t("Unit Price")}</p>
-                          <p className={cn("font-semibold", isRTL && "text-right")}>
+                        {/* Unit Price - Right aligned in RTL */}
+                        <div className={cn(isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                          <p 
+                            className={cn("text-sm font-medium text-gray-500 block mb-1", isRTL && "text-right")}
+                            dir={isRTL ? "rtl" : "ltr"}
+                            style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+                          >
+                            {t("Unit Price")}
+                          </p>
+                          <p 
+                            className="font-semibold text-lg"
+                            dir="ltr"
+                            style={{ textAlign: 'right' }}
+                          >
                             <CurrencyDisplay amount={service.unit_price} />
                           </p>
                         </div>
                       </div>
-                      <div className={cn("mt-2", isRTL ? "text-left" : "text-right")}>
-                        <p className={cn("text-lg font-bold", isRTL && "text-right")}>
+                      {/* Total - Right aligned in RTL */}
+                      <div 
+                        className={cn("mt-4 pt-3 border-t", isRTL && "text-right")}
+                        dir="ltr"
+                        style={{ textAlign: 'right' }}
+                      >
+                        <p className="text-lg font-bold">
                           {t("Total")}: <CurrencyDisplay amount={service.total} />
                         </p>
                       </div>
@@ -265,40 +454,76 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
             </Card>
 
             {/* Payment Summary */}
-            <Card>
-              <CardHeader>
-                <CardTitle className={cn("text-lg flex items-center", isRTL && "flex-row-reverse")}>
-                  <DollarSign className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
-                  {t("Payment Summary")}
+            <Card dir={isRTL ? "rtl" : "ltr"}>
+              <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+                <CardTitle 
+                  className={cn("text-lg flex items-center", isRTL && "flex-row-reverse")}
+                  dir={isRTL ? "rtl" : "ltr"}
+                  style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+                >
+                  <DollarSign className={cn("h-5 w-5 flex-shrink-0", isRTL ? "ml-2 order-2" : "mr-2")} />
+                  <span className={cn(isRTL && "text-right")}>{t("Payment Summary")}</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className={cn("bg-gray-50 p-4 rounded-lg space-y-2", isRTL && "text-right")} dir={isRTL ? "ltr" : "ltr"}>
+              <CardContent dir={isRTL ? "rtl" : "ltr"}>
+                <div 
+                  className={cn("bg-gray-50 p-4 rounded-lg space-y-2", isRTL && "text-right")} 
+                  dir={isRTL ? "rtl" : "ltr"}
+                  style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+                >
                   <div className={cn("flex justify-between", isRTL && "flex-row-reverse")}>
-                    <span>{t("Subtotal")}</span>
-                    <span><CurrencyDisplay amount={invoice.subtotal} /></span>
+                    <span dir={isRTL ? "rtl" : "ltr"} style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}>
+                      {t("Subtotal")}
+                    </span>
+                    <span dir="ltr" style={{ textAlign: 'right' }}>
+                      <CurrencyDisplay amount={invoice.subtotal} />
+                    </span>
                   </div>
                   <div className={cn("flex justify-between", isRTL && "flex-row-reverse")}>
-                    <span>{t("Tax")}</span>
-                    <span><CurrencyDisplay amount={invoice.tax_amount} /></span>
+                    <span dir={isRTL ? "rtl" : "ltr"} style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}>
+                      {t("Tax")}
+                    </span>
+                    <span dir="ltr" style={{ textAlign: 'right' }}>
+                      <CurrencyDisplay amount={invoice.tax_amount} />
+                    </span>
                   </div>
                   {invoice.discount && invoice.discount > 0 && (
                     <div className={cn("flex justify-between", isRTL && "flex-row-reverse")}>
-                      <span>{t("Discount")}</span>
-                      <span className="text-green-600">-<CurrencyDisplay amount={invoice.discount} /></span>
+                      <span dir={isRTL ? "rtl" : "ltr"} style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}>
+                        {t("Discount")}
+                      </span>
+                      <span className="text-green-600" dir="ltr" style={{ textAlign: 'right' }}>
+                        -<CurrencyDisplay amount={invoice.discount} />
+                      </span>
                     </div>
                   )}
                   <hr className="my-2" />
                   <div className={cn("flex justify-between font-bold text-xl", isRTL && "flex-row-reverse")}>
-                    <span>{t("Total Amount")}</span>
-                    <span className="text-green-600">
+                    <span dir={isRTL ? "rtl" : "ltr"} style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}>
+                      {t("Total Amount")}
+                    </span>
+                    <span className="text-green-600" dir="ltr" style={{ textAlign: 'right' }}>
                       <CurrencyDisplay amount={invoice.total_amount} variant="large" />
                     </span>
                   </div>
                   {invoice.payment_method && (
-                    <div className={cn("mt-4 pt-2 border-t", isRTL && "text-right")}>
-                      <p className={cn("text-sm text-gray-600", isRTL && "text-right")}>{t("Payment Method")}:</p>
-                      <p className={cn("font-medium capitalize", isRTL && "text-right")}>{invoice.payment_method.replace('_', ' ')}</p>
+                    <div 
+                      className={cn("mt-4 pt-2 border-t", isRTL && "text-right")}
+                      dir={isRTL ? "rtl" : "ltr"}
+                      style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+                    >
+                      <p 
+                        className={cn("text-sm text-gray-600", isRTL && "text-right")}
+                        style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+                      >
+                        {t("Payment Method")}:
+                      </p>
+                      <p 
+                        className={cn("font-medium capitalize", isRTL && "text-right")}
+                        style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+                      >
+                        {invoice.payment_method.replace('_', ' ')}
+                      </p>
                     </div>
                   )}
                 </div>
@@ -307,29 +532,67 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
 
             {/* Notes */}
             {invoice.notes && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className={cn("text-lg", isRTL && "text-right")}>{t("Notes")}</CardTitle>
+              <Card dir={isRTL ? "rtl" : "ltr"}>
+                <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+                  <CardTitle 
+                    className={cn("text-lg", isRTL && "text-right")}
+                    dir={isRTL ? "rtl" : "ltr"}
+                    style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+                  >
+                    {t("Notes")}
+                  </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <p className={cn("text-gray-700 whitespace-pre-wrap", isRTL && "text-right")}>{invoice.notes}</p>
+                <CardContent dir={isRTL ? "rtl" : "ltr"}>
+                  <p 
+                    className={cn("text-gray-700 whitespace-pre-wrap break-words", isRTL && "text-right")}
+                    dir={isRTL ? "rtl" : "ltr"}
+                    style={isRTL ? { textAlign: 'right', direction: 'rtl' } : { textAlign: 'left', direction: 'ltr' }}
+                  >
+                    {invoice.notes}
+                  </p>
                 </CardContent>
               </Card>
             )}
           </div>
         ) : (
-          <div className="flex items-center justify-center h-64">
-            <div className={cn("text-center", isRTL && "text-right")}>
+          <div 
+            className="flex items-center justify-center h-64"
+            dir={isRTL ? "rtl" : "ltr"}
+          >
+            <div 
+              className={cn("text-center", isRTL && "text-right")}
+              dir={isRTL ? "rtl" : "ltr"}
+              style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+            >
               <AlertCircle className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-              <p className={cn("text-lg font-medium text-gray-900", isRTL && "text-right")}>{t("Invoice not found")}</p>
-              <p className={cn("text-gray-500", isRTL && "text-right")}>{t("The requested invoice could not be loaded.")}</p>
+              <p 
+                className={cn("text-lg font-medium text-gray-900", isRTL && "text-right")}
+                style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+              >
+                {t("Invoice not found")}
+              </p>
+              <p 
+                className={cn("text-gray-500", isRTL && "text-right")}
+                style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+              >
+                {t("The requested invoice could not be loaded.")}
+              </p>
             </div>
           </div>
         )}
 
         {/* Footer */}
-        <div className={cn("flex pt-4 border-t", isRTL ? "justify-start space-x-reverse space-x-4" : "justify-end space-x-4")}>
-          <Button variant="outline" onClick={onClose}>
+        <div 
+          className={cn("flex pt-6 border-t", isRTL && "flex-row-reverse")}
+          dir={isRTL ? "rtl" : "ltr"}
+        >
+          <Button 
+            variant="outline" 
+            onClick={onClose}
+            className={cn(isRTL && "text-right")}
+            dir={isRTL ? "rtl" : "ltr"}
+            style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+          >
             {t("Close")}
           </Button>
         </div>

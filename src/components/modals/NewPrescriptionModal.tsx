@@ -409,12 +409,19 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
         )}
       </DialogTrigger>
       <DialogContent className={cn("max-w-4xl max-h-[90vh] overflow-y-auto", isRTL && "text-right")} dir={isRTL ? 'rtl' : 'ltr'}>
-        <DialogHeader>
+        <DialogHeader 
+          dir={isRTL ? 'rtl' : 'ltr'}
+          className={cn(isRTL && "text-right")}
+        >
           <DialogTitle className={cn("flex items-center text-xl gap-2", isRTL && "flex-row-reverse")}>
             <Stethoscope className="h-5 w-5 text-blue-600" />
             {t("Create New Prescription")}
           </DialogTitle>
-          <DialogDescription className={cn(isRTL && "text-right")}>
+          <DialogDescription 
+            className={cn("block w-full", isRTL && "text-right")}
+            dir={isRTL ? 'rtl' : 'ltr'}
+            style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+          >
             {t("Create a digital prescription with medications, dosages, and instructions for the patient.")}
           </DialogDescription>
         </DialogHeader>
@@ -437,10 +444,10 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
                     onValueChange={(value) => handleChange("patientId", value)}
                     disabled={patientsLoading}
                   >
-                    <SelectTrigger className={cn(isRTL && "text-right")} dir={isRTL ? 'rtl' : 'ltr'}>
+                    <SelectTrigger className={cn(isRTL && "text-right")}>
                       <SelectValue placeholder={patientsLoading ? t("Loading patients...") : t("Choose a patient")} />
                     </SelectTrigger>
-                    <SelectContent dir={isRTL ? 'rtl' : 'ltr'}>
+                    <SelectContent>
                       {patientsLoading ? (
                         <SelectItem value="loading" disabled>
                           <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
@@ -473,10 +480,10 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
                     onValueChange={(value) => handleChange("doctorId", value)}
                     disabled={doctorsLoading}
                   >
-                    <SelectTrigger className={cn(isRTL && "text-right")} dir={isRTL ? 'rtl' : 'ltr'}>
+                    <SelectTrigger className={cn(isRTL && "text-right")}>
                       <SelectValue placeholder={doctorsLoading ? t("Loading doctors...") : t("Choose a doctor")} />
                     </SelectTrigger>
-                    <SelectContent dir={isRTL ? 'rtl' : 'ltr'}>
+                    <SelectContent>
                       {doctorsLoading ? (
                         <SelectItem value="loading" disabled>
                           <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
@@ -527,10 +534,10 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
                     value={formData.status}
                     onValueChange={(value) => handleChange("status", value)}
                   >
-                    <SelectTrigger className={cn(isRTL && "text-right")} dir={isRTL ? 'rtl' : 'ltr'}>
+                    <SelectTrigger className={cn(isRTL && "text-right")}>
                       <SelectValue placeholder={t("Select status")} />
                     </SelectTrigger>
-                    <SelectContent dir={isRTL ? 'rtl' : 'ltr'}>
+                    <SelectContent>
                       <SelectItem value="pending" className={cn(isRTL && "text-right")}>{t("Pending")}</SelectItem>
                       <SelectItem value="active" className={cn(isRTL && "text-right")}>{t("Active")}</SelectItem>
                       <SelectItem value="completed" className={cn(isRTL && "text-right")}>{t("Completed")}</SelectItem>
@@ -546,7 +553,7 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
                     onValueChange={(value) => handleChange("appointmentId", value)}
                     disabled={!formData.patientId || appointmentsLoading}
                   >
-                    <SelectTrigger className={cn(isRTL && "text-right")} dir={isRTL ? 'rtl' : 'ltr'}>
+                    <SelectTrigger className={cn(isRTL && "text-right")}>
                       <SelectValue placeholder={
                         !formData.patientId 
                           ? t("Select a patient first")
@@ -555,7 +562,7 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
                             : t("Select an appointment (optional)")
                       } />
                     </SelectTrigger>
-                                      <SelectContent dir={isRTL ? 'rtl' : 'ltr'}>
+                    <SelectContent>
                       {!formData.patientId ? (
                         <SelectItem value="no-patient" disabled className={cn(isRTL && "text-right")}>
                           {t("Please select a patient first")}
@@ -610,14 +617,21 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
 
           {/* Medications */}
           <Card>
-            <CardHeader>
-              <CardTitle className={cn("text-lg flex items-center justify-between", isRTL && "flex-row-reverse")}>
+            <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+              <CardTitle 
+                className={cn(
+                  "text-lg flex items-center justify-between w-full",
+                  isRTL && "flex-row-reverse"
+                )}
+                dir={isRTL ? "rtl" : "ltr"}
+                style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+              >
                 <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
-                  <Pill className="h-4 w-4" />
-                  {t("Medications")}
+                  <Pill className={cn("h-4 w-4 flex-shrink-0", isRTL && "order-2")} />
+                  <span className={cn(isRTL && "text-right")}>{t("Medications")}</span>
                 </div>
                 <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
-                  <Badge variant="outline">
+                  <Badge variant="outline" className={cn(isRTL && "text-right")}>
                     {t("Total:")} {calculateTotalQuantity()} {t("units")}
                   </Badge>
                   <Button
@@ -627,8 +641,8 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
                     onClick={addMedication}
                     className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}
                   >
-                    <Plus className="h-4 w-4" />
-                    {t("Add Medication")}
+                    <Plus className={cn("h-4 w-4 flex-shrink-0", isRTL && "order-2")} />
+                    <span className={cn(isRTL && "text-right")}>{t("Add Medication")}</span>
                   </Button>
                 </div>
               </CardTitle>
@@ -675,10 +689,10 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
                           selectCommonMedication(medication.id, value)
                         }
                       >
-                        <SelectTrigger className={cn(isRTL && "text-right")} dir={isRTL ? 'rtl' : 'ltr'}>
+                        <SelectTrigger className={cn(isRTL && "text-right")}>
                           <SelectValue placeholder={t("Or select from common medications")} />
                         </SelectTrigger>
-                        <SelectContent dir={isRTL ? 'rtl' : 'ltr'}>
+                        <SelectContent>
                           {commonMedications.map((med) => (
                             <SelectItem key={med.name} value={med.name} className={cn(isRTL && "text-right")}>
                               {med.name}
@@ -716,10 +730,10 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
                           updateMedication(medication.id, "frequency", value)
                         }
                       >
-                        <SelectTrigger className={cn(isRTL && "text-right")} dir={isRTL ? 'rtl' : 'ltr'}>
+                        <SelectTrigger className={cn(isRTL && "text-right")}>
                           <SelectValue placeholder={t("How often")} />
                         </SelectTrigger>
-                        <SelectContent dir={isRTL ? 'rtl' : 'ltr'}>
+                        <SelectContent>
                           {frequencies.map((freq) => (
                             <SelectItem key={freq} value={freq} className={cn(isRTL && "text-right")}>
                               {freq}
@@ -737,10 +751,10 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
                           updateMedication(medication.id, "duration", value)
                         }
                       >
-                        <SelectTrigger className={cn(isRTL && "text-right")} dir={isRTL ? 'rtl' : 'ltr'}>
+                        <SelectTrigger className={cn(isRTL && "text-right")}>
                           <SelectValue placeholder={t("How long")} />
                         </SelectTrigger>
-                        <SelectContent dir={isRTL ? 'rtl' : 'ltr'}>
+                        <SelectContent>
                           {durations.map((duration) => (
                             <SelectItem key={duration} value={duration} className={cn(isRTL && "text-right")}>
                               {duration}

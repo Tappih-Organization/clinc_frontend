@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
 import { useTranslation } from "react-i18next";
 import { useIsRTL } from "@/hooks/useIsRTL";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
@@ -31,6 +29,7 @@ import { CalendarIcon, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { FormField } from "@/components/forms";
 import { expenseApi, type Expense, type UpdateExpenseRequest } from "@/services/api/expenseApi";
 
 interface EditExpenseModalProps {
@@ -47,6 +46,7 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
   onSuccess,
 }) => {
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState<UpdateExpenseRequest>({});
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
 
@@ -71,11 +71,20 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
 
   const { t } = useTranslation();
   const isRTL = useIsRTL();
+
   const handleInputChange = (field: keyof UpdateExpenseRequest, value: string | number) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
   };
 
   const handleDateSelect = (date: Date | undefined) => {
@@ -88,11 +97,33 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
     }
   };
 
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.title || formData.title.trim() === "") {
+      newErrors.title = t("Title is required");
+    }
+
+    if (!formData.category || formData.category.trim() === "") {
+      newErrors.category = t("Category is required");
+    }
+
+    if (!formData.payment_method || formData.payment_method.trim() === "") {
+      newErrors.payment_method = t("Payment method is required");
+    }
+
+    if (!formData.amount || formData.amount <= 0) {
+      newErrors.amount = t("Amount must be greater than 0");
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!expense || !formData.title || !formData.category || !formData.payment_method || !formData.amount || formData.amount <= 0) {
-      toast.error("Please fill in all required fields");
+    if (!expense || !validateForm()) {
       return;
     }
 
@@ -115,6 +146,7 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
   const handleClose = () => {
     setFormData({});
     setSelectedDate(undefined);
+    setErrors({});
     onClose();
   };
 
@@ -131,31 +163,46 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="col-span-2">
-              <Label htmlFor="title">{t("title")} *</Label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              label={t("title")}
+              required
+              error={errors.title}
+              htmlFor="title"
+              className="md:col-span-2"
+            >
               <Input
                 id="title"
                 value={formData.title || ""}
                 onChange={(e) => handleInputChange("title", e.target.value)}
                 placeholder="e.g., Office supplies"
                 required
+                className={errors.title ? "border-red-500" : ""}
+                dir="auto"
               />
-            </div>
+            </FormField>
 
-            <div className="col-span-2">
-              <Label htmlFor="description">{t("description")}</Label>
+            <FormField
+              label={t("description")}
+              htmlFor="description"
+              className="md:col-span-2"
+            >
               <Textarea
                 id="description"
                 value={formData.description || ""}
                 onChange={(e) => handleInputChange("description", e.target.value)}
                 placeholder="Additional details about the expense..."
-                className="min-h-[80px]"
+                className={cn("min-h-[80px]", errors.description ? "border-red-500" : "")}
+                dir="auto"
               />
-            </div>
+            </FormField>
 
-            <div>
-              <Label htmlFor="amount">{t("amount")} *</Label>
+            <FormField
+              label={t("amount")}
+              required
+              error={errors.amount}
+              htmlFor="amount"
+            >
               <Input
                 id="amount"
                 type="number"
@@ -165,13 +212,19 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
                 onChange={(e) => handleInputChange("amount", parseFloat(e.target.value) || 0)}
                 placeholder="0.00"
                 required
+                className={errors.amount ? "border-red-500" : ""}
+                dir="ltr"
               />
-            </div>
+            </FormField>
 
-            <div>
-              <Label htmlFor="category">{t("category")} *</Label>
+            <FormField
+              label={t("category")}
+              required
+              error={errors.category}
+              htmlFor="category"
+            >
               <Select value={formData.category} onValueChange={(value) => handleInputChange("category", value)}>
-                <SelectTrigger>
+                <SelectTrigger className={errors.category ? "border-red-500" : ""}>
                   <SelectValue placeholder={t("selectCategory")} />
                 </SelectTrigger>
                 <SelectContent>
@@ -186,12 +239,16 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
                   <SelectItem value="other">{t("other")}</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </FormField>
 
-            <div>
-              <Label htmlFor="payment_method">{t("paymentMethod")} *</Label>
+            <FormField
+              label={t("paymentMethod")}
+              required
+              error={errors.payment_method}
+              htmlFor="payment_method"
+            >
               <Select value={formData.payment_method} onValueChange={(value) => handleInputChange("payment_method", value)}>
-                <SelectTrigger>
+                <SelectTrigger className={errors.payment_method ? "border-red-500" : ""}>
                   <SelectValue placeholder={t("selectPaymentMethod")} />
                 </SelectTrigger>
                 <SelectContent>
@@ -201,10 +258,12 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
                   <SelectItem value="check">{t("check")}</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </FormField>
 
-            <div>
-              <Label htmlFor="status">{t("status")}</Label>
+            <FormField
+              label={t("status")}
+              htmlFor="status"
+            >
               <Select value={formData.status} onValueChange={(value) => handleInputChange("status", value)}>
                 <SelectTrigger>
                   <SelectValue placeholder={t("selectStatus")} />
@@ -215,24 +274,29 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
                   <SelectItem value="cancelled">{t("cancelled")}</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </FormField>
 
-            <div>
-              <Label>{t("date")} *</Label>
+            <FormField
+              label={t("date")}
+              required
+              htmlFor="date"
+            >
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
                     className={cn(
-                      "w-full justify-start text-left font-normal",
+                      "w-full justify-start font-normal",
+                      isRTL ? "text-right" : "text-left",
                       !selectedDate && "text-muted-foreground"
                     )}
+                    dir={isRTL ? "rtl" : "ltr"}
                   >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {selectedDate ? format(selectedDate, "PPP") : "Pick a date"}
+                    <CalendarIcon className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
+                    {selectedDate ? format(selectedDate, "PPP") : t("Pick a date")}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
+                <PopoverContent className="w-auto p-0" align={isRTL ? "end" : "start"}>
                   <Calendar
                     mode="single"
                     selected={selectedDate}
@@ -241,39 +305,50 @@ const EditExpenseModal: React.FC<EditExpenseModalProps> = ({
                   />
                 </PopoverContent>
               </Popover>
-            </div>
+            </FormField>
 
-            <div>
-              <Label htmlFor="vendor">{t("vendor")}</Label>
+            <FormField
+              label={t("vendor")}
+              htmlFor="vendor"
+            >
               <Input
                 id="vendor"
                 value={formData.vendor || ""}
                 onChange={(e) => handleInputChange("vendor", e.target.value)}
                 placeholder="e.g., ABC Medical Supplies"
+                dir="auto"
               />
-            </div>
+            </FormField>
 
-            <div className="col-span-2">
-              <Label htmlFor="receipt_url">{t("receiptUrl") }</Label>
+            <FormField
+              label={t("receiptUrl")}
+              htmlFor="receipt_url"
+              className="md:col-span-2"
+            >
               <Input
                 id="receipt_url"
                 type="url"
                 value={formData.receipt_url || ""}
                 onChange={(e) => handleInputChange("receipt_url", e.target.value)}
                 placeholder="https://example.com/receipt.pdf"
+                dir="ltr"
               />
-            </div>
+            </FormField>
 
-            <div className="col-span-2">
-              <Label htmlFor="notes">{t("notes")}</Label>
+            <FormField
+              label={t("notes")}
+              htmlFor="notes"
+              className="md:col-span-2"
+            >
               <Textarea
                 id="notes"
                 value={formData.notes || ""}
                 onChange={(e) => handleInputChange("notes", e.target.value)}
                 placeholder="Additional notes or remarks..."
                 className="min-h-[60px]"
+                dir="auto"
               />
-            </div>
+            </FormField>
           </div>
 
           <DialogFooter>

@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
@@ -31,6 +30,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 import { useIsRTL } from "@/hooks/useIsRTL";
+import { FormField } from "@/components/forms";
 import { expenseApi, type CreateExpenseRequest, type Expense } from "@/services/api/expenseApi";
 
 interface AddExpenseModalProps {
@@ -46,6 +46,7 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
 }) => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState<CreateExpenseRequest>({
     title: "",
     description: "",
@@ -65,6 +66,14 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
       ...prev,
       [field]: value
     }));
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
   };
 
   const handleDateSelect = (date: Date | undefined) => {
@@ -117,6 +126,7 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
       notes: "",
     });
     setSelectedDate(new Date());
+    setErrors({});
     onClose();
   };
 
@@ -131,31 +141,46 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="col-span-2">
-              <Label htmlFor="title">{t("Title")} *</Label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              label={t("Title")}
+              required
+              error={errors.title}
+              htmlFor="title"
+              className="md:col-span-2"
+            >
               <Input
                 id="title"
                 value={formData.title}
                 onChange={(e) => handleInputChange("title", e.target.value)}
                 placeholder={t("titlePlaceholder")}
                 required
+                className={errors.title ? "border-red-500" : ""}
+                dir="auto"
               />
-            </div>
+            </FormField>
 
-            <div className="col-span-2">
-              <Label htmlFor="description">{t("Description")}</Label>
+            <FormField
+              label={t("Description")}
+              htmlFor="description"
+              className="md:col-span-2"
+            >
               <Textarea
                 id="description"
                 value={formData.description}
                 onChange={(e) => handleInputChange("description", e.target.value)}
                 placeholder={t("descriptionPlaceholder")}
-                className="min-h-[80px]"
+                className={cn("min-h-[80px]", errors.description ? "border-red-500" : "")}
+                dir="auto"
               />
-            </div>
+            </FormField>
 
-            <div>
-              <Label htmlFor="amount">{t("Amount")} *</Label>
+            <FormField
+              label={t("Amount")}
+              required
+              error={errors.amount}
+              htmlFor="amount"
+            >
               <Input
                 id="amount"
                 type="number"
@@ -165,13 +190,19 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
                 onChange={(e) => handleInputChange("amount", parseFloat(e.target.value) || 0)}
                 placeholder={t("0.00")}
                 required
+                className={errors.amount ? "border-red-500" : ""}
+                dir="ltr"
               />
-            </div>
+            </FormField>
 
-            <div>
-              <Label htmlFor="category">{t("Category")} *</Label>
+            <FormField
+              label={t("Category")}
+              required
+              error={errors.category}
+              htmlFor="category"
+            >
               <Select value={formData.category} onValueChange={(value) => handleInputChange("category", value)}>
-                <SelectTrigger>
+                <SelectTrigger className={errors.category ? "border-red-500" : ""}>
                   <SelectValue placeholder={t("selectCategory")} />
                 </SelectTrigger>
                 <SelectContent>
@@ -186,12 +217,16 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
                   <SelectItem value="other">{t("Other")}</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </FormField>
 
-            <div>
-              <Label htmlFor="payment_method">{t("Payment Method")} *</Label>
+            <FormField
+              label={t("Payment Method")}
+              required
+              error={errors.payment_method}
+              htmlFor="payment_method"
+            >
               <Select value={formData.payment_method} onValueChange={(value) => handleInputChange("payment_method", value)}>
-                <SelectTrigger>
+                <SelectTrigger className={errors.payment_method ? "border-red-500" : ""}>
                   <SelectValue placeholder={t("Select payment method")} />
                 </SelectTrigger>
                 <SelectContent>
@@ -201,10 +236,12 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
                   <SelectItem value="check">{t("Check")}</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </FormField>
 
-            <div>
-              <Label htmlFor="status">{t("Status")}</Label>
+            <FormField
+              label={t("Status")}
+              htmlFor="status"
+            >
               <Select value={formData.status} onValueChange={(value) => handleInputChange("status", value)}>
                 <SelectTrigger>
                   <SelectValue placeholder={t("Select status")} />
@@ -215,24 +252,29 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
                   <SelectItem value="cancelled">{t("Cancelled")}</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </FormField>
 
-            <div>
-              <Label>{t("Date")} *</Label>
+            <FormField
+              label={t("Date")}
+              required
+              htmlFor="date"
+            >
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
                     className={cn(
-                      "w-full justify-start text-left font-normal",
+                      "w-full justify-start font-normal",
+                      isRTL ? "text-right" : "text-left",
                       !selectedDate && "text-muted-foreground"
                     )}
+                    dir={isRTL ? "rtl" : "ltr"}
                   >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    <CalendarIcon className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
                     {selectedDate ? format(selectedDate, "PPP") : t("Pick a date")}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
+                <PopoverContent className="w-auto p-0" align={isRTL ? "end" : "start"}>
                   <Calendar
                     mode="single"
                     selected={selectedDate}
@@ -241,39 +283,50 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
                   />
                 </PopoverContent>
               </Popover>
-            </div>
+            </FormField>
 
-            <div>
-              <Label htmlFor="vendor">{t("vendor")}</Label>
+            <FormField
+              label={t("vendor")}
+              htmlFor="vendor"
+            >
               <Input
                 id="vendor"
                 value={formData.vendor}
                 onChange={(e) => handleInputChange("vendor", e.target.value)}
                 placeholder={t("vendorPlaceholder")}
+                dir="auto"
               />
-            </div>
+            </FormField>
 
-            <div className="col-span-2">
-              <Label htmlFor="receipt_url">{t("receiptUrl")}</Label>
+            <FormField
+              label={t("receiptUrl")}
+              htmlFor="receipt_url"
+              className="md:col-span-2"
+            >
               <Input
                 id="receipt_url"
                 type="url"
                 value={formData.receipt_url}
                 onChange={(e) => handleInputChange("receipt_url", e.target.value)}
                 placeholder="https://example.com/receipt.pdf"
+                dir="ltr"
               />
-            </div>
+            </FormField>
 
-            <div className="col-span-2">
-              <Label htmlFor="notes">{t("Notes")}</Label>
+            <FormField
+              label={t("Notes")}
+              htmlFor="notes"
+              className="md:col-span-2"
+            >
               <Textarea
                 id="notes"
                 value={formData.notes}
                 onChange={(e) => handleInputChange("notes", e.target.value)}
                 placeholder={t("notesPlaceholder")}
                 className="min-h-[60px]"
+                dir="auto"
               />
-            </div>
+            </FormField>
           </div>
 
           <DialogFooter>

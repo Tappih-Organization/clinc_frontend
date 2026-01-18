@@ -57,7 +57,10 @@ export const FormDialog: React.FC<FormDialogProps> = ({
         )}
         dir={isRTL ? "rtl" : "ltr"}
       >
-        <DialogHeader>
+        <DialogHeader 
+          dir={isRTL ? "rtl" : "ltr"}
+          className={cn(isRTL && "text-right")}
+        >
           <DialogTitle
             className={cn("flex items-center text-xl", isRTL && "flex-row-reverse")}
             dir={isRTL ? "rtl" : "ltr"}
@@ -72,7 +75,7 @@ export const FormDialog: React.FC<FormDialogProps> = ({
           </DialogTitle>
           {description && (
             <DialogDescription 
-              className={cn(isRTL && "text-left")}
+              className={cn("block w-full", isRTL && "text-right")}
               dir={isRTL ? "rtl" : "ltr"}
               style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
             >

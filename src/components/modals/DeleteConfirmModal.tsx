@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { parseApiError } from "@/utils/errorHandler";
 import { Trash2, AlertTriangle, X } from "lucide-react";
+import { useIsRTL } from "@/hooks/useIsRTL";
+import { cn } from "@/lib/utils";
 
 interface DeleteConfirmModalProps {
   open: boolean;
@@ -30,6 +32,7 @@ const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
   onConfirm,
 }) => {
   const { t } = useTranslation();
+  const isRTL = useIsRTL();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleConfirm = async () => {
@@ -54,54 +57,122 @@ const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[95vw] max-w-md mx-auto p-0">
+      <DialogContent 
+        className={cn("w-[95vw] max-w-md mx-auto p-0", isRTL && "text-right")}
+        dir={isRTL ? "rtl" : "ltr"}
+      >
         <div className="p-4 sm:p-6">
-          <DialogHeader className="text-center sm:text-left mb-4">
-            <DialogTitle className="flex items-center justify-center sm:justify-start text-lg sm:text-xl text-red-600">
-              <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 mr-2 flex-shrink-0" />
+          <DialogHeader 
+            className={cn(
+              "mb-4",
+              isRTL ? "text-right" : "text-center sm:text-left"
+            )}
+            dir={isRTL ? "rtl" : "ltr"}
+          >
+            <DialogTitle 
+              className={cn(
+                "flex items-center text-lg sm:text-xl text-red-600",
+                isRTL ? "flex-row-reverse justify-center sm:justify-start" : "justify-center sm:justify-start"
+              )}
+              dir={isRTL ? "rtl" : "ltr"}
+            >
+              <AlertTriangle 
+                className={cn(
+                  "h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0",
+                  isRTL ? "ml-2" : "mr-2"
+                )} 
+              />
               <span className="truncate">{title}</span>
             </DialogTitle>
-            <DialogDescription className="text-sm text-muted-foreground mt-2">
+            <DialogDescription 
+              className={cn(
+                "text-sm text-muted-foreground mt-2",
+                isRTL && "text-right"
+              )}
+              dir={isRTL ? "rtl" : "ltr"}
+            >
               {description}
             </DialogDescription>
           </DialogHeader>
 
-          <div className="bg-red-50 border border-red-200 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6">
-            <div className="flex items-start">
-              <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 text-red-500 mr-2 sm:mr-3 flex-shrink-0 mt-0.5" />
+          <div 
+            className={cn(
+              "bg-red-50 border border-red-200 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6",
+              isRTL && "text-right"
+            )}
+            dir={isRTL ? "rtl" : "ltr"}
+            style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+          >
+            <div className={cn("flex items-start", isRTL && "flex-row-reverse")}>
+              <AlertTriangle 
+                className={cn(
+                  "h-4 w-4 sm:h-5 sm:w-5 text-red-500 flex-shrink-0 mt-0.5",
+                  isRTL ? "ml-2 sm:ml-3" : "mr-2 sm:mr-3"
+                )} 
+              />
               <div className="flex-1 min-w-0">
-                <p className="font-medium text-red-800 text-sm sm:text-base">
-                  {t("You are about to delete:")}{" "}<strong className="break-words">{itemName}</strong>
+                <p 
+                  className={cn(
+                    "font-medium text-red-800 text-sm sm:text-base",
+                    isRTL && "text-right"
+                  )}
+                  dir={isRTL ? "rtl" : "ltr"}
+                  style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+                >
+                  {t("You are about to delete:")}{" "}
+                  <strong className="break-words">{itemName}</strong>
                 </p>
-                <p className="text-xs sm:text-sm text-red-600 mt-1">
+                <p 
+                  className={cn(
+                    "text-xs sm:text-sm text-red-600 mt-1",
+                    isRTL && "text-right"
+                  )}
+                  dir={isRTL ? "rtl" : "ltr"}
+                  style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+                >
                   {t("This action cannot be undone.")}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3">
+          <div 
+            className={cn(
+              "flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3",
+              isRTL && "flex-row-reverse"
+            )}
+          >
             <Button
               type="button"
-
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isLoading}
-              className="w-full sm:w-auto h-9 sm:h-10"
+              className={cn(
+                "w-full sm:w-auto h-9 sm:h-10",
+                isRTL && "flex-row-reverse"
+              )}
+              dir={isRTL ? "rtl" : "ltr"}
             >
-              <X className="h-4 w-4 mr-2" />
+              <X className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
               {t("Cancel")}
             </Button>
             <Button
               variant="destructive"
               onClick={handleConfirm}
               disabled={isLoading}
-              className="w-full sm:w-auto h-9 sm:h-10"
+              className={cn(
+                "w-full sm:w-auto h-9 sm:h-10",
+                isRTL && "flex-row-reverse"
+              )}
+              dir={isRTL ? "rtl" : "ltr"}
             >
               {isLoading ? (
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                <div className={cn(
+                  "w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin",
+                  isRTL ? "ml-2" : "mr-2"
+                )} />
               ) : (
-                <Trash2 className="h-4 w-4 mr-2" />
+                <Trash2 className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
               )}
               {t("Delete Permanently")}
             </Button>

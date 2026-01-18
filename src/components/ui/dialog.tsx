@@ -108,15 +108,20 @@ DialogContent.displayName = DialogPrimitive.Content.displayName;
 const DialogHeader = ({
   className,
   ...props
-}: React.HTMLAttributes<HTMLDivElement>) => (
-  <div
-    className={cn(
-      "flex flex-col space-y-1.5 text-center sm:text-left",
-      className,
-    )}
-    {...props}
-  />
-);
+}: React.HTMLAttributes<HTMLDivElement>) => {
+  const isRTL = typeof document !== "undefined" && document.documentElement.dir === "rtl";
+  return (
+    <div
+      className={cn(
+        "flex flex-col space-y-1.5",
+        isRTL ? "text-right sm:text-right" : "text-center sm:text-left",
+        className,
+      )}
+      dir={isRTL ? "rtl" : "ltr"}
+      {...props}
+    />
+  );
+};
 DialogHeader.displayName = "DialogHeader";
 
 const DialogFooter = ({
@@ -151,13 +156,22 @@ DialogTitle.displayName = DialogPrimitive.Title.displayName;
 const DialogDescription = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Description>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Description>
->(({ className, ...props }, ref) => (
-  <DialogPrimitive.Description
-    ref={ref}
-    className={cn("text-sm text-muted-foreground", className)}
-    {...props}
-  />
-));
+>(({ className, dir, ...props }, ref) => {
+  const isRTL = dir === "rtl" || (typeof document !== "undefined" && document.documentElement.dir === "rtl");
+  return (
+    <DialogPrimitive.Description
+      ref={ref}
+      className={cn(
+        "text-sm text-muted-foreground block w-full",
+        isRTL && "text-right",
+        className
+      )}
+      dir={dir || (isRTL ? "rtl" : "ltr")}
+      style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+      {...props}
+    />
+  );
+});
 DialogDescription.displayName = DialogPrimitive.Description.displayName;
 
 export {

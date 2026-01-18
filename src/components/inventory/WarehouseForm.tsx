@@ -209,7 +209,7 @@ export const WarehouseForm: React.FC<WarehouseFormProps> = ({
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent dir="auto">
+              <SelectContent>
                 <SelectItem value="main">
                   <div className="flex items-center gap-2">
                     <WarehouseTypeBadge type="main" />
@@ -366,7 +366,7 @@ export const WarehouseForm: React.FC<WarehouseFormProps> = ({
               <SelectTrigger>
                 <SelectValue placeholder={t("Select a manager (optional)")} />
               </SelectTrigger>
-              <SelectContent dir="auto">
+              <SelectContent>
                 <SelectItem value="none">{t("No Manager")}</SelectItem>
                 {users.map((user) => (
                   <SelectItem key={user.id} value={user.id}>
