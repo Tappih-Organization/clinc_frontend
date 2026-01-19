@@ -147,11 +147,11 @@ const PrescriptionDetailModal: React.FC<PrescriptionDetailModalProps> = ({
     const birthDate = new Date(dateOfBirth);
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
-    
+
     if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
       age--;
     }
-    
+
     return age;
   };
 
@@ -170,13 +170,13 @@ const PrescriptionDetailModal: React.FC<PrescriptionDetailModalProps> = ({
   if (loading) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent 
-          className={cn("max-w-4xl max-h-[90vh]", isRTL && "rtl")} 
+        <DialogContent
+          className={cn("max-w-4xl max-h-[90vh]", isRTL && "rtl")}
           dir={isRTL ? "rtl" : "ltr"}
         >
           <div className={cn("flex items-center justify-center h-64", isRTL && "flex-row-reverse")}>
             <Loader2 className={cn("h-8 w-8 animate-spin", isRTL && "order-2")} />
-            <span 
+            <span
               className={cn(isRTL ? "mr-2" : "ml-2")}
               dir={isRTL ? "rtl" : "ltr"}
               style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
@@ -197,8 +197,8 @@ const PrescriptionDetailModal: React.FC<PrescriptionDetailModalProps> = ({
             <div className={cn("text-center", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
               <AlertTriangle className="h-8 w-8 text-red-500 mx-auto mb-2" />
               <p className="text-red-600">{error || t("Prescription not found")}</p>
-              <Button 
-                onClick={fetchPrescriptionDetails} 
+              <Button
+                onClick={fetchPrescriptionDetails}
                 className="mt-2"
                 disabled={!prescriptionId}
               >
@@ -222,12 +222,12 @@ const PrescriptionDetailModal: React.FC<PrescriptionDetailModalProps> = ({
     const finalValueDir = valueDir || (isRTL ? "rtl" : "ltr");
     const isLTRContent = finalValueDir === "ltr";
     return (
-      <div 
-        className={cn("space-y-1.5", className)} 
+      <div
+        className={cn("space-y-1.5", className)}
         dir={isRTL ? "rtl" : "ltr"}
         style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
       >
-        <label 
+        <label
           className={cn(
             "text-sm font-medium text-gray-500 block leading-tight",
             isRTL ? "text-right" : "text-left"
@@ -237,7 +237,7 @@ const PrescriptionDetailModal: React.FC<PrescriptionDetailModalProps> = ({
         >
           {label}
         </label>
-        <div 
+        <div
           className={cn(
             "flex items-baseline min-h-[1.5rem]",
             isRTL ? "flex-row-reverse justify-end" : "justify-start",
@@ -250,16 +250,16 @@ const PrescriptionDetailModal: React.FC<PrescriptionDetailModalProps> = ({
               {icon}
             </span>
           )}
-          <p 
+          <p
             className={cn(
               "text-base leading-normal break-words",
               isLTRContent ? "text-left" : isRTL ? "text-right" : "text-left"
             )}
             dir={finalValueDir}
-            style={isLTRContent 
-              ? { textAlign: 'left', direction: 'ltr' } 
-              : isRTL 
-                ? { textAlign: 'right', direction: 'rtl' } 
+            style={isLTRContent
+              ? { textAlign: 'left', direction: 'ltr' }
+              : isRTL
+                ? { textAlign: 'right', direction: 'rtl' }
                 : { textAlign: 'left', direction: 'ltr' }
             }
           >
@@ -272,8 +272,8 @@ const PrescriptionDetailModal: React.FC<PrescriptionDetailModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent 
-        className={cn("max-w-5xl max-h-[95vh] overflow-y-auto z-50", isRTL && "rtl")} 
+      <DialogContent
+        className={cn("max-w-5xl max-h-[95vh] overflow-y-auto z-50", isRTL && "rtl")}
         dir={isRTL ? "rtl" : "ltr"}
       >
         <DialogHeader dir={isRTL ? "rtl" : "ltr"}>
@@ -310,8 +310,8 @@ const PrescriptionDetailModal: React.FC<PrescriptionDetailModalProps> = ({
           {/* Patient Information */}
           <Card dir={isRTL ? "rtl" : "ltr"}>
             <CardHeader dir={isRTL ? "rtl" : "ltr"}>
-              <CardTitle 
-                className={cn("flex items-center text-lg", isRTL && "flex-row-reverse")} 
+              <CardTitle
+                className={cn("flex items-center text-lg", isRTL && "flex-row-reverse")}
                 dir={isRTL ? "rtl" : "ltr"}
                 style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
               >
@@ -320,7 +320,7 @@ const PrescriptionDetailModal: React.FC<PrescriptionDetailModalProps> = ({
               </CardTitle>
             </CardHeader>
             <CardContent dir={isRTL ? "rtl" : "ltr"}>
-              <div 
+              <div
                 className={cn(
                   "grid grid-cols-1 md:grid-cols-2 gap-6",
                   isRTL && "text-right"
@@ -331,7 +331,7 @@ const PrescriptionDetailModal: React.FC<PrescriptionDetailModalProps> = ({
                   <InfoRow
                     label={t("Full Name")}
                     value={
-                      prescription.patient_id 
+                      prescription.patient_id
                         ? `${prescription.patient_id.first_name} ${prescription.patient_id.last_name}`
                         : t('Unknown Patient')
                     }
@@ -339,7 +339,14 @@ const PrescriptionDetailModal: React.FC<PrescriptionDetailModalProps> = ({
                   />
                   <InfoRow
                     label={t("Date of Birth")}
-                    value={prescription.patient_id?.date_of_birth ? formatDate(prescription.patient_id.date_of_birth) : t('N/A')}
+                    value={
+                      prescription.patient_id?.date_of_birth ? (
+                        <span dir="ltr" style={{ direction: 'ltr', display: 'inline-block' }}>
+                          {formatDate(prescription.patient_id.date_of_birth)}
+                        </span>
+                      ) : t('N/A')
+                    }
+                    valueDir="ltr"
                   />
                   <InfoRow
                     label={t("Age")}
@@ -376,8 +383,8 @@ const PrescriptionDetailModal: React.FC<PrescriptionDetailModalProps> = ({
           {/* Doctor Information */}
           <Card dir={isRTL ? "rtl" : "ltr"}>
             <CardHeader dir={isRTL ? "rtl" : "ltr"}>
-              <CardTitle 
-                className={cn("flex items-center text-lg", isRTL && "flex-row-reverse")} 
+              <CardTitle
+                className={cn("flex items-center text-lg", isRTL && "flex-row-reverse")}
                 dir={isRTL ? "rtl" : "ltr"}
                 style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
               >
@@ -386,7 +393,7 @@ const PrescriptionDetailModal: React.FC<PrescriptionDetailModalProps> = ({
               </CardTitle>
             </CardHeader>
             <CardContent dir={isRTL ? "rtl" : "ltr"}>
-              <div 
+              <div
                 className={cn(
                   "grid grid-cols-1 md:grid-cols-2 gap-6",
                   isRTL && "text-right"
@@ -411,8 +418,8 @@ const PrescriptionDetailModal: React.FC<PrescriptionDetailModalProps> = ({
           {/* Prescription Details */}
           <Card dir={isRTL ? "rtl" : "ltr"}>
             <CardHeader dir={isRTL ? "rtl" : "ltr"}>
-              <CardTitle 
-                className={cn("flex items-center text-lg", isRTL && "flex-row-reverse")} 
+              <CardTitle
+                className={cn("flex items-center text-lg", isRTL && "flex-row-reverse")}
                 dir={isRTL ? "rtl" : "ltr"}
                 style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
               >
@@ -421,7 +428,7 @@ const PrescriptionDetailModal: React.FC<PrescriptionDetailModalProps> = ({
               </CardTitle>
             </CardHeader>
             <CardContent dir={isRTL ? "rtl" : "ltr"}>
-              <div 
+              <div
                 className={cn(
                   "grid grid-cols-1 md:grid-cols-2 gap-6",
                   isRTL && "text-right"
@@ -450,12 +457,22 @@ const PrescriptionDetailModal: React.FC<PrescriptionDetailModalProps> = ({
                 />
                 <InfoRow
                   label={t("Date Prescribed")}
-                  value={`${formatDate(prescription.created_at)} ${t("at")} ${formatTime(prescription.created_at)}`}
+                  value={
+                    <span dir="ltr" style={{ direction: 'ltr', display: 'inline-block' }}>
+                      {formatDate(prescription.created_at)} {formatTime(prescription.created_at)}
+                    </span>
+                  }
+                  valueDir="ltr"
                 />
                 {prescription.follow_up_date && (
                   <InfoRow
                     label={t("Follow-up Date")}
-                    value={formatDate(prescription.follow_up_date)}
+                    value={
+                      <span dir="ltr" style={{ direction: 'ltr', display: 'inline-block' }}>
+                        {formatDate(prescription.follow_up_date)}
+                      </span>
+                    }
+                    valueDir="ltr"
                     icon={<Calendar className="h-4 w-4 text-gray-500" />}
                   />
                 )}
@@ -468,26 +485,26 @@ const PrescriptionDetailModal: React.FC<PrescriptionDetailModalProps> = ({
                 )}
               </div>
               {prescription.notes && (
-                <div 
-                  className={cn("mt-6", isRTL && "text-right")} 
+                <div
+                  className={cn("mt-6", isRTL && "text-right")}
                   dir={isRTL ? "rtl" : "ltr"}
                   style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
                 >
-                  <label 
+                  <label
                     className={cn(
                       "text-sm font-medium text-gray-500 block mb-2",
                       isRTL ? "text-right" : "text-left"
-                    )} 
+                    )}
                     dir={isRTL ? "rtl" : "ltr"}
                     style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
                   >
                     {t("Clinical Notes")}
                   </label>
-                  <p 
+                  <p
                     className={cn(
                       "p-3 bg-gray-50 rounded-lg break-words",
                       isRTL ? "text-right" : "text-left"
-                    )} 
+                    )}
                     dir={isRTL ? "rtl" : "ltr"}
                     style={isRTL ? { textAlign: 'right', direction: 'rtl' } : { textAlign: 'left', direction: 'ltr' }}
                   >
@@ -517,8 +534,8 @@ const PrescriptionDetailModal: React.FC<PrescriptionDetailModalProps> = ({
           {prescription.pharmacy_dispensed && (
             <Card dir={isRTL ? "rtl" : "ltr"}>
               <CardHeader dir={isRTL ? "rtl" : "ltr"}>
-                <CardTitle 
-                  className={cn("flex items-center text-lg", isRTL && "flex-row-reverse")} 
+                <CardTitle
+                  className={cn("flex items-center text-lg", isRTL && "flex-row-reverse")}
                   dir={isRTL ? "rtl" : "ltr"}
                   style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
                 >
@@ -528,7 +545,7 @@ const PrescriptionDetailModal: React.FC<PrescriptionDetailModalProps> = ({
               </CardHeader>
               <CardContent dir={isRTL ? "rtl" : "ltr"}>
                 <div className={cn("flex items-center gap-4", isRTL && "flex-row-reverse")}>
-                  <Badge 
+                  <Badge
                     className="bg-green-100 text-green-800"
                     dir={isRTL ? "rtl" : "ltr"}
                     style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
@@ -536,12 +553,15 @@ const PrescriptionDetailModal: React.FC<PrescriptionDetailModalProps> = ({
                     {t("Sent to Pharmacy")}
                   </Badge>
                   {prescription.dispensed_date && (
-                    <p 
-                      className="text-sm text-gray-600"
+                    <p
+                      className={cn("text-sm text-gray-600", isRTL && "flex gap-2")}
                       dir={isRTL ? "rtl" : "ltr"}
                       style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
                     >
-                      {t("Dispensed on:")} {formatDate(prescription.dispensed_date)}
+                      <span>{t("Dispensed on:")}</span>
+                      <span dir="ltr" style={{ direction: 'ltr' }}>
+                        {formatDate(prescription.dispensed_date)}
+                      </span>
                     </p>
                   )}
                 </div>
@@ -551,23 +571,26 @@ const PrescriptionDetailModal: React.FC<PrescriptionDetailModalProps> = ({
         </div>
 
         {/* Action Buttons */}
-        <div 
+        <div
           className={cn("flex justify-between items-center pt-6 border-t", isRTL && "flex-row-reverse")}
           dir={isRTL ? "rtl" : "ltr"}
         >
-          <div 
-            className="text-sm text-gray-500"
+          <div
+            className={cn("text-sm text-gray-500", isRTL && "flex gap-2")}
             dir={isRTL ? "rtl" : "ltr"}
             style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
           >
-            {t("Last updated:")} {formatDate(prescription.updated_at)} {t("at")} {formatTime(prescription.updated_at)}
+            <span>{t("Last updated:")}</span>
+            <span dir="ltr" style={{ direction: 'ltr' }}>
+              {formatDate(prescription.updated_at)} {formatTime(prescription.updated_at)}
+            </span>
           </div>
-          <div className={cn("flex gap-3", isRTL && "flex-row-reverse")}>
-            <Button 
-              variant="outline" 
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
               onClick={() => onOpenChange(false)}
               dir={isRTL ? "rtl" : "ltr"}
-              style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+              style={isRTL ? { textAlign: 'right', marginLeft: '10px' } : { textAlign: 'left' }}
             >
               {t("Close")}
             </Button>

@@ -1,6 +1,5 @@
 {
   "ClinicPro": "ClinicPro",
-
   "Features": "Features",
   "Testimonials": "Testimonials",
   "Modules": "Modules",
@@ -25,7 +24,6 @@
   "Contact our support team": "Contact our support team",
   "Request a Demo": "Request a Demo",
   "Request Demo": "Request Demo",
-
   "Dashboard": "Dashboard",
   "Dental AI X-ray Analysis": "Dental AI X-ray Analysis",
   "Patients": "Patients",
@@ -64,7 +62,6 @@
   "Lab Vendors": "Lab Vendors",
   "Calendar": "Calendar",
   "Reports": "Reports",
-
   "Overview": "Overview",
   "Patient Management": "Patient Management",
   "Financial Management": "Financial Management",
@@ -84,11 +81,9 @@
   "Basic Billing": "Basic Billing",
   "Full Access": "Full Access",
   "Administrator": "Administrator",
-
   "Profile": "Profile",
   "Log out": "Log out",
   "Currency:": "Currency:",
-
   "Welcome back": "Welcome back",
   "Welcome back to Tappih!": "Welcome back to Tappih!",
   "Welcome to Tappih demo!": "Welcome to Tappih demo!",
@@ -128,7 +123,6 @@
   "Please run the database seeder to create demo users": "Please run the database seeder to create demo users",
   "Refresh": "Refresh",
   "← Back to homepage": "← Back to homepage",
-
   "Search": "Search",
   "Filters": "Filters",
   "Apply Filters": "Apply Filters",
@@ -164,7 +158,6 @@
   "No": "No",
   "Confirm": "Confirm",
   "Are you sure?": "Are you sure?",
-
   "Admin Dashboard": "Admin Dashboard",
   "Complete overview of your clinic operations and system health.": "Complete overview of your clinic operations and system health.",
   "Revenue Overview": "Revenue Overview",
@@ -207,11 +200,12 @@
   "Weekly Revenue": "Weekly Revenue",
   "6 Departments": "6 Departments",
   "Active with 47 staff members": "Active with 47 staff members",
-
   "Add Patient": "Add Patient",
   "Edit Patient": "Edit Patient",
   "Patient Details": "Patient Details",
-
+  "Detailed view of patient information": "Detailed view of patient information",
+  "Patient Statistics": "Patient Statistics",
+  "Total Visits": "Total Visits",
   "New Appointment": "New Appointment",
   "Add Appointment": "Add Appointment",
   "Edit Appointment": "Edit Appointment",
@@ -219,7 +213,6 @@
   "Reschedule": "Reschedule",
   "Mark as Completed": "Mark as Completed",
   "Cancel Appointment": "Cancel Appointment",
-
   "Convert to Patient": "Convert to Patient",
   "Convert Lead to Patient": "Convert Lead to Patient",
   "Automatically convert this lead to a patient upon creation": "Automatically convert this lead to a patient upon creation",
@@ -231,7 +224,6 @@
   "has been added as a lead and converted to a patient.": "has been added as a lead and converted to a patient.",
   "Lead added, but conversion failed": "Lead added, but conversion failed",
   "Lead was created successfully, but automatic conversion to patient failed.": "Lead was created successfully, but automatic conversion to patient failed.",
-
   "Create Invoice": "Create Invoice",
   "Create New Invoice": "Create New Invoice",
   "Generate an invoice for services, medicines, or tests provided to a patient.": "Generate an invoice for services, medicines, or tests provided to a patient.",
@@ -247,34 +239,27 @@
   "View Invoice": "View Invoice",
   "Delete Invoice": "Delete Invoice",
   "Mark as Paid": "Mark as Paid",
-
   "Record Payment": "Record Payment",
   "Edit Payment": "Edit Payment",
   "Refund Payment": "Refund Payment",
-
   "Create Payroll": "Create Payroll",
   "Edit Payroll": "Edit Payroll",
   "Process Payment": "Process Payment",
-
   "Add Expense": "Add Expense",
   "Edit Expense": "Edit Expense",
   "View Expense": "View Expense",
   "Delete Expense": "Delete Expense",
-
   "Add Service": "Add Service",
   "Edit Service": "Edit Service",
   "View Service": "View Service",
   "Activate Service": "Activate Service",
   "Deactivate Service": "Deactivate Service",
-
   "Add Department": "Add Department",
   "Edit Department": "Edit Department",
   "View Department": "View Department",
-
   "Add Clinic": "Add Clinic",
   "Edit Clinic": "Edit Clinic",
   "View Clinic": "View Clinic",
-
   "Add Item": "Add Item",
   "Edit Item": "Edit Item",
   "View Item": "View Item",
@@ -282,32 +267,26 @@
   "Out of Stock": "Out of Stock",
   "In Stock": "In Stock",
   "Stock": "Stock",
-
   "Add Staff": "Add Staff",
   "Edit Staff": "Edit Staff",
   "Manage Schedule": "Manage Schedule",
   "Update Salary": "Update Salary",
   "View Profile": "View Profile",
-
   "View Vendor": "View Vendor",
   "Edit Vendor": "Edit Vendor",
   "Contract Details": "Contract Details",
   "Billing & Payments": "Billing & Payments",
   "Test History": "Test History",
-
   "Manage Permissions": "Manage Permissions",
   "Save Changes": "Save Changes",
-
   "Add Test": "Add Test",
   "Edit Test": "Edit Test",
   "View Test": "View Test",
   "Record Test Report": "Record Test Report",
   "Edit Test Report": "Edit Test Report",
-
   "Analytics": "Analytics",
   "Generate Report": "Generate Report",
   "Download Report": "Download Report",
-
   "Today": "Today",
   "Tomorrow": "Tomorrow",
   "Custom Date": "Custom Date",
@@ -316,26 +295,20 @@
   "Branches": "Branches",
   "Previous": "Previous",
   "Next": "Next",
-
   "New Odontogram": "New Odontogram",
   "View History": "View History",
   "Set Active": "Set Active",
-
   "New Prescription": "New Prescription",
   "Edit Prescription": "Edit Prescription",
   "Print Prescription": "Print Prescription",
   "Send to Pharmacy": "Send to Pharmacy",
-
   "Edit Profile": "Edit Profile",
   "Change Password": "Change Password",
-
   "Settings": "Settings",
-
   "Analyze X-ray": "Analyze X-ray",
   "Upload X-ray": "Upload X-ray",
   "Download Report": "Download Report",
   "Delete Analysis": "Delete Analysis",
-
   "Completed": "Completed",
   "Scheduled": "Scheduled",
   "Cancelled": "Cancelled",
@@ -354,7 +327,6 @@
   "High": "High",
   "Medium": "Medium",
   "Low": "Low",
-
   "Dental AI X-ray Analysis": "Dental AI X-ray Analysis",
   "Upload dental X-rays and get AI-powered analysis reports": "Upload dental X-rays and get AI-powered analysis reports",
   "Invalid file type": "Invalid file type",
@@ -442,7 +414,6 @@
   "Patient Information": "Patient Information",
   "Analysis Details": "Analysis Details",
   "Doctor": "Doctor",
-
   "Analysis History": "Analysis History",
   "AI Test Report Analysis": "AI Test Report Analysis",
   "Upload test reports and get AI-powered analysis and interpretation": "Upload test reports and get AI-powered analysis and interpretation",
@@ -489,7 +460,6 @@
   "This action cannot be undone. This will permanently delete the AI test analysis.": "This action cannot be undone. This will permanently delete the AI test analysis.",
   "No data": "No data",
   "Top Test Type": "Top Test Type",
-
   "Compare Test Reports using AI": "Compare Test Reports using AI",
   "Upload multiple test reports to compare parameters across different dates": "Upload multiple test reports to compare parameters across different dates",
   "AI Powered": "AI Powered",
@@ -567,7 +537,6 @@
   "AI test comparison has been successfully deleted.": "AI test comparison has been successfully deleted.",
   "Delete failed": "Delete failed",
   "Could not delete the comparison. Please try again.": "Could not delete the comparison. Please try again.",
-
   "Patients": "Patients",
   "Manage patient records and information": "Manage patient records and information",
   "has been updated successfully.": "has been updated successfully.",
@@ -609,7 +578,6 @@
   "Emergency Contact Relationship": "Emergency Contact Relationship",
   "Are you sure you want to delete this patient? This action cannot be undone.": "Are you sure you want to delete this patient? This action cannot be undone.",
   "this patient": "this patient",
-
   "Add New Patient": "Add New Patient",
   "Enter patient information to create a new medical record in the system.": "Enter patient information to create a new medical record in the system.",
   "Patient added successfully": "Patient added successfully",
@@ -644,7 +612,6 @@
   "Policy Number": "Policy Number",
   "ABC123456789": "ABC123456789",
   "Adding Patient...": "Adding Patient...",
-
   "Deleted successfully": "Deleted successfully",
   "has been permanently deleted.": "has been permanently deleted.",
   "You are about to delete:": "You are about to delete:",
@@ -672,7 +639,7 @@
   "Updated successfully": "Updated successfully",
   "Saved successfully": "Saved successfully",
   "Failed to create": "Failed to create",
-  "Failed to update": "Failed to update", 
+  "Failed to update": "Failed to update",
   "Failed to delete": "Failed to delete",
   "Please try again": "Please try again",
   "Required field": "Required field",
@@ -690,11 +657,9 @@
   "Quantity": "Quantity",
   "Price": "Price",
   "Total": "Total",
-
   "Item updated successfully": "Item updated successfully",
   "Failed to update item. Please try again.": "Failed to update item. Please try again.",
   "Save Changes": "Save Changes",
-
   "Appointments": "Appointments",
   "Manage patient appointments and schedules": "Manage patient appointments and schedules",
   "Today's Appointments": "Today's Appointments",
@@ -792,14 +757,13 @@
   "Failed to update appointment. Please try again.": "Failed to update appointment. Please try again.",
   "Failed to load appointments. Please check your connection and try again.": "Failed to load appointments. Please check your connection and try again.",
   "Failed to load appointments. Please try again.": "Failed to load appointments. Please try again.",
-
   "Leads & CRM": "Leads & CRM",
   "Manage potential patients and track conversions": "Manage potential patients and track conversions",
   "Total Leads": "Total Leads",
   "All potential patients": "All potential patients",
   "New Leads": "New Leads",
   "Awaiting contact": "Awaiting contact",
-  "Now patients": "Now patients", 
+  "Now patients": "Now patients",
   "Conversion Rate": "Conversion Rate",
   "Success rate": "Success rate",
   "Search leads by name, email, or phone...": "Search leads by name, email, or phone...",
@@ -816,7 +780,7 @@
   "Lead Details": "Lead Details",
   "Contact Info": "Contact Info",
   "Source": "Source",
-  "Service Interest": "Service Interest", 
+  "Service Interest": "Service Interest",
   "Assigned To": "Assigned To",
   "Created": "Created",
   "Lead #": "Lead #",
@@ -832,7 +796,7 @@
   "Retry": "Retry",
   "new": "new",
   "contacted": "contacted",
-  "converted": "converted", 
+  "converted": "converted",
   "lost": "lost",
   "Status updated": "Status updated",
   "Lead status has been updated successfully.": "Lead status has been updated successfully.",
@@ -848,12 +812,11 @@
   "New": "New",
   "Contacted": "Contacted",
   "Lost": "Lost",
-
   "Add New Lead": "Add New Lead",
   "Capture information about potential patients and track them through the conversion process.": "Capture information about potential patients and track them through the conversion process.",
   "Contact Information": "Contact Information",
   "First Name *": "First Name *",
-  "Last Name *": "Last Name *", 
+  "Last Name *": "Last Name *",
   "Enter first name": "Enter first name",
   "Enter last name": "Enter last name",
   "Enter email address": "Enter email address",
@@ -922,11 +885,9 @@
   "Converting...": "Converting...",
   "Lead converted successfully": "Lead converted successfully",
   "has been converted to a patient.": "has been converted to a patient.",
-  
   "Convert to Patient": "Convert to Patient",
   "View Details": "View Details",
   "Delete Lead": "Delete Lead",
-
   "Prescription Printed": "Prescription Printed",
   "Prescription": "Prescription",
   "has been sent to printer.": "has been sent to printer.",
@@ -990,7 +951,6 @@
   "Page": "Page",
   "of": "of",
   "Next": "Next",
-
   "Failed to fetch odontograms": "Failed to fetch odontograms",
   "Failed to recalculate treatment summaries": "Failed to recalculate treatment summaries",
   "Odontogram set as active": "Odontogram set as active",
@@ -1028,7 +988,6 @@
   "Set as Active": "Set as Active",
   "No dental records found": "No dental records found",
   "Create First Odontogram": "Create First Odontogram",
-
   "Unknown Patient": "Unknown Patient",
   "Unknown Test": "Unknown Test",
   "N/A": "N/A",
@@ -1073,7 +1032,6 @@
   "Report Details": "Report Details",
   "Recorded:": "Recorded:",
   "Not recorded": "Not recorded",
- 
   "Internal": "Internal",
   "Vendor": "Vendor",
   "Status": "Status",
@@ -1105,7 +1063,6 @@
   "No test reports found. Try adjusting your filters.": "No test reports found. Try adjusting your filters.",
   "No test reports found. Record your first test report to get started.": "No test reports found. Record your first test report to get started.",
   "reports": "reports",
-
   "Failed to load billing data. Please try again.": "Failed to load billing data. Please try again.",
   "Unknown Patient": "Unknown Patient",
   "Payment Recorded": "Payment Recorded",
@@ -1145,7 +1102,6 @@
   "No payments found": "No payments found",
   "View Details": "View Details",
   "Process Refund": "Process Refund",
-
   "Failed to load invoices. Please try again.": "Failed to load invoices. Please try again.",
   "Invoice Management": "Invoice Management",
   "Create, send, and track patient invoices": "Create, send, and track patient invoices",
@@ -1179,7 +1135,6 @@
   "Total Amount": "Total Amount",
   "Issue:": "Issue:",
   "ID:": "ID:",
-
   "Failed to load payments. Please try again.": "Failed to load payments. Please try again.",
   "Refund for payment": "Refund for payment",
   "has been initiated.": "has been initiated.",
@@ -1252,7 +1207,6 @@
   "System Information": "System Information",
   "Last Updated": "Last Updated",
   "Close": "Close",
-
   "Failed to load payroll data. Please try again.": "Failed to load payroll data. Please try again.",
   "Staff Member": "Staff Member",
   "Failed to load payroll details. Please try again.": "Failed to load payroll details. Please try again.",
@@ -1312,7 +1266,6 @@
   "Created At": "Created At",
   "Saving...": "Saving...",
   "Save Changes": "Save Changes",
-
   "Failed to load expenses": "Failed to load expenses",
   "Expense deleted successfully": "Expense deleted successfully",
   "Failed to delete expense": "Failed to delete expense",
@@ -1355,7 +1308,6 @@
   "Next": "Next",
   "Are you sure you want to delete": "Are you sure you want to delete",
   "This action cannot be undone.": "This action cannot be undone.",
-
   "Failed to load performance data": "Failed to load performance data",
   "Failed to load doctor payouts": "Failed to load doctor payouts",
   "Performance Analytics": "Performance Analytics",
@@ -1399,7 +1351,6 @@
   "invoices": "invoices",
   "No doctors found": "No doctors found",
   "No doctor data available for": "No doctor data available for",
-
   "Access denied. Please check your clinic permissions.": "Access denied. Please check your clinic permissions.",
   "Insufficient permissions to view services for this clinic.": "Insufficient permissions to view services for this clinic.",
   "Failed to load services. Please try again.": "Failed to load services. Please try again.",
@@ -1462,7 +1413,6 @@
   "Service Deleted": "Service Deleted",
   "has been deleted successfully.": "has been deleted successfully.",
   "Failed to delete service. Please try again.": "Failed to delete service. Please try again.",
-
   "Failed to load departments. Please try again.": "Failed to load departments. Please try again.",
   "Department Added": "Department Added",
   "has been successfully added.": "has been successfully added.",
@@ -1600,7 +1550,6 @@
   "October": "October",
   "November": "November",
   "December": "December",
-
   "Failed to load clinics. Please try again.": "Failed to load clinics. Please try again.",
   "Clinic Added": "Clinic Added",
   "Validation Error": "Validation Error",
@@ -1630,7 +1579,6 @@
   "Language": "Language",
   "Timezone": "Timezone",
   "ID:": "ID:",
-
   "Permissions": "Permissions",
   "Manage role permissions": "Manage role permissions",
   "for": "for",
@@ -1641,7 +1589,6 @@
   "Save Changes": "Save Changes",
   "Search permissions...": "Search permissions...",
   "Select a role to view and update its permissions.": "Select a role to view and update its permissions.",
-
   "Access denied. Please check your clinic permissions.": "Access denied. Please check your clinic permissions.",
   "Insufficient permissions to view inventory for this clinic.": "Insufficient permissions to view inventory for this clinic.",
   "Failed to load inventory. Please try again.": "Failed to load inventory. Please try again.",
@@ -1689,7 +1636,6 @@
   "Edit Medicine": "Edit Medicine",
   "Delete Medicine": "Delete Medicine",
   "Are you sure you want to delete this medicine from the inventory?": "Are you sure you want to delete this medicine from the inventory?",
-
   "Staff Management": "Staff Management",
   "Manage clinic staff and their information": "Manage clinic staff and their information",
   "Staff list refreshed": "Staff list refreshed",
@@ -1721,7 +1667,6 @@
   "Sales": "Sales",
   "Employee ID:": "Employee ID:",
   "Search staff by name, email, or phone...": "Search staff by name, email, or phone...",
-
   "Insufficient permissions to view lab vendors for this clinic.": "Insufficient permissions to view lab vendors for this clinic.",
   "Failed to load lab vendors. Please try again.": "Failed to load lab vendors. Please try again.",
   "Diagnostic Lab": "Diagnostic Lab",
@@ -1775,7 +1720,6 @@
   "Contract Start": "Contract Start",
   "Contract End": "Contract End",
   "Vendor ID:": "Vendor ID:",
-
   "Insufficient permissions to view appointments for this clinic.": "Insufficient permissions to view appointments for this clinic.",
   "Failed to load calendar data. Please try again.": "Failed to load calendar data. Please try again.",
   "Too many requests. Please wait a moment before trying again.": "Too many requests. Please wait a moment before trying again.",
@@ -1814,7 +1758,6 @@
   "Event ID:": "Event ID:",
   "No events found": "No events found",
   "Try adjusting your search criteria or add a new event.": "Try adjusting your search criteria or add a new event.",
-
   "Report Generated": "Report Generated",
   "report is being prepared for download.": "report is being prepared for download.",
   "Clinic Selection Required": "Clinic Selection Required",
@@ -1869,7 +1812,6 @@
   "Female": "Female",
   "Appointment Status": "Appointment Status",
   "Current appointment status distribution": "Current appointment status distribution",
-
   "Role Permissions": "Role Permissions",
   "Clinic Access": "Clinic Access",
   "Manage role and clinic permissions": "Manage role and clinic permissions",
@@ -1890,61 +1832,40 @@
   "clinics": "clinics",
   "addTesttitle": "Add New Laboratory Test",
   "addTestdescription": "Create a new test and add it to the laboratory test list",
-
   "addTestbasicInfo": "Basic Test Information",
-
   "addTesttestName": "Test Name",
   "addTesttestCode": "Test Code",
   "addTestgenerate": "Generate",
-
   "addTestcategory": "Category",
   "addTestselectCategory": "Select test category",
-
   "addTestturnaroundTime": "Turnaround Time",
   "addTestselectTurnaround": "Select duration",
-
   "addTestdescriptionLabel": "Description",
   "addTestdescriptionPlaceholder": "Detailed description of what this test measures",
-
   "addTestsampleType": "Sample Type",
   "addTestselectSampleType": "Select sample type",
-
   "addTestmethodology": "Methodology",
   "addTestselectMethodology": "Select methodology",
-
   "addTestnormalRange": "Normal Range",
   "addTestunits": "Units",
-
   "addTestcancel": "Cancel",
-
   "addTestcreating": "Creating...",
-
   "addTestcreate": "Create Test",
-
-
   "recordTestReport": "Record Test Report",
   "recordTestDescription": "Record test results received from external laboratories",
-
   "patientTestInfo": "Patient and Test Information",
-
   "patient": "Patient",
   "selectPatient": "Select patient",
   "loadingPatients": "Loading patients...",
-
   "test": "Test",
   "selectTest": "Select test",
   "loadingTests": "Loading tests...",
-
   "testResults": "Test Results",
   "results": "Results",
   "resultsPlaceholder": "Enter test results...",
-
   "notes": "Additional Notes",
-
-
   "cancel": "Cancel",
   "recording": "Recording...",
-
   "testDetails": "Test Details",
   "externalVendor": "External Vendor ",
   "selectVendor": "Select Vendor",
@@ -1963,149 +1884,87 @@
   "clinicalRecommendations": "Clinical recommendations based on results...",
   "additionalNotes": "Additional Notes",
   "notesPlaceholder": "Any notes or additional remarks...",
-
-
-
-
-
- 
-    "addTestCategorytitle": "Add New Test Category",
-    "addTestCategorydescription": "Create a new test category to organize your laboratory tests effectively.",
-    "addTestCategorybasicInformation": "Basic Information",
-   
-      "categoryNamelabel": "Category Name *",
-      "categoryNameplaceholder": "e.g., Hematology",
- 
-      "categoryCodelabel": "Category Code *",
-      "categoryCodeplaceholder": "e.g., HEM",
-      "categoryCodenote": "Auto-generate from category name or enter manually",
-
-      "descriptionFieldlabel": "Description *",
-      "descriptionFieldplaceholder": "Brief description of this test category...",
-  
-      "departmentlabel": "Department *",
-      "departmentplaceholder": "Select department",
-  
-    "visualSettings": "Visual Settings",
-    "icon": "Icon",
- 
-      "iconOptionsfolder": "Folder",
-      "iconOptionsbeaker": "Beaker",
-      "iconOptionstestTube": "Test Tube",
-      "iconOptionsheart": "Heart",
-      "iconOptionslightning": "Lightning",
-      "iconOptionsmicroscope": "Microscope"
-    ,
-
-      "colorlabel": "Color",
-      "colorselected": "Selected "
-    ,
-    "preview": "Preview",
-    "categoryNamePreview": "Category Name",
-    "categoryCodePreview": "Code:: CODE",
-    "additionalInformation": "Additional Information",
-  
-      "commonTestslabel": "Common Tests",
-      "commonTestsplaceholder": "Enter common tests, separated by commas (e.g., CBC, ESR, Platelet Count)",
-      "commonTestsnote": "Enter test names separated by commas",
- 
-      "sortOrderlabel": "Sort Order",
-      "sortOrderplaceholder": "0",
-      "sortOrdernote": "Lower numbers appear first in lists",
-
-    "activeCategory": "Active Category",
-    
-    
-      "buttonscreateCategory": "Create Category",
-
-
-
-
-
-
-
-
-
-      "addMethodologyTitle": "Add New Test Methodology",
-      "addMethodologyDescription": "Create a new testing methodology with detailed specifications and procedures.",
-    
-      "basicInformation": "Basic Information",
-    
-      "methodologyNameLabel": "Methodology Name *",
-      "methodologyNamePlaceholder": "e.g., Automated Cell Counter",
-    
-      "methodologyCodeLabel": "Code *",
-      "methodologyCodePlaceholder": "e.g., HEM-AUTOCNT01",
-    
-      "generate": "Generate",
-    
-      "categoryLabel": "Category *",
-      "categoryPlaceholder": "Select category",
-    
-      "descriptionLabel": "Description *",
-      "descriptionPlaceholder": "Detailed description of the methodology...",
-    
-      "technicalSpecifications": "Technical Specifications",
-    
-      "principlesLabel": "Principles *",
-      "principlesPlaceholder": "Scientific principles behind the methodology...",
-    
-      "equipmentRequiredLabel": "Equipment Required",
-      "equipmentRequiredPlaceholder": "List of required equipment...",
-    
-      "applicationsLabel": "Applications",
-      "applicationsPlaceholder": "Tests and applications that use this methodology (one per line or comma-separated)...",
-    
-      "advantagesAndLimitations": "Advantages & Limitations",
-    
-      "advantagesLabel": "Advantages",
-      "advantagesPlaceholder": "Key advantages and benefits...",
-    
-      "limitationsLabel": "Limitations",
-      "limitationsPlaceholder": "Known limitations and considerations...",
-    
-      "status": "Status",
-      "statusDescription": "Make this methodology active and available for use",
-
-      "buttonscreateMethodology": "Create Methodology",
-
-
-
-
-
-
-      "addTatCategoryTitle": "Add New Turnaround Time Category",
-  "addTatCategoryDescription": "Create a new turnaround time category for laboratory tests.",
-
+  "addTestCategorytitle": "Add New Test Category",
+  "addTestCategorydescription": "Create a new test category to organize your laboratory tests effectively.",
+  "addTestCategorybasicInformation": "Basic Information",
+  "categoryNamelabel": "Category Name *",
+  "categoryNameplaceholder": "e.g., Hematology",
+  "categoryCodelabel": "Category Code *",
+  "categoryCodeplaceholder": "e.g., HEM",
+  "categoryCodenote": "Auto-generate from category name or enter manually",
+  "descriptionFieldlabel": "Description *",
+  "descriptionFieldplaceholder": "Brief description of this test category...",
+  "departmentlabel": "Department *",
+  "departmentplaceholder": "Select department",
+  "visualSettings": "Visual Settings",
+  "icon": "Icon",
+  "iconOptionsfolder": "Folder",
+  "iconOptionsbeaker": "Beaker",
+  "iconOptionstestTube": "Test Tube",
+  "iconOptionsheart": "Heart",
+  "iconOptionslightning": "Lightning",
+  "iconOptionsmicroscope": "Microscope",
+  "colorlabel": "Color",
+  "colorselected": "Selected ",
+  "preview": "Preview",
+  "categoryNamePreview": "Category Name",
+  "categoryCodePreview": "Code:: CODE",
+  "additionalInformation": "Additional Information",
+  "commonTestslabel": "Common Tests",
+  "commonTestsplaceholder": "Enter common tests, separated by commas (e.g., CBC, ESR, Platelet Count)",
+  "commonTestsnote": "Enter test names separated by commas",
+  "sortOrderlabel": "Sort Order",
+  "sortOrderplaceholder": "0",
+  "sortOrdernote": "Lower numbers appear first in lists",
+  "activeCategory": "Active Category",
+  "buttonscreateCategory": "Create Category",
+  "addMethodologyTitle": "Add New Test Methodology",
+  "addMethodologyDescription": "Create a new testing methodology with detailed specifications and procedures.",
   "basicInformation": "Basic Information",
-
-  "tatCategoryNameLabel": "Category Name *",
-  "tatCategoryNamePlaceholder": "e.g., STAT (Emergency)",
-
-  "tatCategoryCodeLabel": "Code *",
-  "tatCategoryCodePlaceholder": "e.g., TAT-STAT01",
-
+  "methodologyNameLabel": "Methodology Name *",
+  "methodologyNamePlaceholder": "e.g., Automated Cell Counter",
+  "methodologyCodeLabel": "Code *",
+  "methodologyCodePlaceholder": "e.g., HEM-AUTOCNT01",
   "generate": "Generate",
-
-  "priorityLabel": "Priority *",
-  "priorityPlaceholder": "Select priority",
-
   "categoryLabel": "Category *",
   "categoryPlaceholder": "Select category",
-
+  "descriptionLabel": "Description *",
+  "descriptionPlaceholder": "Detailed description of the methodology...",
+  "technicalSpecifications": "Technical Specifications",
+  "principlesLabel": "Principles *",
+  "principlesPlaceholder": "Scientific principles behind the methodology...",
+  "equipmentRequiredLabel": "Equipment Required",
+  "equipmentRequiredPlaceholder": "List of required equipment...",
+  "applicationsLabel": "Applications",
+  "applicationsPlaceholder": "Tests and applications that use this methodology (one per line or comma-separated)...",
+  "advantagesAndLimitations": "Advantages & Limitations",
+  "advantagesLabel": "Advantages",
+  "advantagesPlaceholder": "Key advantages and benefits...",
+  "limitationsLabel": "Limitations",
+  "limitationsPlaceholder": "Known limitations and considerations...",
+  "status": "Status",
+  "statusDescription": "Make this methodology active and available for use",
+  "buttonscreateMethodology": "Create Methodology",
+  "addTatCategoryTitle": "Add New Turnaround Time Category",
+  "addTatCategoryDescription": "Create a new turnaround time category for laboratory tests.",
+  "basicInformation": "Basic Information",
+  "tatCategoryNameLabel": "Category Name *",
+  "tatCategoryNamePlaceholder": "e.g., STAT (Emergency)",
+  "tatCategoryCodeLabel": "Code *",
+  "tatCategoryCodePlaceholder": "e.g., TAT-STAT01",
+  "generate": "Generate",
+  "priorityLabel": "Priority *",
+  "priorityPlaceholder": "Select priority",
+  "categoryLabel": "Category *",
+  "categoryPlaceholder": "Select category",
   "descriptionLabel": "Description *",
   "descriptionPlaceholder": "Describe when this turnaround time category should be used...",
-
   "durationSettings": "Duration Settings",
-
   "durationDisplayLabel": "Duration Display *",
   "durationDisplayPlaceholder": "e.g., < 1 hour, 4–6 hours",
-
   "durationMinutesLabel": "Duration (Minutes) *",
   "durationMinutesPlaceholder": "e.g., 60, 360",
-
   "quickDurationPresets": "Quick Duration Presets",
-
   "preset30Min": "< 30 minutes",
   "preset1Hour": "< 1 hour",
   "preset1To2Hours": "1–2 hours",
@@ -2118,169 +1977,96 @@
   "preset2To3Days": "2–3 days",
   "preset3To5Days": "3–5 days",
   "preset1To2Weeks": "1–2 weeks",
-
   "slaCommitmentLabel": "SLA Commitment",
   "slaCommitmentPlaceholder": "e.g., 95% of tests within the defined timeframe",
-
   "reportingHoursLabel": "Reporting Hours",
   "reportingHoursPlaceholder": "e.g., 24/7, business hours only",
-
   "testExamplesAndApplications": "Test Examples & Applications",
-
   "testExamplesLabel": "Test Examples",
   "testExamplesPlaceholder": "List tests that typically use this turnaround time (separated by commas)...",
-
   "businessRulesLabel": "Business Rules",
   "businessRulesPlaceholder": "When should this turnaround time be applied? Any special conditions?",
-
   "criticalHandling": "Critical Handling",
-
   "criticalNotesLabel": "Critical Notes",
   "criticalNotesPlaceholder": "Important notes for handling tests in this category...",
-
   "escalationProcedureLabel": "Escalation Procedure",
   "escalationProcedurePlaceholder": "What should be done if the turnaround time cannot be met?",
-
   "status": "Status",
   "statusDescription": "Make this turnaround time category active and available for use",
   "buttonscreateTurnaroundTime": "Create Turnaround Time",
-
-
-
-
-
-
-
-
-
-"sampleType.addTitle": "Add New Sample Type",
+  "sampleType.addTitle": "Add New Sample Type",
   "sampleType.editTitle": "Edit Sample Type",
-
   "sampleType.addDescription": "Create a new sample type with collection and storage specifications.",
   "sampleType.editDescription": "Update the sample type information below.",
-
   "sampleType.basicInformation": "Basic Information",
-
   "sampleType.nameLabel": "Sample Type Name *",
   "sampleType.namePlaceholder": "e.g., Whole Blood",
-
   "sampleType.codeLabel": "Code *",
   "sampleType.codePlaceholder": "e.g., WB",
-
   "sampleType.generate": "Generate",
-
   "sampleType.categoryLabel": "Category *",
   "sampleType.categoryPlaceholder": "Select category",
-
   "sampleType.descriptionLabel": "Description *",
   "sampleType.descriptionPlaceholder": "Detailed description of the sample type...",
-
   "sampleType.collectionSpecifications": "Collection Specifications",
-
   "sampleType.collectionMethodLabel": "Collection Method *",
   "sampleType.collectionMethodPlaceholder": "Select method",
-
   "sampleType.volumeLabel": "Volume Required",
   "sampleType.volumePlaceholder": "e.g., 3–5 mL",
-
   "sampleType.containerLabel": "Container Type",
   "sampleType.containerPlaceholder": "Select container",
-
   "sampleType.preservativeLabel": "Preservative / Anticoagulant",
   "sampleType.preservativePlaceholder": "e.g., EDTA, Heparin, None",
-
   "sampleType.specialInstructionsLabel": "Special Collection Instructions",
   "sampleType.specialInstructionsPlaceholder": "Any special instructions for sample collection...",
-
   "sampleType.storageAndHandling": "Storage & Handling",
-
   "sampleType.storageTemperatureLabel": "Storage Temperature",
   "sampleType.storageTemperaturePlaceholder": "Select temperature",
-
   "sampleType.storageTimeLabel": "Storage Time / Stability",
   "sampleType.storageTimePlaceholder": "e.g., 24 hours, 7 days",
-
   "sampleType.processingTimeLabel": "Processing Time",
   "sampleType.processingTimePlaceholder": "e.g., Process within 2 hours",
-
   "sampleType.transportConditionsLabel": "Transport Conditions",
   "sampleType.transportConditionsPlaceholder": "e.g., Room temperature, Ice",
-
   "sampleType.handlingRequirementsLabel": "Handling Requirements",
   "sampleType.handlingRequirementsPlaceholder": "Special handling requirements and precautions...",
-
   "sampleType.qualityAndSafety": "Quality & Safety",
-
   "sampleType.rejectionCriteriaLabel": "Rejection Criteria",
   "sampleType.rejectionCriteriaPlaceholder": "Conditions under which the sample should be rejected...",
-
   "sampleType.safetyPrecautionsLabel": "Safety Precautions",
   "sampleType.safetyPrecautionsPlaceholder": "Safety measures and precautions during handling...",
-
   "sampleType.testApplications": "Test Applications",
-
   "sampleType.commonTestsLabel": "Common Tests",
   "sampleType.commonTestsPlaceholder": "List common tests performed on this sample type (comma-separated)...",
-
   "sampleType.status": "Status",
   "sampleType.activeLabel": "Make this sample type active and available for use",
-
   "common.cancel": "Cancel",
   "common.create": "Create",
   "common.update": "Update",
   "common.creating": "Creating...",
   "common.updating": "Updating...",
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   "test.externalVendorLabel": "External Laboratory *",
   "test.externalVendorPlaceholder": "Select laboratory",
-
   "test.testDateLabel": "Test Date *",
   "test.testDatePlaceholder": "MM/DD/YYYY",
-
   "test.recordedByLabel": "Recorded By *",
   "test.recordedByPlaceholder": "Select staff member",
-
   "test.reportAttachmentsLabel": "Report Attachments",
   "test.reportAttachmentsPlaceholder": "Click to upload or drag and drop files here",
   "test.reportAttachmentsHint": "PDF, JPG, PNG, DOC files up to 10MB",
-
   "test.resultsAndInterpretation": "Test Results and Interpretation",
-
   "test.testResultsLabel": "Test Results",
   "test.testResultsPlaceholder": "Enter detailed test results...",
-
   "test.normalValuesLabel": "Normal Values",
   "test.normalValuesPlaceholder": "Reference ranges for normal values...",
-
   "test.clinicalInterpretationLabel": "Clinical Interpretation",
   "test.clinicalInterpretationPlaceholder": "Clinical interpretation of test results...",
-
   "test.abnormalFindingsLabel": "Abnormal Findings",
   "test.abnormalFindingsPlaceholder": "Any abnormal findings or critical values...",
-
   "test.recommendationsLabel": "Recommendations",
   "test.recommendationsPlaceholder": "Clinical recommendations based on results...",
-
   "test.additionalNotesLabel": "Additional Notes",
   "test.additionalNotesPlaceholder": "Any additional notes or observations...",
-
   "common.cancel": "Cancel",
   "INVOICE": "INVOICE",
   "Invoice #": "Invoice #",
@@ -2358,80 +2144,48 @@
   "Invoice not found": "Invoice not found",
   "The requested invoice could not be loaded.": "The requested invoice could not be loaded.",
   "Failed to load invoice details.": "Failed to load invoice details.",
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   "patientDetails": "Patient Details",
   "patientDescription": "Complete patient information and medical records",
-
   "personalInformation": "Personal Information",
   "contactInformation": "Contact Information",
   "emergencyContact": "Emergency Contact",
   "medicalInformation": "Medical Information",
-
   "fullName": "Full Name",
   "dateOfBirth": "Date of Birth",
   "age": "Age",
   "years": "years",
   "gender": "Gender",
   "bloodGroup": "Blood Group",
-
   "phone": "Phone",
   "email": "Email",
   "address": "Address",
   "name": "Name",
   "relationship": "Relationship",
-
   "height": "Height",
   "weight": "Weight",
   "allergies": "Allergies",
   "medicalHistory": "Medical History",
-
   "patientStatistics": "Patient Statistics",
   "totalVisits": "Total Visits",
   "lastVisit": "Last Visit",
   "status": "Status",
   "never": "Never",
   "active": "Active",
-
   "notSpecified": "Not specified",
   "noneRecorded": "None recorded",
-
   "noPatientData": "No patient data available",
   "noPatientDataDesc": "Patient information could not be loaded",
-
   "noDentalRecords": "No Dental Records",
   "noDentalRecordsDesc": "No dental chart found for this patient. Please create one first.",
-
   "error": "Error",
   "failedToLoadDentalChart": "Failed to load dental chart",
-
   "close": "Close",
-  "updateinfo":"Update the information below",
-  
-"Delete Patient": "Delete Patient",
+  "updateinfo": "Update the information below",
+  "Delete Patient": "Delete Patient",
   "areYouSureDeletePatient": "Are you sure you want to delete this patient? This action cannot be undone.",
   "deleting": "Deleting...",
   "delete": "Delete",
-   "firstName": "First Name",
+  "firstName": "First Name",
   "lastName": "Last Name",
   "email": "Email",
   "phoneNumber": "Phone Number",
@@ -2440,30 +2194,30 @@
   "status": "Status",
   "assignedTo": "Assigned To",
   "notes": "Notes",
-   "addNew": "Add New Clinic",
-      "createDescription": "Create a new clinic location with its contact information and settings.",
-      "name": "Clinic Name",
-      "namePlaceholder": "Enter clinic name",
-      "code": "Clinic Code",
-      "description": "Clinic Description",
-      "descriptionPlaceholder": "Enter clinic description (optional)",
-      "streetAddress": "Street Address",
-      "streetAddressPlaceholder": "Enter street address",
-      "country": "Country",
-      "city": "City",
-      "website": "Website",
-      "websiteOptional": "Website (Optional)",
-      "settings": "Clinic Settings",
-       "monday": "Monday",
-        "tuesday": "Tuesday",
-        "wednesday": "Wednesday",
-        "thursday": "Thursday",
-        "friday": "Friday",
-        "saturday": "Saturday",
-        "sunday": "Sunday",
-        "addressInformation": "Address Information",
-          "clincsettings": "Clinic Settings",
-           "closed": "Closed",
+  "addNew": "Add New Clinic",
+  "createDescription": "Create a new clinic location with its contact information and settings.",
+  "name": "Clinic Name",
+  "namePlaceholder": "Enter clinic name",
+  "code": "Clinic Code",
+  "description": "Clinic Description",
+  "descriptionPlaceholder": "Enter clinic description (optional)",
+  "streetAddress": "Street Address",
+  "streetAddressPlaceholder": "Enter street address",
+  "country": "Country",
+  "city": "City",
+  "website": "Website",
+  "websiteOptional": "Website (Optional)",
+  "settings": "Clinic Settings",
+  "monday": "Monday",
+  "tuesday": "Tuesday",
+  "wednesday": "Wednesday",
+  "thursday": "Thursday",
+  "friday": "Friday",
+  "saturday": "Saturday",
+  "sunday": "Sunday",
+  "addressInformation": "Address Information",
+  "clincsettings": "Clinic Settings",
+  "closed": "Closed",
   "Appointment Settings": "Appointment Settings",
   "CRM Settings": "CRM Settings",
   "Status Configuration": "Status Configuration",
@@ -2543,21 +2297,21 @@
   "dueAmount": "Due Amount",
   "enterTransactionId": "Enter transaction ID or reference number",
   "enterPaymentDescription": "Enter payment description or notes",
-   "cash": "Cash",
-    "creditCard": "Credit Card",
-    "bankTransfer": "Bank Transfer",
-    "upi": "UPI",
-    "insurance": "Insurance",
-    "Select payment method": "Select payment method",
-    "Select a patient": "Select a patient",
-    "Generate a secure Stripe payment link for your patient": "Generate a secure Stripe payment link for your patient",
-    "Customer Email": "Customer Email",
-    "Enter customer's email address": "Enter customer's email address",
-     "paymentConfirmationEmail": "Payment confirmation will be sent to this email",
+  "cash": "Cash",
+  "creditCard": "Credit Card",
+  "bankTransfer": "Bank Transfer",
+  "upi": "UPI",
+  "insurance": "Insurance",
+  "Select payment method": "Select payment method",
+  "Select a patient": "Select a patient",
+  "Generate a secure Stripe payment link for your patient": "Generate a secure Stripe payment link for your patient",
+  "Customer Email": "Customer Email",
+  "Enter customer's email address": "Enter customer's email address",
+  "paymentConfirmationEmail": "Payment confirmation will be sent to this email",
   "enterPaymentDescriptionExample": "Enter payment description (e.g., Consultation fee, Treatment payment)",
-   "Transaction ID": "Transaction ID",
-    "Payment": "Payment",
-    "addNewExpense": "Add New Expense",
+  "Transaction ID": "Transaction ID",
+  "Payment": "Payment",
+  "addNewExpense": "Add New Expense",
   "createExpenseDescription": "Create a new expense record for your clinic.",
   "title": "Title",
   "titlePlaceholder": "e.g., Office supplies",
@@ -2658,7 +2412,6 @@
   "Select Warehouse": "Select Warehouse",
   "Select branch": "Select branch",
   "Select warehouse": "Select warehouse",
-  
   "errors": {
     "errorFetchingWarehouses": "Error fetching warehouses",
     "warehouseNotFound": "Warehouse not found",
@@ -2749,7 +2502,6 @@
     "branchAlreadyHasMainWarehouse": "This branch already has a MAIN warehouse. Each branch can have exactly ONE MAIN warehouse.",
     "cannotSubtractMoreThanAvailableStock": "Cannot subtract more than available stock"
   },
-  
   "success": {
     "warehouseCreated": "Warehouse created successfully",
     "warehouseUpdated": "Warehouse updated successfully",
@@ -2782,7 +2534,6 @@
     "profileUpdated": "Profile updated successfully",
     "passwordChanged": "Password changed successfully"
   },
-  
   "Warehouses Management": "Warehouses Management",
   "Manage warehouses and their assigned branches": "Manage warehouses and their assigned branches",
   "Loading warehouses...": "Loading warehouses...",
@@ -2899,7 +2650,6 @@
   "Access denied. Please check your clinic permissions.": "Access denied. Please check your clinic permissions.",
   "Insufficient permissions to view inventory for this clinic.": "Insufficient permissions to view inventory for this clinic.",
   "Failed to load inventory. Please try again.": "Failed to load inventory. Please try again.",
-  
   "Type must be MAIN or SUB": "Type must be MAIN or SUB",
   "Invalid branch ID": "Invalid branch ID",
   "Invalid manager user ID": "Invalid manager user ID",
@@ -2912,7 +2662,6 @@
   "Search must be a string": "Search must be a string",
   "SortBy must be a string": "SortBy must be a string",
   "SortOrder must be asc or desc": "SortOrder must be asc or desc",
-  
   "Add New Service": "Add New Service",
   "Basic Info": "Basic Info",
   "Pricing": "Pricing",
@@ -2994,7 +2743,18 @@
   "Physiotherapy": "Physiotherapy",
   "Dentistry": "Dentistry",
   "Detailed view of service information": "Detailed view of service information",
-  "Timestamps": "Timestamps"
+  "Timestamps": "Timestamps",
+  "View detailed information about this lead": "View detailed information about this lead",
+  "Lead Name": "Lead Name",
+  "Lead ID": "Lead ID",
+  "Doctor Information": "Doctor Information",
+  "Amount Details": "Amount Details",
+  "Related Information": "Related Information",
+  "Payment Date": "Payment Date",
+  "Card Ending": "Card Ending",
+  "Failure Reason": "Failure Reason",
+  "Net Amount": "Net Amount",
+  "Processing Fee": "Processing Fee",
+  "Delete Service": "Delete Service",
+  "Update Service": "Update Service"
 }
-
-

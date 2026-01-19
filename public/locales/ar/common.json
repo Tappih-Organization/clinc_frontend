@@ -184,6 +184,9 @@
   "Add Patient": "إضافة مريض",
   "Edit Patient": "تعديل بيانات المريض",
   "Patient Details": "تفاصيل المريض",
+  "Detailed view of patient information": "عرض تفصيلي لمعلومات المريض",
+  "Patient Statistics": "إحصائيات المريض",
+  "Total Visits": "إجمالي الزيارات",
   "New Appointment": "إضافة حجز",
   "Schedule New Appointment": "جدولة حجز جديد",
   "Add Appointment": "إضافة حجز",
@@ -2440,7 +2443,7 @@
   "saturday": "السبت",
   "sunday": "الأحد",
   "addressInformation": "معلومات العنوان",
-  "clincsettings":  "إعدادات العيادة",
+  "clincsettings": "إعدادات العيادة",
   "closed": "مغلق",
   "Appointment Settings": "إعدادات الحجوزات",
   "CRM Settings": "إعدادات CRM",
@@ -2521,19 +2524,18 @@
   "dueAmount": "المبلغ المستحق",
   "enterTransactionId": "أدخل رقم العملية أو الرقم المرجعي",
   "enterPaymentDescription": "أدخل وصف الدفع أو الملاحظات",
-   "cash": "نقدًا",
-    "creditCard": "بطاقة ائتمان",
-    "bankTransfer": "تحويل بنكي",
-    "upi": "يو بي آي",
-    "insurance": "تأمين",
-    "Select payment method": "اختر طريقة الدفع",
-    "Select a patient": "اختر مريضًا",
-    "Generate a secure Stripe payment link for your patient": "توليد رابط دفع آمن عبر Stripe لمريضك",
-    "Customer Email": "البريد الإلكتروني للعميل",
-    "Enter customer's email address": "أدخل عنوان البريد الإلكتروني للعميل",
-     "paymentConfirmationEmail": "سيتم إرسال تأكيد الدفع إلى هذا البريد الإلكتروني",
+  "cash": "نقدًا",
+  "creditCard": "بطاقة ائتمان",
+  "bankTransfer": "تحويل بنكي",
+  "upi": "يو بي آي",
+  "insurance": "تأمين",
+  "Select payment method": "اختر طريقة الدفع",
+  "Select a patient": "اختر مريضًا",
+  "Generate a secure Stripe payment link for your patient": "توليد رابط دفع آمن عبر Stripe لمريضك",
+  "Customer Email": "البريد الإلكتروني للعميل",
+  "Enter customer's email address": "أدخل عنوان البريد الإلكتروني للعميل",
+  "paymentConfirmationEmail": "سيتم إرسال تأكيد الدفع إلى هذا البريد الإلكتروني",
   "enterPaymentDescriptionExample": "أدخل وصف الدفع (مثل: رسوم الاستشارة، دفعة العلاج)",
-                   
   "Transaction ID": "رقم العملية",
   "Payment": "الدفع",
   "addNewExpense": "إضافة مصروف جديد",
@@ -2558,7 +2560,7 @@
   "cancel": "إلغاء",
   "createExpense": "إنشاء مصروف",
   "expenseDetailsAndInformation": "تفاصيل ومعلومات المصروف",
-    "createdBy": "تم الإنشاء بواسطة",
+  "createdBy": "تم الإنشاء بواسطة",
   "createdDate": "تاريخ الإنشاء",
   "updateExpense": "تحديث المصروف",
   "receiptUrl": "رابط الإيصال",
@@ -2580,7 +2582,6 @@
   "Doctor Payouts": "مدفوعات الأطباء",
   "Year": "سنة",
   "Total Revenue": "إجمالي الإيرادات",
-  
   "Warehouses": "المخازن",
   "Warehouses Management": "إدارة المخازن",
   "Manage warehouses and their assigned branches": "إدارة المخازن والفروع المخصصة لها",
@@ -2751,7 +2752,6 @@
   "No items to export": "لا توجد أصناف للتصدير",
   "Items exported successfully": "تم تصدير الأصناف بنجاح",
   "Failed to export items": "فشل تصدير الأصناف",
-  
   "Warehouse Validation Messages": "رسائل التحقق من المخازن",
   "Type must be MAIN or SUB": "يجب أن يكون النوع MAIN أو SUB",
   "Invalid branch ID": "معرف الفرع غير صالح",
@@ -2765,7 +2765,6 @@
   "Search must be a string": "يجب أن يكون البحث نصاً",
   "SortBy must be a string": "يجب أن يكون SortBy نصاً",
   "SortOrder must be asc or desc": "يجب أن يكون SortOrder إما asc أو desc",
-  
   "Main warehouses can be assigned to multiple branches": "يمكن تعيين المخازن الرئيسية لعدة فروع",
   "Sub warehouses are typically assigned to specific branches": "عادة ما يتم تعيين المخازن الفرعية لفروع محددة",
   "Please select a branch": "يرجى اختيار فرع",
@@ -2800,7 +2799,6 @@
   "Access denied. Please check your clinic permissions.": "تم رفض الوصول. يرجى التحقق من صلاحيات العيادة.",
   "Insufficient permissions to view inventory for this clinic.": "صلاحيات غير كافية لعرض المخزون لهذه العيادة.",
   "Failed to load inventory. Please try again.": "فشل تحميل المخزون. يرجى المحاولة مرة أخرى.",
-  
   "errors": {
     "errorFetchingWarehouses": "خطأ في جلب المخازن",
     "warehouseNotFound": "المخزن غير موجود",
@@ -2891,7 +2889,6 @@
     "branchAlreadyHasMainWarehouse": "هذا الفرع لديه بالفعل مخزن رئيسي. يمكن أن يكون لكل فرع مخزن رئيسي واحد فقط.",
     "cannotSubtractMoreThanAvailableStock": "لا يمكن خصم أكثر من المخزون المتاح"
   },
-  
   "success": {
     "warehouseCreated": "تم إنشاء المخزن بنجاح",
     "warehouseUpdated": "تم تحديث المخزن بنجاح",
@@ -2924,7 +2921,6 @@
     "profileUpdated": "تم تحديث الملف الشخصي بنجاح",
     "passwordChanged": "تم تغيير كلمة المرور بنجاح"
   },
-  
   "Add New Service": "إضافة خدمة جديدة",
   "Basic Info": "المعلومات الأساسية",
   "Pricing": "التسعير",
@@ -3001,11 +2997,22 @@
   "Ophthalmology": "طب العيون",
   "ENT": "أنف وأذن وحنجرة",
   "Psychiatry": "الطب النفسي",
-  "Radiology": "الأشعة",
+  "View detailed information about this lead": "عرض تفاصيل ومعلومات هذا العميل المحتمل",
+  "Lead Name": "اسم العميل المحتمل",
+  "Lead ID": "معرف العميل المحتمل",
   "Laboratory": "المعمل",
   "Physiotherapy": "العلاج الطبيعي",
   "Dentistry": "طب الأسنان",
   "Detailed view of service information": "عرض تفصيلي لمعلومات الخدمة",
-  "Timestamps": "التحديثات الزمنية"
-
+  "Timestamps": "التحديثات الزمنية",
+  "Doctor Information": "معلومات الطبيب",
+  "Amount Details": "تفاصيل المبلغ",
+  "Related Information": "معلومات ذات صلة",
+  "Payment Date": "تاريخ الدفع",
+  "Card Ending": "نهاية البطاقة",
+  "Failure Reason": "سبب الفشل",
+  "Net Amount": "المبلغ الصافي",
+  "Processing Fee": "رسوم المعالجة",
+  "Delete Service": "حذف الخدمة",
+  "Update Service": "تحديث الخدمة"
 }

@@ -111,7 +111,7 @@ const Invoices = () => {
         page: currentPage,
         limit: 10,
       };
-      
+
       if (selectedStatus !== "all") params.status = selectedStatus;
       if (searchTerm) params.search = searchTerm;
 
@@ -221,7 +221,7 @@ const Invoices = () => {
 
   const filteredInvoices = displayInvoices.filter((invoice) => {
     if (!invoice) return false;
-    
+
     let patientSearchString = '';
     if (invoice.patient_id) {
       if (typeof invoice.patient_id === 'string') {
@@ -230,7 +230,7 @@ const Invoices = () => {
         patientSearchString = `${invoice.patient_id.first_name || ''} ${invoice.patient_id.last_name || ''} ${invoice.patient_id.email || ''}`.trim();
       }
     }
-    
+
     const matchesSearch =
       (invoice._id || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
       (invoice.invoice_number || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -317,14 +317,14 @@ const Invoices = () => {
   const handleDownloadInvoice = async (invoiceId: string) => {
     try {
       const invoiceData = await apiService.getInvoice(invoiceId);
-      
+
       // Prepare clinic info for PDF
       const clinicInfo: ClinicInfo | undefined = currentClinic ? {
         name: currentClinic.name,
         address: currentClinic.address,
         contact: currentClinic.contact
       } : undefined;
-      
+
       await InvoicePDFGenerator.generateInvoicePDF(invoiceData, clinicInfo);
       toast({
         title: t("Download Started"),
@@ -346,7 +346,7 @@ const Invoices = () => {
 
   const closeEditModal = (updatedInvoice?: Invoice) => {
     setEditInvoiceModal({ isOpen: false, invoiceId: null });
-    
+
     // Update the invoice directly in the list without refreshing
     if (updatedInvoice) {
       setInvoices((prevInvoices) =>
@@ -369,7 +369,7 @@ const Invoices = () => {
 
   const closeRecordPaymentModal = (updatedInvoice?: Invoice) => {
     setRecordPaymentModal({ isOpen: false, invoice: null });
-    
+
     // Update the invoice directly in the list without refreshing
     if (updatedInvoice) {
       setInvoices((prevInvoices) =>
@@ -428,9 +428,9 @@ const Invoices = () => {
           </p>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             onClick={handleRefresh}
             disabled={loading}
             className={cn("h-9", isRTL && "flex-row-reverse")}
@@ -438,7 +438,7 @@ const Invoices = () => {
             <RefreshCw className={cn("h-4 w-4", isRTL ? "ml-3" : "mr-3", loading && 'animate-spin')} />
             <span className="hidden sm:inline">{t('Refresh')}</span>
           </Button>
-          <CreateInvoiceModal 
+          <CreateInvoiceModal
             onSuccess={handleInvoiceCreated}
             trigger={
               <Button size="sm" className={cn("h-9", isRTL && "flex-row-reverse")}>
@@ -467,20 +467,20 @@ const Invoices = () => {
             </p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-xs sm:text-sm font-medium">{t('Total Revenue')}</CardTitle>
-           <DollarSign className="h-8 w-8 text-green-600" />
+            <DollarSign className="h-8 w-8 text-green-600" />
           </CardHeader>
           <CardContent>
-                         <div className="text-xl sm:text-2xl font-bold text-green-600">
-               {loading ? (
-                 <Loader2 className="h-6 w-6 animate-spin" />
-               ) : (
-                 <CurrencyDisplay amount={totalRevenue} variant="default" />
-               )}
-             </div>
+            <div className="text-xl sm:text-2xl font-bold text-green-600">
+              {loading ? (
+                <Loader2 className="h-6 w-6 animate-spin" />
+              ) : (
+                <CurrencyDisplay amount={totalRevenue} variant="default" />
+              )}
+            </div>
             <p className="text-xs text-muted-foreground">{t('All time earnings')}</p>
           </CardContent>
         </Card>
@@ -498,15 +498,15 @@ const Invoices = () => {
                 <CurrencyDisplay amount={monthlyRevenue} variant="default" />
               )}
             </div>
-            
+
             <p className="text-xs text-muted-foreground">{t('This month')}</p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-xs sm:text-sm font-medium">{t('Paid')}</CardTitle>
-                           <CheckCircle className="h-8 w-8 text-green-600" />
+            <CheckCircle className="h-8 w-8 text-green-600" />
           </CardHeader>
           <CardContent>
             <div className="text-xl sm:text-2xl font-bold text-green-600">
@@ -515,7 +515,7 @@ const Invoices = () => {
             <p className="text-xs text-muted-foreground">{t('Completed payments')}</p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-xs sm:text-sm font-medium">{t('Overdue')}</CardTitle>
@@ -598,11 +598,11 @@ const Invoices = () => {
             <div className="text-center py-12">
               <Receipt className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500 mb-4">
-                {searchTerm || selectedStatus !== "all" || selectedDateRange !== "all" 
-                  ? t('No invoices found matching your filters.') 
+                {searchTerm || selectedStatus !== "all" || selectedDateRange !== "all"
+                  ? t('No invoices found matching your filters.')
                   : t('No invoices found. Create your first invoice to get started.')}
               </p>
-              <CreateInvoiceModal 
+              <CreateInvoiceModal
                 onSuccess={handleInvoiceCreated}
                 trigger={
                   <Button>
@@ -616,23 +616,23 @@ const Invoices = () => {
             <>
               {/* Desktop Table View */}
               <div className="hidden md:block overflow-x-auto">
-                <Table>
+                <Table dir={isRTL ? "rtl" : "ltr"}>
                   <TableHeader>
                     <TableRow className="hover:bg-transparent">
-                      <TableHead className="min-w-[200px]">{t('Invoice Details')}</TableHead>
-                      <TableHead className="min-w-[180px]">{t('Patient')}</TableHead>
-                      <TableHead className="min-w-[120px] hidden lg:table-cell">{t('Issue Date')}</TableHead>
-                      <TableHead className="min-w-[120px] hidden lg:table-cell">{t('Due Date')}</TableHead>
-                      <TableHead className="min-w-[120px]">{t('Amount')}</TableHead>
-                      <TableHead className="min-w-[100px]">{t('Status')}</TableHead>
-                      <TableHead className="text-right min-w-[100px]">{t('Actions')}</TableHead>
+                      <TableHead className={cn("min-w-[200px]", isRTL && "text-right")}>{t('Invoice Details')}</TableHead>
+                      <TableHead className={cn("min-w-[180px]", isRTL && "text-right")}>{t('Patient')}</TableHead>
+                      <TableHead className={cn("min-w-[120px] hidden lg:table-cell", isRTL && "text-right")}>{t('Issue Date')}</TableHead>
+                      <TableHead className={cn("min-w-[120px] hidden lg:table-cell", isRTL && "text-right")}>{t('Due Date')}</TableHead>
+                      <TableHead className={cn("min-w-[120px]", isRTL && "text-right")}>{t('Amount')}</TableHead>
+                      <TableHead className={cn("min-w-[100px]", isRTL && "text-right")}>{t('Status')}</TableHead>
+                      <TableHead className={cn("min-w-[100px]", isRTL ? "text-left" : "text-right")}>{t('Actions')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredInvoices.map((invoice) => (
                       <TableRow key={invoice._id}>
-                        <TableCell>
-                          <div className="flex items-center space-x-3">
+                        <TableCell className={cn(isRTL && "text-right")}>
+                          <div className={cn("flex items-center space-x-3", isRTL && "flex-row-reverse space-x-reverse")}>
                             <Receipt className="h-8 w-8 text-blue-600 flex-shrink-0" />
                             <div className="min-w-0">
                               <div className="font-medium text-sm truncate">
@@ -644,7 +644,7 @@ const Invoices = () => {
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className={cn(isRTL && "text-right")}>
                           <div className="space-y-1">
                             <div className="font-medium text-sm truncate">
                               {getPatientDisplay(invoice.patient_id)}
@@ -659,21 +659,20 @@ const Invoices = () => {
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell className="hidden lg:table-cell">
+                        <TableCell className={cn("hidden lg:table-cell", isRTL && "text-right")}>
                           <span className="text-sm">{formatDate(invoice.created_at)}</span>
                         </TableCell>
-                        <TableCell className="hidden lg:table-cell">
+                        <TableCell className={cn("hidden lg:table-cell", isRTL && "text-right")}>
                           <div
-                            className={`text-sm ${
-                              invoice.status === "overdue"
-                                ? "text-red-600 font-medium"
-                                : ""
-                            }`}
+                            className={cn("text-sm",
+                              invoice.status === "overdue" && "text-red-600 font-medium",
+                              isRTL && "text-right"
+                            )}
                           >
                             {formatDate(invoice.due_date)}
                           </div>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className={cn(isRTL && "text-right")}>
                           <div className="space-y-1">
                             <div className="font-medium text-sm">
                               <CurrencyDisplay amount={invoice.total_amount} />
@@ -700,7 +699,7 @@ const Invoices = () => {
                             )}
                           </div>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className={cn(isRTL && "text-right")}>
                           <div className={`flex items-center space-x-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                             {getStatusIcon(invoice.status)}
                             <Badge
@@ -711,11 +710,11 @@ const Invoices = () => {
                             </Badge>
                           </div>
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className={cn("min-w-[100px]", isRTL ? "text-left" : "text-right")}>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="outline" size="sm" className={cn("h-8", isRTL && "flex-row-reverse")}>
-                                <MoreVertical className={cn("h-4 w-4", isRTL ? "ml-1" : "mr-1")} />
+                              <Button variant="outline" size="sm" className={cn("h-8 gap-1", isRTL && "flex-row-reverse")}>
+                                <MoreVertical className="h-4 w-4" />
                                 {t('Actions')}
                               </Button>
                             </DropdownMenuTrigger>
@@ -748,7 +747,7 @@ const Invoices = () => {
                                 <Edit className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
                                 {t('Edit Invoice')}
                               </DropdownMenuItem>
-                              <DropdownMenuItem 
+                              <DropdownMenuItem
                                 className="text-red-600"
                                 onClick={() => handleDeleteInvoice(invoice._id)}
                               >
@@ -854,11 +853,10 @@ const Invoices = () => {
                           {t('Due Date')}
                         </div>
                         <div
-                          className={`text-sm font-medium ${
-                            invoice.status === "overdue"
-                              ? "text-red-600"
-                              : "text-gray-900"
-                          }`}
+                          className={`text-sm font-medium ${invoice.status === "overdue"
+                            ? "text-red-600"
+                            : "text-gray-900"
+                            }`}
                         >
                           {formatDate(invoice.due_date)}
                         </div>
@@ -907,7 +905,7 @@ const Invoices = () => {
                             <Edit className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
                             {t('Edit Invoice')}
                           </DropdownMenuItem>
-                          <DropdownMenuItem 
+                          <DropdownMenuItem
                             className="text-red-600"
                             onClick={() => handleDeleteInvoice(invoice._id)}
                           >

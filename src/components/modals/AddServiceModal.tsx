@@ -222,31 +222,31 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({ onServiceCreated }) =
       setErrors({});
       setOpen(false);
       resetForm();
-      
+
       // Notify parent component with the created service data
       if (onServiceCreated) {
         onServiceCreated(createdService);
       }
     } catch (error: any) {
       console.error("Error creating service:", error);
-      
+
       // Handle server-side validation errors
       if (error?.response?.data?.errors && Array.isArray(error.response.data.errors)) {
         const validationErrors: Record<string, string> = {};
-        
+
         error.response.data.errors.forEach((err: any) => {
           const fieldName = err.path || err.param;
           if (fieldName) {
             validationErrors[fieldName] = err.msg || t("Invalid value");
           }
         });
-        
+
         if (Object.keys(validationErrors).length > 0) {
           setErrors(validationErrors);
           return;
         }
       }
-      
+
       toast({
         title: "Error",
         description: error?.response?.data?.message || (error instanceof Error ? error.message : "Failed to create service. Please try again."),
@@ -290,16 +290,16 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({ onServiceCreated }) =
           {t("Add Service")}
         </Button>
       </DialogTrigger>
-      <DialogContent className={cn("sm:max-w-[800px] max-h-[90vh] overflow-y-auto", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+      <DialogContent className={cn("sm:max-w-[800px] max-h-[90vh] overflow-y-auto")}>
         <DialogHeader>
-          <DialogTitle className={cn("flex items-center", isRTL ? "space-x-reverse space-x-2" : "space-x-2")}>
+          <DialogTitle className={cn("flex items-center", isRTL ? "flex-row-reverse" : "space-x-2")}>
             <Stethoscope className="h-5 w-5" />
             <span>{t("Add New Service")}</span>
           </DialogTitle>
         </DialogHeader>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full" dir={isRTL ? "rtl" : "ltr"}>
+          <TabsList className={cn("grid w-full grid-cols-4")}>
             <TabsTrigger value="basic">{t("Basic Info")}</TabsTrigger>
             <TabsTrigger value="pricing">{t("Pricing")}</TabsTrigger>
             <TabsTrigger value="scheduling">{t("Scheduling")}</TabsTrigger>
@@ -323,7 +323,7 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({ onServiceCreated }) =
                 )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="category" className={cn(isRTL && "text-right")}>{t("Category *")}</Label>
+                <Label htmlFor="category" className={cn(isRTL && "text-right")}>{t("Category")}*</Label>
                 <Select
                   value={serviceData.category}
                   onValueChange={(value) =>
@@ -348,7 +348,7 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({ onServiceCreated }) =
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="department" className={cn(isRTL && "text-right")}>{t("Department *")}</Label>
+              <Label htmlFor="department" className={cn(isRTL && "text-right")}>{t("Department")}*</Label>
               <Select
                 value={serviceData.department}
                 onValueChange={(value) =>
@@ -484,7 +484,7 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({ onServiceCreated }) =
                 <p className={cn("text-sm text-red-500", isRTL && "text-right")}>{errors.maxBookingsPerDay}</p>
               )}
               {!errors.maxBookingsPerDay && (
-                <p className={cn("text-sm text-gray-500", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+                <p className={cn("text-sm text-gray-500",)} dir={isRTL ? "rtl" : "ltr"}>
                   {t("Maximum number of appointments that can be scheduled for this service per day")}
                 </p>
               )}
@@ -533,14 +533,14 @@ const AddServiceModal: React.FC<AddServiceModalProps> = ({ onServiceCreated }) =
               />
             </div>
 
-            <div className={cn("p-4 bg-yellow-50 rounded-lg", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
-              <div className={cn("flex items-center mb-2", isRTL ? "space-x-reverse space-x-2" : "space-x-2")}>
+            <div className={cn("p-4 bg-yellow-50 rounded-lg",)}>
+              <div className={cn("flex items-center mb-2", isRTL ? "flex-row-reverse" : "space-x-2")}>
                 <AlertCircle className="h-4 w-4 text-yellow-600" />
                 <span className="font-medium text-yellow-800">
                   {t("Service Summary")}
                 </span>
               </div>
-              <div className={cn("space-y-1 text-sm", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
+              <div className={cn("space-y-1 text-sm", )} >
                 <p dir={isRTL ? "rtl" : "ltr"}>
                   <strong>{t("Name:")}</strong> {serviceData.name || t("Not specified")}
                 </p>

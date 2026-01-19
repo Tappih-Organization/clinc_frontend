@@ -86,7 +86,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const { theme } = useTheme();
   const [isRTL, setIsRTL] = useState(false);
   const activeItemRef = React.useRef<HTMLAnchorElement>(null);
-  
+
   // State to manage collapsed/expanded state for each section
   // Load from localStorage on mount
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>(() => {
@@ -480,7 +480,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         }
         return location.pathname.startsWith(item.href);
       });
-      
+
       if (hasActiveItem && isSectionCollapsed(section.title, section.defaultCollapsed)) {
         setCollapsedSections(prev => ({
           ...prev,
@@ -514,10 +514,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           // Position based on RTL/LTR
           isRTL ? "right-0 border-l border-sidebar-border" : "left-0 border-r border-sidebar-border",
           // Slide animation based on RTL/LTR
-          isOpen 
-            ? "translate-x-0" 
-            : isRTL 
-              ? "translate-x-full" 
+          isOpen
+            ? "translate-x-0"
+            : isRTL
+              ? "translate-x-full"
               : "-translate-x-full",
         )}
       >
@@ -525,19 +525,19 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           "flex items-center justify-between h-16 px-6 border-b border-sidebar-border",
           isRTL ? "flex-row-reverse" : ""
         )}>
-         <Link to="/" className={cn(
-           "flex items-center",
-           isRTL ? "ml-auto" : ""
-         )}>
-  <img
-    src={isRTL 
-      ? (theme === "dark" ? DarkModeLogoAr : LightModeLogoAr) 
-      : (theme === "dark" ? DarkModeLogo : LightModeLogo)
-    }
-    alt="tappih Logo"
-    className="h-10 w-auto"
-  />
-</Link>
+          <Link to="/" className={cn(
+            "flex items-center",
+            isRTL ? "ml-auto" : ""
+          )}>
+            <img
+              src={isRTL
+                ? (theme === "dark" ? DarkModeLogoAr : LightModeLogoAr)
+                : (theme === "dark" ? DarkModeLogo : LightModeLogo)
+              }
+              alt="tappih Logo"
+              className="h-10 w-auto"
+            />
+          </Link>
 
           {/* <Link to="/dashboard" className={cn(
             "flex items-center",
@@ -656,46 +656,48 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                   >
                     <div className="space-y-0.5 px-1">
                       {accessibleItems.map((item) => {
-                    const isActive = isActiveLink(item.href);
+                        const isActive = isActiveLink(item.href);
 
-                    // Regular navigation items
-                    return (
-                      <div
-                        key={item.name}
-                        className="flex items-center group/item"
-                      >
-                        <Link
-                          to={item.href}
-                          onClick={onClose}
-                          ref={isActive ? activeItemRef : null}
-                          className={cn(
-                            "flex-1 flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative",
-                            isActive
-                              ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm"
-                              : "text-sidebar-foreground/80 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground",
-                          )}
-                        >
-                          {isActive && (
-                            <div className="absolute top-0 bottom-0 left-0 w-1 bg-sidebar-primary rounded-full" />
-                          )}
-                          <span className="flex-1 whitespace-nowrap text-left mr-4">
-                            {item.name}
-                          </span>
-                          <div className="flex items-center gap-2">
-                            {item.badge && (
-                              <Badge variant="secondary" className="text-xs bg-sidebar-primary/10 text-sidebar-foreground border-sidebar-primary/20">
-                                {item.badge}
-                              </Badge>
-                            )}
-                            <item.icon className={cn(
-                              "h-4 w-4 flex-shrink-0 opacity-80",
-                              isActive ? "opacity-100" : "opacity-70"
-                            )} />
+                        // Regular navigation items
+                        return (
+                          <div
+                            key={item.name}
+                            className="flex items-center group/item"
+                          >
+                            <Link
+                              to={item.href}
+                              onClick={onClose}
+                              ref={isActive ? activeItemRef : null}
+                              className={cn(
+                                "flex-1 flex items-center gap-2 px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 relative",
+                                isRTL ? "flex-row-reverse" : "",
+                                isActive
+                                  ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-sm"
+                                  : "text-sidebar-foreground/80 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground",
+                              )}
+                            >
+                              {isActive && (
+                                <div className={cn(
+                                  "absolute top-0 bottom-0 w-1 bg-sidebar-primary rounded-full",
+                                  isRTL ? "right-0" : "left-0"
+                                )} />
+                              )}
+                              <item.icon className={cn(
+                                "h-4 w-4 flex-shrink-0",
+                                isActive ? "opacity-100" : "opacity-70"
+                              )} />
+                              <span className="whitespace-nowrap">
+                                {item.name}
+                              </span>
+                              {item.badge && (
+                                <Badge variant="secondary" className="text-xs bg-sidebar-primary/10 text-sidebar-foreground border-sidebar-primary/20">
+                                  {item.badge}
+                                </Badge>
+                              )}
+                            </Link>
                           </div>
-                        </Link>
-                      </div>
-                      );
-                    })}
+                        );
+                      })}
                     </div>
                   </div>
                 </div>

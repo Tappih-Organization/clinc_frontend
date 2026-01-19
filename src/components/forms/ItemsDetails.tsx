@@ -256,14 +256,14 @@ export const ItemsDetails: React.FC<ItemsDetailsProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {fields.showName && (
                   <FormField
-                    label={t(`${displayItemLabel} Name`)}
+                    label={isRTL ? `اسم ${displayItemLabel}` : t(`${displayItemLabel} Name`)}
                     required
                     className={cn(isRTL && "text-right")}
                   >
                     <Input
                       value={item.name}
                       onChange={(e) => updateItem(item.id, "name", e.target.value)}
-                      placeholder={t(`Enter ${displayItemLabel.toLowerCase()} name`)}
+                      placeholder={isRTL ? `أدخل اسم ${displayItemLabel}` : t(`Enter ${displayItemLabel.toLowerCase()} name`)}
                       required
                       dir={isRTL ? "rtl" : "ltr"}
                       className={cn(isRTL && "text-right")}

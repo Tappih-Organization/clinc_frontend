@@ -74,12 +74,12 @@ import { useCurrency } from "@/contexts/CurrencyContext";
 import { cn } from "@/lib/utils";
 import { useIsRTL } from "@/hooks/useIsRTL";
 import ErrorHandler from "@/components/ErrorHandler";
-import { 
-  performanceApi, 
-  type PerformanceOverview, 
+import {
+  performanceApi,
+  type PerformanceOverview,
   type ComparativePerformance,
   type PerformanceQueryParams,
-  type DoctorPayoutsResponse 
+  type DoctorPayoutsResponse
 } from "@/services/api/performanceApi";
 
 const Performance = () => {
@@ -100,7 +100,7 @@ const Performance = () => {
   const [endDate, setEndDate] = useState<Date>(endOfMonth(new Date()));
   const [compareWithPrevious, setCompareWithPrevious] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
-  
+
   // Doctor payouts filters
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
@@ -131,7 +131,7 @@ const Performance = () => {
       console.log("Loading performance data with params:", params);
       const response = await performanceApi.getPerformanceOverview(params);
       console.log("Performance response:", response.data);
-      
+
       if (response.data.success) {
         setPerformanceData(response.data.data);
       }
@@ -148,10 +148,10 @@ const Performance = () => {
     try {
       const currentStart = startDate;
       const currentEnd = endDate;
-      
+
       // Calculate previous period dates
-      const monthsDiff = (currentEnd.getFullYear() - currentStart.getFullYear()) * 12 + 
-                        (currentEnd.getMonth() - currentStart.getMonth()) + 1;
+      const monthsDiff = (currentEnd.getFullYear() - currentStart.getFullYear()) * 12 +
+        (currentEnd.getMonth() - currentStart.getMonth()) + 1;
       const previousStart = subMonths(currentStart, monthsDiff);
       const previousEnd = subMonths(currentEnd, monthsDiff);
 
@@ -178,7 +178,7 @@ const Performance = () => {
         year: selectedYear,
         month: selectedMonth
       });
-      
+
       if (response.data.success) {
         setDoctorPayouts(response.data.data);
       }
@@ -195,18 +195,18 @@ const Performance = () => {
     if (!performanceData) return [];
 
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    
+
     // Create a map to combine data from all modules by period
     const dataMap = new Map();
 
     // Process invoices data
     performanceData.modules.invoices.forEach(item => {
       const key = `${item._id.year}-${item._id.month || item._id.quarter || 1}`;
-      const periodLabel = period === 'yearly' 
+      const periodLabel = period === 'yearly'
         ? item._id.year.toString()
         : period === 'quarterly'
-        ? `Q${item._id.quarter} ${item._id.year}`
-        : `${monthNames[(item._id.month || 1) - 1]} ${item._id.year}`;
+          ? `Q${item._id.quarter} ${item._id.year}`
+          : `${monthNames[(item._id.month || 1) - 1]} ${item._id.year}`;
 
       if (!dataMap.has(key)) {
         dataMap.set(key, { period: periodLabel, invoices: 0, payments: 0, expenses: 0, payroll: 0 });
@@ -217,11 +217,11 @@ const Performance = () => {
     // Process payments data
     performanceData.modules.payments.forEach(item => {
       const key = `${item._id.year}-${item._id.month || item._id.quarter || 1}`;
-      const periodLabel = period === 'yearly' 
+      const periodLabel = period === 'yearly'
         ? item._id.year.toString()
         : period === 'quarterly'
-        ? `Q${item._id.quarter} ${item._id.year}`
-        : `${monthNames[(item._id.month || 1) - 1]} ${item._id.year}`;
+          ? `Q${item._id.quarter} ${item._id.year}`
+          : `${monthNames[(item._id.month || 1) - 1]} ${item._id.year}`;
 
       if (!dataMap.has(key)) {
         dataMap.set(key, { period: periodLabel, invoices: 0, payments: 0, expenses: 0, payroll: 0 });
@@ -232,11 +232,11 @@ const Performance = () => {
     // Process expenses data
     performanceData.modules.expenses.forEach(item => {
       const key = `${item._id.year}-${item._id.month || item._id.quarter || 1}`;
-      const periodLabel = period === 'yearly' 
+      const periodLabel = period === 'yearly'
         ? item._id.year.toString()
         : period === 'quarterly'
-        ? `Q${item._id.quarter} ${item._id.year}`
-        : `${monthNames[(item._id.month || 1) - 1]} ${item._id.year}`;
+          ? `Q${item._id.quarter} ${item._id.year}`
+          : `${monthNames[(item._id.month || 1) - 1]} ${item._id.year}`;
 
       if (!dataMap.has(key)) {
         dataMap.set(key, { period: periodLabel, invoices: 0, payments: 0, expenses: 0, payroll: 0 });
@@ -247,7 +247,7 @@ const Performance = () => {
     // Process payroll data
     performanceData.modules.payroll.forEach(item => {
       const key = `${item._id.year}-${item._id.month}`;
-      const periodLabel = period === 'yearly' 
+      const periodLabel = period === 'yearly'
         ? item._id.year.toString()
         : `${item._id.month} ${item._id.year}`;
 
@@ -266,7 +266,7 @@ const Performance = () => {
 
     const summary = performanceData.summary;
     const profitMargin = parseFloat(summary.profit_margin);
-    
+
     return {
       totalRevenue: summary.total_revenue,
       totalCosts: summary.total_costs,
@@ -304,7 +304,7 @@ const Performance = () => {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => {/* TODO: Export functionality */}}>
+          <Button variant="outline" onClick={() => {/* TODO: Export functionality */ }}>
             <Download className="mr-2 h-4 w-4" />
             {t('Export Report')}
           </Button>
@@ -391,7 +391,7 @@ const Performance = () => {
             </div>
 
             <div className="flex flex-col justify-end">
-              <Button 
+              <Button
                 variant={compareWithPrevious ? "default" : "outline"}
                 onClick={() => setCompareWithPrevious(!compareWithPrevious)}
                 className="w-full"
@@ -493,9 +493,9 @@ const Performance = () => {
                 {summaryStats.profitMargin.toFixed(2)}%
               </div>
               <p className="text-xs text-muted-foreground">
-                {summaryStats.profitMargin >= 20 ? t('Excellent') : 
-                 summaryStats.profitMargin >= 10 ? t('Good') : 
-                 summaryStats.profitMargin >= 0 ? t('Fair') : t('Loss')}
+                {summaryStats.profitMargin >= 20 ? t('Excellent') :
+                  summaryStats.profitMargin >= 10 ? t('Good') :
+                    summaryStats.profitMargin >= 0 ? t('Fair') : t('Loss')}
               </p>
             </CardContent>
           </Card>
@@ -524,8 +524,8 @@ const Performance = () => {
               </p>
             </div>
           ) : (
-            <Tabs value={activeTab} onValueChange={setActiveTab} className={cn("space-y-4", isRTL && "text-right")}>
-              <TabsList>
+            <Tabs value={activeTab} onValueChange={setActiveTab} className={cn("space-y-4")}>
+              <TabsList className={cn("flex items-center justify-start gap-2", isRTL && "flex items-end justify-end ")} >
                 <TabsTrigger value="overview">{t('Overview')}</TabsTrigger>
                 <TabsTrigger value="revenue">{t('Revenue Trends')}</TabsTrigger>
                 <TabsTrigger value="costs">{t('Cost Analysis')}</TabsTrigger>
@@ -541,36 +541,36 @@ const Performance = () => {
                     <YAxis />
                     <Tooltip formatter={(value: any) => formatAmount(value)} />
                     <Legend />
-                    <Area 
-                      type="monotone" 
-                      dataKey="invoices" 
-                      stackId="1" 
-                      stroke="#8884d8" 
-                      fill="#8884d8" 
+                    <Area
+                      type="monotone"
+                      dataKey="invoices"
+                      stackId="1"
+                      stroke="#8884d8"
+                      fill="#8884d8"
                       name={t('Invoices')}
                     />
-                    <Area 
-                      type="monotone" 
-                      dataKey="payments" 
-                      stackId="1" 
-                      stroke="#82ca9d" 
-                      fill="#82ca9d" 
+                    <Area
+                      type="monotone"
+                      dataKey="payments"
+                      stackId="1"
+                      stroke="#82ca9d"
+                      fill="#82ca9d"
                       name={t('Payments')}
                     />
-                    <Area 
-                      type="monotone" 
-                      dataKey="expenses" 
-                      stackId="2" 
-                      stroke="#ffc658" 
-                      fill="#ffc658" 
+                    <Area
+                      type="monotone"
+                      dataKey="expenses"
+                      stackId="2"
+                      stroke="#ffc658"
+                      fill="#ffc658"
                       name={t('Expenses')}
                     />
-                    <Area 
-                      type="monotone" 
-                      dataKey="payroll" 
-                      stackId="2" 
-                      stroke="#ff7300" 
-                      fill="#ff7300" 
+                    <Area
+                      type="monotone"
+                      dataKey="payroll"
+                      stackId="2"
+                      stroke="#ff7300"
+                      fill="#ff7300"
                       name={t('Payroll')}
                     />
                   </AreaChart>
@@ -585,17 +585,17 @@ const Performance = () => {
                     <YAxis />
                     <Tooltip formatter={(value: any) => formatAmount(value)} />
                     <Legend />
-                    <Line 
-                      type="monotone" 
-                      dataKey="invoices" 
-                      stroke="#8884d8" 
+                    <Line
+                      type="monotone"
+                      dataKey="invoices"
+                      stroke="#8884d8"
                       strokeWidth={3}
                       name={t('Invoices Revenue')}
                     />
-                    <Line 
-                      type="monotone" 
-                      dataKey="payments" 
-                      stroke="#82ca9d" 
+                    <Line
+                      type="monotone"
+                      dataKey="payments"
+                      stroke="#82ca9d"
                       strokeWidth={3}
                       name={t('Payments Revenue')}
                     />
@@ -641,7 +641,7 @@ const Performance = () => {
                       <Users className="h-5 w-5" />
                       {t('Doctor Payouts & Sales Incentives')}
                     </CardTitle>
-                    <CardDescription className={isRTL ? "text-right" : "text-left"}>
+                    <CardDescription className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
                       {t('Monthly breakdown of doctor base salaries and sales incentives based on revenue generated')}
                     </CardDescription>
                   </CardHeader>
@@ -662,7 +662,7 @@ const Performance = () => {
                           </SelectContent>
                         </Select>
                       </div>
-                      
+
                       <div>
                         <Label htmlFor="month">{t('Month')}</Label>
                         <Select value={selectedMonth.toString()} onValueChange={(value) => setSelectedMonth(parseInt(value))}>

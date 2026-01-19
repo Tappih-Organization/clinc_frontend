@@ -220,7 +220,7 @@ const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({ trigger, onSucc
 
       toast({
         title: t("Invoice created successfully"),
-        description: t("Invoice {{number}} for {{patient}} has been created. Total: {{total}}", { 
+        description: t("Invoice {{number}} for {{patient}} has been created. Total: {{total}}", {
           number: newInvoice.invoice_number,
           patient: `${selectedPatient?.first_name} ${selectedPatient?.last_name}`,
           total: formatCurrency(calculateTotal())
@@ -249,7 +249,7 @@ const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({ trigger, onSucc
       ]);
 
       setOpen(false);
-      
+
       // Call onSuccess callback with the created invoice
       if (onSuccess) {
         onSuccess(newInvoice);
@@ -567,20 +567,20 @@ const CreateInvoiceModal: React.FC<CreateInvoiceModalProps> = ({ trigger, onSucc
               </div>
 
               <div className={cn("bg-gray-50 p-4 rounded-lg space-y-2", isRTL && "text-right")} dir={isRTL ? "ltr" : "ltr"}>
-                <div className={cn("flex justify-between", isRTL && "flex-row-reverse")}>
+                <div className="flex justify-between">
                   <span>{t("Subtotal")}</span>
                   <span><CurrencyDisplay amount={calculateSubtotal()} /></span>
                 </div>
-                <div className={cn("flex justify-between", isRTL && "flex-row-reverse")}>
+                <div className="flex justify-between">
                   <span>{t("Tax")} ({formData.tax}%)</span>
                   <span><CurrencyDisplay amount={calculateTax()} /></span>
                 </div>
-                <div className={cn("flex justify-between", isRTL && "flex-row-reverse")}>
+                <div className="flex justify-between">
                   <span>{t("Discount")}</span>
                   <span>-<CurrencyDisplay amount={formData.discount} /></span>
                 </div>
                 <hr />
-                <div className={cn("flex justify-between font-bold text-lg", isRTL && "flex-row-reverse")}>
+                <div className="flex justify-between font-bold text-lg">
                   <span>{t("Total")}</span>
                   <span><CurrencyDisplay amount={calculateTotal()} /></span>
                 </div>

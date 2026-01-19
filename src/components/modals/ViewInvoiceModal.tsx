@@ -34,10 +34,10 @@ interface ViewInvoiceModalProps {
   onClose: () => void;
 }
 
-const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({ 
-  invoiceId, 
-  isOpen, 
-  onClose 
+const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
+  invoiceId,
+  isOpen,
+  onClose
 }) => {
   const { t, i18n } = useTranslation();
   const isRTL = useIsRTL();
@@ -52,7 +52,7 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
 
   const loadInvoice = async () => {
     if (!invoiceId) return;
-    
+
     try {
       setLoading(true);
       const invoiceData = await apiService.getInvoice(invoiceId);
@@ -130,12 +130,12 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
     const finalValueDir = valueDir || (isRTL ? "rtl" : "ltr");
     const isLTRContent = finalValueDir === "ltr";
     return (
-      <div 
-        className={cn("space-y-1.5", className)} 
+      <div
+        className={cn("space-y-1.5", className)}
         dir={isRTL ? "rtl" : "ltr"}
         style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
       >
-        <label 
+        <label
           className={cn(
             "text-sm font-medium text-gray-500 block leading-tight",
             isRTL ? "text-right" : "text-left"
@@ -145,7 +145,7 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
         >
           {label}
         </label>
-        <div 
+        <div
           className={cn(
             "flex items-baseline min-h-[1.5rem]",
             isRTL ? "flex-row-reverse justify-end" : "justify-start",
@@ -158,16 +158,16 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
               {icon}
             </span>
           )}
-          <p 
+          <p
             className={cn(
               "text-base leading-normal break-words",
               isLTRContent ? "text-left" : isRTL ? "text-right" : "text-left"
             )}
             dir={finalValueDir}
-            style={isLTRContent 
-              ? { textAlign: 'left', direction: 'ltr' } 
-              : isRTL 
-                ? { textAlign: 'right', direction: 'rtl' } 
+            style={isLTRContent
+              ? { textAlign: 'left', direction: 'ltr' }
+              : isRTL
+                ? { textAlign: 'right', direction: 'rtl' }
                 : { textAlign: 'left', direction: 'ltr' }
             }
           >
@@ -192,8 +192,8 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent 
-        className={cn("max-w-4xl max-h-[90vh] overflow-y-auto", isRTL && "rtl")} 
+      <DialogContent
+        className={cn("max-w-4xl max-h-[90vh] overflow-y-auto", isRTL && "rtl")}
         dir={isRTL ? "rtl" : "ltr"}
       >
         <DialogHeader dir={isRTL ? "rtl" : "ltr"}>
@@ -227,12 +227,12 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
         </DialogHeader>
 
         {loading ? (
-          <div 
+          <div
             className={cn("flex items-center justify-center h-64", isRTL && "flex-row-reverse")}
             dir={isRTL ? "rtl" : "ltr"}
           >
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <span 
+            <span
               className={cn("text-gray-600", isRTL ? "mr-2" : "ml-2")}
               dir={isRTL ? "rtl" : "ltr"}
               style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
@@ -245,7 +245,7 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
             {/* Invoice Header */}
             <Card dir={isRTL ? "rtl" : "ltr"}>
               <CardHeader dir={isRTL ? "rtl" : "ltr"}>
-                <CardTitle 
+                <CardTitle
                   className={cn("text-lg flex items-center", isRTL && "flex-row-reverse")}
                   dir={isRTL ? "rtl" : "ltr"}
                   style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
@@ -255,7 +255,7 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
                 </CardTitle>
               </CardHeader>
               <CardContent dir={isRTL ? "rtl" : "ltr"}>
-                <div 
+                <div
                   className={cn(
                     "grid grid-cols-1 md:grid-cols-2 gap-6",
                     isRTL && "text-right"
@@ -294,7 +294,7 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
             {/* Patient Information */}
             <Card dir={isRTL ? "rtl" : "ltr"}>
               <CardHeader dir={isRTL ? "rtl" : "ltr"}>
-                <CardTitle 
+                <CardTitle
                   className={cn("text-lg flex items-center", isRTL && "flex-row-reverse")}
                   dir={isRTL ? "rtl" : "ltr"}
                   style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
@@ -304,7 +304,7 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
                 </CardTitle>
               </CardHeader>
               <CardContent dir={isRTL ? "rtl" : "ltr"}>
-                <div 
+                <div
                   className={cn(
                     "grid grid-cols-1 md:grid-cols-2 gap-6",
                     isRTL && "text-right"
@@ -337,7 +337,7 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
             {/* Invoice Dates */}
             <Card dir={isRTL ? "rtl" : "ltr"}>
               <CardHeader dir={isRTL ? "rtl" : "ltr"}>
-                <CardTitle 
+                <CardTitle
                   className={cn("text-lg flex items-center", isRTL && "flex-row-reverse")}
                   dir={isRTL ? "rtl" : "ltr"}
                   style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
@@ -347,7 +347,7 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
                 </CardTitle>
               </CardHeader>
               <CardContent dir={isRTL ? "rtl" : "ltr"}>
-                <div 
+                <div
                   className={cn(
                     "grid grid-cols-1 md:grid-cols-3 gap-6",
                     isRTL && "text-right"
@@ -377,7 +377,7 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
             {/* Services */}
             <Card dir={isRTL ? "rtl" : "ltr"}>
               <CardHeader dir={isRTL ? "rtl" : "ltr"}>
-                <CardTitle 
+                <CardTitle
                   className={cn("text-lg flex items-center", isRTL && "flex-row-reverse")}
                   dir={isRTL ? "rtl" : "ltr"}
                   style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
@@ -389,13 +389,13 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
               <CardContent dir={isRTL ? "rtl" : "ltr"}>
                 <div className="space-y-4">
                   {invoice.services.map((service, index) => (
-                    <div 
-                      key={index} 
+                    <div
+                      key={index}
                       className={cn("border rounded-lg p-4", isRTL && "text-right")}
                       dir={isRTL ? "rtl" : "ltr"}
                       style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
                     >
-                      <div 
+                      <div
                         className={cn(
                           "grid grid-cols-1 md:grid-cols-4 gap-6",
                           isRTL && "text-right"
@@ -404,15 +404,15 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
                       >
                         {/* Description - Right side in RTL */}
                         <div className={cn("md:col-span-2", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
-                          <p 
+                          <p
                             className={cn("font-medium text-lg", isRTL && "text-right")}
                             dir={isRTL ? "rtl" : "ltr"}
                             style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
                           >
                             {service.description}
                           </p>
-                          <Badge 
-                            variant="outline" 
+                          <Badge
+                            variant="outline"
                             className={cn("mt-2", isRTL && "text-right")}
                             dir={isRTL ? "rtl" : "ltr"}
                             style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
@@ -422,14 +422,14 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
                         </div>
                         {/* Quantity - Right aligned in RTL */}
                         <div className={cn(isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
-                          <p 
+                          <p
                             className={cn("text-sm font-medium text-gray-500 block mb-1", isRTL && "text-right")}
                             dir={isRTL ? "rtl" : "ltr"}
                             style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
                           >
                             {t("Quantity")}
                           </p>
-                          <p 
+                          <p
                             className="font-semibold text-lg"
                             dir="ltr"
                             style={{ textAlign: 'right' }}
@@ -439,14 +439,14 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
                         </div>
                         {/* Unit Price - Right aligned in RTL */}
                         <div className={cn(isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
-                          <p 
+                          <p
                             className={cn("text-sm font-medium text-gray-500 block mb-1", isRTL && "text-right")}
                             dir={isRTL ? "rtl" : "ltr"}
                             style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
                           >
                             {t("Unit Price")}
                           </p>
-                          <p 
+                          <p
                             className="font-semibold text-lg"
                             dir="ltr"
                             style={{ textAlign: 'right' }}
@@ -456,7 +456,7 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
                         </div>
                       </div>
                       {/* Total - Right aligned in RTL */}
-                      <div 
+                      <div
                         className={cn("mt-4 pt-3 border-t", isRTL && "text-right")}
                         dir="ltr"
                         style={{ textAlign: 'right' }}
@@ -474,7 +474,7 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
             {/* Payment Summary */}
             <Card dir={isRTL ? "rtl" : "ltr"}>
               <CardHeader dir={isRTL ? "rtl" : "ltr"}>
-                <CardTitle 
+                <CardTitle
                   className={cn("text-lg flex items-center", isRTL && "flex-row-reverse")}
                   dir={isRTL ? "rtl" : "ltr"}
                   style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
@@ -484,12 +484,12 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
                 </CardTitle>
               </CardHeader>
               <CardContent dir={isRTL ? "rtl" : "ltr"}>
-                <div 
-                  className={cn("bg-gray-50 p-4 rounded-lg space-y-2", isRTL && "text-right")} 
+                <div
+                  className={cn("bg-gray-50 p-4 rounded-lg space-y-2", isRTL && "text-right")}
                   dir={isRTL ? "rtl" : "ltr"}
                   style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
                 >
-                  <div className={cn("flex justify-between", isRTL && "flex-row-reverse")}>
+                  <div className="flex justify-between">
                     <span dir={isRTL ? "rtl" : "ltr"} style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}>
                       {t("Subtotal")}
                     </span>
@@ -497,7 +497,7 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
                       <CurrencyDisplay amount={invoice.subtotal} />
                     </span>
                   </div>
-                  <div className={cn("flex justify-between", isRTL && "flex-row-reverse")}>
+                  <div className="flex justify-between">
                     <span dir={isRTL ? "rtl" : "ltr"} style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}>
                       {t("Tax")}
                     </span>
@@ -506,7 +506,7 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
                     </span>
                   </div>
                   {invoice.discount && invoice.discount > 0 && (
-                    <div className={cn("flex justify-between", isRTL && "flex-row-reverse")}>
+                    <div className="flex justify-between">
                       <span dir={isRTL ? "rtl" : "ltr"} style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}>
                         {t("Discount")}
                       </span>
@@ -516,7 +516,7 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
                     </div>
                   )}
                   <hr className="my-2" />
-                  <div className={cn("flex justify-between font-bold text-xl", isRTL && "flex-row-reverse")}>
+                  <div className="flex justify-between font-bold text-xl">
                     <span dir={isRTL ? "rtl" : "ltr"} style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}>
                       {t("Total Amount")}
                     </span>
@@ -525,18 +525,18 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
                     </span>
                   </div>
                   {invoice.payment_method && (
-                    <div 
+                    <div
                       className={cn("mt-4 pt-2 border-t", isRTL && "text-right")}
                       dir={isRTL ? "rtl" : "ltr"}
                       style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
                     >
-                      <p 
+                      <p
                         className={cn("text-sm text-gray-600", isRTL && "text-right")}
                         style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
                       >
                         {t("Payment Method")}:
                       </p>
-                      <p 
+                      <p
                         className={cn("font-medium capitalize", isRTL && "text-right")}
                         style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
                       >
@@ -552,7 +552,7 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
             {invoice.notes && (
               <Card dir={isRTL ? "rtl" : "ltr"}>
                 <CardHeader dir={isRTL ? "rtl" : "ltr"}>
-                  <CardTitle 
+                  <CardTitle
                     className={cn("text-lg", isRTL && "text-right")}
                     dir={isRTL ? "rtl" : "ltr"}
                     style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
@@ -561,7 +561,7 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
                   </CardTitle>
                 </CardHeader>
                 <CardContent dir={isRTL ? "rtl" : "ltr"}>
-                  <p 
+                  <p
                     className={cn("text-gray-700 whitespace-pre-wrap break-words", isRTL && "text-right")}
                     dir={isRTL ? "rtl" : "ltr"}
                     style={isRTL ? { textAlign: 'right', direction: 'rtl' } : { textAlign: 'left', direction: 'ltr' }}
@@ -573,23 +573,23 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
             )}
           </div>
         ) : (
-          <div 
+          <div
             className="flex items-center justify-center h-64"
             dir={isRTL ? "rtl" : "ltr"}
           >
-            <div 
+            <div
               className={cn("text-center", isRTL && "text-right")}
               dir={isRTL ? "rtl" : "ltr"}
               style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
             >
               <AlertCircle className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-              <p 
+              <p
                 className={cn("text-lg font-medium text-gray-900", isRTL && "text-right")}
                 style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
               >
                 {t("Invoice not found")}
               </p>
-              <p 
+              <p
                 className={cn("text-gray-500", isRTL && "text-right")}
                 style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
               >
@@ -600,12 +600,12 @@ const ViewInvoiceModal: React.FC<ViewInvoiceModalProps> = ({
         )}
 
         {/* Footer */}
-        <div 
+        <div
           className={cn("flex pt-6 border-t", isRTL && "flex-row-reverse")}
           dir={isRTL ? "rtl" : "ltr"}
         >
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={onClose}
             className={cn(isRTL && "text-right")}
             dir={isRTL ? "rtl" : "ltr"}

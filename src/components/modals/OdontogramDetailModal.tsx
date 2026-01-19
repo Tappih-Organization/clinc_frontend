@@ -19,11 +19,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { 
-  Card, 
-  CardContent, 
-  CardHeader, 
-  CardTitle 
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -42,16 +42,17 @@ import {
   Download,
   Plus,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 import { useIsRTL } from "@/hooks/useIsRTL";
 import ToothChart from "@/components/odontogram/ToothChart";
 import ToothConditionModal from "@/components/modals/ToothConditionModal";
 import ExportModal from "@/components/modals/ExportModal";
-import { 
-  Odontogram, 
-  ToothCondition, 
+import {
+  Odontogram,
+  ToothCondition,
   ToothSurface,
-  DentalConditionType, 
+  DentalConditionType,
   CreateToothConditionRequest,
   UpdateToothConditionRequest,
   TreatmentPlan,
@@ -74,7 +75,7 @@ const OdontogramDetailModal: React.FC<OdontogramDetailModalProps> = ({
   odontogramId,
   editable = false,
 }) => {
-  const isRTL = useIsRTL();
+  const isRTL = false; // Forced LTR layout as per user request (make it like English styling)
   const [odontogram, setOdontogram] = useState<Odontogram | null>(null);
   const [loading, setLoading] = useState(false);
   const [selectedTooth, setSelectedTooth] = useState<number | null>(null);
@@ -82,13 +83,13 @@ const OdontogramDetailModal: React.FC<OdontogramDetailModalProps> = ({
   const [editMode, setEditMode] = useState(true);
   const [toothConditionModalOpen, setToothConditionModalOpen] = useState(false);
   const [exportModalOpen, setExportModalOpen] = useState(false);
-  
+
   // Treatment editing states
-  const [editingTreatments, setEditingTreatments] = useState<{[key: number]: boolean}>({});
-  const [treatmentChanges, setTreatmentChanges] = useState<{[key: number]: Partial<TreatmentPlan>}>({});
+  const [editingTreatments, setEditingTreatments] = useState<{ [key: number]: boolean }>({});
+  const [treatmentChanges, setTreatmentChanges] = useState<{ [key: number]: Partial<TreatmentPlan> }>({});
   const [addingNewTreatment, setAddingNewTreatment] = useState(false);
   const [newTreatmentToothNumber, setNewTreatmentToothNumber] = useState<number>(1);
-  
+
   // Periodontal and notes editing states
   const [editingPeriodontal, setEditingPeriodontal] = useState(false);
   const [editingNotes, setEditingNotes] = useState(false);
@@ -98,11 +99,11 @@ const OdontogramDetailModal: React.FC<OdontogramDetailModalProps> = ({
   // Fetch odontogram data
   const fetchOdontogram = async () => {
     if (!odontogramId) return;
-    
+
     try {
       setLoading(true);
       const response = await odontogramApi.getOdontogramById(odontogramId);
-      
+
       // Debug logging
       console.log('Fetched Odontogram Data:', {
         treatment_progress: response.treatment_progress,
@@ -110,7 +111,7 @@ const OdontogramDetailModal: React.FC<OdontogramDetailModalProps> = ({
         treatment_summary: response.treatment_summary,
         teeth_conditions_with_treatments: response.teeth_conditions?.filter(t => t.treatment_plan)
       });
-      
+
       setOdontogram(response);
     } catch (error) {
       console.error("Error fetching odontogram:", error);
@@ -170,7 +171,7 @@ const OdontogramDetailModal: React.FC<OdontogramDetailModalProps> = ({
     try {
       // Check if tooth condition already exists
       const existingCondition = getToothCondition(selectedTooth);
-      
+
       if (existingCondition) {
         // Update existing condition
         await odontogramApi.updateToothCondition(odontogram._id, selectedTooth, conditionData as UpdateToothConditionRequest);
@@ -181,7 +182,7 @@ const OdontogramDetailModal: React.FC<OdontogramDetailModalProps> = ({
 
       // Refresh odontogram data
       await fetchOdontogram();
-      
+
       toast({
         title: "Success",
         description: "Tooth condition updated successfully",
@@ -208,7 +209,7 @@ const OdontogramDetailModal: React.FC<OdontogramDetailModalProps> = ({
       25: "Lower Right Central Incisor", 26: "Lower Right Lateral Incisor", 27: "Lower Right Canine",
       28: "Lower Right 1st Premolar", 29: "Lower Right 2nd Premolar", 30: "Lower Right 1st Molar",
       31: "Lower Right 2nd Molar", 32: "Lower Right 3rd Molar",
-      
+
       // Primary teeth (FDI numbering)
       55: "Upper Right 2nd Molar", 54: "Upper Right 1st Molar", 53: "Upper Right Canine",
       52: "Upper Right Lateral Incisor", 51: "Upper Right Central Incisor",
@@ -219,7 +220,7 @@ const OdontogramDetailModal: React.FC<OdontogramDetailModalProps> = ({
       81: "Lower Right Central Incisor", 82: "Lower Right Lateral Incisor", 83: "Lower Right Canine",
       84: "Lower Right 1st Molar", 85: "Lower Right 2nd Molar",
     };
-    
+
     return toothNames[toothNumber] || `Tooth ${toothNumber}`;
   };
 
@@ -229,9 +230,9 @@ const OdontogramDetailModal: React.FC<OdontogramDetailModalProps> = ({
 
   const formatCurrency = (amount?: number) => {
     if (!amount) return "N/A";
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat(isRTL ? "ar-EG" : "en-US", {
       style: "currency",
-      currency: "USD",
+      currency: "EGP", // Or dynamic currency based on settings
     }).format(amount);
   };
 
@@ -261,8 +262,8 @@ const OdontogramDetailModal: React.FC<OdontogramDetailModalProps> = ({
         ...prev[toothNumber],
         [field]: value,
         // Auto-set completed date when status is completed
-        ...(field === 'status' && value === 'completed' && !prev[toothNumber]?.completed_date 
-          ? { completed_date: new Date() } 
+        ...(field === 'status' && value === 'completed' && !prev[toothNumber]?.completed_date
+          ? { completed_date: new Date() }
           : {})
       }
     }));
@@ -273,20 +274,20 @@ const OdontogramDetailModal: React.FC<OdontogramDetailModalProps> = ({
 
     try {
       setLoading(true);
-      
+
       const treatmentData = {
         tooth_number: toothNumber,
         treatment_plan: treatmentChanges[toothNumber] as TreatmentPlan
       };
 
       await odontogramApi.updateToothCondition(odontogram._id, toothNumber, treatmentData);
-      
+
       // Refresh odontogram data
       await fetchOdontogram();
-      
+
       // Reset editing state
       cancelEditingTreatment(toothNumber);
-      
+
       toast({
         title: "Success",
         description: `Treatment plan for tooth ${toothNumber} updated successfully`,
@@ -308,17 +309,17 @@ const OdontogramDetailModal: React.FC<OdontogramDetailModalProps> = ({
 
     try {
       setLoading(true);
-      
+
       const treatmentData = {
         tooth_number: toothNumber,
         treatment_plan: null
       };
 
       await odontogramApi.updateToothCondition(odontogram._id, toothNumber, treatmentData);
-      
+
       // Refresh odontogram data
       await fetchOdontogram();
-      
+
       toast({
         title: "Success",
         description: `Treatment plan for tooth ${toothNumber} deleted successfully`,
@@ -340,7 +341,7 @@ const OdontogramDetailModal: React.FC<OdontogramDetailModalProps> = ({
 
     try {
       setLoading(true);
-      
+
       const treatmentData = {
         tooth_number: newTreatmentToothNumber,
         treatment_plan: {
@@ -355,10 +356,10 @@ const OdontogramDetailModal: React.FC<OdontogramDetailModalProps> = ({
       };
 
       await odontogramApi.updateToothCondition(odontogram._id, newTreatmentToothNumber, treatmentData);
-      
+
       // Refresh odontogram data
       await fetchOdontogram();
-      
+
       // Reset add state and start editing the new treatment
       setAddingNewTreatment(false);
       setTimeout(() => {
@@ -367,7 +368,7 @@ const OdontogramDetailModal: React.FC<OdontogramDetailModalProps> = ({
           startEditingTreatment(newTreatmentToothNumber, tooth.treatment_plan);
         }
       }, 100);
-      
+
       toast({
         title: "Success",
         description: `New treatment plan added for tooth ${newTreatmentToothNumber}`,
@@ -533,52 +534,50 @@ const OdontogramDetailModal: React.FC<OdontogramDetailModalProps> = ({
       <DialogContent className="max-w-6xl max-h-[95vh] p-0 w-[95vw] sm:w-full flex flex-col overflow-y-auto">
         <DialogHeader className="flex-shrink-0 px-3 md:px-6 py-3 md:py-4 border-b !mt-8">
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-            <div className="min-w-0 flex-1">
-              <DialogTitle className="text-lg md:text-xl truncate">
-                Dental Chart - {odontogram.patient_id 
+            {/* Left Side: Patient & Chart Info */}
+            <div className="min-w-0 flex-1 flex flex-col gap-1 text-left">
+              <DialogTitle className="text-lg md:text-xl truncate font-bold">
+                Dental Chart - {odontogram.patient_id
                   ? `${odontogram.patient_id.first_name || ''} ${odontogram.patient_id.last_name || ''}`.trim() || 'Unknown Patient'
                   : 'Unknown Patient'}
               </DialogTitle>
-              <div className="space-y-1">
-                <p className="text-xs md:text-sm text-gray-500">
+
+              <div className="flex flex-col gap-1 text-gray-500">
+                <p className="text-xs md:text-sm">
                   Age: {odontogram.patient_id?.age || 'N/A'} • {odontogram.patient_id?.gender || 'N/A'} • DOB: {formatDate(odontogram.patient_id?.date_of_birth)}
                 </p>
-                <p className="text-xs md:text-sm text-gray-500">
-                  📞 {odontogram.patient_id?.phone || 'N/A'} • ✉️ {odontogram.patient_id?.email || 'N/A'}
+
+                <p className="text-xs md:text-sm flex items-center gap-2">
+                  <span>{odontogram.patient_id?.phone || 'N/A'} 📞</span>
+                  <span>•</span>
+                  <span>{odontogram.patient_id?.email || 'N/A'} ✉️</span>
                 </p>
-                <p className="text-xs md:text-sm text-gray-500">
-                  🏥 {(odontogram.clinic_id as any)?.name || 'N/A'} • Examined: {formatDate(odontogram.examination_date)}
+
+                <p className="text-xs md:text-sm flex items-center gap-2">
+                  <span>🏥 {(odontogram.clinic_id as any)?.name || 'N/A'}</span>
+                  <span>•</span>
+                  <span>Examined: {formatDate(odontogram.examination_date)}</span>
                 </p>
-                <div className="flex items-center gap-2 mt-2">
-                  <Badge variant="outline" className="text-xs">
-                    {odontogram.numbering_system.toUpperCase()} System
-                  </Badge>
-                  <Badge variant="outline" className="text-xs capitalize">
-                    {odontogram.patient_type} Patient
-                  </Badge>
-                </div>
+              </div>
+
+              <div className="flex items-center gap-2 mt-1">
+                <Badge variant="outline" className="text-xs">
+                  {odontogram.numbering_system.toUpperCase()} System
+                </Badge>
+                <Badge variant="outline" className="text-xs capitalize">
+                  {odontogram.patient_type} Patient
+                </Badge>
               </div>
             </div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <Badge variant={odontogram.is_active ? "default" : "secondary"}>
-                {odontogram.is_active ? "Active" : "Inactive"}
-              </Badge>
-              <Badge variant="outline">v{odontogram.version}</Badge>
-              
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setExportModalOpen(true)}
-              >
-                <Download className="mr-2 h-4 w-4" />
-                <span className="hidden sm:inline">Export</span>
-              </Button>
-              
+
+            {/* Right Side: Actions & Status */}
+            <div className="flex items-center gap-2 flex-wrap sm:self-start">
               {editable && (
                 <Button
                   variant={editMode ? "default" : "outline"}
                   size="sm"
                   onClick={() => setEditMode(!editMode)}
+                  className="h-8"
                 >
                   {editMode ? (
                     <>
@@ -593,6 +592,22 @@ const OdontogramDetailModal: React.FC<OdontogramDetailModalProps> = ({
                   )}
                 </Button>
               )}
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setExportModalOpen(true)}
+                className="h-8"
+              >
+                <Download className="mr-2 h-4 w-4" />
+                <span className="hidden sm:inline">Export</span>
+              </Button>
+
+              <Badge variant="outline" className="h-8 flex items-center px-2">v{odontogram.version}</Badge>
+
+              <Badge variant={odontogram.is_active ? "default" : "secondary"} className="h-8 flex items-center px-2">
+                {odontogram.is_active ? "Active" : "Inactive"}
+              </Badge>
             </div>
           </div>
         </DialogHeader>
@@ -600,17 +615,17 @@ const OdontogramDetailModal: React.FC<OdontogramDetailModalProps> = ({
         <div className="flex-1">
           <Tabs defaultValue="chart" className="h-full flex flex-col">
             <div className="flex-shrink-0">
-              <TabsList className="mx-3 md:mx-6 mt-3 md:mt-4 grid w-auto grid-cols-4">
-                <TabsTrigger value="chart" className="text-xs md:text-sm px-2 md:px-3">Chart</TabsTrigger>
-                <TabsTrigger value="treatments" className="text-xs md:text-sm px-2 md:px-3">Treatments</TabsTrigger>
-                <TabsTrigger value="periodontal" className="text-xs md:text-sm px-2 md:px-3">Periodontal</TabsTrigger>
-                <TabsTrigger value="notes" className="text-xs md:text-sm px-2 md:px-3">Notes</TabsTrigger>
+              <TabsList className="mx-3 md:mx-6 mt-3 md:mt-4 grid w-auto grid-cols-4" dir={isRTL ? "rtl" : "ltr"}>
+                <TabsTrigger value="chart" className="text-xs md:text-sm px-2 md:px-3">{isRTL ? "المخطط" : "Chart"}</TabsTrigger>
+                <TabsTrigger value="treatments" className="text-xs md:text-sm px-2 md:px-3">{isRTL ? "العلاجات" : "Treatments"}</TabsTrigger>
+                <TabsTrigger value="periodontal" className="text-xs md:text-sm px-2 md:px-3">{isRTL ? "اللثة" : "Periodontal"}</TabsTrigger>
+                <TabsTrigger value="notes" className="text-xs md:text-sm px-2 md:px-3">{isRTL ? "ملاحظات" : "Notes"}</TabsTrigger>
               </TabsList>
             </div>
 
             <div className="flex-1 min-h-0">
               <TabsContent value="chart" className="h-full overflow-y-auto p-3 md:p-6 data-[state=active]:flex data-[state=active]:flex-col scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                <div className="flex flex-col xl:flex-row gap-4 md:gap-6 flex-1 min-h-0">
+                <div className={cn("flex flex-col gap-4 md:gap-6 flex-1 min-h-0", isRTL ? "xl:flex-row-reverse" : "xl:flex-row")}>
                   {/* Main chart */}
                   <div className="flex-1 xl:flex-[2] order-1 relative flex flex-col min-h-0" id="dental-chart">
                     <div className="overflow-x-auto overflow-y-visible pb-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 flex-1">
@@ -636,10 +651,10 @@ const OdontogramDetailModal: React.FC<OdontogramDetailModalProps> = ({
                     {/* Treatment Progress */}
                     <Card>
                       <CardHeader className="pb-3">
-                        <CardTitle className="text-lg flex items-center justify-between">
-                          <div className="flex items-center">
-                            <TrendingUp className="mr-2 h-5 w-5" />
-                            Treatment Progress
+                        <CardTitle className={cn("text-lg flex items-center justify-between", isRTL && "flex-row-reverse")}>
+                          <div className={cn("flex items-center", isRTL && "flex-row-reverse")}>
+                            <TrendingUp className={cn("h-5 w-5", isRTL ? "ml-2" : "mr-2")} />
+                            {isRTL ? "تقدم العلاج" : "Treatment Progress"}
                           </div>
                           {editMode && (
                             <Button
@@ -662,7 +677,7 @@ const OdontogramDetailModal: React.FC<OdontogramDetailModalProps> = ({
                             </span>
                           </div>
                           <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                            <div 
+                            <div
                               className="h-full bg-blue-600 transition-all"
                               style={{ width: `${odontogram.treatment_progress || 0}%` }}
                             />
@@ -700,18 +715,18 @@ const OdontogramDetailModal: React.FC<OdontogramDetailModalProps> = ({
                     {/* Doctor Info */}
                     <Card>
                       <CardHeader className="pb-3">
-                        <CardTitle className="text-lg flex items-center">
-                          <Stethoscope className="mr-2 h-5 w-5" />
-                          Doctor Information
+                        <CardTitle className={cn("text-lg flex items-center", isRTL && "flex-row-reverse")}>
+                          <Stethoscope className={cn("h-5 w-5", isRTL ? "ml-2" : "mr-2")} />
+                          {isRTL ? "معلومات الطبيب" : "Doctor Information"}
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
                         <div className="space-y-2">
-                          <div className="flex items-center space-x-2">
-                            <User className="h-4 w-4 text-gray-400" />
-                            <div>
+                          <div className={cn("flex items-center", isRTL ? "space-x-reverse space-x-2" : "space-x-2")}>
+                            <User className={cn("h-4 w-4 text-gray-400", isRTL && "ml-2")} />
+                            <div className={cn(isRTL && "text-right")}>
                               <div className="font-medium">
-                                Dr. {odontogram.doctor_id.first_name} {odontogram.doctor_id.last_name}
+                                {isRTL ? "د." : "Dr."} {odontogram.doctor_id.first_name} {odontogram.doctor_id.last_name}
                               </div>
                               {odontogram.doctor_id.specialization && (
                                 <div className="text-sm text-gray-500">
@@ -720,10 +735,10 @@ const OdontogramDetailModal: React.FC<OdontogramDetailModalProps> = ({
                               )}
                             </div>
                           </div>
-                          <div className="flex items-center space-x-2">
-                            <Calendar className="h-4 w-4 text-gray-400" />
+                          <div className={cn("flex items-center", isRTL ? "space-x-reverse space-x-2" : "space-x-2")}>
+                            <Calendar className={cn("h-4 w-4 text-gray-400", isRTL && "ml-2")} />
                             <span className="text-sm">
-                              Examined: {formatDate(odontogram.examination_date)}
+                              {isRTL ? `تم الفحص: ${formatDate(odontogram.examination_date)}` : `Examined: ${formatDate(odontogram.examination_date)}`}
                             </span>
                           </div>
                         </div>
@@ -734,14 +749,14 @@ const OdontogramDetailModal: React.FC<OdontogramDetailModalProps> = ({
                     {selectedTooth && (
                       <Card>
                         <CardHeader className="pb-3">
-                          <CardTitle className="text-lg">
-                            Tooth #{selectedTooth}
+                          <CardTitle className={cn("text-lg", isRTL && "text-right")}>
+                            {isRTL ? `سن رقم ${selectedTooth}` : `Tooth #${selectedTooth}`}
                           </CardTitle>
                         </CardHeader>
                         <CardContent>
                           {(() => {
                             const toothCondition = getToothCondition(selectedTooth);
-                            
+
                             if (!toothCondition) {
                               return (
                                 <div className="text-sm text-gray-500">
@@ -780,22 +795,24 @@ const OdontogramDetailModal: React.FC<OdontogramDetailModalProps> = ({
                                 {/* Periodontal Pocket Depth */}
                                 {toothCondition.periodontal_pocket_depth && (
                                   <div>
-                                    <div className="text-sm text-gray-600 mb-2">Periodontal Pocket Depth (mm)</div>
+                                    <div className={cn("text-sm text-gray-600 mb-2", isRTL && "text-right")}>
+                                      {isRTL ? "عمق الجيب اللثوي (مم)" : "Periodontal Pocket Depth (mm)"}
+                                    </div>
                                     <div className="grid grid-cols-2 gap-2 text-xs">
-                                      <div className="flex justify-between">
-                                        <span>Mesial:</span>
+                                      <div className={cn("flex justify-between", isRTL && "flex-row-reverse")}>
+                                        <span>{isRTL ? "أنسي:" : "Mesial:"}</span>
                                         <span className="font-semibold">{toothCondition.periodontal_pocket_depth.mesial}</span>
                                       </div>
-                                      <div className="flex justify-between">
-                                        <span>Distal:</span>
+                                      <div className={cn("flex justify-between", isRTL && "flex-row-reverse")}>
+                                        <span>{isRTL ? "وحشي:" : "Distal:"}</span>
                                         <span className="font-semibold">{toothCondition.periodontal_pocket_depth.distal}</span>
                                       </div>
-                                      <div className="flex justify-between">
-                                        <span>Buccal:</span>
+                                      <div className={cn("flex justify-between", isRTL && "flex-row-reverse")}>
+                                        <span>{isRTL ? "دهليزي:" : "Buccal:"}</span>
                                         <span className="font-semibold">{toothCondition.periodontal_pocket_depth.buccal}</span>
                                       </div>
-                                      <div className="flex justify-between">
-                                        <span>Lingual:</span>
+                                      <div className={cn("flex justify-between", isRTL && "flex-row-reverse")}>
+                                        <span>{isRTL ? "لساني:" : "Lingual:"}</span>
                                         <span className="font-semibold">{toothCondition.periodontal_pocket_depth.lingual}</span>
                                       </div>
                                     </div>
@@ -829,7 +846,7 @@ const OdontogramDetailModal: React.FC<OdontogramDetailModalProps> = ({
                                     </div>
                                   </div>
                                 )}
-                                
+
                                 {/* Treatment Plan */}
                                 {toothCondition.treatment_plan && (
                                   <div>
@@ -899,579 +916,580 @@ const OdontogramDetailModal: React.FC<OdontogramDetailModalProps> = ({
 
               <TabsContent value="treatments" className="h-full overflow-y-auto p-3 md:p-6 data-[state=active]:flex data-[state=active]:flex-col scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                 <div className="space-y-4 flex-1 min-h-0">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-semibold">Treatment Plans</h3>
-                      {editMode && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setAddingNewTreatment(true)}
-                          disabled={addingNewTreatment}
-                        >
-                          <Plus className="mr-2 h-4 w-4" />
-                          Add Treatment
-                        </Button>
-                      )}
-                    </div>
-
-                    {/* Add New Treatment Form */}
-                    {addingNewTreatment && (
-                      <Card className="border-dashed border-2 border-blue-300">
-                        <CardContent className="pt-4">
-                          <div className="space-y-4">
-                            <div className="flex items-center gap-4">
-                              <Label htmlFor="tooth-number">Tooth Number:</Label>
-                              <Select
-                                value={newTreatmentToothNumber.toString()}
-                                onValueChange={(value) => setNewTreatmentToothNumber(parseInt(value))}
-                              >
-                                <SelectTrigger className="w-32">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {Array.from({ length: 32 }, (_, i) => i + 1).map((num) => (
-                                    <SelectItem key={num} value={num.toString()}>
-                                      #{num}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            <div className="flex gap-2">
-                              <Button onClick={addNewTreatment} size="sm" disabled={loading}>
-                                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                Create Treatment
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setAddingNewTreatment(false)}
-                              >
-                                Cancel
-                              </Button>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
+                  <div className={cn("flex items-center justify-between", isRTL && "flex-row-reverse")}>
+                    <h3 className="text-lg font-semibold">{isRTL ? "خطط العلاج" : "Treatment Plans"}</h3>
+                    {editMode && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setAddingNewTreatment(true)}
+                        disabled={addingNewTreatment}
+                      >
+                        <Plus className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
+                        {isRTL ? "إضافة علاج" : "Add Treatment"}
+                      </Button>
                     )}
+                  </div>
 
-                    {/* Treatment Plans */}
-                    {odontogram.teeth_conditions
-                      ?.filter(tooth => tooth.treatment_plan)
-                      .map((tooth) => {
-                        const isEditing = editingTreatments[tooth.tooth_number];
-                        const treatmentData = isEditing 
-                          ? treatmentChanges[tooth.tooth_number] 
-                          : tooth.treatment_plan!;
-
-                        return (
-                          <Card key={tooth.tooth_number}>
-                            <CardContent className="pt-4">
-                              {!isEditing ? (
-                                // Read-only view
-                                <div className="flex items-start justify-between">
-                                  <div className="space-y-2">
-                                    <div className="flex items-center space-x-2">
-                                      <Badge variant="outline">Tooth #{tooth.tooth_number}</Badge>
-                                      <Badge className={getPriorityColor(tooth.treatment_plan!.priority)}>
-                                        {tooth.treatment_plan!.priority}
-                                      </Badge>
-                                    </div>
-                                    <div className="font-medium">
-                                      {tooth.treatment_plan!.planned_treatment}
-                                    </div>
-                                    {tooth.treatment_plan!.estimated_duration && (
-                                      <div className="text-xs text-gray-500">
-                                        Duration: {tooth.treatment_plan!.estimated_duration}
-                                      </div>
-                                    )}
-                                    {tooth.treatment_plan!.planned_date && (
-                                      <div className="text-xs text-gray-500">
-                                        Planned: {formatDate(tooth.treatment_plan!.planned_date)}
-                                      </div>
-                                    )}
-                                    {tooth.treatment_plan!.completed_date && (
-                                      <div className="text-xs text-green-600">
-                                        Completed: {formatDate(tooth.treatment_plan!.completed_date)}
-                                      </div>
-                                    )}
-                                    {tooth.treatment_plan!.notes && (
-                                      <div className="text-sm text-gray-600">
-                                        {tooth.treatment_plan!.notes}
-                                      </div>
-                                    )}
-                                  </div>
-                                  <div className="text-right space-y-1">
-                                    <div className="flex items-center space-x-2">
-                                      {getStatusIcon(tooth.treatment_plan!.status)}
-                                      <span className="text-sm capitalize">
-                                        {tooth.treatment_plan!.status.replace('_', ' ')}
-                                      </span>
-                                    </div>
-                                    {tooth.treatment_plan!.estimated_cost && (
-                                      <div className="text-sm font-semibold">
-                                        {formatCurrency(tooth.treatment_plan!.estimated_cost)}
-                                      </div>
-                                    )}
-                                    {editMode && (
-                                      <div className="flex gap-1 mt-2">
-                                        <Button
-                                          variant="outline"
-                                          size="sm"
-                                          onClick={() => startEditingTreatment(tooth.tooth_number, tooth.treatment_plan!)}
-                                        >
-                                          <Edit className="h-3 w-3" />
-                                        </Button>
-                                        <Button
-                                          variant="outline"
-                                          size="sm"
-                                          onClick={() => deleteTreatment(tooth.tooth_number)}
-                                          className="text-red-600 hover:text-red-700"
-                                        >
-                                          <X className="h-3 w-3" />
-                                        </Button>
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                              ) : (
-                                // Editing view
-                                <div className="space-y-4">
-                                  <div className="flex items-center space-x-2">
-                                    <Badge variant="outline">Tooth #{tooth.tooth_number}</Badge>
-                                    <span className="text-sm text-gray-600">Editing</span>
-                                  </div>
-                                  
-                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                      <Label>Treatment Procedure</Label>
-                                      <Input
-                                        value={treatmentData?.planned_treatment || ''}
-                                        onChange={(e) => updateTreatmentField(tooth.tooth_number, 'planned_treatment', e.target.value)}
-                                        placeholder="e.g., Composite filling, Crown prep..."
-                                      />
-                                    </div>
-                                    
-                                    <div className="space-y-2">
-                                      <Label>Status</Label>
-                                      <Select
-                                        value={treatmentData?.status || 'planned'}
-                                        onValueChange={(value: TreatmentStatus) => updateTreatmentField(tooth.tooth_number, 'status', value)}
-                                      >
-                                        <SelectTrigger>
-                                          <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                          <SelectItem value="planned">Planned</SelectItem>
-                                          <SelectItem value="in_progress">In Progress</SelectItem>
-                                          <SelectItem value="completed">Completed</SelectItem>
-                                          <SelectItem value="cancelled">Cancelled</SelectItem>
-                                        </SelectContent>
-                                      </Select>
-                                    </div>
-                                    
-                                    <div className="space-y-2">
-                                      <Label>Priority</Label>
-                                      <Select
-                                        value={treatmentData?.priority || 'medium'}
-                                        onValueChange={(value: TreatmentPriority) => updateTreatmentField(tooth.tooth_number, 'priority', value)}
-                                      >
-                                        <SelectTrigger>
-                                          <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                          <SelectItem value="low">Low</SelectItem>
-                                          <SelectItem value="medium">Medium</SelectItem>
-                                          <SelectItem value="high">High</SelectItem>
-                                          <SelectItem value="urgent">Urgent</SelectItem>
-                                        </SelectContent>
-                                      </Select>
-                                    </div>
-                                    
-                                    <div className="space-y-2">
-                                      <Label>Estimated Cost</Label>
-                                      <Input
-                                        type="number"
-                                        value={treatmentData?.estimated_cost || 0}
-                                        onChange={(e) => updateTreatmentField(tooth.tooth_number, 'estimated_cost', parseFloat(e.target.value) || 0)}
-                                        placeholder="0.00"
-                                      />
-                                    </div>
-                                    
-                                    <div className="space-y-2">
-                                      <Label>Estimated Duration</Label>
-                                      <Input
-                                        value={treatmentData?.estimated_duration || ''}
-                                        onChange={(e) => updateTreatmentField(tooth.tooth_number, 'estimated_duration', e.target.value)}
-                                        placeholder="e.g., 30 minutes, 1 hour"
-                                      />
-                                    </div>
-                                    
-                                    <div className="space-y-2">
-                                      <Label>Planned Date</Label>
-                                      <Input
-                                        type="date"
-                                        value={treatmentData?.planned_date ? new Date(treatmentData.planned_date).toISOString().split('T')[0] : ''}
-                                        onChange={(e) => updateTreatmentField(tooth.tooth_number, 'planned_date', e.target.value ? new Date(e.target.value) : null)}
-                                      />
-                                    </div>
-                                    
-                                    {treatmentData?.status === 'completed' && (
-                                      <div className="space-y-2">
-                                        <Label>Completed Date</Label>
-                                        <Input
-                                          type="date"
-                                          value={treatmentData?.completed_date ? new Date(treatmentData.completed_date).toISOString().split('T')[0] : ''}
-                                          onChange={(e) => updateTreatmentField(tooth.tooth_number, 'completed_date', e.target.value ? new Date(e.target.value) : null)}
-                                        />
-                                      </div>
-                                    )}
-                                  </div>
-                                  
-                                  <div className="space-y-2">
-                                    <Label>Notes</Label>
-                                    <Textarea
-                                      value={treatmentData?.notes || ''}
-                                      onChange={(e) => updateTreatmentField(tooth.tooth_number, 'notes', e.target.value)}
-                                      placeholder="Treatment notes..."
-                                      rows={3}
-                                    />
-                                  </div>
-                                  
-                                  <div className="flex gap-2">
-                                    <Button
-                                      onClick={() => saveTreatmentChanges(tooth.tooth_number)}
-                                      size="sm"
-                                      disabled={loading}
-                                    >
-                                      {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                      <Save className="mr-2 h-4 w-4" />
-                                      Save
-                                    </Button>
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={() => cancelEditingTreatment(tooth.tooth_number)}
-                                    >
-                                      <X className="mr-2 h-4 w-4" />
-                                      Cancel
-                                    </Button>
-                                  </div>
-                                </div>
-                              )}
-                            </CardContent>
-                          </Card>
-                        );
-                      })
-                    }
-                    
-                    {odontogram.teeth_conditions?.filter(tooth => tooth.treatment_plan).length === 0 && !addingNewTreatment && (
-                      <Card className="border-dashed">
-                        <CardContent className="pt-8 pb-8 text-center text-gray-500">
-                          <div>No treatment plans found</div>
-                          {editMode && (
+                  {/* Add New Treatment Form */}
+                  {addingNewTreatment && (
+                    <Card className="border-dashed border-2 border-blue-300">
+                      <CardContent className="pt-4">
+                        <div className="space-y-4">
+                          <div className={cn("flex items-center gap-4", isRTL && "flex-row-reverse")}>
+                            <Label htmlFor="tooth-number">{isRTL ? "رقم السن:" : "Tooth Number:"}</Label>
+                            <Select
+                              value={newTreatmentToothNumber.toString()}
+                              onValueChange={(value) => setNewTreatmentToothNumber(parseInt(value))}
+                            >
+                              <SelectTrigger className={cn("w-32", isRTL && "text-right")}>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {Array.from({ length: 32 }, (_, i) => i + 1).map((num) => (
+                                  <SelectItem key={num} value={num.toString()}>
+                                    #{num}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button onClick={addNewTreatment} size="sm" disabled={loading}>
+                              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                              Create Treatment
+                            </Button>
                             <Button
                               variant="outline"
                               size="sm"
-                              className="mt-4"
-                              onClick={() => setAddingNewTreatment(true)}
+                              onClick={() => setAddingNewTreatment(false)}
                             >
-                              <Plus className="mr-2 h-4 w-4" />
-                              Add First Treatment
+                              Cancel
                             </Button>
-                          )}
-                        </CardContent>
-                      </Card>
-                    )}
-                  </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Treatment Plans */}
+                  {odontogram.teeth_conditions
+                    ?.filter(tooth => tooth.treatment_plan)
+                    .map((tooth) => {
+                      const isEditing = editingTreatments[tooth.tooth_number];
+                      const treatmentData = isEditing
+                        ? treatmentChanges[tooth.tooth_number]
+                        : tooth.treatment_plan!;
+
+                      return (
+                        <Card key={tooth.tooth_number}>
+                          <CardContent className="pt-4">
+                            {!isEditing ? (
+                              // Read-only view
+                              <div className={cn("flex items-start justify-between", isRTL && "flex-row-reverse")}>
+                                <div className={cn("space-y-2", isRTL && "text-right")}>
+                                  <div className={cn("flex items-center", isRTL ? "space-x-reverse space-x-2" : "space-x-2")}>
+                                    <Badge variant="outline">{isRTL ? `سن رقم ${tooth.tooth_number}` : `Tooth #${tooth.tooth_number}`}</Badge>
+                                    <Badge className={getPriorityColor(tooth.treatment_plan!.priority)}>
+                                      {tooth.treatment_plan!.priority}
+                                    </Badge>
+                                  </div>
+                                  <div className="font-medium">
+                                    {tooth.treatment_plan!.planned_treatment}
+                                  </div>
+                                  {tooth.treatment_plan!.estimated_duration && (
+                                    <div className="text-xs text-gray-500">
+                                      Duration: {tooth.treatment_plan!.estimated_duration}
+                                    </div>
+                                  )}
+                                  {tooth.treatment_plan!.planned_date && (
+                                    <div className="text-xs text-gray-500">
+                                      Planned: {formatDate(tooth.treatment_plan!.planned_date)}
+                                    </div>
+                                  )}
+                                  {tooth.treatment_plan!.completed_date && (
+                                    <div className="text-xs text-green-600">
+                                      Completed: {formatDate(tooth.treatment_plan!.completed_date)}
+                                    </div>
+                                  )}
+                                  {tooth.treatment_plan!.notes && (
+                                    <div className="text-sm text-gray-600">
+                                      {tooth.treatment_plan!.notes}
+                                    </div>
+                                  )}
+                                </div>
+                                <div className={cn("space-y-1", isRTL ? "text-left" : "text-right")}>
+                                  <div className={cn("flex items-center", isRTL ? "justify-start space-x-reverse space-x-2" : "justify-end space-x-2")}>
+                                    {getStatusIcon(tooth.treatment_plan!.status)}
+                                    <span className="text-sm capitalize">
+                                      {tooth.treatment_plan!.status.replace('_', ' ')}
+                                    </span>
+                                  </div>
+                                  {tooth.treatment_plan!.estimated_cost && (
+                                    <div className="text-sm font-semibold">
+                                      {formatCurrency(tooth.treatment_plan!.estimated_cost)}
+                                    </div>
+                                  )}
+                                  {editMode && (
+                                    <div className={cn("flex gap-1 mt-2", isRTL ? "justify-start" : "justify-end")}>
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => startEditingTreatment(tooth.tooth_number, tooth.treatment_plan!)}
+                                      >
+                                        <Edit className="h-3 w-3" />
+                                      </Button>
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => deleteTreatment(tooth.tooth_number)}
+                                        className="text-red-600 hover:text-red-700"
+                                      >
+                                        <X className="h-3 w-3" />
+                                      </Button>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            ) : (
+                              // Editing view
+                              <div className="space-y-4">
+                                <div className="flex items-center space-x-2">
+                                  <Badge variant="outline">Tooth #{tooth.tooth_number}</Badge>
+                                  <span className="text-sm text-gray-600">Editing</span>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <div className="space-y-2">
+                                    <Label>Treatment Procedure</Label>
+                                    <Input
+                                      value={treatmentData?.planned_treatment || ''}
+                                      onChange={(e) => updateTreatmentField(tooth.tooth_number, 'planned_treatment', e.target.value)}
+                                      placeholder="e.g., Composite filling, Crown prep..."
+                                    />
+                                  </div>
+
+                                  <div className="space-y-2">
+                                    <Label>Status</Label>
+                                    <Select
+                                      value={treatmentData?.status || 'planned'}
+                                      onValueChange={(value: TreatmentStatus) => updateTreatmentField(tooth.tooth_number, 'status', value)}
+                                    >
+                                      <SelectTrigger>
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="planned">Planned</SelectItem>
+                                        <SelectItem value="in_progress">In Progress</SelectItem>
+                                        <SelectItem value="completed">Completed</SelectItem>
+                                        <SelectItem value="cancelled">Cancelled</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+
+                                  <div className="space-y-2">
+                                    <Label>Priority</Label>
+                                    <Select
+                                      value={treatmentData?.priority || 'medium'}
+                                      onValueChange={(value: TreatmentPriority) => updateTreatmentField(tooth.tooth_number, 'priority', value)}
+                                    >
+                                      <SelectTrigger>
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="low">Low</SelectItem>
+                                        <SelectItem value="medium">Medium</SelectItem>
+                                        <SelectItem value="high">High</SelectItem>
+                                        <SelectItem value="urgent">Urgent</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+
+                                  <div className="space-y-2">
+                                    <Label>Estimated Cost</Label>
+                                    <Input
+                                      type="number"
+                                      value={treatmentData?.estimated_cost || 0}
+                                      onChange={(e) => updateTreatmentField(tooth.tooth_number, 'estimated_cost', parseFloat(e.target.value) || 0)}
+                                      placeholder="0.00"
+                                    />
+                                  </div>
+
+                                  <div className="space-y-2">
+                                    <Label>Estimated Duration</Label>
+                                    <Input
+                                      value={treatmentData?.estimated_duration || ''}
+                                      onChange={(e) => updateTreatmentField(tooth.tooth_number, 'estimated_duration', e.target.value)}
+                                      placeholder="e.g., 30 minutes, 1 hour"
+                                    />
+                                  </div>
+
+                                  <div className="space-y-2">
+                                    <Label>Planned Date</Label>
+                                    <Input
+                                      type="date"
+                                      value={treatmentData?.planned_date ? new Date(treatmentData.planned_date).toISOString().split('T')[0] : ''}
+                                      onChange={(e) => updateTreatmentField(tooth.tooth_number, 'planned_date', e.target.value ? new Date(e.target.value) : null)}
+                                    />
+                                  </div>
+
+                                  {treatmentData?.status === 'completed' && (
+                                    <div className="space-y-2">
+                                      <Label>Completed Date</Label>
+                                      <Input
+                                        type="date"
+                                        value={treatmentData?.completed_date ? new Date(treatmentData.completed_date).toISOString().split('T')[0] : ''}
+                                        onChange={(e) => updateTreatmentField(tooth.tooth_number, 'completed_date', e.target.value ? new Date(e.target.value) : null)}
+                                      />
+                                    </div>
+                                  )}
+                                </div>
+
+                                <div className="space-y-2">
+                                  <Label>Notes</Label>
+                                  <Textarea
+                                    value={treatmentData?.notes || ''}
+                                    onChange={(e) => updateTreatmentField(tooth.tooth_number, 'notes', e.target.value)}
+                                    placeholder="Treatment notes..."
+                                    rows={3}
+                                  />
+                                </div>
+
+                                <div className="flex gap-2">
+                                  <Button
+                                    onClick={() => saveTreatmentChanges(tooth.tooth_number)}
+                                    size="sm"
+                                    disabled={loading}
+                                  >
+                                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                    <Save className="mr-2 h-4 w-4" />
+                                    Save
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => cancelEditingTreatment(tooth.tooth_number)}
+                                  >
+                                    <X className="mr-2 h-4 w-4" />
+                                    Cancel
+                                  </Button>
+                                </div>
+                              </div>
+                            )}
+                          </CardContent>
+                        </Card>
+                      );
+                    })
+                  }
+
+                  {odontogram.teeth_conditions?.filter(tooth => tooth.treatment_plan).length === 0 && !addingNewTreatment && (
+                    <Card className="border-dashed">
+                      <CardContent className="pt-8 pb-8 text-center text-gray-500">
+                        <div>No treatment plans found</div>
+                        {editMode && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="mt-4"
+                            onClick={() => setAddingNewTreatment(true)}
+                          >
+                            <Plus className="mr-2 h-4 w-4" />
+                            Add First Treatment
+                          </Button>
+                        )}
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
               </TabsContent>
 
               <TabsContent value="periodontal" className="h-full overflow-y-auto p-3 md:p-6 data-[state=active]:flex data-[state=active]:flex-col scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                 <div className="space-y-4 flex-1 min-h-0">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-semibold">Periodontal Assessment</h3>
-                      {editMode && (
-                        <Button
-                          variant={editingPeriodontal ? "destructive" : "outline"}
-                          size="sm"
-                          onClick={editingPeriodontal ? cancelEditingPeriodontal : startEditingPeriodontal}
-                        >
-                          {editingPeriodontal ? (
-                            <>
+                  <div className={cn("flex items-center justify-between", isRTL && "flex-row-reverse")}>
+                    <h3 className="text-lg font-semibold">{isRTL ? "تقييم اللثة" : "Periodontal Assessment"}</h3>
+                    {editMode && (
+                      <Button
+                        variant={editingPeriodontal ? "destructive" : "outline"}
+                        size="sm"
+                        onClick={editingPeriodontal ? cancelEditingPeriodontal : startEditingPeriodontal}
+                      >
+                        {editingPeriodontal ? (
+                          <>
+                            <X className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
+                            {isRTL ? "إلغاء" : "Cancel"}
+                          </>
+                        ) : (
+                          <>
+                            <Edit className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
+                            {isRTL ? "تعديل" : "Edit"}
+                          </>
+                        )}
+                      </Button>
+                    )}
+                  </div>
+
+                  <Card>
+                    <CardContent className="pt-4">
+                      {editingPeriodontal ? (
+                        <div className="space-y-6">
+                          <div className="grid grid-cols-2 gap-6">
+                            <div className="space-y-4">
+                              <div className="space-y-2">
+                                <Label className={cn("text-sm font-medium", isRTL && "text-right block")}>{isRTL ? "النزيف عند السبر" : "Bleeding on Probing"}</Label>
+                                <div className={cn("flex items-center", isRTL ? "flex-row-reverse justify-end gap-2" : "space-x-2")}>
+                                  <Switch
+                                    checked={periodontalChanges.bleeding_on_probing ?? false}
+                                    onCheckedChange={(checked) =>
+                                      setPeriodontalChanges(prev => ({ ...prev, bleeding_on_probing: checked }))
+                                    }
+                                  />
+                                  <span className="text-sm text-gray-600">
+                                    {isRTL ? (periodontalChanges.bleeding_on_probing ? "نعم" : "لا") : (periodontalChanges.bleeding_on_probing ? "Yes" : "No")}
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div className="space-y-2">
+                                <Label className={cn("text-sm font-medium", isRTL && "text-right block")}>{isRTL ? "وجود جير" : "Calculus Present"}</Label>
+                                <div className={cn("flex items-center", isRTL ? "flex-row-reverse justify-end gap-2" : "space-x-2")}>
+                                  <Switch
+                                    checked={periodontalChanges.calculus_present ?? false}
+                                    onCheckedChange={(checked) =>
+                                      setPeriodontalChanges(prev => ({ ...prev, calculus_present: checked }))
+                                    }
+                                  />
+                                  <span className="text-sm text-gray-600">
+                                    {isRTL ? (periodontalChanges.calculus_present ? "نعم" : "لا") : (periodontalChanges.calculus_present ? "Yes" : "No")}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="space-y-4">
+                              <div className="space-y-2">
+                                <Label className={cn("text-sm font-medium", isRTL && "text-right block")}>{isRTL ? "مؤشر البلاك (0-3)" : "Plaque Index (0-3)"}</Label>
+                                <div className="space-y-2">
+                                  <Slider
+                                    value={[periodontalChanges.plaque_index ?? 0]}
+                                    onValueChange={([value]) =>
+                                      setPeriodontalChanges(prev => ({ ...prev, plaque_index: value }))
+                                    }
+                                    max={3}
+                                    min={0}
+                                    step={1}
+                                    className="w-full"
+                                  />
+                                  <div className="text-sm text-gray-600 text-center">
+                                    {periodontalChanges.plaque_index ?? 0}/3
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="space-y-2">
+                                <Label className={cn("text-sm font-medium", isRTL && "text-right block")}>{isRTL ? "مؤشر اللثة (0-3)" : "Gingival Index (0-3)"}</Label>
+                                <div className="space-y-2">
+                                  <Slider
+                                    value={[periodontalChanges.gingival_index ?? 0]}
+                                    onValueChange={([value]) =>
+                                      setPeriodontalChanges(prev => ({ ...prev, gingival_index: value }))
+                                    }
+                                    max={3}
+                                    min={0}
+                                    step={1}
+                                    className="w-full"
+                                  />
+                                  <div className="text-sm text-gray-600 text-center">
+                                    {periodontalChanges.gingival_index ?? 0}/3
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium">Periodontal Notes</Label>
+                            <Textarea
+                              value={periodontalChanges.general_notes ?? ''}
+                              onChange={(e) =>
+                                setPeriodontalChanges(prev => ({ ...prev, general_notes: e.target.value }))
+                              }
+                              placeholder="Add periodontal assessment notes..."
+                              rows={3}
+                            />
+                          </div>
+
+                          <div className="flex gap-2">
+                            <Button
+                              onClick={savePeriodontalChanges}
+                              size="sm"
+                              disabled={loading}
+                            >
+                              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                              <Save className="mr-2 h-4 w-4" />
+                              Save Changes
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={cancelEditingPeriodontal}
+                            >
                               <X className="mr-2 h-4 w-4" />
                               Cancel
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          {odontogram?.periodontal_assessment ? (
+                            <>
+                              <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                  <div className={cn("flex items-center justify-between", isRTL && "flex-row-reverse")}>
+                                    <span className="text-sm text-gray-600">{isRTL ? "النزيف عند السبر" : "Bleeding on Probing"}</span>
+                                    <Badge variant={odontogram.periodontal_assessment.bleeding_on_probing ? "destructive" : "secondary"}>
+                                      {isRTL ? (odontogram.periodontal_assessment.bleeding_on_probing ? "نعم" : "لا") : (odontogram.periodontal_assessment.bleeding_on_probing ? "Yes" : "No")}
+                                    </Badge>
+                                  </div>
+                                  <div className={cn("flex items-center justify-between", isRTL && "flex-row-reverse")}>
+                                    <span className="text-sm text-gray-600">{isRTL ? "وجود جير" : "Calculus Present"}</span>
+                                    <Badge variant={odontogram.periodontal_assessment.calculus_present ? "destructive" : "secondary"}>
+                                      {isRTL ? (odontogram.periodontal_assessment.calculus_present ? "نعم" : "لا") : (odontogram.periodontal_assessment.calculus_present ? "Yes" : "No")}
+                                    </Badge>
+                                  </div>
+                                </div>
+                                <div className="space-y-2">
+                                  <div className={cn("flex items-center justify-between", isRTL && "flex-row-reverse")}>
+                                    <span className="text-sm text-gray-600">{isRTL ? "مؤشر البلاك" : "Plaque Index"}</span>
+                                    <span className="font-semibold">{odontogram.periodontal_assessment.plaque_index ?? 0}/3</span>
+                                  </div>
+                                  <div className={cn("flex items-center justify-between", isRTL && "flex-row-reverse")}>
+                                    <span className="text-sm text-gray-600">{isRTL ? "مؤشر اللثة" : "Gingival Index"}</span>
+                                    <span className="font-semibold">{odontogram.periodontal_assessment.gingival_index ?? 0}/3</span>
+                                  </div>
+                                </div>
+                              </div>
+                              {odontogram.periodontal_assessment.general_notes && (
+                                <div className="mt-4 pt-4 border-t">
+                                  <div className="text-sm text-gray-600 mb-2">Notes</div>
+                                  <div className="text-sm bg-gray-50 p-3 rounded whitespace-pre-wrap">
+                                    {odontogram.periodontal_assessment.general_notes}
+                                  </div>
+                                </div>
+                              )}
                             </>
                           ) : (
-                            <>
-                              <Edit className="mr-2 h-4 w-4" />
-                              Edit
-                            </>
+                            <div className="text-center py-8 text-gray-500">
+                              No periodontal assessment recorded
+                              {editMode && (
+                                <div className="mt-2">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={startEditingPeriodontal}
+                                  >
+                                    <Plus className="mr-2 h-4 w-4" />
+                                    Add Assessment
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
                           )}
-                        </Button>
+                        </div>
                       )}
-                    </div>
-                    
-                    <Card>
-                      <CardContent className="pt-4">
-                        {editingPeriodontal ? (
-                          <div className="space-y-6">
-                            <div className="grid grid-cols-2 gap-6">
-                              <div className="space-y-4">
-                                <div className="space-y-2">
-                                  <Label className="text-sm font-medium">Bleeding on Probing</Label>
-                                  <div className="flex items-center space-x-2">
-                                    <Switch
-                                      checked={periodontalChanges.bleeding_on_probing ?? false}
-                                      onCheckedChange={(checked) => 
-                                        setPeriodontalChanges(prev => ({ ...prev, bleeding_on_probing: checked }))
-                                      }
-                                    />
-                                    <span className="text-sm text-gray-600">
-                                      {periodontalChanges.bleeding_on_probing ? "Yes" : "No"}
-                                    </span>
-                                  </div>
-                                </div>
-                                
-                                <div className="space-y-2">
-                                  <Label className="text-sm font-medium">Calculus Present</Label>
-                                  <div className="flex items-center space-x-2">
-                                    <Switch
-                                      checked={periodontalChanges.calculus_present ?? false}
-                                      onCheckedChange={(checked) => 
-                                        setPeriodontalChanges(prev => ({ ...prev, calculus_present: checked }))
-                                      }
-                                    />
-                                    <span className="text-sm text-gray-600">
-                                      {periodontalChanges.calculus_present ? "Yes" : "No"}
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                              
-                              <div className="space-y-4">
-                                <div className="space-y-2">
-                                  <Label className="text-sm font-medium">Plaque Index (0-3)</Label>
-                                  <div className="space-y-2">
-                                    <Slider
-                                      value={[periodontalChanges.plaque_index ?? 0]}
-                                      onValueChange={([value]) => 
-                                        setPeriodontalChanges(prev => ({ ...prev, plaque_index: value }))
-                                      }
-                                      max={3}
-                                      min={0}
-                                      step={1}
-                                      className="w-full"
-                                    />
-                                    <div className="text-sm text-gray-600 text-center">
-                                      {periodontalChanges.plaque_index ?? 0}/3
-                                    </div>
-                                  </div>
-                                </div>
-                                
-                                <div className="space-y-2">
-                                  <Label className="text-sm font-medium">Gingival Index (0-3)</Label>
-                                  <div className="space-y-2">
-                                    <Slider
-                                      value={[periodontalChanges.gingival_index ?? 0]}
-                                      onValueChange={([value]) => 
-                                        setPeriodontalChanges(prev => ({ ...prev, gingival_index: value }))
-                                      }
-                                      max={3}
-                                      min={0}
-                                      step={1}
-                                      className="w-full"
-                                    />
-                                    <div className="text-sm text-gray-600 text-center">
-                                      {periodontalChanges.gingival_index ?? 0}/3
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            
-                            <div className="space-y-2">
-                              <Label className="text-sm font-medium">Periodontal Notes</Label>
-                              <Textarea
-                                value={periodontalChanges.general_notes ?? ''}
-                                onChange={(e) => 
-                                  setPeriodontalChanges(prev => ({ ...prev, general_notes: e.target.value }))
-                                }
-                                placeholder="Add periodontal assessment notes..."
-                                rows={3}
-                              />
-                            </div>
-                            
-                            <div className="flex gap-2">
-                              <Button
-                                onClick={savePeriodontalChanges}
-                                size="sm"
-                                disabled={loading}
-                              >
-                                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                <Save className="mr-2 h-4 w-4" />
-                                Save Changes
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={cancelEditingPeriodontal}
-                              >
-                                <X className="mr-2 h-4 w-4" />
-                                Cancel
-                              </Button>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="space-y-4">
-                            {odontogram?.periodontal_assessment ? (
-                              <>
-                                <div className="grid grid-cols-2 gap-4">
-                                  <div className="space-y-2">
-                                    <div className="flex items-center justify-between">
-                                      <span className="text-sm text-gray-600">Bleeding on Probing</span>
-                                      <Badge variant={odontogram.periodontal_assessment.bleeding_on_probing ? "destructive" : "secondary"}>
-                                        {odontogram.periodontal_assessment.bleeding_on_probing ? "Yes" : "No"}
-                                      </Badge>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                      <span className="text-sm text-gray-600">Calculus Present</span>
-                                      <Badge variant={odontogram.periodontal_assessment.calculus_present ? "destructive" : "secondary"}>
-                                        {odontogram.periodontal_assessment.calculus_present ? "Yes" : "No"}
-                                      </Badge>
-                                    </div>
-                                  </div>
-                                  <div className="space-y-2">
-                                    <div className="flex items-center justify-between">
-                                      <span className="text-sm text-gray-600">Plaque Index</span>
-                                      <span className="font-semibold">{odontogram.periodontal_assessment.plaque_index ?? 0}/3</span>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                      <span className="text-sm text-gray-600">Gingival Index</span>
-                                      <span className="font-semibold">{odontogram.periodontal_assessment.gingival_index ?? 0}/3</span>
-                                    </div>
-                                  </div>
-                                </div>
-                                {odontogram.periodontal_assessment.general_notes && (
-                                  <div className="mt-4 pt-4 border-t">
-                                    <div className="text-sm text-gray-600 mb-2">Notes</div>
-                                    <div className="text-sm bg-gray-50 p-3 rounded whitespace-pre-wrap">
-                                      {odontogram.periodontal_assessment.general_notes}
-                                    </div>
-                                  </div>
-                                )}
-                              </>
-                            ) : (
-                              <div className="text-center py-8 text-gray-500">
-                                No periodontal assessment recorded
-                                {editMode && (
-                                  <div className="mt-2">
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={startEditingPeriodontal}
-                                    >
-                                      <Plus className="mr-2 h-4 w-4" />
-                                      Add Assessment
-                                    </Button>
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  </div>
+                    </CardContent>
+                  </Card>
+                </div>
               </TabsContent>
 
               <TabsContent value="notes" className="h-full overflow-y-auto p-3 md:p-6 data-[state=active]:flex data-[state=active]:flex-col scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                 <div className="space-y-4 flex-1 min-h-0">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-semibold">General Notes</h3>
-                      {editMode && (
-                        <Button
-                          variant={editingNotes ? "destructive" : "outline"}
-                          size="sm"
-                          onClick={editingNotes ? cancelEditingNotes : startEditingNotes}
-                        >
-                          {editingNotes ? (
-                            <>
-                              <X className="mr-2 h-4 w-4" />
-                              Cancel
-                            </>
-                          ) : (
-                            <>
-                              <Edit className="mr-2 h-4 w-4" />
-                              Edit
-                            </>
-                          )}
-                        </Button>
-                      )}
-                    </div>
-                    
-                    <Card>
-                      <CardContent className="pt-4">
+                  <div className={cn("flex items-center justify-between", isRTL && "flex-row-reverse")}>
+                    <h3 className="text-lg font-semibold">{isRTL ? "الملاحظات العامة" : "General Notes"}</h3>
+                    {editMode && (
+                      <Button
+                        variant={editingNotes ? "destructive" : "outline"}
+                        size="sm"
+                        onClick={editingNotes ? cancelEditingNotes : startEditingNotes}
+                      >
                         {editingNotes ? (
-                          <div className="space-y-4">
-                            <div className="space-y-2">
-                              <Label className="text-sm font-medium">General Notes</Label>
-                              <Textarea
-                                value={notesChanges}
-                                onChange={(e) => setNotesChanges(e.target.value)}
-                                placeholder="Add general notes about the patient's dental condition, treatment history, or other relevant information..."
-                                rows={8}
-                                className="w-full"
-                              />
-                            </div>
-                            
-                            <div className="flex gap-2">
-                              <Button
-                                onClick={saveNotesChanges}
-                                size="sm"
-                                disabled={loading}
-                              >
-                                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                <Save className="mr-2 h-4 w-4" />
-                                Save Notes
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={cancelEditingNotes}
-                              >
-                                <X className="mr-2 h-4 w-4" />
-                                Cancel
-                              </Button>
-                            </div>
-                          </div>
+                          <>
+                            <X className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
+                            {isRTL ? "إلغاء" : "Cancel"}
+                          </>
                         ) : (
-                          <div>
-                            {odontogram?.general_notes ? (
-                              <div className="text-sm bg-gray-50 p-4 rounded whitespace-pre-wrap">
-                                {odontogram.general_notes}
-                              </div>
-                            ) : (
-                              <div className="text-center py-8 text-gray-500">
-                                No general notes recorded
-                                {editMode && (
-                                  <div className="mt-2">
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={startEditingNotes}
-                                    >
-                                      <Plus className="mr-2 h-4 w-4" />
-                                      Add Notes
-                                    </Button>
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </div>
+                          <>
+                            <Edit className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
+                            {isRTL ? "تعديل" : "Edit"}
+                          </>
                         )}
-                      </CardContent>
-                    </Card>
+                      </Button>
+                    )}
                   </div>
+
+                  <Card>
+                    <CardContent className="pt-4">
+                      {editingNotes ? (
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <Label className={cn("text-sm font-medium", isRTL && "text-right block")}>{isRTL ? "الملاحظات العامة" : "General Notes"}</Label>
+                            <Textarea
+                              value={notesChanges}
+                              onChange={(e) => setNotesChanges(e.target.value)}
+                              placeholder={isRTL ? "أضف ملاحظات عامة حول حالة أسنان المريض أو تاريخ العلاج أو معلومات أخرى ذات صلة..." : "Add general notes about the patient's dental condition, treatment history, or other relevant information..."}
+                              rows={8}
+                              className={cn("w-full", isRTL && "text-right")}
+                              dir={isRTL ? "rtl" : "ltr"}
+                            />
+                          </div>
+
+                          <div className={cn("flex gap-2", isRTL && "flex-row-reverse")}>
+                            <Button
+                              onClick={saveNotesChanges}
+                              size="sm"
+                              disabled={loading}
+                            >
+                              {loading && <Loader2 className={cn("h-4 w-4 animate-spin", isRTL ? "ml-2" : "mr-2")} />}
+                              <Save className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
+                              {isRTL ? "حفظ الملاحظات" : "Save Notes"}
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={cancelEditingNotes}
+                            >
+                              <X className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
+                              {isRTL ? "إلغاء" : "Cancel"}
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div>
+                          {odontogram?.general_notes ? (
+                            <div className="text-sm bg-gray-50 p-4 rounded whitespace-pre-wrap">
+                              {odontogram.general_notes}
+                            </div>
+                          ) : (
+                            <div className="text-center py-8 text-gray-500">
+                              No general notes recorded
+                              {editMode && (
+                                <div className="mt-2">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={startEditingNotes}
+                                  >
+                                    <Plus className="mr-2 h-4 w-4" />
+                                    Add Notes
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
               </TabsContent>
             </div>
           </Tabs>

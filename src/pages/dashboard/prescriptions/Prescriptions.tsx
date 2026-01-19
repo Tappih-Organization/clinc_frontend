@@ -58,17 +58,17 @@ import PrescriptionDetailModal from "@/components/modals/PrescriptionDetailModal
 import EditPrescriptionModal from "@/components/modals/EditPrescriptionModal";
 import { apiService } from "@/services/api";
 import { Prescription, PrescriptionStats } from "@/types";
-import { 
-  usePrescriptions, 
-  usePrescriptionStats, 
-  useUpdatePrescriptionStatus, 
-  useSendToPharmacy 
+import {
+  usePrescriptions,
+  usePrescriptionStats,
+  useUpdatePrescriptionStatus,
+  useSendToPharmacy
 } from "@/hooks/useApi";
 import { printPrescription } from "@/utils/prescriptionPrint";
-import { 
-  generatePrescriptionSlipPDF, 
+import {
+  generatePrescriptionSlipPDF,
   convertToPrescriptionSlipData,
-  ClinicInfo 
+  ClinicInfo
 } from "@/utils/prescriptionSlipPdf";
 import { useClinic } from "@/contexts/ClinicContext";
 import { useIsRTL } from "@/hooks/useIsRTL";
@@ -83,7 +83,7 @@ const Prescriptions = () => {
   const [selectedDoctor, setSelectedDoctor] = useState("all");
   const [selectedDateRange, setSelectedDateRange] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
-  const [doctors, setDoctors] = useState<string[]>([]);
+  const [doctors, setDoctors] = useState<{ id: string; name: string }[]>([]);
 
   // Modal states
   const [detailModalOpen, setDetailModalOpen] = useState(false);
@@ -100,20 +100,14 @@ const Prescriptions = () => {
     if (searchTerm) params.search = searchTerm;
     if (selectedStatus !== "all") params.status = selectedStatus;
     if (selectedDoctor !== "all") {
-      // Find the doctor ID from the doctor name
-      const selectedPrescription = prescriptions?.find(
-        p => p.doctor_id && `${p.doctor_id.first_name} ${p.doctor_id.last_name}` === selectedDoctor
-      );
-      if (selectedPrescription && selectedPrescription.doctor_id) {
-        params.doctor_id = selectedPrescription.doctor_id._id;
-      }
+      params.doctor_id = selectedDoctor;
     }
 
     // Add date filtering
     if (selectedDateRange !== "all") {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      
+
       switch (selectedDateRange) {
         case "today":
           const endOfToday = new Date(today);
@@ -146,14 +140,14 @@ const Prescriptions = () => {
   };
 
   // Use hooks for data fetching
-  const { 
-    data: prescriptionsResponse, 
-    isLoading, 
+  const {
+    data: prescriptionsResponse,
+    isLoading,
     error,
     refetch
   } = usePrescriptions(getApiParams());
 
-  const { 
+  const {
     data: stats,
     isLoading: statsLoading
   } = usePrescriptionStats();
@@ -167,14 +161,21 @@ const Prescriptions = () => {
   // Extract unique doctors for filter
   React.useEffect(() => {
     if (prescriptions?.length > 0) {
-      const uniqueDoctors = Array.from(
-        new Set(
-          prescriptions
-            .filter((p) => p.doctor_id && p.doctor_id.first_name && p.doctor_id.last_name)
-            .map((p) => `${p.doctor_id.first_name} ${p.doctor_id.last_name}`)
-        )
-      );
-      setDoctors(["all", ...uniqueDoctors]);
+      const uniqueDoctorsMap = new Map<string, string>();
+
+      prescriptions.forEach((p: Prescription) => {
+        if (p.doctor_id && p.doctor_id._id && p.doctor_id.first_name && p.doctor_id.last_name) {
+          const fullName = `${p.doctor_id.first_name} ${p.doctor_id.last_name}`;
+          uniqueDoctorsMap.set(p.doctor_id._id, fullName);
+        }
+      });
+
+      const doctorsList = Array.from(uniqueDoctorsMap.entries()).map(([id, name]) => ({
+        id,
+        name
+      }));
+
+      setDoctors(doctorsList);
     }
   }, [prescriptions]);
 
@@ -192,10 +193,10 @@ const Prescriptions = () => {
     try {
       // First get the prescription details
       const prescription = await apiService.getPrescription(prescriptionId);
-      
+
       // Use the print utility to generate and print the prescription
       printPrescription(prescription);
-      
+
       toast({
         title: t("Prescription Printed"),
         description: `${t("Prescription")} ${prescription.prescription_id} ${t("has been sent to printer.")}`,
@@ -246,11 +247,11 @@ const Prescriptions = () => {
     try {
       // Get the prescription details
       const prescription = await apiService.getPrescription(prescriptionId);
-      
+
       // Prepare clinic info from current clinic context
       const clinicInfo: ClinicInfo = {
         name: currentClinic?.name || 'Medical Clinic',
-        address: currentClinic?.address 
+        address: currentClinic?.address
           ? `${currentClinic.address.street}, ${currentClinic.address.city}, ${currentClinic.address.state} ${currentClinic.address.zipCode}`
           : 'Clinic Address',
         phone: currentClinic?.contact?.phone || 'Phone Number',
@@ -324,11 +325,11 @@ const Prescriptions = () => {
     const birthDate = new Date(dateOfBirth);
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
-    
+
     if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
       age--;
     }
-    
+
     return age;
   };
 
@@ -360,10 +361,10 @@ const Prescriptions = () => {
       {/* Header */}
       <div className={cn("flex flex-col space-y-4 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between sm:flex-wrap", isRTL && "flex-row-reverse")} dir={isRTL ? "rtl" : "ltr"}>
         <div className="flex-1 min-w-0">
-          <h1 className={cn("text-2xl sm:text-3xl font-bold text-foreground", isRTL && "text-right")}>
+          <h1 className={cn("text-2xl sm:text-3xl font-bold text-foreground")}>
             {t("Prescriptions")}
           </h1>
-          <p className={cn("text-muted-foreground mt-1", isRTL && "text-right")}>
+          <p className={cn("text-muted-foreground mt-1")}>
             {t("Manage patient prescriptions and medications")}
           </p>
           <div className="mt-4">
@@ -494,9 +495,10 @@ const Prescriptions = () => {
                   <SelectValue placeholder={t("Doctor")} />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="all">{t("All Doctors")}</SelectItem>
                   {doctors.map((doctor) => (
-                    <SelectItem key={doctor} value={doctor}>
-                      {doctor === "all" ? t("All Doctors") : doctor}
+                    <SelectItem key={doctor.id} value={doctor.id}>
+                      {doctor.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -581,14 +583,14 @@ const Prescriptions = () => {
                           <TableCell className={cn(isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
                             <div className={cn(isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
                               <div className={cn("font-medium", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
-                                {prescription.patient_id ? 
-                                  `${prescription.patient_id.first_name} ${prescription.patient_id.last_name}` : 
+                                {prescription.patient_id ?
+                                  `${prescription.patient_id.first_name} ${prescription.patient_id.last_name}` :
                                   t('Unknown Patient')
                                 }
                               </div>
                               <div className={cn("text-sm text-gray-500", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
-                                {prescription.patient_id?.date_of_birth ? 
-                                  `${t("Age:")}: ${calculateAge(prescription.patient_id.date_of_birth)}` : 
+                                {prescription.patient_id?.date_of_birth ?
+                                  `${t("Age:")}: ${calculateAge(prescription.patient_id.date_of_birth)}` :
                                   t('Age: N/A')
                                 }
                               </div>
@@ -596,8 +598,8 @@ const Prescriptions = () => {
                           </TableCell>
                           <TableCell className={cn(isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
                             <span className={cn(isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
-                              {prescription.doctor_id ? 
-                                `${prescription.doctor_id.first_name} ${prescription.doctor_id.last_name}` : 
+                              {prescription.doctor_id ?
+                                `${prescription.doctor_id.first_name} ${prescription.doctor_id.last_name}` :
                                 t('Unknown Doctor')
                               }
                             </span>
@@ -731,14 +733,14 @@ const Prescriptions = () => {
                           <User className={cn("h-4 w-4 text-gray-400 flex-shrink-0", isRTL && "order-2")} />
                           <div className={cn("flex-1", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
                             <div className={cn("font-medium text-sm", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
-                              {prescription.patient_id ? 
-                                `${prescription.patient_id.first_name} ${prescription.patient_id.last_name}` : 
+                              {prescription.patient_id ?
+                                `${prescription.patient_id.first_name} ${prescription.patient_id.last_name}` :
                                 t('Unknown Patient')
                               }
                             </div>
                             <div className={cn("text-xs text-gray-500", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
-                              {prescription.patient_id?.date_of_birth ? 
-                                `Age: ${calculateAge(prescription.patient_id.date_of_birth)}` : 
+                              {prescription.patient_id?.date_of_birth ?
+                                `Age: ${calculateAge(prescription.patient_id.date_of_birth)}` :
                                 t('Age: N/A')
                               }
                             </div>
@@ -754,8 +756,8 @@ const Prescriptions = () => {
                             <span className={cn("font-medium text-gray-500", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>{t("Doctor")}</span>
                           </div>
                           <span className={cn("text-gray-900 font-medium", isRTL && "text-right")} dir={isRTL ? "rtl" : "ltr"}>
-                            {prescription.doctor_id ? 
-                              `${prescription.doctor_id.first_name} ${prescription.doctor_id.last_name}` : 
+                            {prescription.doctor_id ?
+                              `${prescription.doctor_id.first_name} ${prescription.doctor_id.last_name}` :
                               t('Unknown Doctor')
                             }
                           </span>

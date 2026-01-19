@@ -61,7 +61,7 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
   const [patients, setPatients] = useState<Patient[]>([]);
   const [doctors, setDoctors] = useState<ApiUser[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
-  
+
   const [formData, setFormData] = useState({
     patientId: "",
     doctorId: "",
@@ -167,12 +167,12 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
   const fetchDoctors = async () => {
     try {
       setDoctorsLoading(true);
-      const response = await apiService.getUsers({ 
+      const response = await apiService.getUsers({
         role: "doctor",
         limit: 100,
-        is_active: true 
+        is_active: true
       });
-      
+
       if (response.success && response.data && response.data.users) {
         setDoctors(response.data.users);
       } else {
@@ -194,11 +194,11 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
   const fetchAppointments = async (patientId: string) => {
     try {
       setAppointmentsLoading(true);
-      const response = await apiService.getAppointments({ 
+      const response = await apiService.getAppointments({
         limit: 100,
         patient_id: patientId
       });
-      
+
       if (response.success && response.data) {
         // The API returns appointments in response.data.appointments structure
         const appointmentsData = (response.data as any).appointments || response.data.items || [];
@@ -226,12 +226,12 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => {
       const newData = { ...prev, [field]: value };
-      
+
       // Clear appointment selection when patient changes
       if (field === "patientId" && prev.patientId !== value) {
         newData.appointmentId = "";
       }
-      
+
       return newData;
     });
   };
@@ -289,11 +289,11 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
     const birthDate = new Date(dateOfBirth);
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
-    
+
     if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
       age--;
     }
-    
+
     return age;
   };
 
@@ -387,7 +387,7 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
       }
     } catch (error: any) {
       console.error("Error creating prescription:", error);
-      
+
       toast({
         title: t("Error"),
         description: parseApiError(error),
@@ -409,7 +409,7 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
         )}
       </DialogTrigger>
       <DialogContent className={cn("max-w-4xl max-h-[90vh] overflow-y-auto", isRTL && "text-right")} dir={isRTL ? 'rtl' : 'ltr'}>
-        <DialogHeader 
+        <DialogHeader
           dir={isRTL ? 'rtl' : 'ltr'}
           className={cn(isRTL && "text-right")}
         >
@@ -417,7 +417,7 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
             <Stethoscope className="h-5 w-5 text-blue-600" />
             {t("Create New Prescription")}
           </DialogTitle>
-          <DialogDescription 
+          <DialogDescription
             className={cn("block w-full", isRTL && "text-right")}
             dir={isRTL ? 'rtl' : 'ltr'}
             style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
@@ -548,51 +548,51 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
 
               <div className="space-y-2">
                 <Label htmlFor="appointmentId" className={cn(isRTL && "text-right")}>{t("Related Appointment (Optional)")}</Label>
-                                  <Select
-                    value={formData.appointmentId}
-                    onValueChange={(value) => handleChange("appointmentId", value)}
-                    disabled={!formData.patientId || appointmentsLoading}
-                  >
-                    <SelectTrigger className={cn(isRTL && "text-right")}>
-                      <SelectValue placeholder={
-                        !formData.patientId 
-                          ? t("Select a patient first")
-                          : appointmentsLoading 
-                            ? t("Loading appointments...")
-                            : t("Select an appointment (optional)")
-                      } />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {!formData.patientId ? (
-                        <SelectItem value="no-patient" disabled className={cn(isRTL && "text-right")}>
-                          {t("Please select a patient first")}
-                        </SelectItem>
-                      ) : appointmentsLoading ? (
-                        <SelectItem value="loading" disabled>
-                          <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                            {t("Loading appointments...")}
-                          </div>
-                        </SelectItem>
-                      ) : appointments.length === 0 ? (
-                        <SelectItem value="no-appointments" disabled className={cn(isRTL && "text-right")}>
-                          {t("No appointments found for this patient")}
-                        </SelectItem>
-                      ) : (
-                                            <>
+                <Select
+                  value={formData.appointmentId}
+                  onValueChange={(value) => handleChange("appointmentId", value)}
+                  disabled={!formData.patientId || appointmentsLoading}
+                >
+                  <SelectTrigger className={cn(isRTL && "text-right")}>
+                    <SelectValue placeholder={
+                      !formData.patientId
+                        ? t("Select a patient first")
+                        : appointmentsLoading
+                          ? t("Loading appointments...")
+                          : t("Select an appointment (optional)")
+                    } />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {!formData.patientId ? (
+                      <SelectItem value="no-patient" disabled className={cn(isRTL && "text-right")}>
+                        {t("Please select a patient first")}
+                      </SelectItem>
+                    ) : appointmentsLoading ? (
+                      <SelectItem value="loading" disabled>
+                        <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          {t("Loading appointments...")}
+                        </div>
+                      </SelectItem>
+                    ) : appointments.length === 0 ? (
+                      <SelectItem value="no-appointments" disabled className={cn(isRTL && "text-right")}>
+                        {t("No appointments found for this patient")}
+                      </SelectItem>
+                    ) : (
+                      <>
                         <SelectItem value="none" className={cn(isRTL && "text-right")}>
                           <span className="text-gray-500">{t("No appointment selected")}</span>
                         </SelectItem>
                         {appointments.map((appointment) => {
-                           // Handle both populated and unpopulated patient/doctor data
-                           const patient = typeof appointment.patient_id === 'object' 
-                             ? appointment.patient_id 
-                             : patients.find(p => p._id === appointment.patient_id);
-                           const doctor = typeof appointment.doctor_id === 'object' 
-                             ? appointment.doctor_id 
-                             : doctors.find(d => d._id === appointment.doctor_id);
-                           const appointmentDate = new Date(appointment.appointment_date);
-                          
+                          // Handle both populated and unpopulated patient/doctor data
+                          const patient = typeof appointment.patient_id === 'object'
+                            ? appointment.patient_id
+                            : patients.find(p => p._id === appointment.patient_id);
+                          const doctor = typeof appointment.doctor_id === 'object'
+                            ? appointment.doctor_id
+                            : doctors.find(d => d._id === appointment.doctor_id);
+                          const appointmentDate = new Date(appointment.appointment_date);
+
                           return (
                             <SelectItem key={appointment._id} value={appointment._id}>
                               <div className={cn("flex flex-col", isRTL && "text-right")}>
@@ -618,7 +618,7 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
           {/* Medications */}
           <Card>
             <CardHeader dir={isRTL ? "rtl" : "ltr"}>
-              <CardTitle 
+              <CardTitle
                 className={cn(
                   "text-lg flex items-center justify-between w-full",
                   isRTL && "flex-row-reverse"
@@ -842,14 +842,19 @@ const NewPrescriptionModal: React.FC<NewPrescriptionModalProps> = ({
 
               {/* Warning for drug interactions */}
               <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg" dir={isRTL ? 'rtl' : 'ltr'}>
-                <div className={cn("flex items-start gap-2", isRTL && "flex-row-reverse")}>
+                <div className="flex items-start gap-2">
                   <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" />
-                  <div className={cn("flex-1", isRTL && "text-right")}>
-                    <h4 className={cn("font-medium text-yellow-800", isRTL && "text-right")}>
-                      {t("Drug Interaction Check")}
+                  <div
+                    className={cn("flex-1", isRTL && "text-right")}
+                    style={{ textAlign: isRTL ? 'right' : 'left' }}
+                  >
+                    <h4 className="font-medium text-yellow-800">
+                      {isRTL ? "فحص التفاعلات الدوائية" : t("Drug Interaction Check")}
                     </h4>
-                    <p className={cn("text-sm text-yellow-700 mt-1", isRTL && "text-right")}>
-                      {t("Please verify drug interactions and patient allergies before finalizing this prescription.")}
+                    <p className="text-sm text-yellow-700 mt-1">
+                      {isRTL
+                        ? "يرجى التحقق من التفاعلات الدوائية وحساسية المريض قبل إنهاء هذه الوصفة."
+                        : t("Please verify drug interactions and patient allergies before finalizing this prescription.")}
                     </p>
                   </div>
                 </div>

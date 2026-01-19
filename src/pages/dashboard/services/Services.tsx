@@ -52,7 +52,7 @@ import { toast } from "@/hooks/use-toast";
 import { Service } from "@/types";
 import AddServiceModal from "@/components/modals/AddServiceModal";
 import ServiceDetailModal from "@/components/modals/ServiceDetailModal";
-import EditItemModal from "@/components/modals/EditItemModal";
+import EditServiceModal from "@/components/modals/EditServiceModal";
 import DeleteConfirmModal from "@/components/modals/DeleteConfirmModal";
 import AdvancedFiltersModal from "@/components/modals/AdvancedFiltersModal";
 import { useCurrency } from "@/contexts/CurrencyContext";
@@ -138,12 +138,12 @@ const Services = () => {
       setPagination(response.pagination);
     } catch (error) {
       console.error("Error fetching services:", error);
-      const errorMessage = error instanceof Error && error.message.includes('401') 
-        ? t("Access denied. Please check your clinic permissions.") 
+      const errorMessage = error instanceof Error && error.message.includes('401')
+        ? t("Access denied. Please check your clinic permissions.")
         : error instanceof Error && error.message.includes('403')
-        ? t("Insufficient permissions to view services for this clinic.")
-        : t("Failed to load services. Please try again.");
-      
+          ? t("Insufficient permissions to view services for this clinic.")
+          : t("Failed to load services. Please try again.");
+
       toast({
         title: t("Error"),
         description: errorMessage,
@@ -185,11 +185,11 @@ const Services = () => {
       // Reduced from 1000 to 100 for better performance - categories/departments are usually limited
       const response = await serviceApi.getServices({ limit: 100, page: 1 });
       const allServices = response.data;
-      
+
       // Extract unique categories and departments
       const categories = Array.from(new Set(allServices.map(s => s.category))).filter(Boolean);
       const departments = Array.from(new Set(allServices.map(s => s.department))).filter(Boolean);
-      
+
       setMasterCategories(categories);
       setMasterDepartments(departments);
     } catch (error) {
@@ -352,7 +352,7 @@ const Services = () => {
   ], [masterCategories]);
 
   const departments = useMemo(() => [
-    "all", 
+    "all",
     ...masterDepartments.sort()
   ], [masterDepartments]);
 
@@ -362,7 +362,7 @@ const Services = () => {
   // Calculate stats from API data
   const totalServices = stats?.totalServices || services.length;
   const activeServices = stats?.activeServices || services.filter((s) => s.isActive).length;
-  const totalRevenue = stats?.categoryStats?.reduce((sum, cat) => sum + cat.totalRevenue, 0) || 
+  const totalRevenue = stats?.categoryStats?.reduce((sum, cat) => sum + cat.totalRevenue, 0) ||
     services.filter((s) => s.isActive).reduce((sum, s) => sum + s.price, 0);
   const avgDuration = services.length > 0 ? Math.round(
     services.reduce((sum, s) => sum + s.duration, 0) / services.length,
@@ -450,7 +450,7 @@ const Services = () => {
             {isRefreshing ? t('Refreshing...') : t('Refresh')}
           </Button>
           {currentClinic ? (
-            <AddServiceModal 
+            <AddServiceModal
               onServiceCreated={(newService) => {
                 // Add the new service directly to the list without refreshing
                 if (newService) {
@@ -678,46 +678,182 @@ const Services = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
+                      {filteredServices.map((service) => {
+                        const statusBadge = getStatusBadge(service.isActive);
+
+                        return (
+                          <TableRow key={service.id}>
+                            <TableCell>
+                              <div>
+                                <div className="font-medium">{service.name}</div>
+                                <div className="text-sm text-gray-500">
+                                  {service.description}
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant="outline">{service.category}</Badge>
+                            </TableCell>
+                            <TableCell>{service.department}</TableCell>
+                            <TableCell>
+                              {formatDuration(service.duration)}
+                            </TableCell>
+                            <TableCell className="font-medium">
+                              {formatCurrency(service.price)}
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center space-x-2">
+                                <Users className="h-4 w-4 text-gray-400" />
+                                <span>{service.maxBookingsPerDay}</span>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge className={`text-xs ${statusBadge.color}`}>
+                                {statusBadge.label}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="outline" size="sm" className="h-8">
+                                    <MoreVertical className="h-4 w-4 mr-1" />
+                                    {t('Actions')}
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem
+                                    onClick={() => handleViewDetails(service)}
+                                  >
+                                    <Eye className="mr-2 h-4 w-4" />
+                                    {t('View Details')}
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() => handleEdit(service)}
+                                  >
+                                    <Edit className="mr-2 h-4 w-4" />
+                                    {t('Edit Service')}
+                                  </DropdownMenuItem>
+                                  {service.isActive ? (
+                                    <DropdownMenuItem
+                                      onClick={() =>
+                                        handleDeactivateService(service)
+                                      }
+                                    >
+                                      <Activity className="mr-2 h-4 w-4" />
+                                      {t('Deactivate')}
+                                    </DropdownMenuItem>
+                                  ) : (
+                                    <DropdownMenuItem
+                                      onClick={() => handleActivateService(service)}
+                                    >
+                                      <Activity className="mr-2 h-4 w-4" />
+                                      {t('Activate')}
+                                    </DropdownMenuItem>
+                                  )}
+                                  <DropdownMenuItem
+                                    onClick={() => handleDelete(service)}
+                                    className="text-red-600"
+                                  >
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    {t('Delete Service')}
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {/* Mobile Card View */}
+                <div className="md:hidden space-y-4">
                   {filteredServices.map((service) => {
                     const statusBadge = getStatusBadge(service.isActive);
 
                     return (
-                      <TableRow key={service.id}>
-                        <TableCell>
-                          <div>
-                            <div className="font-medium">{service.name}</div>
-                            <div className="text-sm text-gray-500">
+                      <div
+                        key={service.id}
+                        className="border rounded-lg p-4 space-y-3 bg-white shadow-sm"
+                      >
+                        {/* Header with Service and Status */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <div className="font-semibold text-lg">
+                              {service.name}
+                            </div>
+                            <div className="text-sm text-gray-500 mt-1">
                               {service.description}
                             </div>
                           </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{service.category}</Badge>
-                        </TableCell>
-                        <TableCell>{service.department}</TableCell>
-                        <TableCell>
-                          {formatDuration(service.duration)}
-                        </TableCell>
-                        <TableCell className="font-medium">
-                          {formatCurrency(service.price)}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center space-x-2">
-                            <Users className="h-4 w-4 text-gray-400" />
-                            <span>{service.maxBookingsPerDay}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge className={`text-xs ${statusBadge.color}`}>
+                          <Badge className={`text-xs ${statusBadge.color} ml-3`}>
                             {statusBadge.label}
                           </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
+                        </div>
+
+                        {/* Service Details Grid */}
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="space-y-1">
+                            <div className="text-xs text-gray-500 uppercase tracking-wide">
+                              {t('Category')}
+                            </div>
+                            <Badge variant="outline" className="text-xs">
+                              {service.category}
+                            </Badge>
+                          </div>
+                          <div className="space-y-1">
+                            <div className="text-xs text-gray-500 uppercase tracking-wide">
+                              {t('Department')}
+                            </div>
+                            <div className="text-sm">{service.department}</div>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="space-y-1">
+                            <div className="text-xs text-gray-500 uppercase tracking-wide">
+                              {t('Duration')}
+                            </div>
+                            <div className="text-sm font-medium">
+                              {formatDuration(service.duration)}
+                            </div>
+                          </div>
+                          <div className="space-y-1">
+                            <div className="text-xs text-gray-500 uppercase tracking-wide">
+                              {t('Price')}
+                            </div>
+                            <div className="text-sm font-medium">
+                              {formatCurrency(service.price)}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Capacity Info */}
+                        <div className="p-3 bg-gray-50 rounded-lg">
+                          <div className="flex items-center justify-between">
+                            <div className="text-sm">
+                              <span className="text-gray-500">
+                                {t('Max bookings per day:')}
+                              </span>
+                              <span className="ml-2 font-medium">
+                                {service.maxBookingsPerDay}
+                              </span>
+                            </div>
+                            <Users className="h-4 w-4 text-gray-400" />
+                          </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex items-center justify-between pt-2 border-t">
+                          <div className="text-xs text-gray-500">
+                            {t('Service ID:')}: #{service.id}
+                          </div>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="outline" size="sm" className="h-8">
+                              <Button variant="outline" size="sm">
                                 <MoreVertical className="h-4 w-4 mr-1" />
-                                {t('Actions')}
+                                Actions
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
@@ -725,29 +861,27 @@ const Services = () => {
                                 onClick={() => handleViewDetails(service)}
                               >
                                 <Eye className="mr-2 h-4 w-4" />
-                                {t('View Details')}
+                                View Details
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() => handleEdit(service)}
                               >
                                 <Edit className="mr-2 h-4 w-4" />
-                                {t('Edit Service')}
+                                Edit Service
                               </DropdownMenuItem>
                               {service.isActive ? (
                                 <DropdownMenuItem
-                                  onClick={() =>
-                                    handleDeactivateService(service)
-                                  }
+                                  onClick={() => handleDeactivateService(service)}
                                 >
                                   <Activity className="mr-2 h-4 w-4" />
-                                  {t('Deactivate')}
+                                  Deactivate
                                 </DropdownMenuItem>
                               ) : (
                                 <DropdownMenuItem
                                   onClick={() => handleActivateService(service)}
                                 >
                                   <Activity className="mr-2 h-4 w-4" />
-                                  {t('Activate')}
+                                  Activate
                                 </DropdownMenuItem>
                               )}
                               <DropdownMenuItem
@@ -755,149 +889,15 @@ const Services = () => {
                                 className="text-red-600"
                               >
                                 <Trash2 className="mr-2 h-4 w-4" />
-                                {t('Delete Service')}
+                                Delete Service
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
+                        </div>
+                      </div>
                     );
                   })}
-                </TableBody>
-              </Table>
-            </div>
-
-            {/* Mobile Card View */}
-            <div className="md:hidden space-y-4">
-              {filteredServices.map((service) => {
-                const statusBadge = getStatusBadge(service.isActive);
-
-                return (
-                  <div
-                    key={service.id}
-                    className="border rounded-lg p-4 space-y-3 bg-white shadow-sm"
-                  >
-                    {/* Header with Service and Status */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="font-semibold text-lg">
-                          {service.name}
-                        </div>
-                        <div className="text-sm text-gray-500 mt-1">
-                          {service.description}
-                        </div>
-                      </div>
-                      <Badge className={`text-xs ${statusBadge.color} ml-3`}>
-                        {statusBadge.label}
-                      </Badge>
-                    </div>
-
-                    {/* Service Details Grid */}
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="space-y-1">
-                        <div className="text-xs text-gray-500 uppercase tracking-wide">
-                          {t('Category')}
-                        </div>
-                        <Badge variant="outline" className="text-xs">
-                          {service.category}
-                        </Badge>
-                      </div>
-                      <div className="space-y-1">
-                        <div className="text-xs text-gray-500 uppercase tracking-wide">
-                          {t('Department')}
-                        </div>
-                        <div className="text-sm">{service.department}</div>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="space-y-1">
-                        <div className="text-xs text-gray-500 uppercase tracking-wide">
-                          {t('Duration')}
-                        </div>
-                        <div className="text-sm font-medium">
-                          {formatDuration(service.duration)}
-                        </div>
-                      </div>
-                      <div className="space-y-1">
-                        <div className="text-xs text-gray-500 uppercase tracking-wide">
-                          {t('Price')}
-                        </div>
-                        <div className="text-sm font-medium">
-                          {formatCurrency(service.price)}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Capacity Info */}
-                    <div className="p-3 bg-gray-50 rounded-lg">
-                      <div className="flex items-center justify-between">
-                        <div className="text-sm">
-                          <span className="text-gray-500">
-                            {t('Max bookings per day:')}
-                          </span>
-                          <span className="ml-2 font-medium">
-                            {service.maxBookingsPerDay}
-                          </span>
-                        </div>
-                        <Users className="h-4 w-4 text-gray-400" />
-                      </div>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex items-center justify-between pt-2 border-t">
-                      <div className="text-xs text-gray-500">
-                        {t('Service ID:')}: #{service.id}
-                      </div>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="outline" size="sm">
-                            <MoreVertical className="h-4 w-4 mr-1" />
-                            Actions
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={() => handleViewDetails(service)}
-                          >
-                            <Eye className="mr-2 h-4 w-4" />
-                            View Details
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => handleEdit(service)}
-                          >
-                            <Edit className="mr-2 h-4 w-4" />
-                            Edit Service
-                          </DropdownMenuItem>
-                          {service.isActive ? (
-                            <DropdownMenuItem
-                              onClick={() => handleDeactivateService(service)}
-                            >
-                              <Activity className="mr-2 h-4 w-4" />
-                              Deactivate
-                            </DropdownMenuItem>
-                          ) : (
-                            <DropdownMenuItem
-                              onClick={() => handleActivateService(service)}
-                            >
-                              <Activity className="mr-2 h-4 w-4" />
-                              Activate
-                            </DropdownMenuItem>
-                          )}
-                          <DropdownMenuItem
-                            onClick={() => handleDelete(service)}
-                            className="text-red-600"
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Delete Service
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+                </div>
               </>
             )}
           </CardContent>
@@ -913,86 +913,17 @@ const Services = () => {
         service={viewDetailsModal.item}
       />
 
-      <EditItemModal
+      <EditServiceModal
         open={editModal.open}
         onOpenChange={(open) => setEditModal({ open, item: editModal.item })}
-        title={t("Edit Service")}
-        data={editModal.item}
-        fields={[
-          { key: "name", label: t("Service Name"), type: "text", required: true },
-          {
-            key: "category",
-            label: t("Category"),
-            type: "select",
-            options: masterCategories,
-            required: true,
-          },
-          {
-            key: "department",
-            label: t("Department"),
-            type: "select",
-            options: masterDepartments,
-            required: true,
-          },
-          {
-            key: "description",
-            label: t("Description"),
-            type: "textarea",
-            required: true,
-          },
-          {
-            key: "duration",
-            label: t("Duration (minutes)"),
-            type: "number",
-            required: true,
-          },
-          { key: "price", label: t("Price"), type: "number", required: true },
-          {
-            key: "maxBookingsPerDay",
-            label: t("Max Bookings/Day"),
-            type: "number",
-            required: true,
-          },
-          { key: "prerequisites", label: t("Prerequisites"), type: "text" },
-          {
-            key: "specialInstructions",
-            label: t("Special Instructions"),
-            type: "textarea",
-          },
-          {
-            key: "followUpRequired",
-            label: t("Follow-up Required"),
-            type: "switch",
-          },
-          { key: "isActive", label: t("Active"), type: "switch" },
-        ]}
-        onSave={async (data) => {
-          try {
-            const updatedService = await serviceApi.updateService(editModal.item!.id, data);
-            toast({
-              title: t("Service Updated"),
-              description: `${data.name} ${t('has been updated successfully.')}`,
-            });
-            setEditModal({ open: false, item: null });
-            
-            // Update the service directly in the list without refreshing
-            setServices((prevServices) => 
-              prevServices.map((service) => 
-                service.id === editModal.item!.id 
-                  ? { ...service, ...updatedService, ...data }
-                  : service
-              )
-            );
-            
-            // Refresh stats
-            fetchStats();
-          } catch (error) {
-            toast({
-              title: t("Error"),
-              description: t("Failed to update service. Please try again."),
-              variant: "destructive",
-            });
-          }
+        service={editModal.item}
+        onServiceUpdated={(updatedService) => {
+          setServices((prevServices) =>
+            prevServices.map((service) =>
+              service.id === updatedService.id ? updatedService : service
+            )
+          );
+          fetchStats();
         }}
       />
 

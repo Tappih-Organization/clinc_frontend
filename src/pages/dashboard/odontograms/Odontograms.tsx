@@ -64,7 +64,8 @@ import OdontogramHistoryModal from "@/components/modals/OdontogramHistoryModal";
 
 const Odontograms = () => {
   const { t } = useTranslation();
-  const isRTL = useIsRTL();
+  // Force LTR for Odontograms page as requested by user
+  const isRTL = false;
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPatient, setSelectedPatient] = useState("all");
   const [selectedDoctor, setSelectedDoctor] = useState("all");
@@ -72,7 +73,7 @@ const Odontograms = () => {
   const [sortOrder, setSortOrder] = useState("newest");
   const [currentPage, setCurrentPage] = useState(1);
   const [activeOnly, setActiveOnly] = useState(false);
-  
+
   // Data states
   const [rawOdontograms, setRawOdontograms] = useState<Odontogram[]>([]);
   const [loading, setLoading] = useState(true);
@@ -83,7 +84,7 @@ const Odontograms = () => {
     total_items: 0,
     items_per_page: 10
   });
-  
+
   // Modal states
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [historyModalOpen, setHistoryModalOpen] = useState(false);
@@ -97,7 +98,7 @@ const Odontograms = () => {
     return [...rawOdontograms].sort((a, b) => {
       const dateA = new Date(a.examination_date).getTime();
       const dateB = new Date(b.examination_date).getTime();
-      
+
       if (sortOrder === "newest") {
         return dateB - dateA; // Newest first (descending)
       } else {
@@ -131,7 +132,7 @@ const Odontograms = () => {
       if (selectedDateRange !== "all") {
         const now = new Date();
         const startDate = new Date();
-        
+
         switch (selectedDateRange) {
           case "today":
             startDate.setHours(0, 0, 0, 0);
@@ -147,7 +148,7 @@ const Odontograms = () => {
             startDate.setMonth(now.getMonth() - 3);
             break;
         }
-        
+
         params.start_date = startDate.toISOString();
         params.end_date = now.toISOString();
       }
@@ -182,7 +183,7 @@ const Odontograms = () => {
     try {
       setLoading(true);
       const result = await odontogramApi.recalculateTreatmentSummaries();
-      
+
       toast({
         title: t("Success"),
         description: result.message,
@@ -290,11 +291,11 @@ const Odontograms = () => {
     const birthDate = new Date(dateOfBirth);
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
-    
+
     if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
       age--;
     }
-    
+
     return age;
   };
 
@@ -309,7 +310,7 @@ const Odontograms = () => {
           </p>
         </div>
         <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:gap-2">
-          <Button 
+          <Button
             variant="outline"
             size="sm"
             onClick={handleRecalculateStats}
@@ -339,8 +340,8 @@ const Odontograms = () => {
               </>
             )}
           </Button>
-          
-          <Button 
+
+          <Button
             className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto flex items-center gap-2"
             onClick={() => setNewOdontogramModalOpen(true)}
           >
@@ -514,180 +515,181 @@ const Odontograms = () => {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className={cn("min-w-[200px] w-[200px]", isRTL && "text-right")}>{t("Patient")}</TableHead>
-                        <TableHead className={cn("min-w-[180px]", isRTL && "text-right")}>{t("Doctor")}</TableHead>
-                        <TableHead className={cn("min-w-[180px]", isRTL && "text-right")}>{t("Examination Date / Time")}</TableHead>
-                        <TableHead className={cn("min-w-[100px]", isRTL ? "text-right" : "text-center")}>{t("Version")}</TableHead>
-                        <TableHead className={cn("min-w-[100px]", isRTL ? "text-right" : "text-center")}>{t("Status")}</TableHead>
-                        <TableHead className={cn("min-w-[150px]", isRTL ? "text-right" : "text-left")}>{t("Progress")}</TableHead>
-                        <TableHead className={cn("min-w-[120px]", isRTL ? "text-right" : "text-left")}>{t("Treatments")}</TableHead>
                         <TableHead className={cn("min-w-[150px]", isRTL ? "text-left" : "text-right")}>{t("Actions")}</TableHead>
+                        <TableHead className={cn("min-w-[120px]", isRTL ? "text-right" : "text-left")}>{t("Treatments")}</TableHead>
+                        <TableHead className={cn("min-w-[150px]", isRTL ? "text-right" : "text-left")}>{t("Progress")}</TableHead>
+                        <TableHead className={cn("min-w-[100px]", isRTL ? "text-right" : "text-center")}>{t("Status")}</TableHead>
+                        <TableHead className={cn("min-w-[100px]", isRTL ? "text-right" : "text-center")}>{t("Version")}</TableHead>
+                        <TableHead className={cn("min-w-[180px]", isRTL && "text-right")}>{t("Examination Date / Time")}</TableHead>
+                        <TableHead className={cn("min-w-[180px]", isRTL && "text-right")}>{t("Doctor")}</TableHead>
+                        <TableHead className={cn("min-w-[200px] w-[200px]", isRTL && "text-right")}>{t("Patient")}</TableHead>
+
                       </TableRow>
                     </TableHeader>
-                  <TableBody>
-                    {odontograms.map((odontogram) => (
-                      <TableRow key={odontogram._id}>
-                        <TableCell className={cn("min-w-[200px] w-[200px]", isRTL && "text-right")}>
-                          <div className={cn("flex items-center patient-cell", isRTL ? "flex-row-reverse justify-end gap-2" : "gap-3")}>
-                            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                              <User className="h-4 w-4 text-blue-600" />
-                            </div>
-                            <div className={cn("flex flex-col", isRTL ? "text-right items-end" : "items-start")}>
-                              <div className="font-medium">{getPatientFullName(odontogram.patient_id)}</div>
-                              <div className="text-sm text-gray-500">
-                                {t("Age:")}: {calculateAge(odontogram.patient_id?.date_of_birth)}
-                              </div>
-                            </div>
-                          </div>
-                        </TableCell>
+                    <TableBody>
+                      {odontograms.map((odontogram) => (
+                        <TableRow key={odontogram._id}>
+                          <TableCell className={cn(isRTL ? "text-left" : "text-right")}>
+                            <div className={cn("flex items-center gap-1", isRTL ? "justify-start" : "justify-end")}>
+                              {/* Primary Action Buttons */}
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleViewDetails(odontogram._id)}
+                                className="h-8 px-2 text-xs flex items-center gap-1"
+                                title="View Chart"
+                              >
+                                {isRTL ? (
+                                  <>
+                                    {t("View")}
+                                    <Eye className="h-3 w-3" />
+                                  </>
+                                ) : (
+                                  <>
+                                    <Eye className="h-3 w-3" />
+                                    {t("View")}
+                                  </>
+                                )}
+                              </Button>
 
-                        <TableCell className={cn(isRTL && "text-right")}>
-                          <div className={cn(isRTL && "text-right")}>
-                            <div className="font-medium">
-                              Dr. {odontogram.doctor_id.first_name} {odontogram.doctor_id.last_name}
-                            </div>
-                            {odontogram.doctor_id.specialization && (
-                              <div className="text-sm text-gray-500">
-                                {odontogram.doctor_id.specialization}
-                              </div>
-                            )}
-                          </div>
-                        </TableCell>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => odontogram.patient_id?._id && handleViewHistory(odontogram.patient_id._id)}
+                                disabled={!odontogram.patient_id}
+                                className="h-8 px-2 text-xs flex items-center gap-1"
+                                title={odontogram.patient_id ? "View History" : "No patient data"}
+                              >
+                                {isRTL ? (
+                                  <>
+                                    {t("History")}
+                                    <History className="h-3 w-3" />
+                                  </>
+                                ) : (
+                                  <>
+                                    <History className="h-3 w-3" />
+                                    {t("History")}
+                                  </>
+                                )}
+                              </Button>
 
-                        <TableCell className={cn(isRTL && "text-right")}>
-                          <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
-                            <Calendar className="h-4 w-4 text-gray-400" />
-                            {formatDateTime(odontogram.examination_date)}
-                          </div>
-                        </TableCell>
-
-                        <TableCell className={cn(isRTL ? "text-right" : "text-center")}>
-                          <Badge variant="outline" className={cn(isRTL && "justify-end")}>
-                            v{odontogram.version}
-                          </Badge>
-                        </TableCell>
-
-                        <TableCell className={cn(isRTL ? "text-right" : "text-center")}>
-                          <Badge variant={getStatusBadgeVariant(odontogram)} className={cn(isRTL && "justify-end")}>
-                            {odontogram.is_active ? t("Active") : t("Inactive")}
-                          </Badge>
-                        </TableCell>
-
-                        <TableCell className={cn(isRTL ? "text-right" : "text-left")}>
-                          <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse justify-end")}>
-                            <div className={`text-sm font-medium ${getProgressColor(odontogram.treatment_progress || 0)}`}>
-                              {odontogram.treatment_progress || 0}%
-                            </div>
-                            <div className="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
-                              <div 
-                                className="h-full bg-blue-600 transition-all"
-                                style={{ width: `${odontogram.treatment_progress || 0}%` }}
-                              />
-                            </div>
-                          </div>
-                        </TableCell>
-
-                        <TableCell className={cn(isRTL ? "text-right" : "text-left")}>
-                          <div className={cn("text-sm", isRTL && "text-right")}>
-                            <div>{odontogram.treatment_summary?.completed_treatments || 0} / {odontogram.treatment_summary?.total_planned_treatments || 0}</div>
-                            <div className="text-gray-500">{t("treatments")}</div>
-                          </div>
-                        </TableCell>
-
-                        <TableCell className={cn(isRTL ? "text-left" : "text-right")}>
-                          <div className={cn("flex items-center gap-1", isRTL ? "justify-start" : "justify-end")}>
-                            {/* Primary Action Buttons */}
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={() => handleViewDetails(odontogram._id)}
-                              className="h-8 px-2 text-xs flex items-center gap-1"
-                              title="View Chart"
-                            >
-                              {isRTL ? (
-                                <>
-                                  {t("View")}
-                                  <Eye className="h-3 w-3" />
-                                </>
-                              ) : (
-                                <>
-                                  <Eye className="h-3 w-3" />
-                                  {t("View")}
-                                </>
-                              )}
-                            </Button>
-                            
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={() => odontogram.patient_id?._id && handleViewHistory(odontogram.patient_id._id)}
-                              disabled={!odontogram.patient_id}
-                              className="h-8 px-2 text-xs flex items-center gap-1"
-                              title={odontogram.patient_id ? "View History" : "No patient data"}
-                            >
-                              {isRTL ? (
-                                <>
-                                  {t("History")}
-                                  <History className="h-3 w-3" />
-                                </>
-                              ) : (
-                                <>
-                                  <History className="h-3 w-3" />
-                                  {t("History")}
-                                </>
-                              )}
-                            </Button>
-
-                            {/* More Actions Dropdown */}
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button 
-                                  variant="outline" 
-                                  size="sm"
-                                  className="h-8 w-8 p-0 border-gray-300 hover:bg-gray-50"
-                                  title="More actions"
-                                >
-                                  <MoreVertical className="h-4 w-4" />
-                                  <span className="sr-only">More actions</span>
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end" className="w-48">
-                                <DropdownMenuItem onClick={() => handleViewDetails(odontogram._id)} className="flex items-center gap-2">
-                                  {isRTL ? (
-                                    <>
-                                      {t("Edit Chart")}
-                                      <Edit className="h-4 w-4" />
-                                    </>
-                                  ) : (
-                                    <>
-                                      <Edit className="h-4 w-4" />
-                                      {t("Edit Chart")}
-                                    </>
-                                  )}
-                                </DropdownMenuItem>
-                                {!odontogram.is_active && (
-                                  <DropdownMenuItem onClick={() => handleSetActive(odontogram._id)} className="flex items-center gap-2">
+                              {/* More Actions Dropdown */}
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-8 w-8 p-0 border-gray-300 hover:bg-gray-50"
+                                    title="More actions"
+                                  >
+                                    <MoreVertical className="h-4 w-4" />
+                                    <span className="sr-only">More actions</span>
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-48">
+                                  <DropdownMenuItem onClick={() => handleViewDetails(odontogram._id)} className="flex items-center gap-2">
                                     {isRTL ? (
                                       <>
-                                        {t("Set as Active")}
-                                        <CheckCircle className="h-4 w-4" />
+                                        {t("Edit Chart")}
+                                        <Edit className="h-4 w-4" />
                                       </>
                                     ) : (
                                       <>
-                                        <CheckCircle className="h-4 w-4" />
-                                        {t("Set as Active")}
+                                        <Edit className="h-4 w-4" />
+                                        {t("Edit Chart")}
                                       </>
                                     )}
                                   </DropdownMenuItem>
-                                )}
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                                  {!odontogram.is_active && (
+                                    <DropdownMenuItem onClick={() => handleSetActive(odontogram._id)} className="flex items-center gap-2">
+                                      {isRTL ? (
+                                        <>
+                                          {t("Set as Active")}
+                                          <CheckCircle className="h-4 w-4" />
+                                        </>
+                                      ) : (
+                                        <>
+                                          <CheckCircle className="h-4 w-4" />
+                                          {t("Set as Active")}
+                                        </>
+                                      )}
+                                    </DropdownMenuItem>
+                                  )}
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
+                          </TableCell>
+
+                          <TableCell className={cn(isRTL ? "text-right" : "text-left")}>
+                            <div className={cn("text-sm", isRTL && "text-right")}>
+                              <div>{odontogram.treatment_summary?.completed_treatments || 0} / {odontogram.treatment_summary?.total_planned_treatments || 0}</div>
+                              <div className="text-gray-500">{t("treatments")}</div>
+                            </div>
+                          </TableCell>
+
+                          <TableCell className={cn(isRTL ? "text-right" : "text-left")}>
+                            <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse justify-end")}>
+                              <div className={`text-sm font-medium ${getProgressColor(odontogram.treatment_progress || 0)}`}>
+                                {odontogram.treatment_progress || 0}%
+                              </div>
+                              <div className="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-blue-600 transition-all"
+                                  style={{ width: `${odontogram.treatment_progress || 0}%` }}
+                                />
+                              </div>
+                            </div>
+                          </TableCell>
+
+                          <TableCell className={cn(isRTL ? "text-right" : "text-center")}>
+                            <Badge variant={getStatusBadgeVariant(odontogram)} className={cn(isRTL && "justify-end")}>
+                              {odontogram.is_active ? t("Active") : t("Inactive")}
+                            </Badge>
+                          </TableCell>
+
+                          <TableCell className={cn(isRTL ? "text-right" : "text-center")}>
+                            <Badge variant="outline" className={cn(isRTL && "justify-end")}>
+                              v{odontogram.version}
+                            </Badge>
+                          </TableCell>
+
+                          <TableCell className={cn(isRTL && "text-right")}>
+                            <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
+                              <Calendar className="h-4 w-4 text-gray-400" />
+                              {formatDateTime(odontogram.examination_date)}
+                            </div>
+                          </TableCell>
+
+                          <TableCell className={cn(isRTL && "text-right")}>
+                            <div className={cn(isRTL && "text-right")}>
+                              <div className="font-medium">
+                                Dr. {odontogram.doctor_id.first_name} {odontogram.doctor_id.last_name}
+                              </div>
+                              {odontogram.doctor_id.specialization && (
+                                <div className="text-sm text-gray-500">
+                                  {odontogram.doctor_id.specialization}
+                                </div>
+                              )}
+                            </div>
+                          </TableCell>
+
+                          <TableCell className={cn("min-w-[200px] w-[200px]", isRTL && "text-right")}>
+                            <div className={cn("flex items-center patient-cell", isRTL ? "flex-row-reverse justify-end gap-2" : "gap-3")}>
+                              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                <User className="h-4 w-4 text-blue-600" />
+                              </div>
+                              <div className={cn("flex flex-col", isRTL ? "text-right items-end" : "items-start")}>
+                                <div className="font-medium">{getPatientFullName(odontogram.patient_id)}</div>
+                                <div className="text-sm text-gray-500">
+                                  {t("Age:")}: {calculateAge(odontogram.patient_id?.date_of_birth)}
+                                </div>
+                              </div>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 </div>
               </div>
 
@@ -751,7 +753,7 @@ const Odontograms = () => {
                         </span>
                       </div>
                       <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                        <div 
+                        <div
                           className="h-full bg-blue-600 transition-all duration-300"
                           style={{ width: `${odontogram.treatment_progress || 0}%` }}
                         />
@@ -764,8 +766,8 @@ const Odontograms = () => {
                     {/* Action Buttons */}
                     <div className="flex flex-col space-y-2 pt-2 border-t">
                       <div className="flex gap-2">
-                        <Button 
-                          variant="outline" 
+                        <Button
+                          variant="outline"
                           size="sm"
                           onClick={() => handleViewDetails(odontogram._id)}
                           className="flex-1 flex items-center gap-2"
@@ -782,9 +784,9 @@ const Odontograms = () => {
                             </>
                           )}
                         </Button>
-                        
-                        <Button 
-                          variant="outline" 
+
+                        <Button
+                          variant="outline"
                           size="sm"
                           onClick={() => odontogram.patient_id?._id && handleViewHistory(odontogram.patient_id._id)}
                           disabled={!odontogram.patient_id}
@@ -807,8 +809,8 @@ const Odontograms = () => {
                       {/* Additional Actions */}
                       <div className="flex gap-2">
                         {!odontogram.is_active && (
-                          <Button 
-                            variant="outline" 
+                          <Button
+                            variant="outline"
                             size="sm"
                             onClick={() => handleSetActive(odontogram._id)}
                             className="flex-1 flex items-center gap-2"
@@ -826,11 +828,11 @@ const Odontograms = () => {
                             )}
                           </Button>
                         )}
-                        
+
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button 
-                              variant="outline" 
+                            <Button
+                              variant="outline"
                               size="sm"
                               className="px-3"
                             >
@@ -863,7 +865,7 @@ const Odontograms = () => {
               {odontograms.length === 0 && (
                 <div className="text-center py-8">
                   <div className="text-muted-foreground">{t("No dental records found")}</div>
-                  <Button 
+                  <Button
                     className="mt-4 flex items-center gap-2"
                     onClick={() => setNewOdontogramModalOpen(true)}
                   >
@@ -886,8 +888,8 @@ const Odontograms = () => {
               {pagination.total_pages > 1 && (
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t">
                   <div className="text-sm text-muted-foreground order-2 sm:order-1">
-                    {t("Showing")} {((currentPage - 1) * pagination.items_per_page) + 1} {t("to")} 
-                    {Math.min(currentPage * pagination.items_per_page, pagination.total_items)} {t("of")} 
+                    {t("Showing")} {((currentPage - 1) * pagination.items_per_page) + 1} {t("to")}
+                    {Math.min(currentPage * pagination.items_per_page, pagination.total_items)} {t("of")}
                     {pagination.total_items} {t("results")}
                   </div>
                   <div className="flex gap-2 order-1 sm:order-2">
@@ -927,13 +929,13 @@ const Odontograms = () => {
         }}
       />
 
-      <OdontogramDetailModal 
+      <OdontogramDetailModal
         open={detailModalOpen}
         onOpenChange={setDetailModalOpen}
         odontogramId={selectedOdontogramId}
         editable={true}
       />
-      
+
       <OdontogramHistoryModal
         open={historyModalOpen}
         onOpenChange={setHistoryModalOpen}

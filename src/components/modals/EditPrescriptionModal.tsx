@@ -56,7 +56,7 @@ const EditPrescriptionModal: React.FC<EditPrescriptionModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [prescription, setPrescription] = useState<Prescription | null>(null);
   const [error, setError] = useState<string | null>(null);
-  
+
   const [formData, setFormData] = useState<{
     diagnosis: string;
     notes: string;
@@ -85,32 +85,32 @@ const EditPrescriptionModal: React.FC<EditPrescriptionModalProps> = ({
   ];
 
   const frequencies = [
-    "Once daily",
-    "Twice daily",
-    "Three times daily",
-    "Four times daily",
-    "Every 4 hours",
-    "Every 6 hours",
-    "Every 8 hours",
-    "Every 12 hours",
-    "As needed",
-    "Before meals",
-    "After meals",
-    "At bedtime",
+    t("Once daily"),
+    t("Twice daily"),
+    t("Three times daily"),
+    t("Four times daily"),
+    t("Every 4 hours"),
+    t("Every 6 hours"),
+    t("Every 8 hours"),
+    t("Every 12 hours"),
+    t("As needed"),
+    t("Before meals"),
+    t("After meals"),
+    t("At bedtime"),
   ];
 
   const durations = [
-    "3 days",
-    "5 days",
-    "7 days",
-    "10 days",
-    "14 days",
-    "21 days",
-    "30 days",
-    "60 days",
-    "90 days",
-    "Until finished",
-    "As needed",
+    t("3 days"),
+    t("5 days"),
+    t("7 days"),
+    t("10 days"),
+    t("14 days"),
+    t("21 days"),
+    t("30 days"),
+    t("60 days"),
+    t("90 days"),
+    t("Until finished"),
+    t("As needed"),
   ];
 
   useEffect(() => {
@@ -127,13 +127,13 @@ const EditPrescriptionModal: React.FC<EditPrescriptionModalProps> = ({
       setError(null);
       const prescriptionData = await apiService.getPrescription(prescriptionId);
       setPrescription(prescriptionData);
-      
+
       // Populate form data
       setFormData({
         diagnosis: prescriptionData.diagnosis || "",
         notes: prescriptionData.notes || "",
-        followUpDate: prescriptionData.follow_up_date 
-          ? new Date(prescriptionData.follow_up_date).toISOString().split('T')[0] 
+        followUpDate: prescriptionData.follow_up_date
+          ? new Date(prescriptionData.follow_up_date).toISOString().split('T')[0]
           : "",
         status: (prescriptionData.status || "pending") as "pending" | "active" | "completed" | "cancelled" | "expired",
       });
@@ -147,10 +147,10 @@ const EditPrescriptionModal: React.FC<EditPrescriptionModalProps> = ({
 
     } catch (err: any) {
       console.error("Error fetching prescription details:", err);
-      setError(err.message || "Failed to fetch prescription details");
+      setError(err.message || t("Failed to fetch prescription details"));
       toast({
-        title: "Error",
-        description: "Failed to fetch prescription details. Please try again.",
+        title: t("Error"),
+        description: t("Failed to fetch prescription details. Please try again."),
         variant: "destructive",
       });
     } finally {
@@ -178,11 +178,11 @@ const EditPrescriptionModal: React.FC<EditPrescriptionModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!prescription) {
       toast({
-        title: "Error",
-        description: "Prescription data not loaded",
+        title: t("Error"),
+        description: t("Prescription data not loaded"),
         variant: "destructive",
       });
       return;
@@ -193,7 +193,7 @@ const EditPrescriptionModal: React.FC<EditPrescriptionModalProps> = ({
     try {
       // Validate required fields
       if (!formData.diagnosis) {
-        throw new Error("Please fill in the diagnosis");
+        throw new Error(t("Please fill in the diagnosis"));
       }
 
       // Validate medications
@@ -201,7 +201,7 @@ const EditPrescriptionModal: React.FC<EditPrescriptionModalProps> = ({
         (med) => med.name && med.dosage && med.frequency && med.duration,
       );
       if (validMedications.length === 0) {
-        throw new Error("Please add at least one complete medication");
+        throw new Error(t("Please add at least one complete medication"));
       }
 
       // Prepare prescription data for API
@@ -224,13 +224,16 @@ const EditPrescriptionModal: React.FC<EditPrescriptionModalProps> = ({
 
       // Update prescription via API
       const updatedPrescription = await apiService.updatePrescription(
-        prescription._id, 
+        prescription._id,
         prescriptionData
       );
 
       toast({
-        title: "Prescription updated successfully",
-        description: `Prescription ${updatedPrescription.prescription_id} has been updated with ${validMedications.length} medication(s).`,
+        title: t("Prescription updated successfully"),
+        description: t("Prescription {{id}} has been updated with {{count}} medication(s).", {
+          id: updatedPrescription.prescription_id,
+          count: validMedications.length
+        }),
       });
 
       // Close modal and call success callback
@@ -240,10 +243,10 @@ const EditPrescriptionModal: React.FC<EditPrescriptionModalProps> = ({
       }
     } catch (error: any) {
       console.error("Error updating prescription:", error);
-      
+
       // Handle validation errors from backend
-      let errorMessage = "Failed to update prescription. Please try again.";
-      
+      let errorMessage = t("Failed to update prescription. Please try again.");
+
       if (error.response?.data?.errors) {
         // Handle express-validator errors
         const validationErrors = error.response.data.errors;
@@ -257,7 +260,7 @@ const EditPrescriptionModal: React.FC<EditPrescriptionModalProps> = ({
       }
 
       toast({
-        title: "Error",
+        title: t("Error"),
         description: errorMessage,
         variant: "destructive",
       });
@@ -269,10 +272,13 @@ const EditPrescriptionModal: React.FC<EditPrescriptionModalProps> = ({
   if (loading) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-4xl max-h-[90vh]">
-          <div className="flex items-center justify-center h-64">
+        <DialogContent
+          className={cn("max-w-4xl max-h-[90vh]", isRTL && "rtl")}
+          dir={isRTL ? "rtl" : "ltr"}
+        >
+          <div className={cn("flex items-center justify-center h-64", isRTL && "flex-row-reverse")}>
             <Loader2 className="h-8 w-8 animate-spin" />
-            <span className="ml-2">Loading prescription...</span>
+            <span className={cn(isRTL ? "mr-2" : "ml-2")}>{t("Loading prescription...")}</span>
           </div>
         </DialogContent>
       </Dialog>
@@ -282,17 +288,20 @@ const EditPrescriptionModal: React.FC<EditPrescriptionModalProps> = ({
   if (error || !prescription) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-4xl max-h-[90vh]">
+        <DialogContent
+          className={cn("max-w-4xl max-h-[90vh]", isRTL && "rtl")}
+          dir={isRTL ? "rtl" : "ltr"}
+        >
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
               <AlertTriangle className="h-8 w-8 text-red-500 mx-auto mb-2" />
-              <p className="text-red-600">{error || "Prescription not found"}</p>
-              <Button 
-                onClick={fetchPrescriptionDetails} 
+              <p className="text-red-600">{error || t("Prescription not found")}</p>
+              <Button
+                onClick={fetchPrescriptionDetails}
                 className="mt-2"
                 disabled={!prescriptionId}
               >
-                Try Again
+                {t("Try Again")}
               </Button>
             </div>
           </div>
@@ -303,42 +312,60 @@ const EditPrescriptionModal: React.FC<EditPrescriptionModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center text-xl">
-            <Stethoscope className="h-5 w-5 mr-2 text-blue-600" />
-            Edit Prescription {prescription.prescription_id}
+      <DialogContent
+        className={cn("max-w-4xl max-h-[90vh] overflow-y-auto", isRTL && "rtl")}
+        dir={isRTL ? "rtl" : "ltr"}
+      >
+        <DialogHeader dir={isRTL ? "rtl" : "ltr"}>
+          <DialogTitle
+            className={cn("flex items-center text-xl", isRTL && "flex-row-reverse")}
+            dir={isRTL ? "rtl" : "ltr"}
+            style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+          >
+            <Stethoscope className={cn("h-5 w-5 text-blue-600", isRTL ? "ml-2" : "mr-2")} />
+            {t("Edit Prescription")} {prescription.prescription_id}
           </DialogTitle>
-          <DialogDescription>
-            Update prescription details, medications, and instructions.
+          <DialogDescription
+            dir={isRTL ? "rtl" : "ltr"}
+            style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+          >
+            {isRTL
+              ? "تحديث تفاصيل الوصفة والأدوية والتعليمات."
+              : t("Update prescription details, medications, and instructions.")}
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6" dir={isRTL ? "rtl" : "ltr"}>
           {/* Patient and Doctor Information (Read-only) */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Patient & Doctor Information</CardTitle>
+          <Card dir={isRTL ? "rtl" : "ltr"}>
+            <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+              <CardTitle
+                className="text-lg"
+                dir={isRTL ? "rtl" : "ltr"}
+                style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+              >
+                {t("Patient & Doctor Information")}
+              </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent dir={isRTL ? "rtl" : "ltr"}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-sm font-medium text-gray-500">Patient</Label>
+                <div dir={isRTL ? "rtl" : "ltr"} style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}>
+                  <Label className="text-sm font-medium text-gray-500">{t("Patient")}</Label>
                   <p className="text-lg font-semibold">
-                    {prescription.patient_id 
+                    {prescription.patient_id
                       ? `${prescription.patient_id.first_name} ${prescription.patient_id.last_name}`
-                      : 'Unknown Patient'}
+                      : t('Unknown Patient')}
                   </p>
                   <p className="text-sm text-gray-600">
-                    {prescription.patient_id 
-                      ? `${prescription.patient_id.gender} • ${new Date().getFullYear() - new Date(prescription.patient_id.date_of_birth).getFullYear()} years old`
-                      : 'N/A'}
+                    {prescription.patient_id
+                      ? `${t(prescription.patient_id.gender)} • ${new Date().getFullYear() - new Date(prescription.patient_id.date_of_birth).getFullYear()} ${t("years old")}`
+                      : t('N/A')}
                   </p>
                 </div>
-                <div>
-                  <Label className="text-sm font-medium text-gray-500">Doctor</Label>
+                <div dir={isRTL ? "rtl" : "ltr"} style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}>
+                  <Label className="text-sm font-medium text-gray-500">{t("Doctor")}</Label>
                   <p className="text-lg font-semibold">
-                    Dr. {prescription.doctor_id.first_name} {prescription.doctor_id.last_name}
+                    {t("Dr.")} {prescription.doctor_id.first_name} {prescription.doctor_id.last_name}
                   </p>
                   {prescription.doctor_id.specialization && (
                     <p className="text-sm text-gray-600">{prescription.doctor_id.specialization}</p>
@@ -349,38 +376,47 @@ const EditPrescriptionModal: React.FC<EditPrescriptionModalProps> = ({
           </Card>
 
           {/* Prescription Details */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Prescription Details</CardTitle>
+          <Card dir={isRTL ? "rtl" : "ltr"}>
+            <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+              <CardTitle
+                className="text-lg"
+                dir={isRTL ? "rtl" : "ltr"}
+                style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+              >
+                {t("Prescription Details")}
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4" dir={isRTL ? "rtl" : "ltr"}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="diagnosis">Diagnosis *</Label>
+                <div className="space-y-2" dir={isRTL ? "rtl" : "ltr"} style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}>
+                  <Label htmlFor="diagnosis">{t("Diagnosis")} *</Label>
                   <Input
                     id="diagnosis"
                     value={formData.diagnosis}
                     onChange={(e) => handleChange("diagnosis", e.target.value)}
-                    placeholder="Primary diagnosis"
+                    placeholder={t("Primary diagnosis")}
                     required
+                    dir={isRTL ? "rtl" : "ltr"}
+                    style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="status">Status</Label>
+                <div className="space-y-2" dir={isRTL ? "rtl" : "ltr"} style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}>
+                  <Label htmlFor="status">{t("Status")}</Label>
                   <Select
                     value={formData.status}
                     onValueChange={(value) => handleChange("status", value)}
+                    dir={isRTL ? "rtl" : "ltr"}
                   >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select status" />
+                    <SelectTrigger dir={isRTL ? "rtl" : "ltr"}>
+                      <SelectValue placeholder={t("Select status")} />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="completed">Completed</SelectItem>
-                      <SelectItem value="cancelled">Cancelled</SelectItem>
-                      <SelectItem value="expired">Expired</SelectItem>
+                    <SelectContent dir={isRTL ? "rtl" : "ltr"}>
+                      <SelectItem value="pending">{t("Pending")}</SelectItem>
+                      <SelectItem value="active">{t("Active")}</SelectItem>
+                      <SelectItem value="completed">{t("Completed")}</SelectItem>
+                      <SelectItem value="cancelled">{t("Cancelled")}</SelectItem>
+                      <SelectItem value="expired">{t("Expired")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -411,47 +447,56 @@ const EditPrescriptionModal: React.FC<EditPrescriptionModalProps> = ({
           />
 
           {/* Additional Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center">
-                <Calendar className="h-4 w-4 mr-2" />
-                Additional Information
+          <Card dir={isRTL ? "rtl" : "ltr"}>
+            <CardHeader dir={isRTL ? "rtl" : "ltr"}>
+              <CardTitle
+                className={cn("text-lg flex items-center", isRTL && "flex-row-reverse")}
+                dir={isRTL ? "rtl" : "ltr"}
+                style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
+              >
+                <Calendar className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
+                {t("Additional Information")}
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="followUpDate">Follow-up Date</Label>
+            <CardContent className="space-y-4" dir={isRTL ? "rtl" : "ltr"}>
+              <div className="space-y-2" dir={isRTL ? "rtl" : "ltr"} style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}>
+                <Label htmlFor="followUpDate">{t("Follow-up Date")}</Label>
                 <Input
                   id="followUpDate"
                   type="date"
                   value={formData.followUpDate}
                   onChange={(e) => handleChange("followUpDate", e.target.value)}
                   min={new Date().toISOString().split("T")[0]}
+                  dir={isRTL ? "rtl" : "ltr"}
+                  style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="notes">Clinical Notes</Label>
+              <div className="space-y-2" dir={isRTL ? "rtl" : "ltr"} style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}>
+                <Label htmlFor="notes">{t("Clinical Notes")}</Label>
                 <Textarea
                   id="notes"
                   value={formData.notes}
                   onChange={(e) => handleChange("notes", e.target.value)}
-                  placeholder="Additional clinical notes, warnings, or special instructions..."
+                  placeholder={t("Additional clinical notes, warnings, or special instructions...")}
                   rows={3}
+                  dir={isRTL ? "rtl" : "ltr"}
+                  style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}
                 />
               </div>
 
               {/* Warning for drug interactions */}
-              <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <div className="flex items-start space-x-2">
+              <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg" dir={isRTL ? "rtl" : "ltr"}>
+                <div className="flex items-start gap-2">
                   <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5" />
-                  <div>
+                  <div dir={isRTL ? "rtl" : "ltr"} style={isRTL ? { textAlign: 'right' } : { textAlign: 'left' }}>
                     <h4 className="font-medium text-yellow-800">
-                      Drug Interaction Check
+                      {t("Drug Interaction Check")}
                     </h4>
                     <p className="text-sm text-yellow-700 mt-1">
-                      Please verify drug interactions and patient allergies
-                      before finalizing changes to this prescription.
+                      {isRTL
+                        ? "يرجى التحقق من التفاعلات الدوائية وحساسية المريض قبل إنهاء التغييرات على هذه الوصفة."
+                        : t("Please verify drug interactions and patient allergies before finalizing changes to this prescription.")}
                     </p>
                   </div>
                 </div>
@@ -460,25 +505,33 @@ const EditPrescriptionModal: React.FC<EditPrescriptionModalProps> = ({
           </Card>
 
           {/* Action Buttons */}
-          <div className="flex justify-end space-x-4 pt-4">
+          <div
+            className={cn("flex pt-4", isRTL ? "justify-start space-x-reverse space-x-4" : "justify-end space-x-4")}
+            dir={isRTL ? "rtl" : "ltr"}
+          >
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
+              dir={isRTL ? "rtl" : "ltr"}
             >
-              Cancel
+              {t("Cancel")}
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              dir={isRTL ? "rtl" : "ltr"}
+            >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Updating Prescription...
+                  <Loader2 className={cn("h-4 w-4 animate-spin", isRTL ? "ml-2" : "mr-2")} />
+                  {isRTL ? "جاري تحديث الوصفة..." : t("Updating Prescription...")}
                 </>
               ) : (
                 <>
-                  <Save className="h-4 w-4 mr-2" />
-                  Update Prescription
+                  <Save className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
+                  {isRTL ? "تحديث الوصفة" : t("Update Prescription")}
                 </>
               )}
             </Button>
